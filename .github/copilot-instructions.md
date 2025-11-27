@@ -1,4 +1,4 @@
-# Copilot Instructions for gighub
+# Copilot Instructions
 
 This file provides repository-level context and instructions for GitHub Copilot when working in this codebase.
 
