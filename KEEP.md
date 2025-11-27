@@ -424,4 +424,210 @@
 
 ---
 
-**最後更新**：2025-01-20
+---
+
+## 🔐 Security（資安）全面策略 ← 高
+
+| 中文 | English | 說明 |
+|------|---------|------|
+| 秘密管理與輪換 | Secret Management & Rotation | 使用集中式金鑰管理（如 Vault / AWS Secrets Manager），定期輪換、存取稽核與最小權限存取 |
+| 軟體組件分析 (SCA) | Software Composition Analysis (SCA) | 定期掃描相依性漏洞、使用 SBOM、建立升級與否決策略 |
+| 靜態/動態安全測試 | SAST / DAST | 將 SAST 集成在 PR 檢查，DAST 在 staging 執行，回歸測試列入 CI 流程 |
+| 威脅建模 | Threat Modeling | 定期對關鍵服務/邊界執行威脅建模並記錄風險與緩解措施 |
+| 事件應變與稽核 | Incident Response & Audit | 建立事件分級、通報流程、回溯稽核機制與演練頻率 |
+| 最小權限與 RBAC | Least Privilege & RBAC | 服務/資料庫/存取皆採最小權限與角色化存取控制 |
+
+---
+
+## 📈 Observability / SRE（可觀察性） ← 中
+
+| 中文 | English | 說明 |
+|------|---------|------|
+| 指標 / Metrices | Metrics | 定義關鍵 SLI/SLO（例如 API 延遲、錯誤率、可用性）並設定收集與保存策略 |
+| 分佈式追蹤 | Distributed Tracing | 使用 OpenTelemetry / Jaeger 追蹤跨服務呼叫，定義 trace 標準與採樣策略 |
+| 日誌格式與保存 | Log Format & Retention | 統一結構化日誌（JSON）、定義保留週期與存取權限 |
+| 告警策略 | Alerting Strategy | 根據 SLO 設定告警分級、抑制與回復流程 |
+| SLA / SLI 定義 | SLA / SLI | 定義對外 SLA（若有），內部 SLI 作為效能可靠性衡量指標 |
+
+---
+
+## ⚡ Performance & Scalability（效能與可擴展性） ← 中
+
+| 中文 | English | 說明 |
+|------|---------|------|
+| 性能目標 | Performance Targets | 定義延遲、吞吐、資源使用等目標與衡量方法 |
+| 效能測試流程 | Performance Testing | 建立負載/壓力/效能測試流程與自動化腳本（CI 時段化執行） |
+| 快取策略 | Caching Strategy | 定義快取層（CDN / Redis）、失效策略與一致性保證 |
+| 容量規劃 | Capacity Planning | 預估流量、設定 auto-scaling 規則與成本/效能平衡指標 |
+
+---
+
+## 🔗 API 與 Contract 管理 ← 中
+
+| 中文 | English | 說明 |
+|------|---------|------|
+| OpenAPI 規格 | OpenAPI Specification | 所有 HTTP API 提供 OpenAPI 規格並納入版本控制 |
+| 版本策略 | Versioning Strategy | 明確的版本號與向後相容策略（minor vs major 的變化規則） |
+| 契約測試 | Contract Testing | 使用契約測試（如 Pact）驗證前後端/服務契約的一致性 |
+| 向後相容政策 | Backwards Compatibility Policy | 小幅改動保持向後相容，破壞性變更需公告與遷移計畫 |
+
+---
+
+## 🔒 Compliance / 隱私與資料治理 ← 中
+
+| 中文 | English | 說明 |
+|------|---------|------|
+| 隱私政策 | Privacy Policy | 定義 PII 類別、處理目的與使用者權利 |
+| PII 處理 | PII Handling | 分級保護、最小蒐集、加密與匿名化策略 |
+| 法規遵循 | Regulatory Compliance | 列出適用法規（如 GDPR）與對應執行要點 |
+| 資料保留政策 | Data Retention Policy | 定義不同資料類型的保存期限與刪除流程 |
+
+---
+
+## 🧑‍💻 開發者體驗（DX）與上手文件 ← 中
+
+| 中文 | English | 說明 |
+|------|---------|------|
+| Local 開發流程 | Local Dev Setup | 提供一鍵啟動、環境變數範例與常見問題（README / scripts） |
+| 環境啟動步驟 | Environment Startup Steps | 明確列出開發 / staging / production 啟動步驟與檢查清單 |
+| 貢獻指南 | Contribution Guide | PR 流程、程式碼審查標準、commit message 規範 |
+| 程式碼審查守則 | Code Review Guidelines | 審查重點清單（可讀性、測試、安安/效能/安全檢查） |
+
+---
+
+## 🔧 Angular 企業級技術實踐
+
+### RxJS 訂閱管理與記憶體洩漏預防
+
+| 中文 | English | 說明 |
+|------|---------|------|
+| RxJS 訂閱生命週期管理 | RxJS Subscription Lifecycle Management | 管理 Observable 訂閱的完整生命週期 |
+| 記憶體洩漏預防 | Memory Leak Prevention | 防止未取消訂閱導致的記憶體洩漏 |
+| takeUntil 模式 | takeUntil Pattern | 使用 takeUntil 操作符自動取消訂閱的標準模式 |
+| takeUntilDestroyed (Angular 16+) | takeUntilDestroyed Operator | Angular 16+ 提供的自動取消訂閱操作符 |
+| DestroyRef (Angular 16+) | DestroyRef Service | Angular 16+ 的銷毀參考服務 |
+| async pipe 優先原則 | Async Pipe First Principle | 優先使用 async pipe 避免手動訂閱 |
+| 訂閱洩漏檢測 | Subscription Leak Detection | 檢測未正確取消的訂閱 |
+| Zombie 訂閱 | Zombie Subscriptions | 看似完成但仍會意外發送事件的訂閱 |
+| 禁止在 ngOnInit 中裸訂閱 | No Naked Subscriptions in ngOnInit | ngOnInit 中的訂閱必須有取消機制 |
+| 服務層訂閱管理 | Service Layer Subscription Management | providedIn: 'root' 服務中的訂閱管理規範 |
+| Subject 完成機制 | Subject Completion Pattern | 使用 Subject.complete() 釋放資源 |
+
+### 效能優化與變更檢測
+
+| 中文 | English | 說明 |
+|------|---------|------|
+| OnPush 變更檢測策略 | OnPush Change Detection Strategy | 使用 OnPush 減少變更檢測次數 |
+| trackBy 函數必須使用 | trackBy Function Required for ngFor | ngFor 必須使用 trackBy 避免不必要的重繪 |
+| 純管道優先 | Pure Pipes First | 優先使用純管道以利用快取機制 |
+| 避免範本中的函數呼叫 | Avoid Function Calls in Templates | 範本中避免函數呼叫，會在每次變更檢測時執行 |
+| 計算屬性快取 | Computed Property Caching | 快取計算結果避免重複運算 |
+| Virtual Scrolling | Virtual Scrolling | 大量資料列表使用虛擬滾動 |
+| 圖片懶載入 | Image Lazy Loading | 圖片延遲載入以提升初始載入速度 |
+| Zone Pollution 防範 | Zone Pollution Prevention | 避免不必要的 Zone 觸發 |
+| runOutsideAngular | runOutsideAngular | 在 Angular Zone 外執行高頻操作 |
+
+### Bundle 大小優化
+
+| 中文 | English | 說明 |
+|------|---------|------|
+| Tree Shaking 優化 | Tree Shaking Optimization | 移除未使用的程式碼 |
+| 動態導入 | Dynamic Imports | 使用動態導入分割程式碼 |
+| 第三方套件審查 | Third-party Package Audit | 定期審查第三方套件大小與必要性 |
+| Webpack Bundle Analyzer | Webpack Bundle Analyzer | 分析 bundle 組成找出優化空間 |
+| 死程式碼偵測 | Dead Code Detection | 偵測並移除未使用的程式碼 |
+| 禁止循環依賴 | No Circular Dependencies | 循環依賴導致 bundle 膨脹 |
+| moment.js 替代方案 | Replace moment.js | 使用輕量級替代方案如 date-fns |
+
+### 型別安全與編譯時檢查
+
+| 中文 | English | 說明 |
+|------|---------|------|
+| 嚴格模式啟用 | Strict Mode Enabled | tsconfig.json 啟用 strict: true |
+| 禁用 any 類型 | No Implicit Any | 禁止使用 any，使用 unknown 替代 |
+| 型別守衛 | Type Guards | 使用型別守衛確保執行時型別安全 |
+| 泛型約束 | Generic Constraints | 為泛型添加適當約束 |
+| 非空斷言審查 | Non-null Assertion Review | 審慎使用非空斷言操作符 (!) |
+| 列舉 vs 聯合型別 | Enums vs Union Types | 優先使用聯合型別而非列舉 |
+| as const 斷言 | as const Assertion | 使用 as const 獲得更精確的型別推斷 |
+
+### 測試覆蓋率與品質
+
+| 中文 | English | 說明 |
+|------|---------|------|
+| 單元測試覆蓋率門檻 | Unit Test Coverage Threshold | 設定最低測試覆蓋率要求（如 80%） |
+| 整合測試策略 | Integration Test Strategy | 關鍵業務流程的整合測試 |
+| E2E 測試 | End-to-End Testing | 使用 Playwright/Cypress 進行 E2E 測試 |
+| 測試金字塔 | Test Pyramid | 遵循測試金字塔原則分配測試資源 |
+| Mock 策略 | Mocking Strategy | 統一的 Mock 資料與服務策略 |
+| 測試隔離 | Test Isolation | 確保測試間相互獨立 |
+| 快照測試 | Snapshot Testing | 使用快照測試防止非預期的 UI 變更 |
+
+### 前端安全性最佳實踐
+
+| 中文 | English | 說明 |
+|------|---------|------|
+| XSS 防護 | XSS Protection | 跨站腳本攻擊防護 |
+| CSRF 防護 | CSRF Protection | 跨站請求偽造防護 |
+| 內容安全策略 | Content Security Policy (CSP) | 設定 CSP 標頭限制資源載入 |
+| 敏感資料不可存於前端 | No Sensitive Data in Frontend | 敏感資料不可存在前端程式碼或 localStorage |
+| JWT 安全管理 | JWT Secure Management | JWT token 的安全儲存與傳輸 |
+| 輸入驗證與淨化 | Input Validation and Sanitization | 所有使用者輸入必須驗證與淨化 |
+| 依賴套件漏洞掃描 | Dependency Vulnerability Scanning | 定期掃描依賴套件漏洞（npm audit） |
+
+### 程式碼品質自動化檢查
+
+| 中文 | English | 說明 |
+|------|---------|------|
+| 程式碼複雜度檢查 | Code Complexity Check | 檢查圈複雜度，限制函數複雜度 |
+| 技術債務標記 | Technical Debt Tagging | 使用統一標記（如 // TECH_DEBT:） |
+| 重複程式碼檢測 | Duplicate Code Detection | 偵測並消除重複程式碼 |
+| SonarQube 整合 | SonarQube Integration | 整合 SonarQube 進行程式碼品質分析 |
+| 認知複雜度限制 | Cognitive Complexity Limit | 限制函數的認知複雜度 |
+| 程式碼審查檢查清單 | Code Review Checklist | 標準化的程式碼審查檢查清單 |
+| Pre-commit Hooks | Pre-commit Hooks | 提交前自動執行檢查（lint、test、format） |
+
+### 文件與知識管理
+
+| 中文 | English | 說明 |
+|------|---------|------|
+| ADR (架構決策記錄) | Architecture Decision Records | 記錄重要架構決策及其背景 |
+| API 文件自動生成 | API Documentation Auto-generation | 使用 Compodoc 自動生成 API 文件 |
+| 變更日誌 | Changelog | 維護結構化的變更日誌（CHANGELOG.md） |
+| 故障排除指南 | Troubleshooting Guide | 常見問題的故障排除文件 |
+| 新人入職指南 | Onboarding Guide | 新成員快速上手的完整指南 |
+| 程式碼註解規範 | Code Comment Guidelines | 何時需要註解，何時應重構 |
+
+### CI/CD 與 DevOps
+
+| 中文 | English | 說明 |
+|------|---------|------|
+| 自動化建置流程 | Automated Build Pipeline | 完整的自動化建置與測試流程 |
+| 品質門檻 | Quality Gates | 設定必須通過的品質門檻 |
+| 自動化部署 | Automated Deployment | 自動化部署流程避免人為錯誤 |
+| 回滾機制 | Rollback Mechanism | 快速回滾到前一版本的機制 |
+| 環境一致性 | Environment Consistency | 確保開發、測試、生產環境一致 |
+| 建置快取策略 | Build Cache Strategy | 優化建置時間的快取策略 |
+
+### 前端監控與可觀察性
+
+| 中文 | English | 說明 |
+|------|---------|------|
+| 錯誤追蹤 | Error Tracking | 使用 Sentry 等工具追蹤生產環境錯誤 |
+| 效能監控 | Performance Monitoring | 監控應用效能指標（FCP, LCP, CLS） |
+| 使用者行為分析 | User Behavior Analytics | 分析使用者使用模式 |
+| 日誌等級管理 | Log Level Management | 不同環境使用不同日誌等級 |
+| Source Map 管理 | Source Map Management | 生產環境 Source Map 的安全管理 |
+
+---
+
+## 🗺️ 架構圖與資料模型（ER 圖） ← 低
+
+| 中文 | English | 說明 |
+|------|---------|------|
+| ER 圖 / 資料模型 | ER Diagram / Data Model | 提供主要資料表與關係的 ER 圖，包含關鍵欄位註記 |
+| 系統架構圖 | System Architecture Diagram | 放置高階系統元件圖（服務邊界、外部依賴、資料流） |
+| 邊界說明 | Boundary Definitions | 說明功能模組/服務邊界、責任範圍與通訊協定 |
+
+
+**最後更新**：2025-11-27
