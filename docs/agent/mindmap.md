@@ -1,3 +1,70 @@
+---
+title: Agent Mindmap
+status: draft
+created: 2025-11-27
+---
+
+# Agent / Copilot Mindmap（思維導圖骨架）
+
+目的
+-
+建立一個針對專案內 AI Agent（Copilot、prompt、blueprint）設計與運作的思維導圖骨架，供團隊規劃 agent 能力範圍、prompt 分類、blueprint 管理與工作流程整合。
+
+主要節點（Top-level Nodes）
+-
+1. Agent 角色與職責
+   - prompt-builder: 生成/管理 prompts
+   - blueprint-generator: 產生指令藍圖（blueprints）
+   - code-review.agent: 自動化程式碼審查輔助
+   - prd-assistant: 協助撰寫 PRD 與需求澄清
+2. Prompt 分類
+   - scaffolding prompts（骨架產生）
+   - transformation prompts（格式轉換、重構）
+   - review prompts（安全、性能、可讀性檢查）
+   - test-generation prompts（單元/整合/E2E 測試生成）
+3. Blueprints 與 模板管理
+   - 儲存位置：`.github/copilot/blueprints/`
+   - 欄位規範：id, title, applyTo, description, intent, template, examples, quality
+   - 版本管理與覆寫策略
+4. 工作流程（Workflows）
+   - prompt -> generate -> review -> apply (PR)
+   - CI 驗證：lint / tests / blueprint schema validation
+5. 監督與指標（Observability）
+   - 成果質量：acceptance pass rate、manual review feedback
+   - 使用頻率：prompt / blueprint 的呼叫次數
+6. 安全與合規
+   - 檔案存取規則、敏感資訊過濾、審計紀錄
+
+示意（ASCII-style mindmap 快覽）
+
+```
+Agent Mindmap
+├─ Roles
+│  ├─ prompt-builder
+│  ├─ blueprint-generator
+│  └─ code-review.agent
+├─ Prompts
+│  ├─ scaffolding
+│  ├─ transformation
+│  └─ review
+├─ Blueprints
+│  ├─ location: .github/copilot/blueprints
+│  └─ schema: id/title/applyTo/...
+├─ Workflows
+│  └─ prompt -> generate -> review -> PR
+└─ Observability
+   └─ metrics, feedback loop
+```
+
+下一步（Next Actions）
+-
+1. 把 mindmap 轉為圖形（使用 draw.io 或 Mermaid）並放入 `docs/agent/assets/`。
+2. 針對每個 agent 角色列出具體的 capabilities 與 acceptance criteria。
+3. 建立 blueprint 與 prompt 的驗證 pipeline（CI step）。
+
+註記
+-
+- 這是初始骨架，建議以 iterative 方式補充細節並針對每項 node 拆解成可執行任務。
 # 🧠 AI Agent 思維導圖
 
 > **目的**: 提供 AI Agent 決策思維流程，確保開發一致性和程式碼品質

@@ -1,3 +1,80 @@
+---
+title: 系統架構總覽 (System Architecture)
+status: draft
+created: 2025-11-27
+---
+
+# 系統架構總覽
+
+摘要（Summary）
+-
+本文件提供 GigHub 平台的系統架構骨架，涵蓋整體系統邊界、主要子系統、資料流、整合點（Supabase、Auth、第三方服務）、以及部署與非功能性需求（可用性、可伸縮性、安全性）。
+
+系統脈絡（System Context）
+-
+- 使用者端（Web、Mobile）
+- 前端：Angular 20 + ng-alain（SPA），使用 Signals 與 OnPush 優化
+- 後端：Supabase（Postgres + Realtime + Auth + Storage）
+- 第三方：CDN、郵件服務、影像處理服務
+
+主要子系統（High-level Components）
+-
+1. 前端應用（Angular App）
+   - UI、路由、狀態管理（Signals）
+   - 上傳、離線緩存（未來）、驗收表單
+2. API 層 / Backend（Supabase）
+   - 認證（Auth）、資料庫（Postgres）、Storage（影像）、Realtime（訂閱）
+   - Row Level Security（RLS）策略管理
+3. 業務服務層（Repository / Services）
+   - 封裝 Supabase 呼叫、處理驗證／授權、重試與錯誤處理
+4. 管理平台 / 後台
+   - 使用者管理、權限設定、遷移、備份管理
+
+資料流概要（Data Flow）
+-
+1. 使用者在前端建立日誌 → 前端呼叫 Repository → Supabase Insert
+2. 照片上傳：前端上傳至 Supabase Storage → 儲存檔案 metadata 至資料表
+3. 審核流程：狀態變更觸發通知（Realtime）→ 指派審核者接收通知
+
+整合點（Integrations）
+-
+- Supabase: Auth, Postgres, Storage, Realtime
+- CDN: 靜態資產與影像快取
+- 圖像優化服務（選用）: 影像壓縮與裁切
+- Observability: Prometheus / Grafana 或第三方（Sentry）
+
+部署與運維（Deployment & Ops）
+-
+- 前端：CDN + 靜態託管（Vercel / Netlify / S3 + CloudFront）
+- 後端：Supabase Managed 或自管 Postgres（視需求）
+- CI/CD：GitHub Actions 自動化：build→test→deploy
+
+安全性考量（Security）
+-
+- 使用 RLS 與最小權限原則（Least Privilege）
+- 所有外部流量採 HTTPS
+- 禁止在 repo 中放置任何憑證；CI 使用密鑰管理（Secrets）
+
+非功能性需求（NFRs）
+-
+- 可用性：99.9%（依服務等級協議）
+- 延遲：API 平均響應 < 300ms（目標）
+- 可伸縮性：水平擴展前端 CDN 與後端讀取副本
+
+開放決策（Open Decisions）
+-
+- 是否採用 Supabase Managed 或自管 Postgres？
+- 影像處理是否外包給第三方服務（成本 vs. 控制）？
+
+下一步（Next Steps）
+-
+1. 繪製 System Context Diagram（圖檔存放於 `docs/architecture/assets/`）
+2. 詳細列出每個 `api` 的 contract（OpenAPI / SQL schema）
+3. 訂定 Observability 與 SLO 指標
+
+註記
+-
+- 本文件為起始架構草案，請以 iterative 方式補齊每個區塊的細節，並在 PR 中補上圖表與範例。 
 # 📐 企業級施工進度追蹤管理系統 - 完整架構設計圖
 
 

@@ -1,3 +1,86 @@
+---
+title: 施工現場管理（Construction Site Management）
+status: draft
+created: 2025-11-27
+---
+
+# 施工現場管理 — 產品需求概要 (PRD)
+
+目的
+-
+本文件為 GigHub 工地施工進度追蹤系統（Construction Site Management）的產品需求說明（PRD）骨架，目標是逐步把商業需求、使用者故事、驗收標準與發展里程碑整理成可執行的開發任務。
+
+背景與動機
+-
+- 工地管理涉及多方角色（工地主任、施工人員、品管、監工、業主等），需要即時的進度、照片、簽核與驗收流程。
+- 本系統以 Supabase 作為後端、Angular/ng-alain 作為前端，目標提供可擴充、可審計的施工流程平台。
+
+目標
+-
+- 提供日誌化的施工紀錄（施工日誌）與照片上傳。
+- 支援任務/子任務與里程碑管理。
+- 提供驗收清單與品質檢核流程（Checklists）。
+- 支援權限與審核流程（多階段簽核）。
+
+範圍（Scope）
+-
+- 首階段（MVP）範圍：
+  - 建立/編輯/瀏覽施工日誌
+  - 相片上傳與基本標記
+  - 任務狀態（待處理、進行中、審核中、完成）
+  - 基本使用者角色（Admin/PM/Worker/QA）與 RLS 保護
+- 非包含：
+  - 進階排程優化（Gantt、Critical Path）
+  - 離線同步與衝突解決（預留後續擴充）
+
+目標使用者與人物誌（Personas）
+-
+- 工地主任（Site Director）：記錄日常進度、簽核日誌
+- 施工人員（Worker）：上傳現場照片、回報工時
+- 品管（QA Staff）：填寫檢查清單、標註缺失
+- 業主/觀察者（Observer）：查看已核准的日誌與驗收記錄
+
+高階需求（High-level Requirements）
+-
+1. 使用者能建立每日施工日誌，包含文字描述、工時、施工人數、天氣與多張相片。
+2. 照片支援標註（簡單的說明文字）並儲存 metadata（拍攝時間、上傳者）。
+3. 任務必須支援狀態流轉與審核，並記錄審核歷史（audit trail）。
+4. 系統應遵守 Row Level Security（RLS）原則，確保資料隔離與最小權限。
+
+驗收標準（Acceptance Criteria）
+-
+- 範例：建立施工日誌
+  - GIVEN 已登入的工地主任
+  - WHEN 新增日誌並上傳至少一張照片
+  - THEN 日誌儲存成功，照片可在日誌頁面檢視並顯示 metadata
+
+非功能性需求（NFRs）
+-
+- 可用性：系統 UI 在行動裝置上可用且主要流程 < 3 次點擊完成
+- 安全性：使用 Supabase Auth + RLS，敏感資料加密傳輸
+- 可維護性：使用 Angular Signals、Repository 模式管理資料存取
+
+里程碑與迭代計畫
+-
+- Iteration 1 (MVP, 2 weeks): 日誌 CRUD、照片上傳、基本角色
+- Iteration 2 (2 weeks): 檢查清單、審核流程、RLS 深入測試
+- Iteration 3 (2–4 weeks): 報表、匯出、照片標註強化
+
+風險與假設
+-
+- 假設：使用者有行動網路連線；相片大小與上傳頻率受限於前端與 Supabase 儲存策略。
+- 風險：影像儲存成本、離線情況下資料一致性問題。
+
+後續步驟（Next Steps / Roadmap）
+-
+1. 與產品與使用者代表召開需求確認會議，補強使用案例與邊界條件。
+2. 將高階需求拆解成具體 Jira / GitHub Issue。
+3. 撰寫 API Contract（OpenAPI / Supabase schema）並建立 migration plan。
+4. 設計 E2E 測試範例（Playwright）與 Accessibility checklist。
+
+註記
+-
+- 此文件為骨架（living document），會隨需求討論與設計調整持續更新。請在每次 sprint planning 後更新本文件的進度區塊。
 # PRD: 工地施工進度追蹤管理系統
 
 ## 1. 產品概述
