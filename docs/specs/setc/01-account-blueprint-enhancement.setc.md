@@ -1,3 +1,12 @@
+# ---
+title: 第零階段：帳戶與藍圖強化
+status: draft
+created: 2025-11-27
+owners: []
+progress: 0
+due: null
+---
+
 # 第零階段：帳戶與藍圖強化
 
 > **Phase 0: Account & Blueprint Enhancement**

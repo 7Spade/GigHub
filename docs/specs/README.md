@@ -1,3 +1,12 @@
+---
+title: 技術規範標準
+status: draft
+created: 2025-11-27
+owners: []
+progress: 0
+due: null
+---
+
 # 📐 技術規範標準
 
 > **目的**: 定義專案的技術規範與編碼標準，確保程式碼品質一致性
@@ -184,6 +193,18 @@ describe('TaskStore', () => {
 ```
 
 詳見 [測試標準](./testing-standards.md)
+
+**完成判準（Definition of Done）**
+
+- `status` 欄位更新為 `done` 並由技術負責人或 reviewer 核准。
+- 規範中列出的文件已具備對應連結，且至少主要規範（架構、API、測試、安全）都有實作或範例。
+
+**Acceptance Checklist 範本（Specs）**
+
+- [ ] 主要規範已審查且連結正常
+- [ ] 關鍵範例/模板可被開發者直接複製使用
+- [ ] 已定義負責維護的 owner
+
 
 ---
 

@@ -1,3 +1,12 @@
+---
+title: 第 1.5 階段：檔案系統
+status: draft
+created: 2025-11-27
+owners: []
+progress: 0
+due: null
+---
+
 # 第 1.5 階段：檔案系統
 
 > **Phase 1.5: File System**

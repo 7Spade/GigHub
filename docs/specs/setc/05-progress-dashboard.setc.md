@@ -1,3 +1,13 @@
+# ---
+# title: 第三階段：進度儀表板
+# status: draft
+# created: 2025-11-27
+# owners: []
+# progress: 0
+# due: null
+# ---
+
+# 第三階段：進度儀表板
 # 第三階段：進度追蹤儀表板
 
 > **Phase 3: Progress Tracking Dashboard**

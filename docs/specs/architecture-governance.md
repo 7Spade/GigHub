@@ -1,3 +1,12 @@
+---
+title: 架構治理規範
+status: draft
+created: 2025-11-27
+owners: []
+progress: 0
+due: null
+---
+
 # 架構治理規範
 
 > **目的**: 定義 ng-alain-gighub 專案的架構治理規範，確保開發團隊遵循統一標準
@@ -99,6 +108,20 @@ export class TaskCardComponent {
   task = input.required<Task>();
   onEdit = output<Task>();
 }
+
+
+  **完成判準（Definition of Done）**
+
+  - `status` 更新為 `done` 並由架構負責人或 reviewer 核准。
+  - 重要架構決策（Decision Records）已建立或連結於本文件。
+  - 與實作團隊確認可執行性，且有至少一個範例或代碼片段驗證原則。
+
+  **Acceptance Checklist 範本（Architecture）**
+
+  - [ ] System Context Diagram 已完成並審查
+  - [ ] Component Diagram 與資料流已詳細列出
+  - [ ] Integration points 與契約（Auth/Storage/API）已確認
+  - [ ] NFR 指標與驗證方法已列出（可用性、延遲、可擴展）
 
 // ❌ 錯誤 - 包含業務邏輯
 @Component({...})

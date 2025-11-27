@@ -1,3 +1,12 @@
+# ---
+title: 第二階段：日誌系統
+status: draft
+created: 2025-11-27
+owners: []
+progress: 0
+due: null
+---
+
 # 第二階段：日誌系統
 
 > **Phase 2: Diary System**

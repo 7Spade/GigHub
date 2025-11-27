@@ -1,3 +1,12 @@
+---
+title: API 標準規範
+status: draft
+created: 2025-11-27
+owners: []
+progress: 0
+due: null
+---
+
 # API 標準規範
 
 > **目的**: 定義專案 RESTful API 的設計標準與規範
@@ -280,3 +289,16 @@ Link: </api/v2/tasks>; rel="successor-version"
 
 **最後更新**: 2025-11-27  
 **維護者**: 開發團隊
+
+**完成判準（Definition of Done）**
+
+- `status` 欄位更新為 `done` 並由負責人核准。
+- Acceptance Checklist 中所有項目皆已通過，且有相對應的驗證證據（PR、測試、截圖）。
+
+**Acceptance Checklist 範本（請複製到每個 Issue 或 PR）**
+
+- [ ] 規範內容已由架構與後端團隊審查
+- [ ] API 範例有對應測試或範例實作（至少一個）
+- [ ] 與現有 API 相容性檢查（或標示 breaking changes）
+- [ ] 文件內外部連結有效（例如 data-model / guides）
+
