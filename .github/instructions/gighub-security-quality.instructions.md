@@ -57,10 +57,23 @@ applyTo: '**'
 // ❌ 禁止：直接使用 innerHTML
 element.innerHTML = userInput;
 
-// ✅ 正確：使用 Angular 的安全機制
-@Component({ template: `<div [innerHTML]="sanitizedContent"></div>` })
+// ✅ 正確：使用 Angular 的內建綁定（自動清理）
+@Component({ template: `<div [textContent]="userContent"></div>` })
 class MyComponent {
-  sanitizedContent = this.sanitizer.bypassSecurityTrustHtml(content);
+  userContent = userInput; // Angular 自動轉義
+}
+
+// ⚠️ 需要 HTML 渲染時，使用 DomSanitizer.sanitize()
+// 注意：bypassSecurityTrustHtml() 會繞過安全檢查，僅用於已確認安全的內容
+@Component({ template: `<div [innerHTML]="trustedHtml"></div>` })
+class MyComponent {
+  private readonly sanitizer = inject(DomSanitizer);
+
+  // 使用 sanitize() 清理不信任的內容
+  sanitizedContent = this.sanitizer.sanitize(SecurityContext.HTML, untrustedContent);
+
+  // bypassSecurityTrustHtml 僅用於已確認安全的靜態內容
+  trustedHtml = this.sanitizer.bypassSecurityTrustHtml(knownSafeHtml);
 }
 ```
 

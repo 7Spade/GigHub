@@ -1,5 +1,5 @@
 ---
-description: 'GigHub Angular 20 開發實踐指南，涵蓋 Standalone Components、Signals 狀態管理、新控制流語法等現代化開發規範'
+description: 'GigHub 專案專屬 Angular 20 開發規範（與通用 angular.instructions.md 互補），涵蓋本專案的 ng-alain、Signals 狀態管理、新控制流語法等特定實踐'
 applyTo: '**/*.ts, **/*.html, **/*.less, **/*.css'
 ---
 
@@ -110,29 +110,29 @@ constructor(private store: TaskStore) {}
 export class TaskStore {
   private readonly repository = inject(TaskRepository);
 
-  // 私有狀態
+  // Private state
   private readonly _tasks = signal<Task[]>([]);
   private readonly _loading = signal(false);
   private readonly _error = signal<string | null>(null);
 
-  // 公開唯讀狀態
+  // Public readonly state
   readonly tasks = this._tasks.asReadonly();
   readonly loading = this._loading.asReadonly();
   readonly error = this._error.asReadonly();
 
-  // 計算屬性
+  // Computed properties
   readonly pendingTasks = computed(() =>
     this._tasks().filter(t => t.status === 'pending')
   );
 
-  // 更新方式
+  // Update method
   async createTask(data: CreateTaskDto): Promise<Task | null> {
     const task = await this.repository.create(data);
-    this._tasks.update(tasks => [...tasks, task]); // ✅ 使用 update
+    this._tasks.update(tasks => [...tasks, task]); // ✅ Use update
     return task;
   }
 
-  // 重置狀態
+  // Reset state
   reset(): void {
     this._tasks.set([]);
     this._loading.set(false);
