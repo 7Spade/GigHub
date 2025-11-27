@@ -11,9 +11,10 @@
 1. **[Phase 1] 基礎架構與設計原則** - 專案啟動前的架構設計與理念
 2. **[Phase 2] 開發規範與架構標準** - 建立開發標準與規範
 3. **[Phase 3] 技術基礎與實踐** - 技術實現的基礎建設
-4. **[Phase 4] 核心業務功能** - 業務邏輯與功能開發
-5. **[Phase 5] 品質保證與安全** - 品質控制與安全防護
-6. **[Phase 6] 運維、監控與優化** - 生產環境的持續改進
+4. **[Phase 3.5] Angular 20 現代化實踐** - Angular 20 新特性與現代化開發實踐
+5. **[Phase 4] 核心業務功能** - 業務邏輯與功能開發
+6. **[Phase 5] 品質保證與安全** - 品質控制與安全防護
+7. **[Phase 6] 運維、監控與優化** - 生產環境的持續改進
 
 ---
 
@@ -92,6 +93,16 @@
 | Shared 不可包含商業邏輯 | Shared must not contain business logic | 共用模組只包含通用功能，不含業務邏輯 |
 | Supabase Client 只能在 Repository | Supabase Client allowed only in Repository | Supabase 客戶端僅在儲存庫層使用 |
 
+### Standalone Components 架構
+
+| 中文 | English | 說明 |
+|------|---------|------|
+| Standalone Components | Standalone Components | Angular 20 預設使用 Standalone 元件 |
+| 廢除 NgModules | NgModules Deprecation | 不再使用 NgModules，改用 provide* API |
+| bootstrapApplication | bootstrapApplication | 使用 bootstrapApplication 啟動應用程式 |
+| provide* APIs | provide* APIs | provideHttpClient, provideRouter 等設定 API |
+| Standalone 優先 | Standalone First | 從專案啟動就採用 Standalone 架構 |
+
 ---
 
 ## 🏗️ 系統架構層級
@@ -152,6 +163,22 @@
 | 事件驅動資料流 | Event-driven data flow | 使用事件驅動方式管理資料流動 |
 | 狀態層 | Store Layer | 使用 Angular Signals 管理狀態的層級 |
 | 服務層處理業務流程 | Services handle workflow, not UI | 服務層專注業務流程，不處理 UI 邏輯 |
+
+### Angular Signals 最佳實踐
+
+| 中文 | English | 說明 |
+|------|---------|------|
+| Signals 基礎 | Signals Fundamentals | Angular 20 的核心反應式原語 |
+| WritableSignal | WritableSignal | 可寫入的 Signal 型別 |
+| Computed Signals | Computed Signals | 衍生的唯讀 Signal，自動追蹤依賴 |
+| Signal 純函數原則 | Signal Pure Function Principle | computed() 必須是純函數，不可有副作用 |
+| Effect 謹慎使用 | Use Effect Sparingly | effect() 應盡量少用，優先使用聲明式 computed |
+| Signal 可變性 | Signal Mutability | 物件/陣列類型 Signal 的正確更新方式（使用 spread operator） |
+| Signal vs Observable | Signal vs Observable | Signal 用於同步反應式，Observable 用於非同步與時間序列 |
+| toSignal / toObservable | toSignal / toObservable | Signal 與 Observable 之間的轉換工具 |
+| Signal 參考變更問題 | Signal Reference Change Issue | 參考變更導致不必要的變更檢測 |
+| Signal 相等性檢查 | Signal Equality Check | 自訂相等性函數（極少使用） |
+| 單一真相來源 | Single Source of Truth | 使用 Signal 儲存實際值，computed 衍生值 |
 
 ---
 
@@ -252,6 +279,11 @@
 | 圖片懶載入 | Image Lazy Loading | 圖片延遲載入以提升初始載入速度 |
 | Zone Pollution 防範 | Zone Pollution Prevention | 避免不必要的 Zone 觸發 |
 | runOutsideAngular | runOutsideAngular | 在 Angular Zone 外執行高頻操作 |
+| ESBuild 編譯器 | ESBuild Compiler | Angular 20 使用 ESBuild 提升建置速度 |
+| Hydration 優化 | Hydration Optimization | SSR 的水合優化，加速伺服器到客戶端切換 |
+| 自動預取 | Automatic Prefetching | 自動預取懶載入路由 |
+| 圖片最佳化指令 | NgOptimizedImage Directive | Angular 提供的圖片最佳化指令 |
+| Preload Strategies | Preload Strategies | 預載策略設定（PreloadAllModules 等） |
 
 ### Bundle 大小優化
 
@@ -288,6 +320,11 @@
 | Mock 策略 | Mocking Strategy | 統一的 Mock 資料與服務策略 |
 | 測試隔離 | Test Isolation | 確保測試間相互獨立 |
 | 快照測試 | Snapshot Testing | 使用快照測試防止非預期的 UI 變更 |
+| Signal 測試 | Signal Testing | 測試 Signal 的特殊方式 |
+| TestBed 配置 | TestBed Configuration | TestBed 的標準配置模式 |
+| Mock 服務注入 | Mock Service Injection | 使用 provide 注入 Mock 服務 |
+| Component Harness | Component Harness | Angular CDK 的元件測試工具 |
+| Fixture 管理 | Fixture Management | ComponentFixture 的正確使用 |
 
 ---
 
@@ -327,6 +364,35 @@
 | 環境啟動步驟 | Environment Startup Steps | 明確列出開發 / staging / production 啟動步驟與檢查清單 |
 | 貢獻指南 | Contribution Guide | PR 流程、程式碼審查標準、commit message 規範 |
 | 程式碼審查守則 | Code Review Guidelines | 審查重點清單（可讀性、測試、安安/效能/安全檢查） |
+
+---
+
+## [Phase 3.5] Angular 20 現代化實踐
+
+> **階段說明**：Angular 20 的新特性與現代化開發實踐，包括 Standalone、Signals、新控制流等。
+
+---
+
+### 🎯 Angular 20 核心特性
+
+| 中文 | English | 說明 |
+|------|---------|------|
+| Standalone 架構 | Standalone Architecture | 完全採用 Standalone 元件架構 |
+| Signals 狀態管理 | Signals State Management | 使用 Signals 取代部分 RxJS |
+| 新控制流範本 | New Control Flow Templates | 使用 @if, @for, @switch 等新語法 |
+| Signal Input/Output | Signal Input/Output | 使用 Signal 作為元件輸入輸出 |
+| Linked Signals | Linked Signals | 連結的 Signal（進階模式） |
+
+### 📝 新控制流語法
+
+| 中文 | English | 說明 |
+|------|---------|------|
+| 新控制流語法 | New Control Flow Syntax | Angular 20 的範本控制流語法 |
+| @if / @else | @if / @else | 取代 *ngIf 的新語法 |
+| @for | @for | 取代 *ngFor 的新語法 |
+| @switch / @case | @switch / @case | 取代 *ngSwitch 的新語法 |
+| @defer | @defer | 延遲載入範本內容的語法 |
+| 禁用結構型指令 | Deprecated Structural Directives | 禁止使用 *ngIf, *ngFor, *ngSwitch |
 
 ---
 
@@ -569,6 +635,10 @@
 | JWT 安全管理 | JWT Secure Management | JWT token 的安全儲存與傳輸 |
 | 輸入驗證與淨化 | Input Validation and Sanitization | 所有使用者輸入必須驗證與淨化 |
 | 依賴套件漏洞掃描 | Dependency Vulnerability Scanning | 定期掃描依賴套件漏洞（npm audit） |
+| Trusted Types | Trusted Types | Angular 20 的 XSS 防護機制 |
+| CSP Nonce | CSP Nonce | 內容安全策略的 Nonce 支援 |
+| Sanitization | Sanitization | Angular 的自動清理機制 |
+| DomSanitizer | DomSanitizer | 手動處理信任內容的工具 |
 
 ---
 
@@ -647,6 +717,16 @@
 | 日誌等級管理 | Log Level Management | 不同環境使用不同日誌等級 |
 | Source Map 管理 | Source Map Management | 生產環境 Source Map 的安全管理 |
 
+### 🔧 開發工具
+
+| 中文 | English | 說明 |
+|------|---------|------|
+| Angular DevTools | Angular DevTools | Chrome 擴充的 Angular 開發工具 |
+| Signal 監控 | Signal Monitoring | DevTools 中監控 Signal 變化 |
+| 變更檢測追蹤 | Change Detection Tracking | 追蹤變更檢測觸發來源 |
+| 效能分析器 | Performance Profiler | 分析元件渲染效能 |
+| 依賴注入檢查器 | DI Inspector | 檢查依賴注入樹狀結構 |
+
 ---
 
 ## 🚀 CI/CD 與 DevOps
@@ -678,7 +758,8 @@
 | 日誌設計指南 | diary-design.md | 施工日誌功能的設計文件 |
 | 待辦設計指南 | todo-design.md | 待辦功能模組的設計文件 |
 | 當前任務文件 | TASK_NOW.md | 記錄當前進行中的任務與狀態 |
-
----
-
-**最後更新**：2025-11-27
+| JSDoc 註解 | JSDoc Comments | 使用 JSDoc 標準註解公開 API |
+| Interface 文件化 | Interface Documentation | 為 Interface 添加說明文件 |
+| Type Alias 說明 | Type Alias Documentation | 為複雜型別添加註解 |
+| README 模板 | README Template | 功能模組的 README 模板 |
+| 範例程式碼 | Example Code | 在文件中包含使用範例 |
