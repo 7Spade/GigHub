@@ -9,14 +9,19 @@
 
 import { DatePipe } from '@angular/common';
 import { Component, computed, effect, inject, OnInit, signal, ChangeDetectionStrategy } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SHARED_IMPORTS } from '@shared';
 import { NzDescriptionsModule } from 'ng-zorro-antd/descriptions';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
+import { NzMessageService } from 'ng-zorro-antd/message';
+import { NzModalModule, NzModalService } from 'ng-zorro-antd/modal';
+import { NzPopconfirmModule } from 'ng-zorro-antd/popconfirm';
 import { NzProgressModule } from 'ng-zorro-antd/progress';
 import { NzStatisticModule } from 'ng-zorro-antd/statistic';
 
 import { BlueprintStore, TaskStore } from '../../data-access';
+import { Task, TaskStatus, TaskPriority } from '../../domain';
 
 /** Status configuration for display */
 const STATUS_CONFIG: Record<string, { text: string; color: string }> = {
@@ -32,20 +37,20 @@ const VISIBILITY_CONFIG: Record<string, { text: string; color: string }> = {
   public: { text: '公開', color: 'blue' }
 };
 
-/** Task status configuration */
+/** Task status configuration - aligned with TaskStatus type */
 const TASK_STATUS_CONFIG: Record<string, { text: string; color: string }> = {
   pending: { text: '待處理', color: 'default' },
   in_progress: { text: '進行中', color: 'processing' },
   completed: { text: '已完成', color: 'success' },
-  blocked: { text: '已阻塞', color: 'error' }
+  cancelled: { text: '已取消', color: 'error' }
 };
 
-/** Task priority configuration */
+/** Task priority configuration - aligned with TaskPriority type */
 const TASK_PRIORITY_CONFIG: Record<string, { text: string; color: string }> = {
   low: { text: '低', color: 'default' },
   medium: { text: '中', color: 'warning' },
   high: { text: '高', color: 'orange' },
-  critical: { text: '緊急', color: 'red' }
+  urgent: { text: '緊急', color: 'red' }
 };
 
 /**
@@ -57,7 +62,17 @@ const TASK_PRIORITY_CONFIG: Record<string, { text: string; color: string }> = {
   selector: 'app-blueprint-detail',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [SHARED_IMPORTS, NzDescriptionsModule, NzStatisticModule, NzProgressModule, NzEmptyModule, DatePipe],
+  imports: [
+    SHARED_IMPORTS,
+    NzDescriptionsModule,
+    NzStatisticModule,
+    NzProgressModule,
+    NzEmptyModule,
+    NzModalModule,
+    NzPopconfirmModule,
+    FormsModule,
+    DatePipe
+  ],
   template: `
     <page-header [title]="pageTitle()" [action]="actionTpl">
       <ng-template #breadcrumb>
@@ -75,9 +90,9 @@ const TASK_PRIORITY_CONFIG: Record<string, { text: string; color: string }> = {
         <i nz-icon nzType="arrow-left" nzTheme="outline"></i>
         返回列表
       </button>
-      <button nz-button nzType="primary" (click)="navigateToTasks()">
-        <i nz-icon nzType="project" nzTheme="outline"></i>
-        任務管理
+      <button nz-button nzType="primary" (click)="openCreateTaskModal()">
+        <i nz-icon nzType="plus" nzTheme="outline"></i>
+        新增任務
       </button>
     </ng-template>
 
@@ -196,9 +211,9 @@ const TASK_PRIORITY_CONFIG: Record<string, { text: string; color: string }> = {
       <!-- Tasks Preview Card -->
       <nz-card [nzTitle]="'任務列表'" [nzExtra]="taskExtraTpl">
         <ng-template #taskExtraTpl>
-          <button nz-button nzType="link" (click)="navigateToTasks()">
-            查看全部任務
-            <i nz-icon nzType="arrow-right" nzTheme="outline"></i>
+          <button nz-button nzType="primary" nzSize="small" (click)="openCreateTaskModal()">
+            <i nz-icon nzType="plus" nzTheme="outline"></i>
+            新增任務
           </button>
         </ng-template>
 
@@ -209,7 +224,7 @@ const TASK_PRIORITY_CONFIG: Record<string, { text: string; color: string }> = {
         @if (!tasksLoading() && tasks().length === 0) {
           <nz-empty nzNotFoundImage="simple" [nzNotFoundContent]="'此藍圖尚無任務'">
             <ng-template #nzNotFoundFooter>
-              <button nz-button nzType="primary" (click)="navigateToTasks()">
+              <button nz-button nzType="primary" (click)="openCreateTaskModal()">
                 <i nz-icon nzType="plus" nzTheme="outline"></i>
                 建立第一個任務
               </button>
@@ -218,7 +233,7 @@ const TASK_PRIORITY_CONFIG: Record<string, { text: string; color: string }> = {
         }
 
         @if (!tasksLoading() && tasks().length > 0) {
-          <nz-table #taskTable [nzData]="previewTasks()" [nzShowPagination]="false" nzSize="small" nzBordered>
+          <nz-table #taskTable [nzData]="tasks()" [nzPageSize]="10" nzSize="small" nzBordered>
             <thead>
               <tr>
                 <th>任務名稱</th>
@@ -226,6 +241,7 @@ const TASK_PRIORITY_CONFIG: Record<string, { text: string; color: string }> = {
                 <th nzWidth="80px">優先級</th>
                 <th nzWidth="150px">負責人</th>
                 <th nzWidth="120px">到期日</th>
+                <th nzWidth="150px">操作</th>
               </tr>
             </thead>
             <tbody>
@@ -266,18 +282,104 @@ const TASK_PRIORITY_CONFIG: Record<string, { text: string; color: string }> = {
                       <span class="text-muted">-</span>
                     }
                   </td>
+                  <td>
+                    <button nz-button nzType="link" nzSize="small" (click)="openEditTaskModal(task)">
+                      <i nz-icon nzType="edit" nzTheme="outline"></i>
+                      編輯
+                    </button>
+                    <button
+                      nz-button
+                      nzType="link"
+                      nzDanger
+                      nzSize="small"
+                      nz-popconfirm
+                      nzPopconfirmTitle="確定要刪除此任務嗎？"
+                      (nzOnConfirm)="deleteTask(task)"
+                    >
+                      <i nz-icon nzType="delete" nzTheme="outline"></i>
+                      刪除
+                    </button>
+                  </td>
                 </tr>
               }
             </tbody>
           </nz-table>
-
-          @if (tasks().length > 5) {
-            <div class="text-center mt-md">
-              <button nz-button nzType="default" (click)="navigateToTasks()"> 查看全部 {{ tasks().length }} 個任務 </button>
-            </div>
-          }
         }
       </nz-card>
+
+      <!-- Task Create/Edit Modal -->
+      <nz-modal
+        [(nzVisible)]="isTaskModalVisible"
+        [nzTitle]="taskModalTitle()"
+        [nzOkText]="isEditMode() ? '更新' : '建立'"
+        [nzOkLoading]="taskSaving()"
+        (nzOnOk)="saveTask()"
+        (nzOnCancel)="closeTaskModal()"
+        nzWidth="600px"
+      >
+        <ng-container *nzModalContent>
+          <form nz-form nzLayout="vertical">
+            <nz-form-item>
+              <nz-form-label nzRequired>任務名稱</nz-form-label>
+              <nz-form-control nzErrorTip="請輸入任務名稱">
+                <input nz-input [(ngModel)]="taskForm.name" name="name" placeholder="請輸入任務名稱" required />
+              </nz-form-control>
+            </nz-form-item>
+
+            <nz-form-item>
+              <nz-form-label>任務描述</nz-form-label>
+              <nz-form-control>
+                <textarea
+                  nz-input
+                  [(ngModel)]="taskForm.description"
+                  name="description"
+                  placeholder="請輸入任務描述"
+                  [nzAutosize]="{ minRows: 3, maxRows: 6 }"
+                ></textarea>
+              </nz-form-control>
+            </nz-form-item>
+
+            <nz-row [nzGutter]="16">
+              <nz-col [nzSpan]="12">
+                <nz-form-item>
+                  <nz-form-label>狀態</nz-form-label>
+                  <nz-form-control>
+                    <nz-select [(ngModel)]="taskForm.status" name="status" nzPlaceHolder="選擇狀態">
+                      @for (status of taskStatusOptions; track status.value) {
+                        <nz-option [nzValue]="status.value" [nzLabel]="status.label"></nz-option>
+                      }
+                    </nz-select>
+                  </nz-form-control>
+                </nz-form-item>
+              </nz-col>
+              <nz-col [nzSpan]="12">
+                <nz-form-item>
+                  <nz-form-label>優先級</nz-form-label>
+                  <nz-form-control>
+                    <nz-select [(ngModel)]="taskForm.priority" name="priority" nzPlaceHolder="選擇優先級">
+                      @for (priority of taskPriorityOptions; track priority.value) {
+                        <nz-option [nzValue]="priority.value" [nzLabel]="priority.label"></nz-option>
+                      }
+                    </nz-select>
+                  </nz-form-control>
+                </nz-form-item>
+              </nz-col>
+            </nz-row>
+
+            <nz-form-item>
+              <nz-form-label>到期日</nz-form-label>
+              <nz-form-control>
+                <nz-date-picker
+                  [(ngModel)]="taskForm.dueDate"
+                  name="dueDate"
+                  nzPlaceHolder="選擇到期日"
+                  style="width: 100%"
+                ></nz-date-picker>
+              </nz-form-control>
+            </nz-form-item>
+          </form>
+        </ng-container>
+      </nz-modal>
     }
   `,
   styles: [
@@ -321,6 +423,8 @@ export class BlueprintDetailComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly blueprintStore = inject(BlueprintStore);
   private readonly taskStore = inject(TaskStore);
+  private readonly message = inject(NzMessageService);
+  private readonly modal = inject(NzModalService);
 
   // Blueprint state
   readonly blueprint = this.blueprintStore.selectedBlueprint;
@@ -335,14 +439,47 @@ export class BlueprintDetailComponent implements OnInit {
   // Local state
   readonly blueprintId = signal<string | null>(null);
 
+  // Modal state
+  isTaskModalVisible = false;
+  readonly taskSaving = signal(false);
+  readonly editingTask = signal<Task | null>(null);
+
+  // Task form
+  taskForm: {
+    name: string;
+    description: string;
+    status: string;
+    priority: string;
+    dueDate: Date | null;
+  } = this.getEmptyTaskForm();
+
+  // Task options - aligned with TaskStatus and TaskPriority types
+  readonly taskStatusOptions = [
+    { value: 'pending', label: '待處理' },
+    { value: 'in_progress', label: '進行中' },
+    { value: 'completed', label: '已完成' },
+    { value: 'cancelled', label: '已取消' }
+  ];
+
+  readonly taskPriorityOptions = [
+    { value: 'low', label: '低' },
+    { value: 'medium', label: '中' },
+    { value: 'high', label: '高' },
+    { value: 'urgent', label: '緊急' }
+  ];
+
   // Computed properties
   readonly pageTitle = computed(() => {
     const bp = this.blueprint();
     return bp ? `藍圖：${bp.name}` : '藍圖詳情';
   });
 
-  readonly previewTasks = computed(() => {
-    return this.tasks().slice(0, 5);
+  readonly taskModalTitle = computed(() => {
+    return this.editingTask() ? '編輯任務' : '新增任務';
+  });
+
+  readonly isEditMode = computed(() => {
+    return this.editingTask() !== null;
   });
 
   readonly completionPercent = computed(() => {
@@ -400,18 +537,125 @@ export class BlueprintDetailComponent implements OnInit {
     this.router.navigate(['/blueprint/list']);
   }
 
+  // ==================== Task CRUD Operations ====================
+
   /**
-   * Navigate to task management
+   * Open create task modal
    */
-  navigateToTasks(): void {
-    const id = this.blueprintId();
-    if (id) {
-      // Navigate to task module with blueprint context
-      this.router.navigate(['/blueprint/task'], {
-        queryParams: { blueprintId: id }
-      });
+  openCreateTaskModal(): void {
+    this.editingTask.set(null);
+    this.taskForm = this.getEmptyTaskForm();
+    this.isTaskModalVisible = true;
+  }
+
+  /**
+   * Open edit task modal
+   */
+  openEditTaskModal(task: Task): void {
+    this.editingTask.set(task);
+    this.taskForm = {
+      name: task.name,
+      description: task.description || '',
+      status: task.status,
+      priority: task.priority,
+      dueDate: task.dueDate ? new Date(task.dueDate) : null
+    };
+    this.isTaskModalVisible = true;
+  }
+
+  /**
+   * Close task modal
+   */
+  closeTaskModal(): void {
+    this.isTaskModalVisible = false;
+    this.editingTask.set(null);
+    this.taskForm = this.getEmptyTaskForm();
+  }
+
+  /**
+   * Save task (create or update)
+   */
+  async saveTask(): Promise<void> {
+    if (!this.taskForm.name?.trim()) {
+      this.message.warning('請輸入任務名稱');
+      return;
+    }
+
+    const blueprintId = this.blueprintId();
+    if (!blueprintId) {
+      this.message.error('無法取得藍圖 ID');
+      return;
+    }
+
+    this.taskSaving.set(true);
+
+    try {
+      const taskData = {
+        name: this.taskForm.name.trim(),
+        description: this.taskForm.description?.trim() || undefined,
+        status: this.taskForm.status as TaskStatus,
+        priority: this.taskForm.priority as TaskPriority,
+        dueDate: this.taskForm.dueDate || undefined,
+        workspaceId: blueprintId
+      };
+
+      const editing = this.editingTask();
+      if (editing) {
+        // Update existing task
+        await this.taskStore.updateTask(editing.id, taskData);
+        this.message.success('任務更新成功');
+      } else {
+        // Create new task
+        await this.taskStore.createTask(taskData);
+        this.message.success('任務建立成功');
+      }
+
+      this.closeTaskModal();
+      // Reload tasks to refresh the list
+      await this.taskStore.loadWorkspaceTasks(blueprintId);
+    } catch (error) {
+      console.error('[BlueprintDetail] Failed to save task:', error);
+      this.message.error(this.editingTask() ? '任務更新失敗' : '任務建立失敗');
+    } finally {
+      this.taskSaving.set(false);
     }
   }
+
+  /**
+   * Delete a task
+   */
+  async deleteTask(task: Task): Promise<void> {
+    const blueprintId = this.blueprintId();
+    if (!blueprintId) {
+      this.message.error('無法取得藍圖 ID');
+      return;
+    }
+
+    try {
+      await this.taskStore.deleteTask(task.id);
+      this.message.success('任務刪除成功');
+      // Reload tasks to refresh the list
+      await this.taskStore.loadWorkspaceTasks(blueprintId);
+    } catch (error) {
+      console.error('[BlueprintDetail] Failed to delete task:', error);
+      this.message.error('任務刪除失敗');
+    }
+  }
+
+  /**
+   * Get empty task form
+   */
+  private getEmptyTaskForm() {
+    return {
+      name: '',
+      description: '',
+      status: 'pending',
+      priority: 'medium',
+      dueDate: null as Date | null
+    };
+  }
+
+  // ==================== Helper Methods ====================
 
   /**
    * Get status configuration for display
