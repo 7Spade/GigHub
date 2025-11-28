@@ -10,3 +10,6 @@ export * from './blueprint.store';
 export * from './task.store';
 export * from './diary.store';
 export * from './todo.store';
+export * from './file.store';
+export * from './link.store';
+export * from './activity.store';

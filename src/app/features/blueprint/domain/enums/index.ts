@@ -8,3 +8,6 @@
 
 export * from './blueprint.enums';
 export * from './task.enums';
+export * from './diary.enums';
+export * from './file.enums';
+export * from './link.enums';
