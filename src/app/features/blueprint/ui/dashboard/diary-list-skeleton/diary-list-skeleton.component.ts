@@ -1,12 +1,12 @@
-import { ChangeDetectionStrategy, Component, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { NzTableModule } from 'ng-zorro-antd/table';
+import { ChangeDetectionStrategy, Component, signal, computed } from '@angular/core';
 import { NzButtonModule } from 'ng-zorro-antd/button';
-import { NzIconModule } from 'ng-zorro-antd/icon';
-import { NzTagModule } from 'ng-zorro-antd/tag';
 import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
-import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
+import { NzIconModule } from 'ng-zorro-antd/icon';
+import { NzTableModule } from 'ng-zorro-antd/table';
+import { NzTagModule } from 'ng-zorro-antd/tag';
+import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 
 // 施工日誌狀態
 type DiaryStatus = 'draft' | 'submitted' | 'approved' | 'rejected';
@@ -91,16 +91,7 @@ const MOCK_DIARIES: ConstructionDiary[] = [
 @Component({
   selector: 'app-diary-list-skeleton',
   standalone: true,
-  imports: [
-    CommonModule,
-    NzTableModule,
-    NzButtonModule,
-    NzIconModule,
-    NzTagModule,
-    NzDropDownModule,
-    NzToolTipModule,
-    NzEmptyModule
-  ],
+  imports: [CommonModule, NzTableModule, NzButtonModule, NzIconModule, NzTagModule, NzDropDownModule, NzToolTipModule, NzEmptyModule],
   template: `
     <div class="diary-list-skeleton">
       <div class="toolbar">
@@ -127,13 +118,7 @@ const MOCK_DIARIES: ConstructionDiary[] = [
       </div>
 
       @if (diaries().length > 0) {
-        <nz-table
-          #diaryTable
-          [nzData]="diaries()"
-          [nzPageSize]="10"
-          [nzShowSizeChanger]="true"
-          nzSize="middle"
-        >
+        <nz-table #diaryTable [nzData]="diaries()" [nzPageSize]="10" [nzShowSizeChanger]="true" nzSize="middle">
           <thead>
             <tr>
               <th nzWidth="120px">施工日期</th>
@@ -151,9 +136,7 @@ const MOCK_DIARIES: ConstructionDiary[] = [
               <tr>
                 <td>{{ diary.workDate }}</td>
                 <td>
-                  <span [nz-tooltip]="getWeatherLabel(diary.weather)">
-                    {{ getWeatherIcon(diary.weather) }} {{ diary.temperature }}°C
-                  </span>
+                  <span [nz-tooltip]="getWeatherLabel(diary.weather)"> {{ getWeatherIcon(diary.weather) }} {{ diary.temperature }}°C </span>
                 </td>
                 <td class="summary-cell">{{ diary.workSummary }}</td>
                 <td>{{ diary.workerCount }} 人</td>
@@ -165,13 +148,7 @@ const MOCK_DIARIES: ConstructionDiary[] = [
                 </td>
                 <td>{{ diary.createdBy.name }}</td>
                 <td>
-                  <button
-                    nz-button
-                    nzType="text"
-                    nzSize="small"
-                    nz-dropdown
-                    [nzDropdownMenu]="actionMenu"
-                  >
+                  <button nz-button nzType="text" nzSize="small" nz-dropdown [nzDropdownMenu]="actionMenu">
                     <span nz-icon nzType="more" nzTheme="outline"></span>
                   </button>
                   <nz-dropdown-menu #actionMenu="nzDropdownMenu">
@@ -198,10 +175,7 @@ const MOCK_DIARIES: ConstructionDiary[] = [
           </tbody>
         </nz-table>
       } @else {
-        <nz-empty
-          nzNotFoundImage="simple"
-          nzNotFoundContent="尚無施工日誌"
-        >
+        <nz-empty nzNotFoundImage="simple" nzNotFoundContent="尚無施工日誌">
           <ng-template #nzNotFoundFooter>
             <button nz-button nzType="primary">
               <span nz-icon nzType="plus" nzTheme="outline"></span>
@@ -227,56 +201,58 @@ const MOCK_DIARIES: ConstructionDiary[] = [
       </div>
     </div>
   `,
-  styles: [`
-    .diary-list-skeleton {
-      padding: 16px;
-    }
+  styles: [
+    `
+      .diary-list-skeleton {
+        padding: 16px;
+      }
 
-    .toolbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 16px;
-    }
+      .toolbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+      }
 
-    .toolbar-right {
-      display: flex;
-      gap: 8px;
-    }
+      .toolbar-right {
+        display: flex;
+        gap: 8px;
+      }
 
-    .summary-cell {
-      max-width: 300px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
+      .summary-cell {
+        max-width: 300px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
 
-    .statistics {
-      display: flex;
-      gap: 24px;
-      margin-top: 16px;
-      padding: 12px 16px;
-      background: #fafafa;
-      border-radius: 4px;
-    }
+      .statistics {
+        display: flex;
+        gap: 24px;
+        margin-top: 16px;
+        padding: 12px 16px;
+        background: #fafafa;
+        border-radius: 4px;
+      }
 
-    .stat-item {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
+      .stat-item {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
 
-    .stat-label {
-      font-size: 12px;
-      color: #666;
-    }
+      .stat-label {
+        font-size: 12px;
+        color: #666;
+      }
 
-    .stat-value {
-      font-size: 18px;
-      font-weight: 500;
-      color: #333;
-    }
-  `],
+      .stat-value {
+        font-size: 18px;
+        font-weight: 500;
+        color: #333;
+      }
+    `
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DiaryListSkeletonComponent {
@@ -284,9 +260,7 @@ export class DiaryListSkeletonComponent {
 
   protected readonly monthlyCount = computed(() => this.diaries().length);
 
-  protected readonly totalWorkHours = computed(() =>
-    this.diaries().reduce((sum, d) => sum + d.workHours, 0)
-  );
+  protected readonly totalWorkHours = computed(() => this.diaries().reduce((sum, d) => sum + d.workHours, 0));
 
   protected readonly averageWorkers = computed(() => {
     const diaries = this.diaries();

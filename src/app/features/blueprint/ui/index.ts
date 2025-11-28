@@ -8,5 +8,7 @@
 
 export * from './task';
 export * from './blueprint-list';
+export * from './blueprint-detail/blueprint-detail.component';
+export * from './dashboard';
 export * from './diary';
 export * from './todo';

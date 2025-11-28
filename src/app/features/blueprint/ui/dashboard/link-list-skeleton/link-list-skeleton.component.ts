@@ -1,13 +1,13 @@
-import { ChangeDetectionStrategy, Component, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { NzCardModule } from 'ng-zorro-antd/card';
+import { ChangeDetectionStrategy, Component, signal, computed } from '@angular/core';
 import { NzButtonModule } from 'ng-zorro-antd/button';
-import { NzIconModule } from 'ng-zorro-antd/icon';
-import { NzTagModule } from 'ng-zorro-antd/tag';
+import { NzCardModule } from 'ng-zorro-antd/card';
 import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
-import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
+import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzInputModule } from 'ng-zorro-antd/input';
+import { NzTagModule } from 'ng-zorro-antd/tag';
+import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 
 // 連結分類
 type LinkCategory = 'document' | 'design' | 'reference' | 'other';
@@ -141,11 +141,7 @@ const MOCK_LINKS: ExternalLink[] = [
 
       <div class="category-tabs">
         @for (cat of categories; track cat.value) {
-          <button
-            nz-button
-            [nzType]="selectedCategory() === cat.value ? 'primary' : 'default'"
-            (click)="filterByCategory(cat.value)"
-          >
+          <button nz-button [nzType]="selectedCategory() === cat.value ? 'primary' : 'default'" (click)="filterByCategory(cat.value)">
             {{ cat.label }} ({{ getCategoryCount(cat.value) }})
           </button>
         }
@@ -154,11 +150,7 @@ const MOCK_LINKS: ExternalLink[] = [
       @if (filteredLinks().length > 0) {
         <div class="link-grid">
           @for (link of filteredLinks(); track link.id) {
-            <nz-card
-              class="link-card"
-              [nzBorderless]="false"
-              [class.invalid]="!link.isValid"
-            >
+            <nz-card class="link-card" [nzBorderless]="false" [class.invalid]="!link.isValid">
               <div class="link-header">
                 <div class="link-favicon">
                   @if (link.faviconUrl) {
@@ -173,14 +165,7 @@ const MOCK_LINKS: ExternalLink[] = [
                     {{ getCategoryLabel(link.category) }}
                   </nz-tag>
                 </div>
-                <button
-                  nz-button
-                  nzType="text"
-                  nzSize="small"
-                  nz-dropdown
-                  [nzDropdownMenu]="actionMenu"
-                  class="action-btn"
-                >
+                <button nz-button nzType="text" nzSize="small" nz-dropdown [nzDropdownMenu]="actionMenu" class="action-btn">
                   <span nz-icon nzType="more" nzTheme="outline"></span>
                 </button>
                 <nz-dropdown-menu #actionMenu="nzDropdownMenu">
@@ -201,13 +186,7 @@ const MOCK_LINKS: ExternalLink[] = [
                 </nz-dropdown-menu>
               </div>
 
-              <a
-                class="link-title"
-                [href]="link.url"
-                target="_blank"
-                rel="noopener noreferrer"
-                [nz-tooltip]="link.url"
-              >
+              <a class="link-title" [href]="link.url" target="_blank" rel="noopener noreferrer" [nz-tooltip]="link.url">
                 {{ link.title }}
                 <span nz-icon nzType="link" nzTheme="outline" class="external-icon"></span>
               </a>
@@ -229,10 +208,7 @@ const MOCK_LINKS: ExternalLink[] = [
           }
         </div>
       } @else {
-        <nz-empty
-          nzNotFoundImage="simple"
-          nzNotFoundContent="尚無外部連結"
-        >
+        <nz-empty nzNotFoundImage="simple" nzNotFoundContent="尚無外部連結">
           <ng-template #nzNotFoundFooter>
             <button nz-button nzType="primary">
               <span nz-icon nzType="plus" nzTheme="outline"></span>
@@ -258,175 +234,177 @@ const MOCK_LINKS: ExternalLink[] = [
       </div>
     </div>
   `,
-  styles: [`
-    .link-list-skeleton {
-      padding: 16px;
-    }
+  styles: [
+    `
+      .link-list-skeleton {
+        padding: 16px;
+      }
 
-    .toolbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 16px;
-    }
+      .toolbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+      }
 
-    .toolbar-right {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-    }
+      .toolbar-right {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
 
-    .category-tabs {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 16px;
-      flex-wrap: wrap;
-    }
+      .category-tabs {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 16px;
+        flex-wrap: wrap;
+      }
 
-    .link-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 16px;
-    }
+      .link-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 16px;
+      }
 
-    .link-card {
-      transition: box-shadow 0.2s;
-    }
+      .link-card {
+        transition: box-shadow 0.2s;
+      }
 
-    .link-card:hover {
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-    }
+      .link-card:hover {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      }
 
-    .link-card.invalid {
-      border-color: #faad14;
-      background: #fffbe6;
-    }
+      .link-card.invalid {
+        border-color: #faad14;
+        background: #fffbe6;
+      }
 
-    .link-header {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 12px;
-    }
+      .link-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 12px;
+      }
 
-    .link-favicon {
-      width: 24px;
-      height: 24px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
+      .link-favicon {
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
 
-    .link-favicon img {
-      width: 16px;
-      height: 16px;
-    }
+      .link-favicon img {
+        width: 16px;
+        height: 16px;
+      }
 
-    .link-meta {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
+      .link-meta {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
 
-    .site-name {
-      font-size: 12px;
-      color: #666;
-    }
+      .site-name {
+        font-size: 12px;
+        color: #666;
+      }
 
-    .category-tag {
-      font-size: 10px;
-    }
+      .category-tag {
+        font-size: 10px;
+      }
 
-    .action-btn {
-      opacity: 0;
-      transition: opacity 0.2s;
-    }
+      .action-btn {
+        opacity: 0;
+        transition: opacity 0.2s;
+      }
 
-    .link-card:hover .action-btn {
-      opacity: 1;
-    }
+      .link-card:hover .action-btn {
+        opacity: 1;
+      }
 
-    .link-title {
-      display: block;
-      font-size: 14px;
-      font-weight: 500;
-      color: #1890ff;
-      margin-bottom: 8px;
-      text-decoration: none;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
+      .link-title {
+        display: block;
+        font-size: 14px;
+        font-weight: 500;
+        color: #1890ff;
+        margin-bottom: 8px;
+        text-decoration: none;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
 
-    .link-title:hover {
-      text-decoration: underline;
-    }
+      .link-title:hover {
+        text-decoration: underline;
+      }
 
-    .external-icon {
-      font-size: 10px;
-      margin-left: 4px;
-      opacity: 0.5;
-    }
+      .external-icon {
+        font-size: 10px;
+        margin-left: 4px;
+        opacity: 0.5;
+      }
 
-    .link-description {
-      font-size: 12px;
-      color: #666;
-      margin-bottom: 8px;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
+      .link-description {
+        font-size: 12px;
+        color: #666;
+        margin-bottom: 8px;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
 
-    .invalid-notice {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      font-size: 12px;
-      color: #faad14;
-      margin-bottom: 8px;
-    }
+      .invalid-notice {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 12px;
+        color: #faad14;
+        margin-bottom: 8px;
+      }
 
-    .link-footer {
-      display: flex;
-      justify-content: space-between;
-      font-size: 12px;
-      color: #999;
-      padding-top: 8px;
-      border-top: 1px solid #f0f0f0;
-    }
+      .link-footer {
+        display: flex;
+        justify-content: space-between;
+        font-size: 12px;
+        color: #999;
+        padding-top: 8px;
+        border-top: 1px solid #f0f0f0;
+      }
 
-    .statistics {
-      display: flex;
-      gap: 24px;
-      margin-top: 16px;
-      padding: 12px 16px;
-      background: #fafafa;
-      border-radius: 4px;
-    }
+      .statistics {
+        display: flex;
+        gap: 24px;
+        margin-top: 16px;
+        padding: 12px 16px;
+        background: #fafafa;
+        border-radius: 4px;
+      }
 
-    .stat-item {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
+      .stat-item {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
 
-    .stat-label {
-      font-size: 12px;
-      color: #666;
-    }
+      .stat-label {
+        font-size: 12px;
+        color: #666;
+      }
 
-    .stat-value {
-      font-size: 18px;
-      font-weight: 500;
-      color: #333;
-    }
+      .stat-value {
+        font-size: 18px;
+        font-weight: 500;
+        color: #333;
+      }
 
-    .stat-value.invalid-count {
-      color: #faad14;
-    }
-  `],
+      .stat-value.invalid-count {
+        color: #faad14;
+      }
+    `
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class LinkListSkeletonComponent {
@@ -447,13 +425,9 @@ export class LinkListSkeletonComponent {
     return this.links().filter(l => l.category === category);
   });
 
-  protected readonly validLinkCount = computed(() =>
-    this.links().filter(l => l.isValid).length
-  );
+  protected readonly validLinkCount = computed(() => this.links().filter(l => l.isValid).length);
 
-  protected readonly invalidLinkCount = computed(() =>
-    this.links().filter(l => !l.isValid).length
-  );
+  protected readonly invalidLinkCount = computed(() => this.links().filter(l => !l.isValid).length);
 
   protected filterByCategory(category: LinkCategory | null): void {
     this.selectedCategory.set(category);

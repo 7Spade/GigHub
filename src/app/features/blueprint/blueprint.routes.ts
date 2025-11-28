@@ -39,6 +39,11 @@ export const BLUEPRINT_ROUTES: Routes = [
     path: 'todo',
     loadComponent: () => import('./ui/todo/todo-list/todo-list.component').then(m => m.TodoListComponent),
     data: { title: '待辦事項' }
+  },
+  {
+    path: ':id',
+    loadComponent: () => import('./ui/blueprint-detail/blueprint-detail.component').then(m => m.BlueprintDetailComponent),
+    data: { title: '藍圖詳情' }
   }
 ];
 
