@@ -10,11 +10,11 @@
 
 import { Component, inject, signal, computed, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { SupabaseService } from '@core';
 import { SHARED_IMPORTS } from '@shared';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzModalService } from 'ng-zorro-antd/modal';
 import { NzTreeViewModule } from 'ng-zorro-antd/tree-view';
-import { SupabaseService } from '@core';
 
 import { TaskStore } from '../../../data-access';
 import { TaskModel, TaskViewMode, CreateTaskRequest, UpdateTaskRequest } from '../../../domain';
@@ -117,8 +117,10 @@ export class TaskListComponent implements OnInit {
   /** Initialize workspace for blueprint and load tasks */
   private async initializeWorkspaceAndLoadTasks(blueprintId: string): Promise<void> {
     try {
+      const client = this.supabase.getClient();
+
       // First, check if a workspace exists for this blueprint
-      const { data: existingWorkspace, error: fetchError } = await this.supabase.client
+      const { data: existingWorkspace, error: fetchError } = await client
         .from('workspaces')
         .select('id')
         .eq('blueprint_id', blueprintId)
@@ -134,21 +136,17 @@ export class TaskListComponent implements OnInit {
 
       if (existingWorkspace) {
         // Use existing workspace
-        workspaceId = existingWorkspace.id;
+        workspaceId = existingWorkspace.id as string;
       } else {
         // Create a new workspace for this blueprint
-        const { data: blueprint } = await this.supabase.client
-          .from('blueprints')
-          .select('name, owner_id, owner_type')
-          .eq('id', blueprintId)
-          .single();
+        const { data: blueprint } = await client.from('blueprints').select('name, owner_id, owner_type').eq('id', blueprintId).single();
 
         if (!blueprint) {
           this.message.error('找不到藍圖');
           return;
         }
 
-        const { data: newWorkspace, error: createError } = await this.supabase.client
+        const { data: newWorkspace, error: createError } = await client
           .from('workspaces')
           .insert({
             blueprint_id: blueprintId,
@@ -166,7 +164,7 @@ export class TaskListComponent implements OnInit {
           return;
         }
 
-        workspaceId = newWorkspace.id;
+        workspaceId = newWorkspace.id as string;
       }
 
       this.workspaceId.set(workspaceId);
