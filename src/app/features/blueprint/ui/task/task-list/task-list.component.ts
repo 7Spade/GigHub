@@ -151,8 +151,8 @@ export class TaskListComponent implements OnInit {
           .insert({
             blueprint_id: blueprintId,
             name: `${blueprint.name} - 工作區`,
-            owner_id: blueprint.owner_id,
-            owner_type: blueprint.owner_type,
+            tenant_id: blueprint.owner_id,
+            tenant_type: blueprint.owner_type,
             status: 'active'
           })
           .select('id')
