@@ -9,5 +9,4 @@
 
 export * from './blueprint.interfaces';
 export * from './task.interfaces';
-export * from './workspace.interfaces';
 export * from './common.interfaces';

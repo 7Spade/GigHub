@@ -3,13 +3,11 @@
  *
  * Modal dialog for creating/editing blueprints (藍圖表單對話框)
  * Using @delon/form for dynamic form generation
- * Following enterprise guidelines and vertical slice architecture
+ * Aligned with database schema: 20251129000001_create_multi_tenant_saas_schema.sql
  *
  * Simplified version:
- * - Removed 分類 (category) field
- * - Simplified 可見性 (visibility) to only public/hidden
- * - Removed 圖示 URL (iconUrl) field
- * - Removed 縮圖 URL (thumbnailUrl) field
+ * - Uses isPublic boolean instead of visibility enum
+ * - Removed tags (use metadata JSONB if needed)
  *
  * Dependency flow:
  * Component → Store (Facade) → Service → Repository
@@ -24,7 +22,7 @@ import { NzMessageService } from 'ng-zorro-antd/message';
 import { NZ_MODAL_DATA, NzModalRef } from 'ng-zorro-antd/modal';
 
 import { BlueprintStore } from '../../../data-access';
-import { BlueprintModel, CreateBlueprintRequest, UpdateBlueprintRequest, BlueprintVisibility, OwnerType } from '../../../domain';
+import { BlueprintModel, CreateBlueprintRequest, UpdateBlueprintRequest, OwnerType } from '../../../domain';
 
 /**
  * Dialog mode for create/edit
@@ -47,8 +45,7 @@ export interface BlueprintFormDialogData {
 interface BlueprintFormValues {
   name: string;
   description: string;
-  visibility: BlueprintVisibility;
-  tags?: string;
+  isPublic: boolean;
 }
 
 /**
@@ -82,8 +79,7 @@ export class BlueprintFormDialogComponent implements OnInit {
 
   /**
    * Form schema definition (JSON Schema) - Simplified
-   * Removed: category, iconUrl, thumbnailUrl
-   * Simplified: visibility to only public/hidden
+   * Aligned with database schema
    */
   readonly schema: SFSchema = {
     properties: {
@@ -98,18 +94,10 @@ export class BlueprintFormDialogComponent implements OnInit {
         title: '描述',
         maxLength: 500
       },
-      visibility: {
-        type: 'string',
-        title: '可見性',
-        enum: [
-          { label: '隱藏', value: 'hidden' },
-          { label: '公開', value: 'public' }
-        ],
-        default: 'hidden'
-      },
-      tags: {
-        type: 'string',
-        title: '標籤'
+      isPublic: {
+        type: 'boolean',
+        title: '公開藍圖',
+        default: false
       }
     },
     required: ['name', 'description']
@@ -132,13 +120,10 @@ export class BlueprintFormDialogComponent implements OnInit {
       placeholder: '請輸入藍圖描述',
       autosize: { minRows: 3, maxRows: 6 }
     },
-    $visibility: {
-      widget: 'select',
-      placeholder: '請選擇可見性'
-    },
-    $tags: {
-      widget: 'string',
-      placeholder: '輸入標籤，用逗號分隔'
+    $isPublic: {
+      widget: 'boolean',
+      checkedChildren: '公開',
+      unCheckedChildren: '私有'
     }
   };
 
@@ -149,8 +134,7 @@ export class BlueprintFormDialogComponent implements OnInit {
       this.formData.set({
         name: blueprint.name,
         description: blueprint.description,
-        visibility: blueprint.visibility,
-        tags: blueprint.tags?.join(',')
+        isPublic: blueprint.isPublic
       });
     }
   }
@@ -174,13 +158,10 @@ export class BlueprintFormDialogComponent implements OnInit {
     this.loading.set(true);
 
     try {
-      // Parse tags from string if needed
-      const tags = this.parseTags(formValue.tags);
-
       if (this.isEditMode) {
-        await this.handleUpdate(formValue, tags);
+        await this.handleUpdate(formValue);
       } else {
-        await this.handleCreate(formValue, tags);
+        await this.handleCreate(formValue);
       }
     } catch (error) {
       console.error('Blueprint form error:', error);
@@ -193,18 +174,16 @@ export class BlueprintFormDialogComponent implements OnInit {
   /**
    * Handle blueprint creation (simplified)
    */
-  private async handleCreate(formValue: BlueprintFormValues, tags: string[]): Promise<void> {
-    if (!this.dialogData.ownerId || !this.dialogData.ownerType) {
-      throw new Error('Owner ID and Owner Type are required for creation');
+  private async handleCreate(formValue: BlueprintFormValues): Promise<void> {
+    if (!this.dialogData.ownerId) {
+      throw new Error('Owner ID is required for creation');
     }
 
     const request: CreateBlueprintRequest = {
       name: formValue.name,
       description: formValue.description,
-      visibility: formValue.visibility || 'hidden',
-      ownerId: this.dialogData.ownerId,
-      ownerType: this.dialogData.ownerType,
-      tags
+      isPublic: formValue.isPublic ?? false,
+      ownerId: this.dialogData.ownerId
     };
 
     const result = await this.blueprintStore.createBlueprint(request);
@@ -215,7 +194,7 @@ export class BlueprintFormDialogComponent implements OnInit {
   /**
    * Handle blueprint update (simplified)
    */
-  private async handleUpdate(formValue: BlueprintFormValues, tags: string[]): Promise<void> {
+  private async handleUpdate(formValue: BlueprintFormValues): Promise<void> {
     if (!this.dialogData.blueprint) {
       throw new Error('Blueprint not found for update');
     }
@@ -223,24 +202,12 @@ export class BlueprintFormDialogComponent implements OnInit {
     const request: UpdateBlueprintRequest = {
       name: formValue.name,
       description: formValue.description,
-      visibility: formValue.visibility,
-      tags
+      isPublic: formValue.isPublic
     };
 
     const result = await this.blueprintStore.updateBlueprint(this.dialogData.blueprint.id, request);
     this.messageService.success('藍圖更新成功');
     this.modalRef.close(result);
-  }
-
-  /**
-   * Parse tags from string
-   */
-  private parseTags(tags: string | undefined): string[] {
-    if (!tags) return [];
-    return tags
-      .split(',')
-      .map(tag => tag.trim())
-      .filter(tag => tag.length > 0);
   }
 
   /**

@@ -2,7 +2,7 @@
  * Blueprint Repository
  *
  * Repository for Blueprint Container data access layer
- * Following vertical slice architecture
+ * Aligned with database schema: 20251129000001_create_multi_tenant_saas_schema.sql
  *
  * @module features/blueprint/data-access/repositories/blueprint.repository
  */
@@ -25,7 +25,7 @@ export class BlueprintRepository extends BaseRepository<Blueprint, BlueprintInse
   /**
    * Find blueprints by owner
    *
-   * @param {string} ownerId - Owner ID (user, organization, or team)
+   * @param {string} ownerId - Owner ID (user or organization)
    * @param {QueryOptions} [options] - Query options
    * @returns {Observable<Blueprint[]>} Array of blueprints
    */
@@ -40,43 +40,9 @@ export class BlueprintRepository extends BaseRepository<Blueprint, BlueprintInse
   }
 
   /**
-   * Find blueprints by category
-   *
-   * @param {string} category - Blueprint category
-   * @param {QueryOptions} [options] - Query options
-   * @returns {Observable<Blueprint[]>} Array of blueprints
-   */
-  findByCategory(category: string, options?: QueryOptions): Observable<Blueprint[]> {
-    return this.findAll({
-      ...options,
-      filters: {
-        ...options?.filters,
-        category
-      }
-    });
-  }
-
-  /**
-   * Find blueprints by visibility
-   *
-   * @param {string} visibility - Blueprint visibility level
-   * @param {QueryOptions} [options] - Query options
-   * @returns {Observable<Blueprint[]>} Array of blueprints
-   */
-  findByVisibility(visibility: string, options?: QueryOptions): Observable<Blueprint[]> {
-    return this.findAll({
-      ...options,
-      filters: {
-        ...options?.filters,
-        visibility
-      }
-    });
-  }
-
-  /**
    * Find blueprints by status
    *
-   * @param {string} status - Blueprint status
+   * @param {string} status - Blueprint status (active, inactive, suspended, deleted)
    * @param {QueryOptions} [options] - Query options
    * @returns {Observable<Blueprint[]>} Array of blueprints
    */
@@ -91,7 +57,7 @@ export class BlueprintRepository extends BaseRepository<Blueprint, BlueprintInse
   }
 
   /**
-   * Find published public blueprints (marketplace)
+   * Find public blueprints (is_public = true)
    *
    * @param {QueryOptions} [options] - Query options
    * @returns {Observable<Blueprint[]>} Array of public blueprints
@@ -101,31 +67,26 @@ export class BlueprintRepository extends BaseRepository<Blueprint, BlueprintInse
       ...options,
       filters: {
         ...options?.filters,
-        visibility: 'public',
-        status: 'published'
+        isPublic: true,
+        status: 'active'
       }
     });
   }
 
   /**
-   * Search blueprints by name or description
+   * Find blueprints by slug
    *
-   * Note: Full-text search implementation requires custom query.
-   * This method currently passes searchTerm through filters,
-   * NOTE: Full-text search is not yet implemented in BaseRepository.
-   * This method currently throws NotImplementedError to prevent silent failures
-   * where users expect filtered results but receive all blueprints.
-   *
-   * TODO: Implement proper full-text search using Supabase .textSearch() method
-   * or PostgreSQL full-text search functions
-   *
-   * @param {string} searchTerm - Search term
+   * @param {string} slug - Blueprint slug (unique identifier)
    * @param {QueryOptions} [options] - Query options
-   * @returns {Observable<Blueprint[]>} Array of matching blueprints
-   * @throws {Error} NotImplementedError - Full-text search not yet supported
+   * @returns {Observable<Blueprint[]>} Array of blueprints matching slug
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  search(searchTerm: string, options?: QueryOptions): Observable<Blueprint[]> {
-    throw new Error('NotImplementedError: Use findPublicBlueprints and filter client-side.');
+  findBySlug(slug: string, options?: QueryOptions): Observable<Blueprint[]> {
+    return this.findAll({
+      ...options,
+      filters: {
+        ...options?.filters,
+        slug
+      }
+    });
   }
 }

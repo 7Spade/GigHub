@@ -9,6 +9,5 @@
 
 export * from './blueprint.constants';
 export * from './task.constants';
-export * from './workspace.constants';
 export * from './ui.constants';
 export * from './api.constants';

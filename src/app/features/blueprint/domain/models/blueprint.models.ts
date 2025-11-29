@@ -2,12 +2,12 @@
  * Blueprint Models
  *
  * Business models for Blueprint Container
- * Following vertical slice architecture
+ * Aligned with database schema: 20251129000001_create_multi_tenant_saas_schema.sql
  *
  * @module features/blueprint/domain/models/blueprint.models
  */
 
-import { Blueprint, BlueprintVisibility, BlueprintStatus, BlueprintCategory, OwnerType } from '../types';
+import { Blueprint, BlueprintStatus, BlueprintRole, ModuleType } from '../types';
 
 /**
  * Blueprint Model (re-export from types with business context)
@@ -15,62 +15,68 @@ import { Blueprint, BlueprintVisibility, BlueprintStatus, BlueprintCategory, Own
 export type BlueprintModel = Blueprint;
 
 /**
- * Blueprint summary for list display (simplified)
+ * Blueprint summary for list display
  */
 export interface BlueprintSummary {
   id: string;
   name: string;
-  description: string;
-  category?: BlueprintCategory;
-  visibility: BlueprintVisibility;
+  slug: string;
+  description?: string;
+  isPublic: boolean;
   status: BlueprintStatus;
-  tags: string[];
+  enabledModules: ModuleType[];
   createdAt: Date;
 }
 
 /**
- * Blueprint creation request (simplified)
+ * Blueprint creation request
  */
 export interface CreateBlueprintRequest {
   name: string;
-  description: string;
-  category?: BlueprintCategory;
-  visibility?: BlueprintVisibility;
+  slug?: string; // Optional: auto-generate from name if not provided
+  description?: string;
   ownerId: string;
-  ownerType: OwnerType;
-  tags?: string[];
+  isPublic?: boolean;
+  enabledModules?: ModuleType[];
 }
 
 /**
- * Blueprint update request (simplified)
+ * Blueprint update request
  */
 export interface UpdateBlueprintRequest {
   name?: string;
+  slug?: string;
   description?: string;
-  category?: BlueprintCategory;
-  visibility?: BlueprintVisibility;
+  isPublic?: boolean;
   status?: BlueprintStatus;
-  tags?: string[];
+  enabledModules?: ModuleType[];
 }
 
 /**
- * Blueprint statistics (simplified)
+ * Blueprint statistics
  */
 export interface BlueprintStatistics {
   totalCount: number;
-  publishedCount: number;
-  draftCount: number;
-  archivedCount: number;
+  activeCount: number;
+  inactiveCount: number;
 }
 
 /**
- * Blueprint filter options (simplified)
+ * Blueprint filter options
  */
 export interface BlueprintFilterOptions {
-  category?: BlueprintCategory;
-  visibility?: BlueprintVisibility;
+  isPublic?: boolean;
   status?: BlueprintStatus;
   ownerId?: string;
-  tags?: string[];
   searchTerm?: string;
+}
+
+/**
+ * Blueprint member request
+ */
+export interface AddBlueprintMemberRequest {
+  blueprintId: string;
+  accountId: string;
+  role: BlueprintRole;
+  isExternal?: boolean;
 }

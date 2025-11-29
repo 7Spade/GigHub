@@ -3,13 +3,9 @@
  *
  * 藍圖列表元件 - 統一的藍圖列表頁面
  * Unified blueprint list page for all context types (user, org, team)
+ * Aligned with database schema: 20251129000001_create_multi_tenant_saas_schema.sql
  *
- * Simplified version:
- * - Removed 使用次數 (usageCount) column
- * - Simplified visibility to only public/hidden
- * - Removed category column
- *
- * Integrates with AuthContextService (新架構) to:
+ * Integrates with AuthContextService to:
  * - Automatically load blueprints based on current context
  * - Display context-aware title and descriptions
  * - Filter data according to current tenant
@@ -17,7 +13,7 @@
  * @module features/blueprint/ui/blueprint-list
  */
 
-import { Component, OnInit, computed, effect, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, effect, inject } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { AuthContextService } from '@core';
 import { SHARED_IMPORTS } from '@shared';
@@ -28,7 +24,7 @@ import { NzTableModule } from 'ng-zorro-antd/table';
 import { NzTagModule } from 'ng-zorro-antd/tag';
 
 import { BlueprintStore } from '../../data-access';
-import { BlueprintModel, BlueprintStatusEnum, BlueprintVisibilityEnum } from '../../domain';
+import { BlueprintModel, BlueprintStatusEnum } from '../../domain';
 import { BlueprintFormDialogComponent, BlueprintFormMode, BlueprintDeleteConfirmDialogComponent } from '../../shell';
 
 /**
@@ -57,17 +53,10 @@ const CONTEXT_LABELS: Record<string, { title: string; description: string }> = {
  * Status badge configuration
  */
 const STATUS_CONFIG: Record<string, { text: string; color: string }> = {
-  [BlueprintStatusEnum.DRAFT]: { text: '草稿', color: 'default' },
-  [BlueprintStatusEnum.PUBLISHED]: { text: '已發佈', color: 'success' },
-  [BlueprintStatusEnum.ARCHIVED]: { text: '已封存', color: 'warning' }
-};
-
-/**
- * Visibility badge configuration (simplified to public/hidden)
- */
-const VISIBILITY_CONFIG: Record<string, { text: string; color: string }> = {
-  [BlueprintVisibilityEnum.HIDDEN]: { text: '隱藏', color: 'default' },
-  [BlueprintVisibilityEnum.PUBLIC]: { text: '公開', color: 'blue' }
+  [BlueprintStatusEnum.ACTIVE]: { text: '活躍', color: 'success' },
+  [BlueprintStatusEnum.INACTIVE]: { text: '非活躍', color: 'default' },
+  [BlueprintStatusEnum.SUSPENDED]: { text: '已暫停', color: 'warning' },
+  [BlueprintStatusEnum.DELETED]: { text: '已刪除', color: 'error' }
 };
 
 @Component({
@@ -125,7 +114,7 @@ const VISIBILITY_CONFIG: Record<string, { text: string; color: string }> = {
               <tr>
                 <th nzWidth="200px">名稱</th>
                 <th nzWidth="100px">狀態</th>
-                <th nzWidth="100px">可見性</th>
+                <th nzWidth="100px">公開性</th>
                 <th>描述</th>
                 <th nzWidth="150px">操作</th>
               </tr>
@@ -142,8 +131,8 @@ const VISIBILITY_CONFIG: Record<string, { text: string; color: string }> = {
                     </nz-tag>
                   </td>
                   <td>
-                    <nz-tag [nzColor]="getVisibilityConfig(blueprint.visibility).color">
-                      {{ getVisibilityConfig(blueprint.visibility).text }}
+                    <nz-tag [nzColor]="blueprint.isPublic ? 'blue' : 'default'">
+                      {{ blueprint.isPublic ? '公開' : '私有' }}
                     </nz-tag>
                   </td>
                   <td>{{ blueprint.description || '-' }}</td>
@@ -188,8 +177,8 @@ export class BlueprintListComponent implements OnInit {
 
   // Store state
   readonly blueprints = this.blueprintStore.blueprints;
-  readonly loading = this.blueprintStore.blueprintLoading;
-  readonly error = this.blueprintStore.blueprintError;
+  readonly loading = this.blueprintStore.loading;
+  readonly error = this.blueprintStore.error;
 
   // Context state (使用新的 AuthContextService)
   readonly contextType = this.authContext.contextType;
@@ -308,13 +297,6 @@ export class BlueprintListComponent implements OnInit {
    */
   getStatusConfig(status: string): { text: string; color: string } {
     return STATUS_CONFIG[status] || { text: status, color: 'default' };
-  }
-
-  /**
-   * Get visibility configuration for badge (simplified)
-   */
-  getVisibilityConfig(visibility: string): { text: string; color: string } {
-    return VISIBILITY_CONFIG[visibility] || { text: visibility, color: 'default' };
   }
 
   /**

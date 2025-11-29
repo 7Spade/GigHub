@@ -2,12 +2,12 @@
  * Task Interfaces
  *
  * Interface definitions for Task feature contracts
- * Following enterprise development guidelines
+ * Aligned with database schema: 20251129000001_create_multi_tenant_saas_schema.sql
  *
  * @module features/blueprint/domain/interfaces/task.interfaces
  */
 
-import { TaskStatusEnum, TaskPriorityEnum, TaskTypeEnum } from '../enums';
+import { TaskStatusEnum, TaskPriorityEnum } from '../enums';
 
 /**
  * Task filter options interface
@@ -15,13 +15,11 @@ import { TaskStatusEnum, TaskPriorityEnum, TaskTypeEnum } from '../enums';
 export interface ITaskFilterOptions {
   status?: TaskStatusEnum | TaskStatusEnum[];
   priority?: TaskPriorityEnum | TaskPriorityEnum[];
-  type?: TaskTypeEnum;
   assigneeId?: string;
+  reviewerId?: string;
   blueprintId?: string;
-  workspaceId?: string;
   parentTaskId?: string;
   searchTerm?: string;
-  tags?: string[];
   dateFrom?: Date;
   dateTo?: Date;
   dueDateFrom?: Date;
@@ -33,7 +31,7 @@ export interface ITaskFilterOptions {
  * Task sort options interface
  */
 export interface ITaskSortOptions {
-  field: 'name' | 'created_at' | 'updated_at' | 'due_date' | 'priority' | 'status' | 'order';
+  field: 'title' | 'created_at' | 'updated_at' | 'due_date' | 'priority' | 'status' | 'sort_order';
   direction: 'asc' | 'desc';
 }
 
@@ -62,7 +60,6 @@ export interface ITaskStatistics {
   total: number;
   byStatus: Record<TaskStatusEnum, number>;
   byPriority: Record<TaskPriorityEnum, number>;
-  byType: Record<TaskTypeEnum, number>;
   overdue: number;
   dueToday: number;
   dueThisWeek: number;
@@ -114,8 +111,8 @@ export interface ITaskBulkUpdateOptions {
     status?: TaskStatusEnum;
     priority?: TaskPriorityEnum;
     assigneeId?: string;
+    reviewerId?: string;
     dueDate?: Date;
-    tags?: string[];
   };
 }
 
@@ -133,7 +130,7 @@ export interface ITaskDependency {
  */
 export interface ITaskProgress {
   taskId: string;
-  completionPercentage: number;
+  completionRate: number;
   estimatedHours?: number;
   actualHours?: number;
   remainingHours?: number;

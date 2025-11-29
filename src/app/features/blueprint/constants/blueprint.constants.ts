@@ -2,117 +2,138 @@
  * Blueprint Constants
  *
  * Constants for Blueprint business logic
- * Following enterprise development guidelines
- * Simplified version - removed old visibility options
+ * Aligned with database schema: 20251129000001_create_multi_tenant_saas_schema.sql
  *
  * @module features/blueprint/constants/blueprint.constants
  */
 
-import { BlueprintStatusEnum, BlueprintVisibilityEnum, BlueprintCategoryEnum } from '../domain';
+import { BlueprintStatusEnum, BlueprintRoleEnum, ModuleTypeEnum } from '../domain';
 
 /**
- * Blueprint default values (simplified)
+ * Blueprint default values
  */
 export const BLUEPRINT_DEFAULTS = {
   /** Default status for new blueprints */
-  STATUS: BlueprintStatusEnum.DRAFT,
-  /** Default visibility for new blueprints (hidden instead of private) */
-  VISIBILITY: BlueprintVisibilityEnum.HIDDEN,
-  /** Default category for new blueprints */
-  CATEGORY: BlueprintCategoryEnum.CUSTOM,
+  STATUS: BlueprintStatusEnum.ACTIVE,
+  /** Default is_public for new blueprints */
+  IS_PUBLIC: false,
+  /** Default enabled modules */
+  ENABLED_MODULES: [ModuleTypeEnum.TASKS],
   /** Default page size for pagination */
   PAGE_SIZE: 20,
   /** Maximum name length */
-  MAX_NAME_LENGTH: 100,
+  MAX_NAME_LENGTH: 255,
   /** Maximum description length */
-  MAX_DESCRIPTION_LENGTH: 500,
-  /** Maximum tags count */
-  MAX_TAGS_COUNT: 10,
-  /** Maximum tag length */
-  MAX_TAG_LENGTH: 30
+  MAX_DESCRIPTION_LENGTH: 1000,
+  /** Maximum slug length */
+  MAX_SLUG_LENGTH: 100
 } as const;
 
 /**
  * Blueprint status display configuration
  */
 export const BLUEPRINT_STATUS_CONFIG = {
-  [BlueprintStatusEnum.DRAFT]: {
-    label: '草稿',
-    color: 'default',
-    icon: 'edit',
-    description: '藍圖尚未發布'
-  },
-  [BlueprintStatusEnum.PUBLISHED]: {
-    label: '已發布',
+  [BlueprintStatusEnum.ACTIVE]: {
+    label: '活躍',
     color: 'success',
     icon: 'check-circle',
-    description: '藍圖已公開發布'
+    description: '藍圖正在使用中'
   },
-  [BlueprintStatusEnum.ARCHIVED]: {
-    label: '已封存',
+  [BlueprintStatusEnum.INACTIVE]: {
+    label: '非活躍',
+    color: 'default',
+    icon: 'pause-circle',
+    description: '藍圖已暫停'
+  },
+  [BlueprintStatusEnum.SUSPENDED]: {
+    label: '已暫停',
     color: 'warning',
-    icon: 'inbox',
-    description: '藍圖已封存'
-  }
-} as const;
-
-/**
- * Blueprint visibility display configuration (simplified to public/hidden)
- */
-export const BLUEPRINT_VISIBILITY_CONFIG = {
-  [BlueprintVisibilityEnum.HIDDEN]: {
-    label: '隱藏',
-    color: 'default',
-    icon: 'lock',
-    description: '僅擁有者和成員可見'
+    icon: 'exclamation-circle',
+    description: '藍圖已被暫停'
   },
-  [BlueprintVisibilityEnum.PUBLIC]: {
-    label: '公開',
-    color: 'success',
-    icon: 'global',
-    description: '所有人可見'
+  [BlueprintStatusEnum.DELETED]: {
+    label: '已刪除',
+    color: 'error',
+    icon: 'delete',
+    description: '藍圖已被刪除'
   }
 } as const;
 
 /**
- * Blueprint category display configuration
+ * Blueprint role display configuration
  */
-export const BLUEPRINT_CATEGORY_CONFIG = {
-  [BlueprintCategoryEnum.SOFTWARE_DEVELOPMENT]: {
-    label: '軟體開發',
+export const BLUEPRINT_ROLE_CONFIG = {
+  [BlueprintRoleEnum.VIEWER]: {
+    label: '檢視者',
+    color: 'default',
+    icon: 'eye',
+    description: '只能檢視藍圖內容'
+  },
+  [BlueprintRoleEnum.CONTRIBUTOR]: {
+    label: '貢獻者',
     color: 'blue',
-    icon: 'code',
-    description: '軟體開發相關藍圖'
+    icon: 'edit',
+    description: '可以編輯藍圖內容'
   },
-  [BlueprintCategoryEnum.MARKETING]: {
-    label: '行銷',
-    color: 'orange',
-    icon: 'fund-projection-screen',
-    description: '行銷活動相關藍圖'
-  },
-  [BlueprintCategoryEnum.SALES]: {
-    label: '銷售',
+  [BlueprintRoleEnum.MAINTAINER]: {
+    label: '維護者',
     color: 'green',
-    icon: 'dollar',
-    description: '銷售流程相關藍圖'
-  },
-  [BlueprintCategoryEnum.HR]: {
-    label: '人力資源',
-    color: 'purple',
-    icon: 'user',
-    description: '人力資源相關藍圖'
-  },
-  [BlueprintCategoryEnum.OPERATIONS]: {
-    label: '營運',
-    color: 'cyan',
     icon: 'setting',
-    description: '營運管理相關藍圖'
+    description: '可以管理藍圖設定'
+  }
+} as const;
+
+/**
+ * Module type display configuration
+ */
+export const MODULE_TYPE_CONFIG = {
+  [ModuleTypeEnum.TASKS]: {
+    label: '任務',
+    color: 'blue',
+    icon: 'project',
+    description: '任務管理模組'
   },
-  [BlueprintCategoryEnum.CUSTOM]: {
-    label: '自訂',
-    color: 'default',
-    icon: 'appstore',
-    description: '自訂類別藍圖'
+  [ModuleTypeEnum.DIARY]: {
+    label: '日誌',
+    color: 'orange',
+    icon: 'book',
+    description: '施工日誌模組'
+  },
+  [ModuleTypeEnum.DASHBOARD]: {
+    label: '儀表板',
+    color: 'green',
+    icon: 'dashboard',
+    description: '數據儀表板模組'
+  },
+  [ModuleTypeEnum.BOT_WORKFLOW]: {
+    label: '自動化',
+    color: 'purple',
+    icon: 'robot',
+    description: '自動化工作流程模組'
+  },
+  [ModuleTypeEnum.FILES]: {
+    label: '檔案',
+    color: 'cyan',
+    icon: 'folder',
+    description: '檔案管理模組'
+  },
+  [ModuleTypeEnum.TODOS]: {
+    label: '待辦',
+    color: 'lime',
+    icon: 'check-square',
+    description: '待辦事項模組'
+  },
+  [ModuleTypeEnum.CHECKLISTS]: {
+    label: '檢查清單',
+    color: 'gold',
+    icon: 'ordered-list',
+    description: '品質檢查清單模組'
+  },
+  [ModuleTypeEnum.ISSUES]: {
+    label: '問題',
+    color: 'red',
+    icon: 'bug',
+    description: '問題追蹤模組'
   }
 } as const;
 
@@ -126,18 +147,20 @@ export const BLUEPRINT_VALIDATION_RULES = {
     maxLength: BLUEPRINT_DEFAULTS.MAX_NAME_LENGTH,
     pattern: /^[a-zA-Z0-9\u4e00-\u9fa5\s\-_]+$/
   },
+  slug: {
+    required: true,
+    minLength: 1,
+    maxLength: BLUEPRINT_DEFAULTS.MAX_SLUG_LENGTH,
+    pattern: /^[a-z0-9\-]+$/
+  },
   description: {
     required: false,
     maxLength: BLUEPRINT_DEFAULTS.MAX_DESCRIPTION_LENGTH
-  },
-  tags: {
-    maxCount: BLUEPRINT_DEFAULTS.MAX_TAGS_COUNT,
-    maxLength: BLUEPRINT_DEFAULTS.MAX_TAG_LENGTH
   }
 } as const;
 
 /**
- * Blueprint sort options for UI (simplified - removed usage_count)
+ * Blueprint sort options for UI
  */
 export const BLUEPRINT_SORT_OPTIONS = [
   { label: '名稱', value: 'name' },

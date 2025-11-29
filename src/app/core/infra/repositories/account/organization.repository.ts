@@ -1,10 +1,10 @@
 /**
  * Organization Repository
  *
- * 組織資料存取層（type='Organization' 專用）
- * Organization data access layer (dedicated for type='Organization')
+ * 組織資料存取層（type='org' 專用）
+ * Organization data access layer (dedicated for type='org')
  *
- * This repository enforces type='Organization' filtering at the repository level,
+ * This repository enforces type='org' filtering at the repository level,
  * eliminating the need for runtime type checks in the service layer.
  *
  * @module core/infra/repositories/account
@@ -21,8 +21,8 @@ import { BaseRepository } from '../base.repository';
 /**
  * Organization Repository
  *
- * Provides CRUD operations for Organization accounts (type='Organization').
- * All queries automatically filter by type='Organization'.
+ * Provides CRUD operations for Organization accounts (type='org').
+ * All queries automatically filter by type='org'.
  * Extends BaseRepository with organization-specific query methods.
  */
 @Injectable({
@@ -32,8 +32,8 @@ export class OrganizationRepository extends BaseRepository<Organization, Organiz
   protected tableName = 'accounts';
 
   /**
-   * 查詢所有組織（強制過濾 type='Organization'）
-   * Find all organizations (enforces type='Organization' filter)
+   * 查詢所有組織（強制過濾 type='org'）
+   * Find all organizations (enforces type='org' filter)
    *
    * @param {QueryOptions} [options] - Query options
    * @returns {Observable<Organization[]>} Array of organizations
@@ -41,7 +41,7 @@ export class OrganizationRepository extends BaseRepository<Organization, Organiz
   override findAll(options?: QueryOptions): Observable<Organization[]> {
     const filters = {
       ...(options?.filters || {}),
-      type: AccountType.ORGANIZATION
+      type: AccountType.ORG
     };
 
     return super.findAll({
@@ -120,7 +120,7 @@ export class OrganizationRepository extends BaseRepository<Organization, Organiz
   checkNameExists(name: string): Observable<boolean> {
     return this.count({
       name,
-      type: AccountType.ORGANIZATION
+      type: AccountType.ORG
     }).pipe(map(count => count > 0));
   }
 
@@ -134,7 +134,7 @@ export class OrganizationRepository extends BaseRepository<Organization, Organiz
   override create(data: OrganizationInsert): Observable<Organization> {
     const insertData = {
       ...data,
-      type: AccountType.ORGANIZATION
+      type: AccountType.ORG
     } as any;
     return super.create(insertData);
   }

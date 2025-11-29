@@ -2,7 +2,8 @@
  * Task Tree Component
  *
  * Tree view for tasks using NzTreeViewModule
- * Displays unlimited depth hierarchy with all task info
+ * Displays unlimited depth hierarchy with task info
+ * Aligned with database schema: 20251129000001_create_multi_tenant_saas_schema.sql
  *
  * @module features/blueprint/ui/task/task-tree
  */
@@ -20,11 +21,10 @@ import {
   getChildren,
   getStatusColor,
   getStatusText,
-  formatLevel,
-  getLevelColor,
-  formatProgress,
   getProgressStatus,
-  formatAssigneeInitials
+  formatAssigneeInitials,
+  getPriorityColor,
+  getPriorityText
 } from '../shared';
 
 /**
@@ -71,17 +71,13 @@ export class TaskTreeComponent {
     const children = getChildren(this.childrenMap(), task.id);
     return {
       id: task.id,
-      name: task.name,
+      title: task.title,
       level,
       expandable: children.length > 0,
-      childCount: task.childCount,
+      childCount: children.length,
       status: task.status,
-      progress: task.progress,
-      completedCount: task.completedCount,
-      totalCount: task.totalCount,
-      assigneeIds: task.assigneeIds,
-      area: task.area,
-      tags: task.tags,
+      completionRate: task.completionRate,
+      assigneeId: task.assigneeId,
       priority: task.priority,
       task
     };
@@ -104,11 +100,10 @@ export class TaskTreeComponent {
   /** Utility methods exposed to template */
   getStatusColor = getStatusColor;
   getStatusText = getStatusText;
-  formatLevel = formatLevel;
-  getLevelColor = getLevelColor;
-  formatProgress = formatProgress;
   getProgressStatus = getProgressStatus;
   formatAssigneeInitials = formatAssigneeInitials;
+  getPriorityColor = getPriorityColor;
+  getPriorityText = getPriorityText;
 
   /** Effect to update data source when tasks signal changes */
   constructor() {

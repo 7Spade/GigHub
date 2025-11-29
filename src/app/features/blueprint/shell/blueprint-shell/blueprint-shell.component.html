@@ -78,12 +78,10 @@
               {{ getStatusLabel(selectedBlueprint()?.status || '') }}
             </nz-tag>
           }
-          @if (selectedBlueprint()?.visibility) {
-            <nz-tag [nzColor]="getVisibilityColor(selectedBlueprint()?.visibility || '')">
-              <i nz-icon [nzType]="selectedBlueprint()?.visibility === 'public' ? 'global' : 'lock'" nzTheme="outline"></i>
-              {{ getVisibilityLabel(selectedBlueprint()?.visibility || '') }}
-            </nz-tag>
-          }
+          <nz-tag [nzColor]="selectedBlueprint()?.isPublic ? 'blue' : 'default'">
+            <i nz-icon [nzType]="selectedBlueprint()?.isPublic ? 'global' : 'lock'" nzTheme="outline"></i>
+            {{ selectedBlueprint()?.isPublic ? '公開' : '私有' }}
+          </nz-tag>
         </div>
         <p class="blueprint-description">{{ selectedBlueprint()?.description || '暫無描述' }}</p>
         <div class="blueprint-meta">

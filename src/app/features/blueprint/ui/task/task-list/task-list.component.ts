@@ -3,6 +3,7 @@
  *
  * Container component for task module
  * Provides view toggle between tree and table views
+ * Aligned with database schema: 20251129000001_create_multi_tenant_saas_schema.sql
  *
  * @module features/blueprint/ui/task/task-list
  */
@@ -48,12 +49,7 @@ export class TaskListComponent {
 
     if (!term) return allTasks;
 
-    return allTasks.filter(
-      task =>
-        task.name.toLowerCase().includes(term) ||
-        task.description?.toLowerCase().includes(term) ||
-        task.tags.some(tag => tag.toLowerCase().includes(term))
-    );
+    return allTasks.filter(task => task.title.toLowerCase().includes(term) || task.description?.toLowerCase().includes(term));
   });
 
   /** Set view mode to tree */

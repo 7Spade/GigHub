@@ -3,6 +3,7 @@
  *
  * Utility functions for task display formatting
  * Shared between tree and table views
+ * Aligned with database schema: 20251129000001_create_multi_tenant_saas_schema.sql
  *
  * @module features/blueprint/ui/task/shared/task-display.utils
  */
@@ -15,8 +16,10 @@ import { TaskStatus, TaskPriority } from '../../../domain';
 const STATUS_COLORS: Record<TaskStatus, string> = {
   pending: 'default',
   in_progress: 'processing',
+  in_review: 'warning',
   completed: 'success',
-  cancelled: 'error'
+  cancelled: 'error',
+  blocked: 'magenta'
 };
 
 /**
@@ -25,28 +28,32 @@ const STATUS_COLORS: Record<TaskStatus, string> = {
 const STATUS_TEXTS: Record<TaskStatus, string> = {
   pending: '待處理',
   in_progress: '進行中',
+  in_review: '審核中',
   completed: '已完成',
-  cancelled: '已取消'
+  cancelled: '已取消',
+  blocked: '已阻塞'
 };
 
 /**
  * Priority color mapping
  */
 const PRIORITY_COLORS: Record<TaskPriority, string> = {
-  low: 'default',
+  lowest: 'default',
+  low: 'blue',
   medium: 'warning',
-  high: 'error',
-  urgent: 'magenta'
+  high: 'orange',
+  highest: 'error'
 };
 
 /**
  * Priority display text mapping
  */
 const PRIORITY_TEXTS: Record<TaskPriority, string> = {
+  lowest: '最低',
   low: '低',
   medium: '中',
   high: '高',
-  urgent: '緊急'
+  highest: '最高'
 };
 
 /**

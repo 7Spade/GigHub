@@ -3,7 +3,7 @@
  *
  * Modal dialog for creating/editing tasks (任務表單對話框)
  * Using @delon/form for dynamic form generation
- * Following enterprise guidelines and vertical slice architecture
+ * Aligned with database schema: 20251129000001_create_multi_tenant_saas_schema.sql
  *
  * Dependency flow:
  * Component → Store (Facade) → Service → Repository
@@ -26,12 +26,12 @@ import { TaskModel, CreateTaskRequest, UpdateTaskRequest, TaskPriority, TaskStat
 export type TaskFormMode = 'create' | 'edit';
 
 /**
- * Dialog input data
+ * Dialog input data (aligned with new schema - blueprintId instead of workspaceId)
  */
 export interface TaskFormDialogData {
   mode: TaskFormMode;
   task?: TaskModel;
-  workspaceId: string;
+  blueprintId: string;
   parentId?: string | null;
 }
 
@@ -39,13 +39,10 @@ export interface TaskFormDialogData {
  * Form values interface
  */
 interface TaskFormValues {
-  name: string;
+  title: string;
   description?: string;
   priority: TaskPriority;
   status?: TaskStatus;
-  area?: string;
-  tags?: string;
-  dueDate?: Date;
 }
 
 /**
@@ -78,11 +75,12 @@ export class TaskFormDialogComponent implements OnInit {
   readonly dialogTitle = this.isEditMode ? '編輯任務' : '建立任務';
 
   /**
-   * Form schema definition (JSON Schema)
+   * Form schema definition (JSON Schema) - Simplified
+   * Aligned with database schema
    */
   readonly schema: SFSchema = {
     properties: {
-      name: {
+      title: {
         type: 'string',
         title: '任務名稱',
         minLength: 1,
@@ -97,10 +95,11 @@ export class TaskFormDialogComponent implements OnInit {
         type: 'string',
         title: '優先級',
         enum: [
+          { label: '最低', value: 'lowest' },
           { label: '低', value: 'low' },
           { label: '中', value: 'medium' },
           { label: '高', value: 'high' },
-          { label: '緊急', value: 'urgent' }
+          { label: '最高', value: 'highest' }
         ],
         default: 'medium'
       },
@@ -110,38 +109,26 @@ export class TaskFormDialogComponent implements OnInit {
         enum: [
           { label: '待處理', value: 'pending' },
           { label: '進行中', value: 'in_progress' },
+          { label: '審核中', value: 'in_review' },
           { label: '已完成', value: 'completed' },
-          { label: '已取消', value: 'cancelled' }
+          { label: '已取消', value: 'cancelled' },
+          { label: '已阻塞', value: 'blocked' }
         ],
         default: 'pending'
-      },
-      area: {
-        type: 'string',
-        title: '區域',
-        maxLength: 100
-      },
-      tags: {
-        type: 'string',
-        title: '標籤'
-      },
-      dueDate: {
-        type: 'string',
-        title: '截止日期',
-        format: 'date'
       }
     },
-    required: ['name', 'priority']
+    required: ['title', 'priority']
   };
 
   /**
-   * UI schema for form layout
+   * UI schema for form layout (simplified)
    */
   readonly uiSchema: SFUISchema = {
     '*': {
       spanLabelFixed: 100,
       grid: { span: 24 }
     },
-    $name: {
+    $title: {
       widget: 'string',
       placeholder: '請輸入任務名稱'
     },
@@ -157,18 +144,6 @@ export class TaskFormDialogComponent implements OnInit {
     $status: {
       widget: 'select',
       placeholder: '請選擇狀態'
-    },
-    $area: {
-      widget: 'string',
-      placeholder: '請輸入區域（選填）'
-    },
-    $tags: {
-      widget: 'string',
-      placeholder: '輸入標籤，用逗號分隔'
-    },
-    $dueDate: {
-      widget: 'date',
-      placeholder: '請選擇截止日期'
     }
   };
 
@@ -177,13 +152,10 @@ export class TaskFormDialogComponent implements OnInit {
     if (this.isEditMode && this.dialogData.task) {
       const task = this.dialogData.task;
       this.formData.set({
-        name: task.name,
+        title: task.title,
         description: task.description,
         priority: task.priority,
-        status: task.status,
-        area: task.area,
-        tags: task.tags?.join(','),
-        dueDate: task.dueDate
+        status: task.status
       });
     } else {
       // Default values for create mode
@@ -213,13 +185,10 @@ export class TaskFormDialogComponent implements OnInit {
     this.loading.set(true);
 
     try {
-      // Parse tags from string
-      const tags = this.parseTags(formValue.tags);
-
       if (this.isEditMode) {
-        await this.handleUpdate(formValue, tags);
+        await this.handleUpdate(formValue);
       } else {
-        await this.handleCreate(formValue, tags);
+        await this.handleCreate(formValue);
       }
     } catch (error) {
       console.error('Task form error:', error);
@@ -230,18 +199,15 @@ export class TaskFormDialogComponent implements OnInit {
   }
 
   /**
-   * Handle task creation
+   * Handle task creation (simplified - blueprintId instead of workspaceId)
    */
-  private async handleCreate(formValue: TaskFormValues, tags: string[]): Promise<void> {
+  private async handleCreate(formValue: TaskFormValues): Promise<void> {
     const request: CreateTaskRequest = {
-      workspaceId: this.dialogData.workspaceId,
+      blueprintId: this.dialogData.blueprintId,
       parentId: this.dialogData.parentId,
-      name: formValue.name,
+      title: formValue.title,
       description: formValue.description,
-      priority: formValue.priority,
-      area: formValue.area,
-      tags,
-      dueDate: formValue.dueDate
+      priority: formValue.priority
     };
 
     const result = await this.taskStore.createTask(request);
@@ -250,37 +216,23 @@ export class TaskFormDialogComponent implements OnInit {
   }
 
   /**
-   * Handle task update
+   * Handle task update (simplified)
    */
-  private async handleUpdate(formValue: TaskFormValues, tags: string[]): Promise<void> {
+  private async handleUpdate(formValue: TaskFormValues): Promise<void> {
     if (!this.dialogData.task) {
       throw new Error('Task not found for update');
     }
 
     const request: UpdateTaskRequest = {
-      name: formValue.name,
+      title: formValue.title,
       description: formValue.description,
       priority: formValue.priority,
-      status: formValue.status,
-      area: formValue.area,
-      tags,
-      dueDate: formValue.dueDate
+      status: formValue.status
     };
 
     const result = await this.taskStore.updateTask(this.dialogData.task.id, request);
     this.messageService.success('任務更新成功');
     this.modalRef.close(result);
-  }
-
-  /**
-   * Parse tags from string
-   */
-  private parseTags(tags: string | undefined): string[] {
-    if (!tags) return [];
-    return tags
-      .split(',')
-      .map(tag => tag.trim())
-      .filter(tag => tag.length > 0);
   }
 
   /**

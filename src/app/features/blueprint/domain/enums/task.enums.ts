@@ -2,54 +2,30 @@
  * Task Enums
  *
  * Enum definitions for Task business logic
- * Following vertical slice architecture
+ * Aligned with database schema: 20251129000001_create_multi_tenant_saas_schema.sql
  *
  * @module features/blueprint/domain/enums/task.enums
  */
 
 /**
- * Task status enum for business logic
+ * Task status enum (matches database enum)
  */
 export enum TaskStatusEnum {
-  TODO = 'todo',
+  PENDING = 'pending',
   IN_PROGRESS = 'in_progress',
   IN_REVIEW = 'in_review',
-  DONE = 'done',
+  COMPLETED = 'completed',
   CANCELLED = 'cancelled',
-  // Legacy aliases for backward compatibility
-  PENDING = 'pending',
-  COMPLETED = 'completed'
+  BLOCKED = 'blocked'
 }
 
 /**
- * Task priority enum for business logic
+ * Task priority enum (matches database enum)
  */
 export enum TaskPriorityEnum {
   LOWEST = 'lowest',
   LOW = 'low',
   MEDIUM = 'medium',
   HIGH = 'high',
-  HIGHEST = 'highest',
-  // Legacy alias
-  URGENT = 'urgent'
-}
-
-/**
- * Task type enum for business logic
- */
-export enum TaskTypeEnum {
-  TASK = 'task',
-  MILESTONE = 'milestone',
-  BUG = 'bug',
-  FEATURE = 'feature',
-  IMPROVEMENT = 'improvement'
-}
-
-/**
- * Assignee type enum for business logic
- */
-export enum AssigneeTypeEnum {
-  USER = 'user',
-  TEAM = 'team',
-  ORGANIZATION = 'organization'
+  HIGHEST = 'highest'
 }
