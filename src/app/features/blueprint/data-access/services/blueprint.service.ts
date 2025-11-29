@@ -2,7 +2,7 @@
  * Blueprint Service
  *
  * Business logic for Blueprint Container management
- * Following vertical slice architecture
+ * Aligned with database schema: 20251129000001_create_multi_tenant_saas_schema.sql
  *
  * Uses Angular Signals for reactive state management
  *
@@ -37,20 +37,17 @@ export class BlueprintService {
   readonly error = this.errorState.asReadonly();
 
   // Computed signals for derived state
-  readonly publishedBlueprints = computed(() => this.blueprints().filter(b => b.status === BlueprintStatusEnum.PUBLISHED));
+  readonly activeBlueprints = computed(() => this.blueprints().filter(b => b.status === BlueprintStatusEnum.ACTIVE));
 
-  readonly draftBlueprints = computed(() => this.blueprints().filter(b => b.status === BlueprintStatusEnum.DRAFT));
-
-  readonly archivedBlueprints = computed(() => this.blueprints().filter(b => b.status === BlueprintStatusEnum.ARCHIVED));
+  readonly inactiveBlueprints = computed(() => this.blueprints().filter(b => b.status === BlueprintStatusEnum.INACTIVE));
 
   readonly statistics = computed<BlueprintStatistics>(() => {
     const blueprints = this.blueprints();
 
     return {
       totalCount: blueprints.length,
-      publishedCount: blueprints.filter(b => b.status === BlueprintStatusEnum.PUBLISHED).length,
-      draftCount: blueprints.filter(b => b.status === BlueprintStatusEnum.DRAFT).length,
-      archivedCount: blueprints.filter(b => b.status === BlueprintStatusEnum.ARCHIVED).length
+      activeCount: blueprints.filter(b => b.status === BlueprintStatusEnum.ACTIVE).length,
+      inactiveCount: blueprints.filter(b => b.status === BlueprintStatusEnum.INACTIVE).length
     };
   });
 
@@ -73,7 +70,7 @@ export class BlueprintService {
   }
 
   /**
-   * Load public blueprints (marketplace)
+   * Load public blueprints
    */
   async loadPublicBlueprints(): Promise<void> {
     this.loadingState.set(true);
@@ -113,22 +110,23 @@ export class BlueprintService {
   }
 
   /**
-   * Create new blueprint (simplified - structure is optional)
+   * Create new blueprint
    */
   async createBlueprint(request: CreateBlueprintRequest): Promise<BlueprintModel> {
     this.loadingState.set(true);
     this.errorState.set(null);
 
     try {
-      // Build the insert object - structure is now optional
+      // Generate slug from name if not provided
+      const slug = request.slug ?? this.generateSlug(request.name);
+
       const blueprintInsert = {
         name: request.name,
+        slug,
         description: request.description,
-        category: request.category,
-        visibility: request.visibility || 'hidden',
         ownerId: request.ownerId,
-        ownerType: request.ownerType,
-        tags: request.tags
+        isPublic: request.isPublic ?? false,
+        enabledModules: request.enabledModules ?? ['tasks']
       };
 
       const newBlueprint = await firstValueFrom(this.blueprintRepo.create(blueprintInsert));
@@ -143,6 +141,20 @@ export class BlueprintService {
     } finally {
       this.loadingState.set(false);
     }
+  }
+
+  /**
+   * Generate slug from name
+   * Converts name to lowercase, replaces spaces with hyphens, removes special chars
+   */
+  private generateSlug(name: string): string {
+    return name
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, '-') // Replace spaces with hyphens
+      .replace(/[^\w\u4e00-\u9fff-]/g, '') // Allow word chars, Chinese chars, and hyphens
+      .replace(/-+/g, '-') // Replace multiple hyphens with single
+      .replace(/^-|-$/g, ''); // Remove leading/trailing hyphens
   }
 
   /**
@@ -172,14 +184,14 @@ export class BlueprintService {
   }
 
   /**
-   * Delete blueprint
+   * Delete blueprint (soft delete by setting status to deleted)
    */
   async deleteBlueprint(id: string): Promise<void> {
     this.loadingState.set(true);
     this.errorState.set(null);
 
     try {
-      await firstValueFrom(this.blueprintRepo.delete(id));
+      await firstValueFrom(this.blueprintRepo.update(id, { status: BlueprintStatusEnum.DELETED }));
 
       // Update state
       this.blueprintsState.update(blueprints => blueprints.filter(b => b.id !== id));
@@ -196,40 +208,31 @@ export class BlueprintService {
   }
 
   /**
-   * Publish blueprint
+   * Deactivate blueprint
    */
-  async publishBlueprint(id: string): Promise<BlueprintModel> {
-    return this.updateBlueprint(id, { status: BlueprintStatusEnum.PUBLISHED });
+  async deactivateBlueprint(id: string): Promise<BlueprintModel> {
+    return this.updateBlueprint(id, { status: BlueprintStatusEnum.INACTIVE });
   }
 
   /**
-   * Archive blueprint
+   * Activate blueprint
    */
-  async archiveBlueprint(id: string): Promise<BlueprintModel> {
-    return this.updateBlueprint(id, { status: BlueprintStatusEnum.ARCHIVED });
+  async activateBlueprint(id: string): Promise<BlueprintModel> {
+    return this.updateBlueprint(id, { status: BlueprintStatusEnum.ACTIVE });
   }
 
   /**
    * Search blueprints
-   *
-   * Note: Full-text search is not yet implemented in the repository.
-   * This method falls back to client-side filtering of public blueprints.
    */
   async searchBlueprints(searchTerm: string): Promise<BlueprintModel[]> {
     this.loadingState.set(true);
     this.errorState.set(null);
 
     try {
-      // Fallback to client-side filtering until repository search is implemented
+      // Client-side filtering
       const blueprints = await firstValueFrom(this.blueprintRepo.findPublicBlueprints());
       const term = searchTerm.toLowerCase();
-      return blueprints.filter(
-        b =>
-          b.name.toLowerCase().includes(term) ||
-          b.description?.toLowerCase().includes(term) ||
-          b.category?.toLowerCase().includes(term) ||
-          b.tags?.some(tag => tag.toLowerCase().includes(term))
-      );
+      return blueprints.filter(b => b.name.toLowerCase().includes(term) || b.description?.toLowerCase().includes(term));
     } catch (error) {
       this.errorState.set(error instanceof Error ? error.message : 'Failed to search blueprints');
       throw error;

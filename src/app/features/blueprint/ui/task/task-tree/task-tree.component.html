@@ -1,15 +1,14 @@
 <!--
   Task Tree Component Template
   
-  Displays tasks in tree structure with all required information:
+  Displays tasks in tree structure with simplified information:
   - Status badges
-  - Level indicators (L0, L1, L2, L3+)
-  - Task name
-  - Progress bars
-  - Completed/Total counts
-  - Assignee avatars
-  - Area tags
-  - Labels
+  - Priority
+  - Task title
+  - Completion rate
+  - Assignee avatar
+  - Actions
+  Aligned with database schema: 20251129000001_create_multi_tenant_saas_schema.sql
 -->
 
 @if (rootTasks().length === 0) {
@@ -33,17 +32,17 @@
 <!-- Node Content Template -->
 <ng-template #nodeContent let-node>
   <div class="tree-node-content" (click)="onNodeClick(node)">
-    <!-- Level Badge -->
-    <nz-tag [nzColor]="getLevelColor(node.level)" class="level-tag">
-      {{ formatLevel(node.level) }}
+    <!-- Priority Badge -->
+    <nz-tag [nzColor]="getPriorityColor(node.priority)" class="priority-tag">
+      {{ getPriorityText(node.priority) }}
     </nz-tag>
 
     <!-- Status Badge -->
     <nz-badge [nzStatus]="getStatusColor(node.status)" [nzText]="getStatusText(node.status)"></nz-badge>
 
-    <!-- Task Name -->
+    <!-- Task Title -->
     <span class="task-name" [class.completed]="node.status === 'completed'">
-      {{ node.name }}
+      {{ node.title }}
     </span>
 
     <!-- Child Count -->
@@ -53,53 +52,24 @@
       </nz-tag>
     }
 
-    <!-- Progress Bar -->
+    <!-- Completion Rate Progress Bar -->
     <div class="progress-wrapper">
       <nz-progress 
-        [nzPercent]="node.progress" 
+        [nzPercent]="node.completionRate" 
         [nzSize]="'small'"
-        [nzStatus]="getProgressStatus(node.progress)"
+        [nzStatus]="getProgressStatus(node.completionRate)"
         [nzShowInfo]="true">
       </nz-progress>
     </div>
 
-    <!-- Count Display -->
-    <span class="count-display">
-      {{ formatProgress(node.completedCount, node.totalCount) }}
-    </span>
-
-    <!-- Assignees -->
-    @if (node.assigneeIds.length > 0) {
-      <nz-avatar-group class="assignee-group">
-        @for (assigneeId of node.assigneeIds.slice(0, 3); track assigneeId) {
-          <nz-avatar 
-            [nzText]="formatAssigneeInitials(assigneeId)"
-            nzSize="small">
-          </nz-avatar>
-        }
-        @if (node.assigneeIds.length > 3) {
-          <nz-avatar 
-            [nzText]="'+' + (node.assigneeIds.length - 3)"
-            nzSize="small">
-          </nz-avatar>
-        }
-      </nz-avatar-group>
-    }
-
-    <!-- Area Tag -->
-    @if (node.area) {
-      <nz-tag nzColor="geekblue" class="area-tag">
-        <i nz-icon nzType="environment" nzTheme="outline"></i>
-        {{ node.area }}
-      </nz-tag>
-    }
-
-    <!-- Labels -->
-    @for (tag of node.tags.slice(0, 2); track tag) {
-      <nz-tag nzColor="blue">{{ tag }}</nz-tag>
-    }
-    @if (node.tags.length > 2) {
-      <nz-tag>+{{ node.tags.length - 2 }}</nz-tag>
+    <!-- Assignee -->
+    @if (node.assigneeId) {
+      <nz-avatar 
+        [nzText]="formatAssigneeInitials(node.assigneeId)"
+        nzSize="small"
+        nz-tooltip
+        [nzTooltipTitle]="node.assigneeId">
+      </nz-avatar>
     }
 
     <!-- Actions -->

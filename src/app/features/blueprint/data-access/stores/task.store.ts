@@ -3,7 +3,9 @@
  *
  * State management store for Task feature
  * Acts as Facade layer providing unified API to components
- * Following vertical slice architecture
+ * Aligned with database schema: 20251129000001_create_multi_tenant_saas_schema.sql
+ *
+ * Tasks belong directly to blueprints
  *
  * @module features/blueprint/data-access/stores/task.store
  */
@@ -17,7 +19,6 @@ import { TaskService } from '../services';
  * Task Store (Facade)
  *
  * Provides unified API for Task Module
- * Ready for integration with Blueprint Container
  */
 @Injectable({ providedIn: 'root' })
 export class TaskStore {
@@ -38,10 +39,10 @@ export class TaskStore {
   readonly rootTasks = this.taskService.rootTasks;
 
   /**
-   * Load tasks for workspace
+   * Load tasks for blueprint
    */
-  async loadWorkspaceTasks(workspaceId: string): Promise<void> {
-    await this.taskService.loadTasksByWorkspace(workspaceId);
+  async loadBlueprintTasks(blueprintId: string): Promise<void> {
+    await this.taskService.loadTasksByBlueprint(blueprintId);
   }
 
   /**

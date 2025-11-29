@@ -3,6 +3,7 @@
  *
  * Table view for tasks with sorting and pagination
  * Displays all task information in tabular format
+ * Aligned with database schema: 20251129000001_create_multi_tenant_saas_schema.sql
  *
  * @module features/blueprint/ui/task/task-table
  */
@@ -11,16 +12,7 @@ import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy, Signal
 import { SHARED_IMPORTS } from '@shared';
 
 import { Task } from '../../../domain';
-import {
-  getStatusColor,
-  getStatusText,
-  formatLevel,
-  getLevelColor,
-  getProgressStatus,
-  formatAssigneeInitials,
-  getPriorityColor,
-  getPriorityText
-} from '../shared';
+import { getStatusColor, getStatusText, getProgressStatus, formatAssigneeInitials, getPriorityColor, getPriorityText } from '../shared';
 
 /**
  * Task Table Component
@@ -54,8 +46,6 @@ export class TaskTableComponent {
   /** Utility methods exposed to template */
   getStatusColor = getStatusColor;
   getStatusText = getStatusText;
-  formatLevel = formatLevel;
-  getLevelColor = getLevelColor;
   getProgressStatus = getProgressStatus;
   formatAssigneeInitials = formatAssigneeInitials;
   getPriorityColor = getPriorityColor;
@@ -76,10 +66,5 @@ export class TaskTableComponent {
   onDelete(event: Event, task: Task): void {
     event.stopPropagation();
     this.taskDelete.emit(task);
-  }
-
-  /** Get indent padding for hierarchical display */
-  getIndentPadding(depth: number): number {
-    return depth * 20;
   }
 }

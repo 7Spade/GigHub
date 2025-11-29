@@ -2,7 +2,7 @@
  * Task Delete Confirm Dialog Component
  *
  * Confirmation dialog for deleting tasks (任務刪除確認對話框)
- * Following enterprise guidelines and vertical slice architecture
+ * Aligned with database schema: 20251129000001_create_multi_tenant_saas_schema.sql
  *
  * Dependency flow:
  * Component → Store (Facade) → Service → Repository
@@ -23,6 +23,7 @@ import { TaskModel } from '../../../domain';
  */
 export interface TaskDeleteConfirmDialogData {
   task: TaskModel;
+  childCount?: number;
 }
 
 /**
@@ -42,12 +43,12 @@ export interface TaskDeleteConfirmDialogData {
 
       <div class="confirm-message">
         <p class="title">確定要刪除此任務嗎？</p>
-        <p class="task-name">{{ task.name }}</p>
+        <p class="task-name">{{ task.title }}</p>
 
-        @if (task.childCount > 0) {
+        @if (childCount > 0) {
           <p class="child-warning">
             <span nz-icon nzType="warning" nzTheme="outline"></span>
-            此任務包含 {{ task.childCount }} 個子任務，將一併刪除
+            此任務包含 {{ childCount }} 個子任務，將一併刪除
           </p>
         }
 
@@ -131,6 +132,7 @@ export class TaskDeleteConfirmDialogComponent {
 
   // Task data
   readonly task = this.dialogData.task;
+  readonly childCount = this.dialogData.childCount ?? 0;
 
   /**
    * Handle delete confirmation

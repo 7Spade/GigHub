@@ -2,38 +2,49 @@
  * Blueprint Enums
  *
  * Enum definitions for Blueprint business logic
- * Following vertical slice architecture
+ * Aligned with database schema: 20251129000001_create_multi_tenant_saas_schema.sql
  *
  * @module features/blueprint/domain/enums/blueprint.enums
  */
 
 /**
- * Blueprint visibility enum for business logic (simplified)
- * - PUBLIC: 公開，任何人都能看到
- * - HIDDEN: 隱藏/私有，只有擁有者和成員能看到
- */
-export enum BlueprintVisibilityEnum {
-  HIDDEN = 'hidden',
-  PUBLIC = 'public'
-}
-
-/**
- * Blueprint status enum for business logic
+ * Blueprint status enum (matches account_status in database)
  */
 export enum BlueprintStatusEnum {
-  DRAFT = 'draft',
-  PUBLISHED = 'published',
-  ARCHIVED = 'archived'
+  ACTIVE = 'active',
+  INACTIVE = 'inactive',
+  SUSPENDED = 'suspended',
+  DELETED = 'deleted'
 }
 
 /**
- * Blueprint category enum for business logic (optional)
+ * Blueprint role enum for members
  */
-export enum BlueprintCategoryEnum {
-  SOFTWARE_DEVELOPMENT = 'software_development',
-  MARKETING = 'marketing',
-  SALES = 'sales',
-  HR = 'hr',
-  OPERATIONS = 'operations',
-  CUSTOM = 'custom'
+export enum BlueprintRoleEnum {
+  VIEWER = 'viewer',
+  CONTRIBUTOR = 'contributor',
+  MAINTAINER = 'maintainer'
+}
+
+/**
+ * Blueprint team access level enum
+ */
+export enum BlueprintTeamAccessEnum {
+  READ = 'read',
+  WRITE = 'write',
+  ADMIN = 'admin'
+}
+
+/**
+ * Module type enum for blueprint enabled_modules
+ */
+export enum ModuleTypeEnum {
+  TASKS = 'tasks',
+  DIARY = 'diary',
+  DASHBOARD = 'dashboard',
+  BOT_WORKFLOW = 'bot_workflow',
+  FILES = 'files',
+  TODOS = 'todos',
+  CHECKLISTS = 'checklists',
+  ISSUES = 'issues'
 }

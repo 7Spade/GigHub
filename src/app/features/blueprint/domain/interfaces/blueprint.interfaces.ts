@@ -2,31 +2,27 @@
  * Blueprint Interfaces
  *
  * Interface definitions for Blueprint feature contracts
- * Following enterprise development guidelines
- * Simplified version - removed unused statistics fields
+ * Aligned with database schema: 20251129000001_create_multi_tenant_saas_schema.sql
  *
  * @module features/blueprint/domain/interfaces/blueprint.interfaces
  */
 
-import { BlueprintStatusEnum, BlueprintVisibilityEnum, BlueprintCategoryEnum } from '../enums';
+import { BlueprintStatusEnum } from '../enums';
 
 /**
  * Blueprint filter options interface
  */
 export interface IBlueprintFilterOptions {
   status?: BlueprintStatusEnum;
-  visibility?: BlueprintVisibilityEnum;
-  category?: BlueprintCategoryEnum;
+  isPublic?: boolean;
   ownerId?: string;
-  ownerType?: 'user' | 'organization' | 'team';
   searchTerm?: string;
-  tags?: string[];
   dateFrom?: Date;
   dateTo?: Date;
 }
 
 /**
- * Blueprint sort options interface (simplified - removed usage_count)
+ * Blueprint sort options interface
  */
 export interface IBlueprintSortOptions {
   field: 'name' | 'created_at' | 'updated_at';
@@ -52,15 +48,13 @@ export interface IBlueprintQueryOptions {
 }
 
 /**
- * Blueprint statistics interface (simplified)
+ * Blueprint statistics interface
  */
 export interface IBlueprintStatistics {
   total: number;
-  draft: number;
-  published: number;
-  archived: number;
-  byCategory: Record<BlueprintCategoryEnum, number>;
-  byVisibility: Record<BlueprintVisibilityEnum, number>;
+  byStatus: Record<BlueprintStatusEnum, number>;
+  publicCount: number;
+  privateCount: number;
 }
 
 /**
@@ -96,13 +90,12 @@ export interface IBlueprintValidationWarning {
 export interface IBlueprintCloneOptions {
   newName: string;
   newOwnerId: string;
-  newOwnerType: 'user' | 'organization' | 'team';
   includeMetadata?: boolean;
   includeTasks?: boolean;
 }
 
 /**
- * Blueprint export options interface (simplified)
+ * Blueprint export options interface
  */
 export interface IBlueprintExportOptions {
   format: 'json' | 'yaml' | 'csv';

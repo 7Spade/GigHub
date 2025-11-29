@@ -3,80 +3,49 @@
  *
  * State management store for Blueprint feature
  * Acts as Facade layer providing unified API to components
- * Following vertical slice architecture
+ * Aligned with database schema: 20251129000001_create_multi_tenant_saas_schema.sql
  *
  * @module features/blueprint/data-access/stores/blueprint.store
  */
 
 import { Injectable, inject } from '@angular/core';
 
-import {
-  BlueprintModel,
-  CreateBlueprintRequest,
-  UpdateBlueprintRequest,
-  WorkspaceModel,
-  CreateWorkspaceRequest,
-  TenantType
-} from '../../domain';
-import { BlueprintService, WorkspaceService } from '../services';
+import { BlueprintModel, CreateBlueprintRequest, UpdateBlueprintRequest } from '../../domain';
+import { BlueprintService } from '../services';
 
 /**
  * Blueprint Store (Facade)
  *
  * Provides unified API for Blueprint Container system
- * Integrates with Account Context (to be added later)
+ * Note: In the new schema, blueprints serve as both templates AND workspaces
  */
 @Injectable({ providedIn: 'root' })
 export class BlueprintStore {
   private readonly blueprintService = inject(BlueprintService);
-  private readonly workspaceService = inject(WorkspaceService);
 
   // Expose Blueprint Service state
   readonly blueprints = this.blueprintService.blueprints;
   readonly selectedBlueprint = this.blueprintService.selectedBlueprint;
-  readonly blueprintLoading = this.blueprintService.loading;
-  readonly blueprintError = this.blueprintService.error;
-  readonly blueprintStatistics = this.blueprintService.statistics;
+  readonly loading = this.blueprintService.loading;
+  readonly error = this.blueprintService.error;
+  readonly statistics = this.blueprintService.statistics;
 
-  // Expose Workspace Service state
-  readonly workspaces = this.workspaceService.workspaces;
-  readonly selectedWorkspace = this.workspaceService.selectedWorkspace;
-  readonly workspaceLoading = this.workspaceService.loading;
-  readonly workspaceError = this.workspaceService.error;
-  readonly workspaceStatistics = this.workspaceService.statistics;
-
-  // Computed signals (shortcuts)
-  readonly publishedBlueprints = this.blueprintService.publishedBlueprints;
-  readonly draftBlueprints = this.blueprintService.draftBlueprints;
-  readonly activeWorkspaces = this.workspaceService.activeWorkspaces;
-  readonly archivedWorkspaces = this.workspaceService.archivedWorkspaces;
+  // Computed signals
+  readonly activeBlueprints = this.blueprintService.activeBlueprints;
+  readonly inactiveBlueprints = this.blueprintService.inactiveBlueprints;
 
   /**
-   * Load blueprints by owner (Account Context aware)
+   * Load blueprints by owner
    */
   async loadOwnerBlueprints(ownerId: string): Promise<void> {
     await this.blueprintService.loadBlueprintsByOwner(ownerId);
   }
 
   /**
-   * Load public blueprints (marketplace)
+   * Load public blueprints
    */
-  async loadMarketplaceBlueprints(): Promise<void> {
+  async loadPublicBlueprints(): Promise<void> {
     await this.blueprintService.loadPublicBlueprints();
-  }
-
-  /**
-   * Load workspaces for tenant (Account Context aware)
-   */
-  async loadTenantWorkspaces(tenantId: string): Promise<void> {
-    await this.workspaceService.loadWorkspacesByTenant(tenantId);
-  }
-
-  /**
-   * Load active workspaces for tenant
-   */
-  async loadActiveTenantWorkspaces(tenantId: string): Promise<void> {
-    await this.workspaceService.loadActiveWorkspaces(tenantId);
   }
 
   /**
@@ -84,13 +53,6 @@ export class BlueprintStore {
    */
   async getBlueprint(id: string): Promise<BlueprintModel> {
     return this.blueprintService.getBlueprintById(id);
-  }
-
-  /**
-   * Get workspace by ID
-   */
-  async getWorkspace(id: string): Promise<WorkspaceModel> {
-    return this.workspaceService.getWorkspaceById(id);
   }
 
   /**
@@ -108,66 +70,24 @@ export class BlueprintStore {
   }
 
   /**
-   * Delete blueprint
+   * Delete blueprint (soft delete)
    */
   async deleteBlueprint(id: string): Promise<void> {
     return this.blueprintService.deleteBlueprint(id);
   }
 
   /**
-   * Publish blueprint
+   * Deactivate blueprint
    */
-  async publishBlueprint(id: string): Promise<BlueprintModel> {
-    return this.blueprintService.publishBlueprint(id);
+  async deactivateBlueprint(id: string): Promise<BlueprintModel> {
+    return this.blueprintService.deactivateBlueprint(id);
   }
 
   /**
-   * Archive blueprint
+   * Activate blueprint
    */
-  async archiveBlueprint(id: string): Promise<BlueprintModel> {
-    return this.blueprintService.archiveBlueprint(id);
-  }
-
-  /**
-   * Create workspace (standalone)
-   */
-  async createWorkspace(request: CreateWorkspaceRequest): Promise<WorkspaceModel> {
-    return this.workspaceService.createWorkspace(request);
-  }
-
-  /**
-   * Create workspace from blueprint (instantiation)
-   */
-  async instantiateWorkspace(blueprintId: string, name: string, tenantId: string, tenantType: TenantType): Promise<WorkspaceModel> {
-    return this.workspaceService.createWorkspaceFromBlueprint(blueprintId, name, tenantId, tenantType);
-  }
-
-  /**
-   * Update workspace
-   */
-  async updateWorkspace(id: string, updates: { name?: string; description?: string }): Promise<WorkspaceModel> {
-    return this.workspaceService.updateWorkspace(id, updates);
-  }
-
-  /**
-   * Delete workspace
-   */
-  async deleteWorkspace(id: string): Promise<void> {
-    return this.workspaceService.deleteWorkspace(id);
-  }
-
-  /**
-   * Archive workspace
-   */
-  async archiveWorkspace(id: string): Promise<WorkspaceModel> {
-    return this.workspaceService.archiveWorkspace(id);
-  }
-
-  /**
-   * Activate workspace
-   */
-  async activateWorkspace(id: string): Promise<WorkspaceModel> {
-    return this.workspaceService.activateWorkspace(id);
+  async activateBlueprint(id: string): Promise<BlueprintModel> {
+    return this.blueprintService.activateBlueprint(id);
   }
 
   /**
@@ -178,38 +98,16 @@ export class BlueprintStore {
   }
 
   /**
-   * Clear blueprint error
+   * Clear error
    */
-  clearBlueprintError(): void {
+  clearError(): void {
     this.blueprintService.clearError();
   }
 
   /**
-   * Clear workspace error
+   * Clear selection
    */
-  clearWorkspaceError(): void {
-    this.workspaceService.clearError();
-  }
-
-  /**
-   * Clear all errors
-   */
-  clearAllErrors(): void {
-    this.blueprintService.clearError();
-    this.workspaceService.clearError();
-  }
-
-  /**
-   * Clear blueprint selection
-   */
-  clearBlueprintSelection(): void {
+  clearSelection(): void {
     this.blueprintService.clearSelection();
-  }
-
-  /**
-   * Clear workspace selection
-   */
-  clearWorkspaceSelection(): void {
-    this.workspaceService.clearSelection();
   }
 }

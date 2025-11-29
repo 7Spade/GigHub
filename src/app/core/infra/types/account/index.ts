@@ -18,14 +18,15 @@ import { Database } from '../database.types';
  * Account type enumeration
  *
  * Corresponds to database accounts.type field
+ * Values match PostgreSQL enum: 'user', 'org', 'bot'
  */
 export enum AccountType {
   /** 用戶帳戶 | User account */
-  USER = 'User',
+  USER = 'user',
   /** 機器人帳戶 | Bot account */
-  BOT = 'Bot',
+  BOT = 'bot',
   /** 組織帳戶 | Organization account */
-  ORGANIZATION = 'Organization'
+  ORG = 'org'
 }
 
 /**

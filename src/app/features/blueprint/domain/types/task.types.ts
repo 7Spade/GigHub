@@ -2,153 +2,129 @@
  * Task Types
  *
  * Type definitions for Task Module (任務模組)
- * Supporting unlimited depth hierarchy with tree structure
- * Following vertical slice architecture and enterprise guidelines
+ * Aligned with database schema: 20251129000001_create_multi_tenant_saas_schema.sql
  *
  * @module features/blueprint/domain/types/task.types
  */
 
 /**
- * Task status (狀態)
+ * Task status (matches database enum)
  */
 export type TaskStatus =
   | 'pending' // 待處理
   | 'in_progress' // 進行中
+  | 'in_review' // 審核中
   | 'completed' // 已完成
-  | 'cancelled'; // 已取消
+  | 'cancelled' // 已取消
+  | 'blocked'; // 已阻塞
 
 /**
- * Task priority
+ * Task priority (matches database enum)
  */
-export type TaskPriority = 'low' | 'medium' | 'high' | 'urgent';
+export type TaskPriority = 'lowest' | 'low' | 'medium' | 'high' | 'highest';
 
 /**
- * Assignee type (被指派者類型)
- */
-export type AssigneeType = 'user' | 'team' | 'organization';
-
-/**
- * Task entity with unlimited tree depth
+ * Task entity (matches database schema)
  */
 export interface Task {
   // Identity
   id: string;
-  workspaceId: string;
+  blueprintId: string;
 
-  // Tree structure (無限子層)
-  parentId: string | null; // null for root tasks (L0)
-  position: number; // Sibling ordering (0-based)
-  path: string; // Materialized path: '1', '1.2', '1.2.3'
-  depth: number; // Tree depth: 0(L0), 1(L1), 2(L2), 3(L3)...
+  // Tree structure
+  parentId: string | null;
 
   // Basic info
-  name: string; // 任務名稱
+  title: string;
   description?: string;
-  status: TaskStatus; // 狀態
+  status: TaskStatus;
   priority: TaskPriority;
 
-  // Assignment (被指派者)
-  assigneeIds: string[];
-  assigneeTypes: AssigneeType[];
+  // Assignment
+  assigneeId?: string;
+  reviewerId?: string;
 
-  // Location & Categorization
-  area?: string; // 區域
-  tags: string[]; // 標籤
+  // Dates
+  dueDate?: Date;
+  startDate?: Date;
 
-  // Progress tracking (進度)
-  completedCount: number; // 完成數量 (children completed)
-  totalCount: number; // 總數量 (total children)
-  progress: number; // 進度百分比 (calculated: completedCount / totalCount * 100)
+  // Progress
+  completionRate: number; // 0-100
+
+  // Ordering
+  sortOrder: number;
+
+  // Metadata (JSONB)
+  metadata?: Record<string, unknown>;
+
+  // Audit
+  createdBy?: string;
 
   // Timestamps
   createdAt: Date;
   updatedAt: Date;
-  completedAt?: Date;
-  dueDate?: Date;
-
-  // Denormalized counts for performance
-  childCount: number; // Direct children count
+  deletedAt?: Date;
 }
 
 /**
  * Task insert type (for creation)
  */
 export interface TaskInsert {
-  workspaceId: string;
+  blueprintId: string;
   parentId?: string | null;
-  position?: number;
-  path: string;
-  depth: number;
-  name: string;
+  title: string;
   description?: string;
   status?: TaskStatus;
   priority?: TaskPriority;
-  assigneeIds?: string[];
-  assigneeTypes?: AssigneeType[];
-  area?: string;
-  tags?: string[];
+  assigneeId?: string;
+  reviewerId?: string;
   dueDate?: Date;
+  startDate?: Date;
+  completionRate?: number;
+  sortOrder?: number;
+  metadata?: Record<string, unknown>;
+  createdBy?: string;
 }
 
 /**
  * Task update type (for modifications)
  */
 export interface TaskUpdate {
-  name?: string;
+  parentId?: string | null;
+  title?: string;
   description?: string;
   status?: TaskStatus;
   priority?: TaskPriority;
-  assigneeIds?: string[];
-  assigneeTypes?: AssigneeType[];
-  area?: string;
-  tags?: string[];
+  assigneeId?: string;
+  reviewerId?: string;
   dueDate?: Date;
-  position?: number;
-  parentId?: string | null;
+  startDate?: Date;
+  completionRate?: number;
+  sortOrder?: number;
+  metadata?: Record<string, unknown>;
 }
 
 /**
  * Task tree node for UI display
  */
 export interface TaskTreeNode {
-  key: string; // task.id
-  title: string; // task.name
-  level: string; // 'L0', 'L1', 'L2', 'L3'...
-  isLeaf: boolean; // No children
+  key: string;
+  title: string;
+  isLeaf: boolean;
   expanded: boolean;
   children: TaskTreeNode[];
-
-  // Task data
   task: Task;
-
-  // Display metadata
-  icon: string; // Icon based on status
+  icon: string;
   disabled: boolean;
-}
-
-/**
- * Task assignment record
- */
-export interface TaskAssignment {
-  id: string;
-  taskId: string;
-  assigneeId: string;
-  assigneeType: AssigneeType;
-  assignedAt: Date;
-  assignedBy: string;
 }
 
 /**
  * Type guards
  */
 export function isTaskStatus(value: unknown): value is TaskStatus {
-  return typeof value === 'string' && ['pending', 'in_progress', 'completed', 'cancelled'].includes(value);
+  return typeof value === 'string' && ['pending', 'in_progress', 'in_review', 'completed', 'cancelled', 'blocked'].includes(value);
 }
 
 export function isTaskPriority(value: unknown): value is TaskPriority {
-  return typeof value === 'string' && ['low', 'medium', 'high', 'urgent'].includes(value);
-}
-
-export function isAssigneeType(value: unknown): value is AssigneeType {
-  return typeof value === 'string' && ['user', 'team', 'organization'].includes(value);
+  return typeof value === 'string' && ['lowest', 'low', 'medium', 'high', 'highest'].includes(value);
 }

@@ -3,7 +3,7 @@
  *
  * Main container for Blueprint (邏輯容器)
  * Provides context isolation and data sharing
- * Following vertical slice architecture
+ * Aligned with database schema: 20251129000001_create_multi_tenant_saas_schema.sql
  *
  * Purpose:
  * - Data isolation (隔離資料)
@@ -66,8 +66,8 @@ export class BlueprintShellComponent implements OnInit {
   // Store state
   readonly blueprints = this.blueprintStore.blueprints;
   readonly selectedBlueprint = this.blueprintStore.selectedBlueprint;
-  readonly loading = this.blueprintStore.blueprintLoading;
-  readonly error = this.blueprintStore.blueprintError;
+  readonly loading = this.blueprintStore.loading;
+  readonly error = this.blueprintStore.error;
 
   // Local state
   readonly currentBlueprintId = signal<string | null>(null);
@@ -227,30 +227,6 @@ export class BlueprintShellComponent implements OnInit {
       deleted: '已刪除'
     };
     return labels[status] || status;
-  }
-
-  /**
-   * Get visibility color
-   */
-  getVisibilityColor(visibility: string): string {
-    const colors: Record<string, string> = {
-      private: 'default',
-      internal: 'blue',
-      public: 'green'
-    };
-    return colors[visibility] || 'default';
-  }
-
-  /**
-   * Get visibility label
-   */
-  getVisibilityLabel(visibility: string): string {
-    const labels: Record<string, string> = {
-      private: '私有',
-      internal: '內部',
-      public: '公開'
-    };
-    return labels[visibility] || visibility;
   }
 
   /**

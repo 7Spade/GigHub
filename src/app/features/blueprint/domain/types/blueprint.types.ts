@@ -3,129 +3,138 @@
  *
  * Base type definitions for Blueprint Container system (邏輯容器)
  * Following vertical slice architecture and enterprise guidelines
+ * Aligned with database schema: 20251129000001_create_multi_tenant_saas_schema.sql
  *
  * @module features/blueprint/domain/types/blueprint.types
  */
 
 /**
- * Blueprint visibility levels (simplified)
- * - public: 公開，任何人都能看到
- * - hidden: 隱藏/私有，只有擁有者和成員能看到
+ * Blueprint status (matches account_status in database)
  */
-export type BlueprintVisibility = 'public' | 'hidden';
+export type BlueprintStatus = 'active' | 'inactive' | 'suspended' | 'deleted';
 
 /**
- * Blueprint status
+ * Blueprint role for members
  */
-export type BlueprintStatus = 'draft' | 'published' | 'archived';
+export type BlueprintRole = 'viewer' | 'contributor' | 'maintainer';
 
 /**
- * Blueprint category (optional)
+ * Blueprint team access level
  */
-export type BlueprintCategory = 'software_development' | 'marketing' | 'sales' | 'hr' | 'operations' | 'custom';
+export type BlueprintTeamAccess = 'read' | 'write' | 'admin';
 
 /**
- * Owner type (Account Context integration)
+ * Module types available for blueprints
  */
-export type OwnerType = 'user' | 'organization' | 'team';
+export type ModuleType = 'tasks' | 'diary' | 'dashboard' | 'bot_workflow' | 'files' | 'todos' | 'checklists' | 'issues';
 
 /**
- * Base blueprint interface
- * Minimal structure for extensibility
+ * Owner type - account types that can own blueprints
+ * Note: Teams cannot own blueprints, only users and organizations
+ */
+export type OwnerType = 'user' | 'org';
+
+/**
+ * Base blueprint interface (matches database schema)
  */
 export interface Blueprint {
   // Identity
   id: string;
+  ownerId: string;
   name: string;
-  description: string;
+  slug: string;
+  description?: string;
+  coverUrl?: string;
 
-  // Classification (simplified)
-  category?: BlueprintCategory;
-  visibility: BlueprintVisibility;
+  // Visibility and status
+  isPublic: boolean;
   status: BlueprintStatus;
 
-  // Ownership (Account Context Integration)
-  ownerId: string;
-  ownerType: OwnerType;
+  // Modules configuration
+  enabledModules: ModuleType[];
 
-  // Blueprint structure definition (JSONB - extensible, optional)
-  structure?: BlueprintStructure;
-
-  // Metadata
-  version: number;
-  tags: string[];
+  // Metadata (JSONB)
+  metadata?: Record<string, unknown>;
 
   // Timestamps
   createdAt: Date;
   updatedAt: Date;
-  publishedAt?: Date;
+  deletedAt?: Date;
 }
 
 /**
- * Blueprint structure definition
- * Extensible for future modules (tasks, files, settings, etc.)
- */
-export interface BlueprintStructure {
-  // Extensible fields for future modules
-  tasks?: unknown[]; // Task templates (to be defined in task module)
-  folders?: unknown[]; // Folder templates
-  settings: WorkspaceSettings;
-  automations?: unknown[]; // Automation rules
-  defaultRoles?: unknown[]; // Default role assignments
-}
-
-/**
- * Workspace settings within blueprint
- */
-export interface WorkspaceSettings {
-  allowGuestAccess: boolean;
-  requireApprovalForJoin: boolean;
-  defaultMemberRole: 'member' | 'viewer';
-  enableTaskComments: boolean;
-  enableFileSharing: boolean;
-  enableNotifications: boolean;
-}
-
-/**
- * Blueprint insert type (for creation - simplified)
+ * Blueprint insert type (for creation)
  */
 export interface BlueprintInsert {
-  name: string;
-  description: string;
-  category?: BlueprintCategory;
-  visibility?: BlueprintVisibility;
-  status?: BlueprintStatus;
   ownerId: string;
-  ownerType: OwnerType;
-  structure?: BlueprintStructure;
-  tags?: string[];
+  name: string;
+  slug: string;
+  description?: string;
+  coverUrl?: string;
+  isPublic?: boolean;
+  status?: BlueprintStatus;
+  enabledModules?: ModuleType[];
+  metadata?: Record<string, unknown>;
 }
 
 /**
- * Blueprint update type (for modifications - simplified)
+ * Blueprint update type (for modifications)
  */
 export interface BlueprintUpdate {
   name?: string;
+  slug?: string;
   description?: string;
-  category?: BlueprintCategory;
-  visibility?: BlueprintVisibility;
+  coverUrl?: string;
+  isPublic?: boolean;
   status?: BlueprintStatus;
-  structure?: BlueprintStructure;
-  tags?: string[];
-  version?: number;
+  enabledModules?: ModuleType[];
+  metadata?: Record<string, unknown>;
+}
+
+/**
+ * Blueprint member interface
+ */
+export interface BlueprintMember {
+  id: string;
+  blueprintId: string;
+  accountId: string;
+  role: BlueprintRole;
+  isExternal: boolean;
+  invitedBy?: string;
+  invitedAt?: Date;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+/**
+ * Blueprint team role interface
+ */
+export interface BlueprintTeamRole {
+  id: string;
+  blueprintId: string;
+  teamId: string;
+  accessLevel: BlueprintTeamAccess;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 /**
  * Type guards
  */
 export function isBlueprintStatus(value: unknown): value is BlueprintStatus {
-  return typeof value === 'string' && ['draft', 'published', 'archived'].includes(value);
+  return typeof value === 'string' && ['active', 'inactive', 'suspended', 'deleted'].includes(value);
 }
 
-export function isBlueprintVisibility(value: unknown): value is BlueprintVisibility {
-  return typeof value === 'string' && ['public', 'hidden'].includes(value);
+export function isBlueprintRole(value: unknown): value is BlueprintRole {
+  return typeof value === 'string' && ['viewer', 'contributor', 'maintainer'].includes(value);
 }
 
 export function isOwnerType(value: unknown): value is OwnerType {
-  return typeof value === 'string' && ['user', 'organization', 'team'].includes(value);
+  return typeof value === 'string' && ['user', 'org'].includes(value);
+}
+
+export function isModuleType(value: unknown): value is ModuleType {
+  return (
+    typeof value === 'string' && ['tasks', 'diary', 'dashboard', 'bot_workflow', 'files', 'todos', 'checklists', 'issues'].includes(value)
+  );
 }

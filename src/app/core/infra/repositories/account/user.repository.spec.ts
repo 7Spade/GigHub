@@ -140,7 +140,7 @@ describe('UserRepository', () => {
 
   describe('Type Safety', () => {
     it('should never return non-User accounts', done => {
-      const nonUserAccount = { ...mockUser, type: AccountType.ORGANIZATION };
+      const nonUserAccount = { ...mockUser, type: AccountType.ORG };
       const selectSpy = jasmine.createSpy('select').and.returnValue(Promise.resolve({ data: [nonUserAccount], error: null }));
       const eqSpy = jasmine.createSpy('eq').and.returnValue({ select: selectSpy });
       const fromSpy = jasmine.createSpyObj('from', ['select']);

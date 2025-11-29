@@ -2,12 +2,12 @@
  * Task Models
  *
  * Business models for Task Module (任務模組)
- * Following vertical slice architecture
+ * Aligned with database schema: 20251129000001_create_multi_tenant_saas_schema.sql
  *
  * @module features/blueprint/domain/models/task.models
  */
 
-import { Task, TaskStatus, TaskPriority, AssigneeType } from '../types';
+import { Task, TaskStatus, TaskPriority } from '../types';
 
 /**
  * Task Model (re-export from types with business context)
@@ -15,25 +15,16 @@ import { Task, TaskStatus, TaskPriority, AssigneeType } from '../types';
 export type TaskModel = Task;
 
 /**
- * Task level helper (L0, L1, L2, L3...)
- */
-export type TaskLevel = `L${number}`;
-
-/**
  * Task summary for list display
  */
 export interface TaskSummary {
   id: string;
-  name: string;
-  level: TaskLevel;
+  title: string;
   status: TaskStatus;
   priority: TaskPriority;
-  progress: number;
-  completedCount: number;
-  totalCount: number;
-  assigneeIds: string[];
-  area?: string;
-  tags: string[];
+  completionRate: number;
+  assigneeId?: string;
+  reviewerId?: string;
   dueDate?: Date;
 }
 
@@ -41,31 +32,31 @@ export interface TaskSummary {
  * Task creation request
  */
 export interface CreateTaskRequest {
-  workspaceId: string;
+  blueprintId: string;
   parentId?: string | null;
-  name: string;
+  title: string;
   description?: string;
   priority?: TaskPriority;
-  assigneeIds?: string[];
-  assigneeTypes?: AssigneeType[];
-  area?: string;
-  tags?: string[];
+  assigneeId?: string;
+  reviewerId?: string;
   dueDate?: Date;
+  startDate?: Date;
 }
 
 /**
  * Task update request
  */
 export interface UpdateTaskRequest {
-  name?: string;
+  title?: string;
   description?: string;
   status?: TaskStatus;
   priority?: TaskPriority;
-  assigneeIds?: string[];
-  assigneeTypes?: AssigneeType[];
-  area?: string;
-  tags?: string[];
+  assigneeId?: string;
+  reviewerId?: string;
   dueDate?: Date;
+  startDate?: Date;
+  completionRate?: number;
+  sortOrder?: number;
 }
 
 /**
@@ -74,28 +65,21 @@ export interface UpdateTaskRequest {
 export interface MoveTaskRequest {
   taskId: string;
   newParentId?: string | null;
-  newPosition: number;
+  newSortOrder: number;
 }
 
 /**
- * Task statistics for workspace
+ * Task statistics for blueprint
  */
 export interface TaskStatistics {
   totalCount: number;
   pendingCount: number;
   inProgressCount: number;
+  inReviewCount: number;
   completedCount: number;
   cancelledCount: number;
-
-  // By level
-  l0Count: number; // Root tasks
-  l1Count: number;
-  l2Count: number;
-  l3PlusCount: number; // L3 and deeper
-
-  // Progress
-  overallProgress: number; // Percentage
-  averageDepth: number;
+  blockedCount: number;
+  averageCompletionRate: number;
 }
 
 /**
@@ -105,9 +89,7 @@ export interface TaskFilterOptions {
   status?: TaskStatus;
   priority?: TaskPriority;
   assigneeId?: string;
-  area?: string;
-  tags?: string[];
-  level?: number; // depth filter
+  reviewerId?: string;
   searchTerm?: string;
 }
 
@@ -117,19 +99,10 @@ export interface TaskFilterOptions {
 export type TaskViewMode = 'tree' | 'table';
 
 /**
- * Task assignment request
- */
-export interface AssignTaskRequest {
-  taskId: string;
-  assigneeId: string;
-  assigneeType: AssigneeType;
-}
-
-/**
  * Bulk task operation request
  */
 export interface BulkTaskOperationRequest {
   taskIds: string[];
   operation: 'complete' | 'cancel' | 'delete' | 'assign';
-  payload?: unknown; // Operation-specific data
+  payload?: unknown;
 }
