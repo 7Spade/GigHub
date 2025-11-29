@@ -132,7 +132,7 @@ export class OrganizationService {
     const insertData = {
       name: request.name,
       email: request.email || null,
-      avatar: request.avatar || null,
+      avatar_url: request.avatar || null,
       status: request.status || AccountStatus.ACTIVE,
       auth_user_id: user.id // Required for SELECT policy to return newly created org
     };
