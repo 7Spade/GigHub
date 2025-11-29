@@ -89,6 +89,7 @@ CREATE TABLE organizations (
   description TEXT,
   logo_url TEXT,
   metadata JSONB DEFAULT '{}'::jsonb,
+  created_by UUID REFERENCES accounts(id),
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   deleted_at TIMESTAMPTZ,
@@ -160,6 +161,7 @@ CREATE TABLE blueprints (
   status account_status NOT NULL DEFAULT 'active',
   metadata JSONB DEFAULT '{}'::jsonb,
   enabled_modules module_type[] DEFAULT ARRAY['tasks']::module_type[],
+  created_by UUID REFERENCES accounts(id),
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   deleted_at TIMESTAMPTZ,
@@ -881,6 +883,72 @@ CREATE OR REPLACE TRIGGER on_auth_user_created
   EXECUTE FUNCTION public.handle_new_user();
 
 -- ============================================================================
+-- AUTO-ADD ORGANIZATION CREATOR AS OWNER MEMBER
+-- When an organization is created, automatically add the creator (created_by)
+-- to organization_members with role = 'owner'
+-- ============================================================================
+
+CREATE OR REPLACE FUNCTION public.handle_new_organization()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = ''
+AS $$
+BEGIN
+  -- Only add member if created_by is provided
+  IF NEW.created_by IS NOT NULL THEN
+    INSERT INTO public.organization_members (organization_id, account_id, role)
+    VALUES (NEW.id, NEW.created_by, 'owner')
+    ON CONFLICT (organization_id, account_id) DO NOTHING;
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+CREATE OR REPLACE TRIGGER on_organization_created
+  AFTER INSERT ON organizations
+  FOR EACH ROW
+  EXECUTE FUNCTION public.handle_new_organization();
+
+-- ============================================================================
+-- AUTO-ADD BLUEPRINT CREATOR AS MAINTAINER MEMBER
+-- When a blueprint is created:
+-- - If owner is a User (personal blueprint): creator is automatically maintainer
+-- - If owner is an Organization: creator is automatically maintainer
+-- ============================================================================
+
+CREATE OR REPLACE FUNCTION public.handle_new_blueprint()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = ''
+AS $$
+DECLARE
+  v_owner_type public.account_type;
+BEGIN
+  -- Only add member if created_by is provided
+  IF NEW.created_by IS NOT NULL THEN
+    -- Get the owner account type
+    SELECT type INTO v_owner_type
+    FROM public.accounts
+    WHERE id = NEW.owner_id;
+    
+    -- For both personal (user) and organization blueprints,
+    -- add the creator as maintainer
+    INSERT INTO public.blueprint_members (blueprint_id, account_id, role, is_external)
+    VALUES (NEW.id, NEW.created_by, 'maintainer', false)
+    ON CONFLICT (blueprint_id, account_id) DO NOTHING;
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+CREATE OR REPLACE TRIGGER on_blueprint_created
+  AFTER INSERT ON blueprints
+  FOR EACH ROW
+  EXECUTE FUNCTION public.handle_new_blueprint();
+
+-- ============================================================================
 -- PART 10: COMMENTS/DOCUMENTATION
 -- ============================================================================
 
@@ -913,3 +981,5 @@ COMMENT ON FUNCTION private.is_team_leader(UUID) IS 'Check if current user is le
 COMMENT ON FUNCTION private.is_blueprint_owner(UUID) IS 'Check if current user owns the blueprint (directly or via org)';
 COMMENT ON FUNCTION private.has_blueprint_access(UUID) IS 'Check if current user has any access to blueprint';
 COMMENT ON FUNCTION private.can_write_blueprint(UUID) IS 'Check if current user can write to blueprint';
+COMMENT ON FUNCTION public.handle_new_organization() IS 'Auto-add organization creator to organization_members with role=owner';
+COMMENT ON FUNCTION public.handle_new_blueprint() IS 'Auto-add blueprint creator to blueprint_members with role=maintainer';
