@@ -66,7 +66,14 @@ export class SupabaseService {
         // Detect session changes
         detectSessionInUrl: this.isBrowser,
         // Storage key for session
-        storageKey: 'ng-alain-supabase-auth'
+        storageKey: 'ng-alain-supabase-auth',
+        // 自訂 lock 函數來避免 NavigatorLockAcquireTimeoutError 錯誤
+        // Custom lock function to avoid NavigatorLockAcquireTimeoutError
+        // 直接執行函數而不使用 navigator.locks API
+        // Execute function directly without using navigator.locks API
+        lock: async <R>(_name: string, _acquireTimeout: number, fn: () => Promise<R>): Promise<R> => {
+          return await fn();
+        }
       },
       db: {
         schema: 'public'
