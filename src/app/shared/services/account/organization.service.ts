@@ -100,12 +100,29 @@ export class OrganizationService {
   }
 
   /**
+   * 生成 slug 從名稱
+   * Generate slug from name
+   *
+   * Converts name to lowercase, replaces spaces with hyphens, removes special chars
+   */
+  private generateSlug(name: string): string {
+    return name
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, '-') // Replace spaces with hyphens
+      .replace(/[^\w\u4e00-\u9fff-]/g, '') // Allow word chars, Chinese chars, and hyphens
+      .replace(/-+/g, '-') // Replace multiple hyphens with single
+      .replace(/^-|-$/g, ''); // Remove leading/trailing hyphens
+  }
+
+  /**
    * 創建組織
    * Create organization
    *
-   * Creates a new organization account. The database trigger `add_creator_as_org_owner`
-   * automatically adds the creator as an owner in the organization_members table after
-   * the INSERT operation completes. This ensures atomic membership creation without the
+   * Creates a new organization account and organizations table record.
+   * The database trigger `handle_new_organization` automatically adds the creator
+   * as an owner in the organization_members table after the organizations INSERT
+   * operation completes. This ensures atomic membership creation without the
    * need for manual application-level coordination.
    *
    * @param {CreateOrganizationRequest} request - Create request
@@ -113,6 +130,8 @@ export class OrganizationService {
    * @throws {Error} If user is not authenticated, user account not found, or creation fails
    */
   async createOrganization(request: CreateOrganizationRequest): Promise<OrganizationBusinessModel> {
+    const client = this.supabaseService.getClient();
+
     // 1. 獲取當前用戶的 auth_user_id
     const user = await this.supabaseService.getUser();
     if (!user || !user.id) {
@@ -126,25 +145,63 @@ export class OrganizationService {
       throw new Error('User account not found');
     }
 
-    // 3. 創建組織（觸發器會自動將創建者添加為 owner）
-    // Create organization (trigger will automatically add creator as owner)
+    // 3. 創建組織帳戶（accounts 表）
+    // Create organization account (accounts table)
     // auth_user_id: Set to creator's auth.uid() to satisfy SELECT policy after INSERT
-    // Note: Using avatar_url instead of avatar until PostgREST schema cache is refreshed
-    const insertData = {
+    const accountInsertData = {
       name: request.name,
       email: request.email || null,
-      avatar_url: request.avatar || null, // Use avatar_url (existing column) instead of avatar (new column not in cache yet)
+      avatar_url: request.avatar || null,
       status: request.status || AccountStatus.ACTIVE,
-      auth_user_id: user.id // Required for SELECT policy to return newly created org
+      auth_user_id: user.id, // Required for SELECT policy to return newly created org
+      type: 'org' as const
     };
 
-    const organization = await firstValueFrom(this.organizationRepo.create(insertData));
+    const { data: accountData, error: accountError } = await client
+      .from('accounts')
+      .insert(accountInsertData)
+      .select()
+      .single();
 
-    // Note: The database trigger `add_creator_as_org_owner` automatically creates
+    if (accountError) {
+      console.error('[OrganizationService] Failed to create organization account:', accountError);
+      throw accountError;
+    }
+
+    if (!accountData) {
+      throw new Error('Failed to create organization account');
+    }
+
+    // 4. 生成 slug 並創建 organizations 表記錄
+    // Generate slug and create organizations table record
+    const slug = this.generateSlug(request.name);
+    const organizationInsertData = {
+      account_id: (accountData as any).id,
+      name: request.name,
+      slug: slug,
+      description: null,
+      logo_url: request.avatar || null,
+      created_by: (userAccount as any).id // Set to user's account_id for trigger
+    };
+
+    const { data: organizationData, error: organizationError } = await client
+      .from('organizations')
+      .insert(organizationInsertData)
+      .select()
+      .single();
+
+    if (organizationError) {
+      // Rollback: delete the account if organizations insert fails
+      await client.from('accounts').delete().eq('id', (accountData as any).id);
+      console.error('[OrganizationService] Failed to create organization record:', organizationError);
+      throw organizationError;
+    }
+
+    // Note: The database trigger `handle_new_organization` automatically creates
     // an organization_members record with role='owner' for the creator.
     // No manual membership creation needed here.
 
-    return organization as OrganizationBusinessModel;
+    return accountData as OrganizationBusinessModel;
   }
 
   /**

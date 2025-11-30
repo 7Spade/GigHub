@@ -759,6 +759,9 @@ CREATE POLICY "accounts_select_own" ON accounts FOR SELECT TO authenticated USIN
 -- function that is owned by a role with BYPASSRLS and grant EXECUTE to
 -- `authenticated`. Implementing that is left as a follow-up task.
 CREATE POLICY "accounts_insert_own" ON accounts FOR INSERT TO authenticated WITH CHECK (auth_user_id = (SELECT auth.uid()) AND type = 'user');
+-- Allow authenticated users to create organization accounts
+-- Note: auth_user_id is set to creator's auth.uid() to satisfy SELECT policy after INSERT
+CREATE POLICY "accounts_insert_org" ON accounts FOR INSERT TO authenticated WITH CHECK (type = 'org' AND auth_user_id = (SELECT auth.uid()));
 CREATE POLICY "accounts_update_own" ON accounts FOR UPDATE TO authenticated USING (auth_user_id = (SELECT auth.uid())) WITH CHECK (auth_user_id = (SELECT auth.uid()));
 CREATE POLICY "accounts_delete_own" ON accounts FOR DELETE TO authenticated USING (auth_user_id = (SELECT auth.uid()));
 
