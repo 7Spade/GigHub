@@ -132,74 +132,37 @@ export class OrganizationService {
   async createOrganization(request: CreateOrganizationRequest): Promise<OrganizationBusinessModel> {
     const client = this.supabaseService.getClient();
 
-    // 1. 獲取當前用戶的 auth_user_id
-    const user = await this.supabaseService.getUser();
-    if (!user || !user.id) {
-      throw new Error('User not authenticated');
+    // Use SECURITY DEFINER function to create organization atomically
+    // This bypasses RLS policies and ensures transactional integrity
+    // The function handles: account creation, organization creation, and member assignment
+    const { data, error } = await (client as any).rpc('create_organization', {
+      p_name: request.name,
+      p_email: request.email || null,
+      p_avatar_url: request.avatar || null,
+      p_slug: null // Let the function generate slug
+    });
+
+    if (error) {
+      console.error('[OrganizationService] Failed to create organization:', error);
+      throw error;
     }
 
-    // 2. 驗證用戶帳號存在（防止創建無主組織）
-    // Verify user account exists (prevents creating ownerless organizations)
-    const userAccount = await firstValueFrom(this.userRepo.findByAuthUserId(user.id));
-    if (!userAccount) {
-      throw new Error('User account not found');
+    if (!data || !data[0]) {
+      throw new Error('Failed to create organization');
     }
 
-    // 3. 創建組織帳戶（accounts 表）
-    // Create organization account (accounts table)
-    // auth_user_id: Set to creator's auth.uid() to satisfy SELECT policy after INSERT
-    const accountInsertData = {
-      name: request.name,
-      email: request.email || null,
-      avatar_url: request.avatar || null,
-      status: request.status || AccountStatus.ACTIVE,
-      auth_user_id: user.id, // Required for SELECT policy to return newly created org
-      type: 'org' as const
-    };
+    const { account_id, organization_id } = data[0];
 
-    const { data: accountData, error: accountError } = await client
+    // Fetch the created organization account
+    const { data: accountData, error: fetchError } = await client
       .from('accounts')
-      .insert(accountInsertData)
-      .select()
+      .select('*')
+      .eq('id', account_id)
       .single();
 
-    if (accountError) {
-      console.error('[OrganizationService] Failed to create organization account:', accountError);
-      throw accountError;
+    if (fetchError || !accountData) {
+      throw new Error('Failed to fetch created organization account');
     }
-
-    if (!accountData) {
-      throw new Error('Failed to create organization account');
-    }
-
-    // 4. 生成 slug 並創建 organizations 表記錄
-    // Generate slug and create organizations table record
-    const slug = this.generateSlug(request.name);
-    const organizationInsertData = {
-      account_id: (accountData as any).id,
-      name: request.name,
-      slug: slug,
-      description: null,
-      logo_url: request.avatar || null,
-      created_by: (userAccount as any).id // Set to user's account_id for trigger
-    };
-
-    const { data: organizationData, error: organizationError } = await client
-      .from('organizations')
-      .insert(organizationInsertData)
-      .select()
-      .single();
-
-    if (organizationError) {
-      // Rollback: delete the account if organizations insert fails
-      await client.from('accounts').delete().eq('id', (accountData as any).id);
-      console.error('[OrganizationService] Failed to create organization record:', organizationError);
-      throw organizationError;
-    }
-
-    // Note: The database trigger `handle_new_organization` automatically creates
-    // an organization_members record with role='owner' for the creator.
-    // No manual membership creation needed here.
 
     return accountData as OrganizationBusinessModel;
   }
