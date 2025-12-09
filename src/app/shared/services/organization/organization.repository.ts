@@ -17,7 +17,8 @@ import {
   QueryConstraint
 } from '@angular/fire/firestore';
 import { Observable, from, map, catchError, of } from 'rxjs';
-import { Organization, LoggerService } from '@core';
+import { Organization, LoggerService, OrganizationRole } from '@core';
+import { OrganizationMemberRepository } from './organization-member.repository';
 
 @Injectable({
   providedIn: 'root'
@@ -25,6 +26,7 @@ import { Organization, LoggerService } from '@core';
 export class OrganizationRepository {
   private readonly firestore = inject(Firestore);
   private readonly logger = inject(LoggerService);
+  private readonly memberRepository = inject(OrganizationMemberRepository);
   private readonly collectionName = 'organizations';
 
   private getCollectionRef(): CollectionReference {
@@ -102,7 +104,22 @@ export class OrganizationRepository {
       const snapshot = await getDoc(docRef);
       if (snapshot.exists()) {
         console.log('[OrganizationRepository] ✅ Document verified in Firestore:', snapshot.id);
-        return this.toOrganization(snapshot.data(), snapshot.id);
+        const createdOrg = this.toOrganization(snapshot.data(), snapshot.id);
+        
+        // 3. 自動添加建立者為擁有者 (Occam's Razor: automatic owner assignment)
+        try {
+          await this.memberRepository.addMember(
+            createdOrg.id,
+            createdOrg.created_by,
+            OrganizationRole.OWNER
+          );
+          console.log('[OrganizationRepository] ✅ Creator added as OWNER:', createdOrg.created_by);
+        } catch (memberError) {
+          // 不要因為成員添加失敗而讓整個組織建立失敗 (Don't fail org creation if member add fails)
+          this.logger.error('[OrganizationRepository]', 'Failed to add creator as owner', memberError as Error);
+        }
+        
+        return createdOrg;
       } else {
         console.error('[OrganizationRepository] ❌ Document not found after creation!');
         // 返回本地建立的資料作為後備 (Return locally created data as fallback)

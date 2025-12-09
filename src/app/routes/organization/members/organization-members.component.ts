@@ -1,6 +1,7 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit } from '@angular/core';
 import { ContextType, OrganizationMember, OrganizationRole } from '@core';
 import { SHARED_IMPORTS, WorkspaceContextService } from '@shared';
+import { OrganizationMemberRepository } from '@shared/services/organization/organization-member.repository';
 import { HeaderContextSwitcherComponent } from '../../../layout/basic/widgets/context-switcher.component';
 import { NzMenuModule } from 'ng-zorro-antd/menu';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
@@ -33,27 +34,31 @@ import { NzAlertModule } from 'ng-zorro-antd/alert';
       </ul>
     </nz-card>
 
-    <nz-card nzTitle="成員列表">
-      <nz-table #table [nzData]="displayMembers()">
-        <thead>
-          <tr>
-            <th nzWidth="200px">成員 ID</th>
-            <th nzWidth="180px">角色</th>
-            <th nzWidth="200px">加入時間</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (member of table.data; track member.id) {
+    <nz-card nzTitle="成員列表" [nzLoading]="loading()">
+      @if (displayMembers().length > 0) {
+        <nz-table #table [nzData]="displayMembers()">
+          <thead>
             <tr>
-              <td>{{ member.user_id }}</td>
-              <td>
-                <nz-tag [nzColor]="roleColor(member.role)">{{ roleLabel(member.role) }}</nz-tag>
-              </td>
-              <td>{{ member.joined_at || '-' }}</td>
+              <th nzWidth="200px">成員 ID</th>
+              <th nzWidth="180px">角色</th>
+              <th nzWidth="200px">加入時間</th>
             </tr>
-          }
-        </tbody>
-      </nz-table>
+          </thead>
+          <tbody>
+            @for (member of table.data; track member.id) {
+              <tr>
+                <td>{{ member.user_id }}</td>
+                <td>
+                  <nz-tag [nzColor]="roleColor(member.role)">{{ roleLabel(member.role) }}</nz-tag>
+                </td>
+                <td>{{ member.joined_at || '-' }}</td>
+              </tr>
+            }
+          </tbody>
+        </nz-table>
+      } @else {
+        <nz-empty nzNotFoundContent="暫無成員"></nz-empty>
+      }
     </nz-card>
   `,
   styles: [
@@ -71,44 +76,51 @@ import { NzAlertModule } from 'ng-zorro-antd/alert';
   ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class OrganizationMembersComponent {
+export class OrganizationMembersComponent implements OnInit {
   private readonly workspaceContext = inject(WorkspaceContextService);
+  private readonly memberRepository = inject(OrganizationMemberRepository);
 
-  private readonly members = signal<OrganizationMember[]>([
-    {
-      id: 'owner',
-      organization_id: 'current',
-      user_id: 'owner@example.com',
-      role: OrganizationRole.OWNER,
-      joined_at: new Date().toISOString()
-    },
-    {
-      id: 'admin',
-      organization_id: 'current',
-      user_id: 'admin@example.com',
-      role: OrganizationRole.ADMIN,
-      joined_at: new Date().toISOString()
-    },
-    {
-      id: 'member',
-      organization_id: 'current',
-      user_id: 'member@example.com',
-      role: OrganizationRole.MEMBER,
-      joined_at: new Date().toISOString()
+  // State signals (Occam's Razor: simple reactive state)
+  private readonly members = signal<OrganizationMember[]>([]);
+  loading = signal(true);
+
+  ngOnInit(): void {
+    // Load members when component initializes (Occam's Razor: single load point)
+    this.loadMembers();
+  }
+
+  /**
+   * Load organization members from repository
+   * 從 Repository 載入組織成員（使用真實數據）
+   */
+  private loadMembers(): void {
+    const orgId = this.currentOrgId();
+    
+    if (!orgId) {
+      this.loading.set(false);
+      return;
     }
-  ]);
+
+    this.loading.set(true);
+    this.memberRepository.findByOrganization(orgId).subscribe({
+      next: (members) => {
+        this.members.set(members);
+        this.loading.set(false);
+        console.log('[OrganizationMembersComponent] ✅ Loaded members:', members.length);
+      },
+      error: (error) => {
+        console.error('[OrganizationMembersComponent] ❌ Failed to load members:', error);
+        this.members.set([]);
+        this.loading.set(false);
+      }
+    });
+  }
 
   readonly currentOrgId = computed(() =>
     this.workspaceContext.contextType() === ContextType.ORGANIZATION ? this.workspaceContext.contextId() : null
   );
 
-  displayMembers = computed(() => {
-    const orgId = this.currentOrgId();
-    if (!orgId) {
-      return this.members();
-    }
-    return this.members().map(member => ({ ...member, organization_id: orgId }));
-  });
+  displayMembers = computed(() => this.members());
 
   isOrganizationContext(): boolean {
     return this.workspaceContext.contextType() === ContextType.ORGANIZATION;
