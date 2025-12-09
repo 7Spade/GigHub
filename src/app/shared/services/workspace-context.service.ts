@@ -88,6 +88,36 @@ export class WorkspaceContextService {
     return iconMap[this.contextType()] || 'user';
   });
 
+  /**
+   * Get the avatar/logo for the current context
+   * 獲取當前上下文的頭像/Logo
+   */
+  readonly contextAvatar = computed(() => {
+    const type = this.contextType();
+    const id = this.contextId();
+
+    switch (type) {
+      case ContextType.USER:
+        return this.currentUser()?.avatar_url || null;
+      case ContextType.ORGANIZATION:
+        const org = this.organizations().find(o => o.id === id);
+        return org?.logo_url || null;
+      case ContextType.TEAM:
+        // Teams don't have their own avatar, use the organization's logo
+        const team = this.teams().find(t => t.id === id);
+        if (team) {
+          const parentOrg = this.organizations().find(o => o.id === team.organization_id);
+          return parentOrg?.logo_url || null;
+        }
+        return null;
+      case ContextType.BOT:
+        // Bots don't have avatars in the current model
+        return null;
+      default:
+        return null;
+    }
+  });
+
   readonly teamsByOrganization = computed(() => {
     const teams = this.teams();
     const orgs = this.organizations();
