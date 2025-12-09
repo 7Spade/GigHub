@@ -5,6 +5,7 @@
  * Exports all domain layer components:
  * - Value Objects (BlueprintId, OwnerInfo, Slug)
  * - Domain Events (BlueprintCreated, BlueprintUpdated, etc.)
+ * - Aggregates (AggregateRoot, BlueprintAggregate)
  */
 
 // Value Objects
@@ -12,3 +13,6 @@ export * from './value-objects';
 
 // Domain Events
 export * from './events';
+
+// Aggregates
+export * from './aggregates';
