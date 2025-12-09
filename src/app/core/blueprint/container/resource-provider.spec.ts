@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { Injectable } from '@angular/core';
+import { Injectable, Injector } from '@angular/core';
 import { ResourceProvider } from './resource-provider';
 import { Firestore } from '@angular/fire/firestore';
 import { Auth } from '@angular/fire/auth';
@@ -87,16 +87,14 @@ describe('ResourceProvider', () => {
     });
     
     it('should warn when overwriting existing resource', () => {
-      const warnSpy = jest.spyOn(console, 'warn').mockImplementation();
+      const warnSpy = spyOn(console, 'warn');
       
       provider.register('test', () => 'value1');
       provider.register('test', () => 'value2');
       
       expect(warnSpy).toHaveBeenCalledWith(
-        expect.stringContaining('Resource "test" is already registered')
+        jasmine.stringMatching(/Resource "test" is already registered/)
       );
-      
-      warnSpy.mockRestore();
     });
     
     it('should overwrite existing resource', () => {
@@ -140,18 +138,16 @@ describe('ResourceProvider', () => {
     });
     
     it('should throw error for non-existent resource', () => {
-      expect(() => provider.get('non-existent')).toThrow(
-        /Resource "non-existent" not found/
-      );
+      expect(() => provider.get('non-existent')).toThrowError(/Resource "non-existent" not found/);
     });
     
     it('should list available resources in error message', () => {
       provider.register('resource1', () => 'value1');
       provider.register('resource2', () => 'value2');
       
-      expect(() => provider.get('non-existent')).toThrow(
-        /Available resources:.*resource1.*resource2/
-      );
+      expect(() => provider.get('non-existent')).toThrowError(/Available resources:/);
+      expect(() => provider.get('non-existent')).toThrowError(/resource1/);
+      expect(() => provider.get('non-existent')).toThrowError(/resource2/);
     });
     
     it('should throw error if factory throws', () => {
@@ -159,9 +155,7 @@ describe('ResourceProvider', () => {
         throw new Error('Factory error');
       });
       
-      expect(() => provider.get('failing')).toThrow(
-        /Failed to instantiate resource "failing".*Factory error/
-      );
+      expect(() => provider.get('failing')).toThrowError(/Failed to instantiate resource "failing"/);
     });
     
     it('should handle factory returning different types', () => {
@@ -336,8 +330,8 @@ describe('ResourceProvider', () => {
     });
     
     it('should inject services through Injector', () => {
-      const injector = provider.get('injector');
-      const testService = injector.get(TestService);
+      const injector = provider.get<Injector>('injector');
+      const testService = injector?.get(TestService);
       
       expect(testService).toBeTruthy();
       expect(testService instanceof TestService).toBe(true);

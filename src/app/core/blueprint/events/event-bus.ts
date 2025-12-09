@@ -187,15 +187,20 @@ export class EventBus implements IEventBus {
    */
   once<T>(type: string, handler: EventHandler<T>): () => void {
     let unsubscribe: (() => void) | null = null;
+    let called = false;
     
     const wrappedHandler: EventHandler<T> = async (event) => {
-      // Call the original handler
-      await handler(event);
+      // Guard against multiple calls
+      if (called) return;
+      called = true;
       
-      // Unsubscribe after first call
+      // Unsubscribe immediately to prevent queued events
       if (unsubscribe) {
         unsubscribe();
       }
+      
+      // Call the original handler
+      await handler(event);
     };
     
     unsubscribe = this.on(type, wrappedHandler);

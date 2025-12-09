@@ -157,7 +157,7 @@ describe('EventBus', () => {
     });
     
     it('should handle errors in handlers gracefully', (done) => {
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+      const consoleSpy = spyOn(console, 'error');
       
       eventBus.on('ERROR_EVENT', () => {
         throw new Error('Handler error');
@@ -167,7 +167,6 @@ describe('EventBus', () => {
       
       setTimeout(() => {
         expect(consoleSpy).toHaveBeenCalled();
-        consoleSpy.mockRestore();
         done();
       }, 50);
     });
