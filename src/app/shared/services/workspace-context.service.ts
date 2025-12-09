@@ -240,11 +240,17 @@ export class WorkspaceContextService {
    */
   addOrganization(org: Organization): void {
     const current = this.organizationsState();
-    this.organizationsState.set([...current, org]);
-    console.log('[WorkspaceContextService] Organization added:', org.name);
-    
-    // Reload teams for the new organization
-    this.loadTeamsForOrganizations([org.id]);
+    // 檢查是否已存在，避免重複
+    // Check if already exists to avoid duplicates
+    if (!current.find(o => o.id === org.id)) {
+      this.organizationsState.set([...current, org]);
+      console.log('[WorkspaceContextService] Organization added:', org.name);
+      
+      // Reload teams for the new organization
+      this.loadTeamsForOrganizations([org.id]);
+    } else {
+      console.log('[WorkspaceContextService] Organization already exists:', org.name);
+    }
   }
 
   /**
@@ -282,8 +288,14 @@ export class WorkspaceContextService {
    */
   addTeam(team: Team): void {
     const current = this.teamsState();
-    this.teamsState.set([...current, team]);
-    console.log('[WorkspaceContextService] Team added:', team.name);
+    // 檢查是否已存在，避免重複
+    // Check if already exists to avoid duplicates
+    if (!current.find(t => t.id === team.id)) {
+      this.teamsState.set([...current, team]);
+      console.log('[WorkspaceContextService] Team added:', team.name);
+    } else {
+      console.log('[WorkspaceContextService] Team already exists:', team.name);
+    }
   }
 
   /**
