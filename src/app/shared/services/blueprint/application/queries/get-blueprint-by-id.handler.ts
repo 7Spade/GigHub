@@ -1,7 +1,8 @@
 import { Injectable, inject } from '@angular/core';
 import { Blueprint } from '@core';
 import { GetBlueprintByIdQuery } from './get-blueprint-by-id.query';
-import { BlueprintRepository } from '../../blueprint.repository';
+import { IBlueprintRepository } from '../../domain/repositories';
+import { BLUEPRINT_REPOSITORY_TOKEN } from '../../infrastructure';
 import { LoggerService } from '@core';
 
 /**
@@ -13,7 +14,7 @@ import { LoggerService } from '@core';
  */
 @Injectable({ providedIn: 'root' })
 export class GetBlueprintByIdHandler {
-  private readonly repository = inject(BlueprintRepository);
+  private readonly repository = inject<IBlueprintRepository>(BLUEPRINT_REPOSITORY_TOKEN);
   private readonly logger = inject(LoggerService);
 
   /**

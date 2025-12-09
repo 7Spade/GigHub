@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { AddMemberCommand } from './add-member.command';
-import { BlueprintMemberRepository } from '../../blueprint-member.repository';
+import { IBlueprintMemberRepository } from '../../domain/repositories';
+import { BLUEPRINT_MEMBER_REPOSITORY_TOKEN } from '../../infrastructure';
 import { EventBusService } from '@core';
 import { LoggerService } from '@core';
 import { BlueprintMemberAddedEvent } from '../../domain/events';
@@ -14,7 +15,7 @@ import { BlueprintMemberAddedEvent } from '../../domain/events';
  */
 @Injectable({ providedIn: 'root' })
 export class AddMemberHandler {
-  private readonly memberRepository = inject(BlueprintMemberRepository);
+  private readonly memberRepository = inject<IBlueprintMemberRepository>(BLUEPRINT_MEMBER_REPOSITORY_TOKEN);
   private readonly eventBus = inject(EventBusService);
   private readonly logger = inject(LoggerService);
 

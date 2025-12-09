@@ -1,7 +1,8 @@
 import { Injectable, inject } from '@angular/core';
 import { Blueprint } from '@core';
 import { CreateBlueprintCommand } from './create-blueprint.command';
-import { BlueprintRepository } from '../../blueprint.repository';
+import { IBlueprintRepository } from '../../domain/repositories';
+import { BLUEPRINT_REPOSITORY_TOKEN } from '../../infrastructure';
 import { EventBusService } from '@core';
 import { BlueprintAggregate } from '../../domain/aggregates';
 import { LoggerService } from '@core';
@@ -15,7 +16,7 @@ import { LoggerService } from '@core';
  */
 @Injectable({ providedIn: 'root' })
 export class CreateBlueprintHandler {
-  private readonly repository = inject(BlueprintRepository);
+  private readonly repository = inject<IBlueprintRepository>(BLUEPRINT_REPOSITORY_TOKEN);
   private readonly eventBus = inject(EventBusService);
   private readonly logger = inject(LoggerService);
 

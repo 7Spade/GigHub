@@ -38,6 +38,13 @@ import { getPerformance, providePerformance } from '@angular/fire/performance';
 import { getStorage, provideStorage } from '@angular/fire/storage';
 import { getRemoteConfig, provideRemoteConfig } from '@angular/fire/remote-config';
 import { getVertexAI, provideVertexAI } from '@angular/fire/vertexai';
+// Blueprint Repository DI Configuration
+import {
+  BLUEPRINT_REPOSITORY_TOKEN,
+  BLUEPRINT_MEMBER_REPOSITORY_TOKEN,
+  FirestoreBlueprintRepository,
+  FirestoreBlueprintMemberRepository
+} from '@shared/services/blueprint/infrastructure';
 
 const defaultLang: AlainProvideLang = {
   abbr: 'zh-CN',
@@ -140,6 +147,9 @@ const providers: Array<Provider | EnvironmentProviders> = [
   provideSTWidgets(...ST_WIDGETS),
   provideSFConfig({ widgets: SF_WIDGETS }),
   provideStartup(),
+  // Blueprint Repository DI - Firestore Implementation
+  { provide: BLUEPRINT_REPOSITORY_TOKEN, useClass: FirestoreBlueprintRepository },
+  { provide: BLUEPRINT_MEMBER_REPOSITORY_TOKEN, useClass: FirestoreBlueprintMemberRepository },
   ...(environment.providers || [])
 ];
 
