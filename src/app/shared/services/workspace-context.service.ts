@@ -91,34 +91,48 @@ export class WorkspaceContextService {
   });
 
   /**
-   * Get the avatar/logo for the current context
-   * 獲取當前上下文的頭像/Logo
+   * Update SettingsService when context changes (single source of truth for avatars/names)
+   * This ensures ng-alain components (sidebar, header) automatically update via SettingsService
+   * Follows Occam's Razor: one source of truth instead of duplicate computed signals
    */
-  readonly contextAvatar = computed(() => {
+  private syncSettingsServiceAvatar(): void {
     const type = this.contextType();
     const id = this.contextId();
+    let avatarUrl: string | null = null;
+    let name = '';
 
     switch (type) {
       case ContextType.USER:
-        return this.currentUser()?.avatar_url || null;
+        avatarUrl = this.currentUser()?.avatar_url || null;
+        name = this.currentUser()?.name || 'User';
+        break;
       case ContextType.ORGANIZATION:
         const org = this.organizations().find(o => o.id === id);
-        return org?.logo_url || null;
+        avatarUrl = org?.logo_url || null;
+        name = org?.name || 'Organization';
+        break;
       case ContextType.TEAM:
-        // Teams don't have their own avatar, use the organization's logo
         const team = this.teams().find(t => t.id === id);
         if (team) {
           const parentOrg = this.organizations().find(o => o.id === team.organization_id);
-          return parentOrg?.logo_url || null;
+          avatarUrl = parentOrg?.logo_url || null;
+          name = team.name;
         }
-        return null;
+        break;
       case ContextType.BOT:
-        // Bots don't have avatars in the current model
-        return null;
-      default:
-        return null;
+        name = 'Bot';
+        break;
     }
-  });
+
+    // Update ng-alain SettingsService (single source of truth)
+    // All components read from here - no duplicate logic
+    this.settingsService.setUser({
+      ...this.settingsService.user,
+      name,
+      avatar: avatarUrl || './assets/tmp/img/avatar.jpg'
+    });
+  }
+
 
   readonly teamsByOrganization = computed(() => {
     const teams = this.teams();
@@ -271,6 +285,10 @@ export class WorkspaceContextService {
     this.switchingState.set(true);
     this.contextTypeState.set(type);
     this.contextIdState.set(id);
+    
+    // Sync avatar/name to SettingsService (single source of truth)
+    this.syncSettingsServiceAvatar();
+    
     this.persistContext();
     this.switchingState.set(false);
     console.log('[WorkspaceContextService] ✅ Context switched successfully');

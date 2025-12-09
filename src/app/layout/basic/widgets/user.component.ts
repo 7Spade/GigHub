@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, computed } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FirebaseAuthService } from '@core';
 import { WorkspaceContextService } from '@shared';
@@ -12,8 +12,8 @@ import { NzMenuModule } from 'ng-zorro-antd/menu';
   selector: 'header-user',
   template: `
     <div class="alain-default__nav-item d-flex align-items-center px-sm" nz-dropdown nzPlacement="bottomRight" [nzDropdownMenu]="userMenu">
-      @if (currentAvatar()) {
-        <nz-avatar [nzSrc]="currentAvatar()!" nzSize="small" class="mr-sm" />
+      @if (user?.avatar) {
+        <nz-avatar [nzSrc]="user.avatar" nzSize="small" class="mr-sm" />
       } @else {
         <nz-avatar [nzIcon]="contextIcon()" nzSize="small" class="mr-sm" />
       }
@@ -50,16 +50,12 @@ export class HeaderUserComponent {
   private readonly firebaseAuth = inject(FirebaseAuthService);
   private readonly workspaceContext = inject(WorkspaceContextService);
   
-  // Use workspace context for avatar and name
+  // Use workspace context for label and icon (these change based on context)
   readonly contextLabel = this.workspaceContext.contextLabel;
   readonly contextIcon = this.workspaceContext.contextIcon;
   
-  // Convert null to undefined for ng-zorro compatibility
-  readonly currentAvatar = computed(() => {
-    const avatar = this.workspaceContext.contextAvatar();
-    return avatar || undefined;
-  });
-  
+  // Avatar comes from SettingsService (single source of truth, updated by WorkspaceContextService)
+  // This follows ng-alain patterns and Occam's Razor (simplest solution)
   get user(): User {
     return this.settings.user;
   }
