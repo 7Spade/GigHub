@@ -1,14 +1,18 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit } from '@angular/core';
 import { ContextType, Team } from '@core';
 import { SHARED_IMPORTS, WorkspaceContextService } from '@shared';
+import { TeamRepository } from '@shared/services/team/team.repository';
 import { HeaderContextSwitcherComponent } from '../../../layout/basic/widgets/context-switcher.component';
 import { NzMenuModule } from 'ng-zorro-antd/menu';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
+import { NzEmptyModule } from 'ng-zorro-antd/empty';
+import { NzModalService } from 'ng-zorro-antd/modal';
+import { NzMessageService } from 'ng-zorro-antd/message';
 
 @Component({
   selector: 'app-organization-teams',
   standalone: true,
-  imports: [SHARED_IMPORTS, NzMenuModule, NzAlertModule, HeaderContextSwitcherComponent],
+  imports: [SHARED_IMPORTS, NzMenuModule, NzAlertModule, NzEmptyModule, HeaderContextSwitcherComponent],
   template: `
     <page-header [title]="'團隊管理'" [content]="headerContent"></page-header>
     
@@ -33,17 +37,37 @@ import { NzAlertModule } from 'ng-zorro-antd/alert';
       </ul>
     </nz-card>
 
-    <nz-card nzTitle="團隊列表">
-      <nz-list [nzDataSource]="teams()" [nzRenderItem]="teamTpl" [nzItemLayout]="'horizontal'"></nz-list>
-      <ng-template #teamTpl let-team>
-        <nz-list-item>
-          <nz-list-item-meta
-            [nzTitle]="team.name"
-            [nzDescription]="team.description || '尚無描述'"
-          ></nz-list-item-meta>
-          <nz-tag>{{ team.id }}</nz-tag>
-        </nz-list-item>
-      </ng-template>
+    <nz-card nzTitle="團隊列表" [nzLoading]="loading()">
+      <nz-card-extra>
+        @if (isOrganizationContext()) {
+          <button nz-button nzType="primary" nzSize="small" (click)="openCreateTeamModal()">
+            <span nz-icon nzType="plus"></span>
+            建立團隊
+          </button>
+        }
+      </nz-card-extra>
+      
+      @if (teams().length > 0) {
+        <nz-list [nzDataSource]="teams()" [nzRenderItem]="teamTpl" [nzItemLayout]="'horizontal'"></nz-list>
+        <ng-template #teamTpl let-team>
+          <nz-list-item [nzActions]="[editAction, deleteAction]">
+            <nz-list-item-meta
+              [nzTitle]="team.name"
+              [nzDescription]="team.description || '尚無描述'"
+            ></nz-list-item-meta>
+            <nz-tag>{{ team.id }}</nz-tag>
+            
+            <ng-template #editAction>
+              <a (click)="openEditTeamModal(team)">編輯</a>
+            </ng-template>
+            <ng-template #deleteAction>
+              <a nz-popconfirm nzPopconfirmTitle="確定刪除此團隊？" (nzOnConfirm)="deleteTeam(team)">刪除</a>
+            </ng-template>
+          </nz-list-item>
+        </ng-template>
+      } @else {
+        <nz-empty nzNotFoundContent="暫無團隊"></nz-empty>
+      }
     </nz-card>
   `,
   styles: [
@@ -61,8 +85,38 @@ import { NzAlertModule } from 'ng-zorro-antd/alert';
   ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class OrganizationTeamsComponent {
+export class OrganizationTeamsComponent implements OnInit {
   private readonly workspaceContext = inject(WorkspaceContextService);
+  private readonly teamRepository = inject(TeamRepository);
+  private readonly modal = inject(NzModalService);
+  private readonly message = inject(NzMessageService);
+
+  private readonly teamsState = signal<Team[]>([]);
+  loading = signal(false);
+
+  ngOnInit(): void {
+    // Load teams when component initializes
+    const orgId = this.currentOrgId();
+    if (orgId) {
+      this.loadTeams(orgId);
+    }
+  }
+
+  private loadTeams(organizationId: string): void {
+    this.loading.set(true);
+    this.teamRepository.findByOrganization(organizationId).subscribe({
+      next: (teams: Team[]) => {
+        this.teamsState.set(teams);
+        this.loading.set(false);
+        console.log('[OrganizationTeamsComponent] ✅ Loaded teams:', teams.length);
+      },
+      error: (error: Error) => {
+        console.error('[OrganizationTeamsComponent] ❌ Failed to load teams:', error);
+        this.teamsState.set([]);
+        this.loading.set(false);
+      }
+    });
+  }
 
   readonly currentOrgId = computed(() =>
     this.workspaceContext.contextType() === ContextType.ORGANIZATION ? this.workspaceContext.contextId() : null
@@ -73,21 +127,126 @@ export class OrganizationTeamsComponent {
     if (!orgId) {
       return [];
     }
-    const teams = this.workspaceContext.getTeamsForOrg(orgId);
-    if (teams.length > 0) {
-      return teams;
-    }
-    return [
-      {
-        id: `${orgId}-team-1`,
-        organization_id: orgId,
-        name: '預設團隊',
-        description: '尚未連接資料來源時的示例團隊'
-      }
-    ];
+    return this.teamsState();
   });
 
   isOrganizationContext(): boolean {
     return this.workspaceContext.contextType() === ContextType.ORGANIZATION;
+  }
+
+  openCreateTeamModal(): void {
+    this.modal.create({
+      nzTitle: '建立團隊',
+      nzContent: `
+        <form nz-form>
+          <nz-form-item>
+            <nz-form-label nzRequired>團隊名稱</nz-form-label>
+            <nz-form-control>
+              <input nz-input id="teamName" placeholder="請輸入團隊名稱" />
+            </nz-form-control>
+          </nz-form-item>
+          <nz-form-item>
+            <nz-form-label>描述</nz-form-label>
+            <nz-form-control>
+              <textarea nz-input id="teamDescription" placeholder="請輸入團隊描述（選填）" rows="3"></textarea>
+            </nz-form-control>
+          </nz-form-item>
+        </form>
+      `,
+      nzOnOk: async () => {
+        const name = (document.getElementById('teamName') as HTMLInputElement)?.value;
+        const description = (document.getElementById('teamDescription') as HTMLTextAreaElement)?.value;
+        
+        if (!name || name.trim() === '') {
+          this.message.error('請輸入團隊名稱');
+          return false;
+        }
+
+        const orgId = this.currentOrgId();
+        if (!orgId) {
+          this.message.error('無法獲取組織 ID');
+          return false;
+        }
+
+        try {
+          await this.teamRepository.create({
+            organization_id: orgId,
+            name: name.trim(),
+            description: description?.trim() || null
+          });
+          this.message.success('團隊已建立');
+          this.loadTeams(orgId);
+          return true;
+        } catch (error) {
+          console.error('[OrganizationTeamsComponent] ❌ Failed to create team:', error);
+          this.message.error('建立團隊失敗');
+          return false;
+        }
+      }
+    });
+  }
+
+  openEditTeamModal(team: Team): void {
+    this.modal.create({
+      nzTitle: '編輯團隊',
+      nzContent: `
+        <form nz-form>
+          <nz-form-item>
+            <nz-form-label nzRequired>團隊名稱</nz-form-label>
+            <nz-form-control>
+              <input nz-input id="editTeamName" value="${team.name}" />
+            </nz-form-control>
+          </nz-form-item>
+          <nz-form-item>
+            <nz-form-label>描述</nz-form-label>
+            <nz-form-control>
+              <textarea nz-input id="editTeamDescription" rows="3">${team.description || ''}</textarea>
+            </nz-form-control>
+          </nz-form-item>
+        </form>
+      `,
+      nzOnOk: async () => {
+        const name = (document.getElementById('editTeamName') as HTMLInputElement)?.value;
+        const description = (document.getElementById('editTeamDescription') as HTMLTextAreaElement)?.value;
+        
+        if (!name || name.trim() === '') {
+          this.message.error('請輸入團隊名稱');
+          return false;
+        }
+
+        try {
+          await this.teamRepository.update(team.id, {
+            name: name.trim(),
+            description: description?.trim() || null
+          });
+          this.message.success('團隊已更新');
+          
+          const orgId = this.currentOrgId();
+          if (orgId) {
+            this.loadTeams(orgId);
+          }
+          return true;
+        } catch (error) {
+          console.error('[OrganizationTeamsComponent] ❌ Failed to update team:', error);
+          this.message.error('更新團隊失敗');
+          return false;
+        }
+      }
+    });
+  }
+
+  async deleteTeam(team: Team): Promise<void> {
+    try {
+      await this.teamRepository.delete(team.id);
+      this.message.success('團隊已刪除');
+      
+      const orgId = this.currentOrgId();
+      if (orgId) {
+        this.loadTeams(orgId);
+      }
+    } catch (error) {
+      console.error('[OrganizationTeamsComponent] ❌ Failed to delete team:', error);
+      this.message.error('刪除團隊失敗');
+    }
   }
 }

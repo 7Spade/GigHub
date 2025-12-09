@@ -14,10 +14,6 @@ export const routes: Routes = [
     children: [
       { path: '', redirectTo: 'dashboard/user', pathMatch: 'full' },
       {
-        path: 'dashboard',
-        loadChildren: () => import('./dashboard/routes').then(m => m.routes)
-      },
-      {
         path: 'user',
         loadChildren: () => import('./user/routes').then(m => m.routes),
         data: { title: '個人設定' }

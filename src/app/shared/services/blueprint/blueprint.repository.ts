@@ -71,11 +71,12 @@ export class BlueprintRepository {
   }
 
   findByOwner(ownerType: OwnerType, ownerId: string, options?: { limit?: number }): Observable<Blueprint[]> {
+    // Note: Removed orderBy to avoid requiring a composite Firestore index
+    // Sorting can be done in-memory
     const constraints: QueryConstraint[] = [
       where('ownerType', '==', ownerType),
       where('ownerId', '==', ownerId),
-      where('deletedAt', '==', null),
-      orderBy('createdAt', 'desc')
+      where('deletedAt', '==', null)
     ];
 
     if (options?.limit) {
@@ -85,9 +86,23 @@ export class BlueprintRepository {
     const q = query(this.getCollectionRef(), ...constraints);
 
     return from(getDocs(q)).pipe(
-      map(snapshot => snapshot.docs.map(docSnap => this.toBlueprint(docSnap.data(), docSnap.id))),
+      map(snapshot => {
+        const blueprints = snapshot.docs.map(docSnap => this.toBlueprint(docSnap.data(), docSnap.id));
+        // Sort in-memory by createdAt descending
+        return blueprints.sort((a, b) => {
+          const dateA = new Date(a.createdAt).getTime();
+          const dateB = new Date(b.createdAt).getTime();
+          return dateB - dateA;
+        });
+      }),
       catchError(error => {
         this.logger.error('[BlueprintRepository]', 'findByOwner failed', error as Error);
+        console.error('[BlueprintRepository] findByOwner error details:', {
+          code: error?.code,
+          message: error?.message,
+          ownerType,
+          ownerId
+        });
         return of([]);
       })
     );
@@ -102,14 +117,28 @@ export class BlueprintRepository {
     if (options.isPublic !== undefined) constraints.push(where('isPublic', '==', options.isPublic));
     if (!options.includeDeleted) constraints.push(where('deletedAt', '==', null));
 
-    constraints.push(orderBy('createdAt', 'desc'));
+    // Note: Removed orderBy to avoid requiring a composite Firestore index
+    // Sorting can be done in-memory
 
     const q = query(this.getCollectionRef(), ...constraints);
 
     return from(getDocs(q)).pipe(
-      map(snapshot => snapshot.docs.map(docSnap => this.toBlueprint(docSnap.data(), docSnap.id))),
+      map(snapshot => {
+        const blueprints = snapshot.docs.map(docSnap => this.toBlueprint(docSnap.data(), docSnap.id));
+        // Sort in-memory by createdAt descending
+        return blueprints.sort((a, b) => {
+          const dateA = new Date(a.createdAt).getTime();
+          const dateB = new Date(b.createdAt).getTime();
+          return dateB - dateA;
+        });
+      }),
       catchError(error => {
         this.logger.error('[BlueprintRepository]', 'findWithOptions failed', error as Error);
+        console.error('[BlueprintRepository] findWithOptions error details:', {
+          code: error?.code,
+          message: error?.message,
+          options
+        });
         return of([]);
       })
     );
@@ -129,10 +158,27 @@ export class BlueprintRepository {
     };
 
     try {
+      // 1. 建立文件 (Create document)
       const docRef = await addDoc(this.getCollectionRef(), docData);
-      return this.toBlueprint(docData, docRef.id);
+      console.log('[BlueprintRepository] ✅ Document created with ID:', docRef.id);
+      
+      // 2. 讀取剛建立的文件以確認持久化成功 (Read back to confirm persistence)
+      const snapshot = await getDoc(docRef);
+      if (snapshot.exists()) {
+        console.log('[BlueprintRepository] ✅ Document verified in Firestore:', snapshot.id);
+        return this.toBlueprint(snapshot.data(), snapshot.id);
+      } else {
+        console.error('[BlueprintRepository] ❌ Document not found after creation!');
+        // 返回本地建立的資料作為後備 (Return locally created data as fallback)
+        return this.toBlueprint(docData, docRef.id);
+      }
     } catch (error: any) {
       this.logger.error('[BlueprintRepository]', 'create failed', error as Error);
+      console.error('[BlueprintRepository] Error details:', {
+        code: error.code,
+        message: error.message,
+        details: error
+      });
       throw error;
     }
   }

@@ -55,16 +55,30 @@ export class TeamRepository {
   }
 
   findByOrganization(organizationId: string): Observable<Team[]> {
+    // Note: Removed orderBy to avoid requiring a composite Firestore index
+    // Sorting can be done in-memory if needed
     const q = query(
       this.getCollectionRef(),
-      where('organization_id', '==', organizationId),
-      orderBy('created_at', 'desc')
+      where('organization_id', '==', organizationId)
     );
 
     return from(getDocs(q)).pipe(
-      map(snapshot => snapshot.docs.map(docSnap => this.toTeam(docSnap.data(), docSnap.id))),
+      map(snapshot => {
+        const teams = snapshot.docs.map(docSnap => this.toTeam(docSnap.data(), docSnap.id));
+        // Sort in-memory by created_at descending
+        return teams.sort((a, b) => {
+          const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
+          const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
+          return dateB - dateA;
+        });
+      }),
       catchError(error => {
         this.logger.error('[TeamRepository]', 'findByOrganization failed', error as Error);
+        console.error('[TeamRepository] findByOrganization error details:', {
+          code: error?.code,
+          message: error?.message,
+          organizationId
+        });
         return of([]);
       })
     );
@@ -78,10 +92,27 @@ export class TeamRepository {
     };
 
     try {
+      // 1. 建立文件 (Create document)
       const docRef = await addDoc(this.getCollectionRef(), docData);
-      return this.toTeam(docData, docRef.id);
+      console.log('[TeamRepository] ✅ Document created with ID:', docRef.id);
+      
+      // 2. 讀取剛建立的文件以確認持久化成功 (Read back to confirm persistence)
+      const snapshot = await getDoc(docRef);
+      if (snapshot.exists()) {
+        console.log('[TeamRepository] ✅ Document verified in Firestore:', snapshot.id);
+        return this.toTeam(snapshot.data(), snapshot.id);
+      } else {
+        console.error('[TeamRepository] ❌ Document not found after creation!');
+        // 返回本地建立的資料作為後備 (Return locally created data as fallback)
+        return this.toTeam(docData, docRef.id);
+      }
     } catch (error: any) {
       this.logger.error('[TeamRepository]', 'create failed', error as Error);
+      console.error('[TeamRepository] Error details:', {
+        code: error.code,
+        message: error.message,
+        details: error
+      });
       throw error;
     }
   }

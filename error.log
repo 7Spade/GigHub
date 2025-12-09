@@ -1,0 +1,61 @@
+Application bundle generation failed. [7.341 seconds] - 2025-12-09T15:27:25.896Z
+
+▲ [WARNING] NG8107: The left side of this optional chain operation does not include 'null' or 'undefined' in its type, therefore the '?.' operator can be replaced with the '.' operator. [plugin angular-compiler]
+
+    src/app/layout/basic/widgets/user.component.ts:15:17:
+      15 │       @if (user?.avatar) {
+         ╵                  ~~~~~~
+
+
+X [ERROR] TS2339: Property 'TEAM' does not exist on type 'typeof OwnerType'. [plugin angular-compiler]
+
+    src/app/routes/blueprint/blueprint-modal.component.ts:239:32:
+      239 │           ownerType = OwnerType.TEAM;
+          ╵                                 ~~~~
+
+
+X [ERROR] TS2339: Property 'TEAM' does not exist on type 'typeof OwnerType'. [plugin angular-compiler]
+
+    src/app/routes/blueprint/blueprint-modal.component.ts:257:106:
+      257 │ ...ION ? '組織' : ownerType === OwnerType.TEAM ? '團隊' : '�...
+          ╵                             ~~~~
+
+
+X [ERROR] TS2307: Cannot find module '@shared/services/organization/organization-member.repository' or its corresponding type declarations. [plugin angular-compiler]
+
+    src/app/routes/organization/members/organization-members.component.ts:4:45:
+      4 │ ...ory } from '@shared/services/organization/organization-member.re...
+        ╵               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] NG8001: 'nz-empty' is not a known element:
+1. If 'nz-empty' is an Angular component, then verify that it is included in the '@Component.imports' of this component.
+2. If 'nz-empty' is a Web Component then add 'CUSTOM_ELEMENTS_SCHEMA' to the '@Component.schemas' of this component to suppress this message. [plugin angular-compiler]
+
+    src/app/routes/organization/members/organization-members.component.ts:60:8:
+      60 │         <nz-empty nzNotFoundContent="暫無成員"></nz-empty>
+         ╵         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] TS2571: Object is of type 'unknown'. [plugin angular-compiler]
+
+    src/app/routes/organization/members/organization-members.component.ts:105:4:
+      105 │     this.memberRepository.findByOrganization(orgId).subscribe({
+          ╵     ~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] TS7006: Parameter 'members' implicitly has an 'any' type. [plugin angular-compiler]
+
+    src/app/routes/organization/members/organization-members.component.ts:106:13:
+      106 │       next: (members) => {
+          ╵              ~~~~~~~
+
+
+X [ERROR] TS7006: Parameter 'error' implicitly has an 'any' type. [plugin angular-compiler]
+
+    src/app/routes/organization/members/organization-members.component.ts:111:14:
+      111 │       error: (error) => {
+          ╵               ~~~~~
+
+
+Watch mode enabled. Watching for file changes...

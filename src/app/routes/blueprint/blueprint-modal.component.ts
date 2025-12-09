@@ -3,8 +3,8 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NZ_MODAL_DATA, NzModalRef } from 'ng-zorro-antd/modal';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzFormModule } from 'ng-zorro-antd/form';
-import { SHARED_IMPORTS } from '@shared';
-import { Blueprint, CreateBlueprintRequest, LoggerService, ModuleType, OwnerType } from '@core';
+import { SHARED_IMPORTS, WorkspaceContextService } from '@shared';
+import { Blueprint, CreateBlueprintRequest, LoggerService, ModuleType, OwnerType, ContextType } from '@core';
 import { BlueprintService } from '@shared';
 import { FirebaseAuthService } from '@core';
 
@@ -107,6 +107,7 @@ export class BlueprintModalComponent implements OnInit {
   private readonly logger = inject(LoggerService);
   private readonly blueprintService = inject(BlueprintService);
   private readonly authService = inject(FirebaseAuthService);
+  private readonly workspaceContext = inject(WorkspaceContextService);
   private readonly data: { blueprint?: Blueprint } = inject(NZ_MODAL_DATA, { optional: true }) || {};
 
   submitting = signal(false);
@@ -220,19 +221,40 @@ export class BlueprintModalComponent implements OnInit {
         });
         this.message.success('藍圖已更新');
       } else {
-        // Create new blueprint
+        // Create new blueprint - use current workspace context (Occam's Razor: single source of truth)
+        const contextType = this.workspaceContext.contextType();
+        const contextId = this.workspaceContext.contextId();
+        
+        // Determine owner based on current context
+        let ownerId: string;
+        let ownerType: OwnerType;
+        
+        if (contextType === ContextType.ORGANIZATION && contextId) {
+          // Creating under organization context
+          ownerId = contextId;
+          ownerType = OwnerType.ORGANIZATION;
+        } else if (contextType === ContextType.TEAM && contextId) {
+          // Creating under team context
+          ownerId = contextId;
+          ownerType = OwnerType.TEAM;
+        } else {
+          // Default to user context
+          ownerId = (user as any).uid;
+          ownerType = OwnerType.USER;
+        }
+        
         const request: CreateBlueprintRequest = {
           name: formValue.name!,
           slug: formValue.slug!,
           description: formValue.description,
-          ownerId: (user as any).uid,
-          ownerType: OwnerType.USER,
+          ownerId,
+          ownerType,
           isPublic: formValue.isPublic,
           enabledModules
         };
 
         const blueprint = await this.blueprintService.create(request);
-        this.message.success('藍圖已建立');
+        this.message.success(`藍圖已在${ownerType === OwnerType.ORGANIZATION ? '組織' : ownerType === OwnerType.TEAM ? '團隊' : '個人'}視角建立`);
         this.modal.close(blueprint);
         return;
       }

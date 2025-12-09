@@ -12,10 +12,11 @@
  * @module shared/services
  */
 
-import { Injectable, computed, inject, signal, effect } from '@angular/core';
+import { Injectable, computed, inject, signal, effect, untracked } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ContextType, Account, Organization, Team, Bot } from '@core';
 import { FirebaseAuthService } from '@core';
+import { SettingsService } from '@delon/theme';
 import { OrganizationRepository } from './organization/organization.repository';
 import { TeamRepository } from './team/team.repository';
 import { combineLatest, EMPTY } from 'rxjs';
@@ -29,6 +30,7 @@ export class WorkspaceContextService {
   private readonly firebaseAuth = inject(FirebaseAuthService);
   private readonly organizationRepo = inject(OrganizationRepository);
   private readonly teamRepo = inject(TeamRepository);
+  private readonly settingsService = inject(SettingsService);
 
   // Convert Firebase auth user observable to a reactive signal
   private readonly firebaseUser = toSignal(this.firebaseAuth.user$, { initialValue: null });
@@ -88,6 +90,50 @@ export class WorkspaceContextService {
     return iconMap[this.contextType()] || 'user';
   });
 
+  /**
+   * Update SettingsService when context changes (single source of truth for avatars/names)
+   * This ensures ng-alain components (sidebar, header) automatically update via SettingsService
+   * Follows Occam's Razor: one source of truth instead of duplicate computed signals
+   */
+  private syncSettingsServiceAvatar(): void {
+    const type = this.contextType();
+    const id = this.contextId();
+    let avatarUrl: string | null = null;
+    let name = '';
+
+    switch (type) {
+      case ContextType.USER:
+        avatarUrl = this.currentUser()?.avatar_url || null;
+        name = this.currentUser()?.name || 'User';
+        break;
+      case ContextType.ORGANIZATION:
+        const org = this.organizations().find(o => o.id === id);
+        avatarUrl = org?.logo_url || null;
+        name = org?.name || 'Organization';
+        break;
+      case ContextType.TEAM:
+        const team = this.teams().find(t => t.id === id);
+        if (team) {
+          const parentOrg = this.organizations().find(o => o.id === team.organization_id);
+          avatarUrl = parentOrg?.logo_url || null;
+          name = team.name;
+        }
+        break;
+      case ContextType.BOT:
+        name = 'Bot';
+        break;
+    }
+
+    // Update ng-alain SettingsService (single source of truth)
+    // All components read from here - no duplicate logic
+    this.settingsService.setUser({
+      ...this.settingsService.user,
+      name,
+      avatar: avatarUrl || './assets/tmp/img/avatar.jpg'
+    });
+  }
+
+
   readonly teamsByOrganization = computed(() => {
     const teams = this.teams();
     const orgs = this.organizations();
@@ -111,29 +157,41 @@ export class WorkspaceContextService {
 
   constructor() {
     // 監聽認證狀態並自動載入資料
+    // Use effect with allowSignalWrites to handle async operations properly
     effect(() => {
       const user = this.firebaseUser();
       
       if (user) {
         // Convert Firebase user to Account
-        this.currentUserState.set({
+        const accountData = {
           id: user.uid,
           uid: user.uid,
           name: user.displayName || user.email || 'User',
           email: user.email || '',
           avatar_url: user.photoURL,
           created_at: new Date().toISOString()
+        };
+        
+        this.currentUserState.set(accountData);
+        
+        // Initialize ng-alain SettingsService user to prevent JSON parse errors
+        // This ensures the sidebar user component has data on first load
+        this.settingsService.setUser({
+          name: accountData.name,
+          avatar: accountData.avatar_url || './assets/tmp/img/avatar.jpg',
+          email: accountData.email
         });
 
-        // Load organizations and teams from Firebase
-        this.loadUserData(user.uid);
-        
-        // Restore context from localStorage
-        this.restoreContext();
+        // Schedule data loading outside the effect
+        // Use untracked to prevent infinite loops
+        untracked(() => {
+          this.loadUserData(user.uid);
+          this.restoreContext();
+        });
       } else {
         this.reset();
       }
-    });
+    }, { allowSignalWrites: true });
   }
   
   /**
@@ -227,6 +285,10 @@ export class WorkspaceContextService {
     this.switchingState.set(true);
     this.contextTypeState.set(type);
     this.contextIdState.set(id);
+    
+    // Sync avatar/name to SettingsService (single source of truth)
+    this.syncSettingsServiceAvatar();
+    
     this.persistContext();
     this.switchingState.set(false);
     console.log('[WorkspaceContextService] ✅ Context switched successfully');
@@ -240,11 +302,17 @@ export class WorkspaceContextService {
    */
   addOrganization(org: Organization): void {
     const current = this.organizationsState();
-    this.organizationsState.set([...current, org]);
-    console.log('[WorkspaceContextService] Organization added:', org.name);
-    
-    // Reload teams for the new organization
-    this.loadTeamsForOrganizations([org.id]);
+    // 檢查是否已存在，避免重複
+    // Check if already exists to avoid duplicates
+    if (!current.find(o => o.id === org.id)) {
+      this.organizationsState.set([...current, org]);
+      console.log('[WorkspaceContextService] Organization added:', org.name);
+      
+      // Reload teams for the new organization
+      this.loadTeamsForOrganizations([org.id]);
+    } else {
+      console.log('[WorkspaceContextService] Organization already exists:', org.name);
+    }
   }
 
   /**
@@ -282,8 +350,14 @@ export class WorkspaceContextService {
    */
   addTeam(team: Team): void {
     const current = this.teamsState();
-    this.teamsState.set([...current, team]);
-    console.log('[WorkspaceContextService] Team added:', team.name);
+    // 檢查是否已存在，避免重複
+    // Check if already exists to avoid duplicates
+    if (!current.find(t => t.id === team.id)) {
+      this.teamsState.set([...current, team]);
+      console.log('[WorkspaceContextService] Team added:', team.name);
+    } else {
+      console.log('[WorkspaceContextService] Team already exists:', team.name);
+    }
   }
 
   /**

@@ -17,7 +17,8 @@ import {
   QueryConstraint
 } from '@angular/fire/firestore';
 import { Observable, from, map, catchError, of } from 'rxjs';
-import { Organization, LoggerService } from '@core';
+import { Organization, LoggerService, OrganizationRole } from '@core';
+import { OrganizationMemberRepository } from './organization-member.repository';
 
 @Injectable({
   providedIn: 'root'
@@ -25,6 +26,7 @@ import { Organization, LoggerService } from '@core';
 export class OrganizationRepository {
   private readonly firestore = inject(Firestore);
   private readonly logger = inject(LoggerService);
+  private readonly memberRepository = inject(OrganizationMemberRepository);
   private readonly collectionName = 'organizations';
 
   private getCollectionRef(): CollectionReference {
@@ -57,16 +59,30 @@ export class OrganizationRepository {
   }
 
   findByCreator(creatorId: string): Observable<Organization[]> {
+    // Note: Removed orderBy to avoid requiring a composite Firestore index
+    // Sorting can be done in-memory if needed
     const q = query(
       this.getCollectionRef(),
-      where('created_by', '==', creatorId),
-      orderBy('created_at', 'desc')
+      where('created_by', '==', creatorId)
     );
 
     return from(getDocs(q)).pipe(
-      map(snapshot => snapshot.docs.map(docSnap => this.toOrganization(docSnap.data(), docSnap.id))),
+      map(snapshot => {
+        const orgs = snapshot.docs.map(docSnap => this.toOrganization(docSnap.data(), docSnap.id));
+        // Sort in-memory by created_at descending
+        return orgs.sort((a, b) => {
+          const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
+          const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
+          return dateB - dateA;
+        });
+      }),
       catchError(error => {
         this.logger.error('[OrganizationRepository]', 'findByCreator failed', error as Error);
+        console.error('[OrganizationRepository] findByCreator error details:', {
+          code: error?.code,
+          message: error?.message,
+          creatorId
+        });
         return of([]);
       })
     );
@@ -80,10 +96,42 @@ export class OrganizationRepository {
     };
 
     try {
+      // 1. 建立文件 (Create document)
       const docRef = await addDoc(this.getCollectionRef(), docData);
-      return this.toOrganization(docData, docRef.id);
+      console.log('[OrganizationRepository] ✅ Document created with ID:', docRef.id);
+      
+      // 2. 讀取剛建立的文件以確認持久化成功 (Read back to confirm persistence)
+      const snapshot = await getDoc(docRef);
+      if (snapshot.exists()) {
+        console.log('[OrganizationRepository] ✅ Document verified in Firestore:', snapshot.id);
+        const createdOrg = this.toOrganization(snapshot.data(), snapshot.id);
+        
+        // 3. 自動添加建立者為擁有者 (Occam's Razor: automatic owner assignment)
+        try {
+          await this.memberRepository.addMember(
+            createdOrg.id,
+            createdOrg.created_by,
+            OrganizationRole.OWNER
+          );
+          console.log('[OrganizationRepository] ✅ Creator added as OWNER:', createdOrg.created_by);
+        } catch (memberError) {
+          // 不要因為成員添加失敗而讓整個組織建立失敗 (Don't fail org creation if member add fails)
+          this.logger.error('[OrganizationRepository]', 'Failed to add creator as owner', memberError as Error);
+        }
+        
+        return createdOrg;
+      } else {
+        console.error('[OrganizationRepository] ❌ Document not found after creation!');
+        // 返回本地建立的資料作為後備 (Return locally created data as fallback)
+        return this.toOrganization(docData, docRef.id);
+      }
     } catch (error: any) {
       this.logger.error('[OrganizationRepository]', 'create failed', error as Error);
+      console.error('[OrganizationRepository] Error details:', {
+        code: error.code,
+        message: error.message,
+        details: error
+      });
       throw error;
     }
   }
