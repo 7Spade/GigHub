@@ -34,6 +34,26 @@ This document tracks the implementation progress based on the tasks outlined in:
 4. ✅ BlueprintFacade with Angular Signals
 5. ✅ Comprehensive documentation
 
+#### Phase 2: Command/Query Separation (100% Complete)
+- **Commands**: Create, Update, Delete, AddMember with handlers
+- **Queries**: GetById, List, GetMembers with handlers
+- **Blueprint Aggregate**: Business logic encapsulation
+- **Facade Integration**: CQRS handlers integrated, old service removed
+
+**Statistics**:
+- Files Created: 22 new files
+- Files Modified: 1 file (facade rewritten)
+- Files Removed: 1 file (BlueprintService removed)
+- Lines of Code: ~1,400 LOC (production code)
+- Time Investment: ~3 hours
+
+**Key Deliverables**:
+1. ✅ 4 Command handlers
+2. ✅ 3 Query handlers
+3. ✅ Blueprint Aggregate with 7 business methods
+4. ✅ Facade routes directly to CQRS handlers (NO backward compatibility)
+5. ✅ Old service removed (clean architecture)
+
 ### In Progress ⏳
 
 None currently.
@@ -50,11 +70,12 @@ None currently.
 
 #### Phase 3: Repository Abstraction (0% Complete)
 - Repository interfaces extraction
-- Firestore implementation
-- Supabase skeleton
+- Firestore implementation (current: concrete classes)
 - DI configuration
 
 **Estimated Effort**: 2 weeks
+
+**Note**: Removed Supabase skeleton from scope - focusing on Firestore (@angular/fire)
 
 #### Phase 4: Event-Driven Integration (0% Complete)
 - Event subscribers (Audit, Cache, Notifications)
@@ -80,12 +101,17 @@ We followed the Occam's Razor principle: **implement only what's necessary, when
 **Phase 1 Applied This By**:
 - ✅ Creating only essential value objects (not all possible ones)
 - ✅ Simple EventBus (no persistence yet)
-- ✅ Facade delegates to existing service (no CQRS yet)
-- ✅ Backward compatible (no breaking changes)
+- ✅ Facade with Signals for state management
+- ✅ Direct CQRS integration (no backward compatibility layer)
+
+**Phase 2 Applied This By**:
+- ✅ Implementing only essential commands (4) and queries (3)
+- ✅ Simple aggregate without complex state machines
+- ✅ Direct repository delegation (no event sourcing yet)
+- ✅ Removed old service (clean architecture, no redundancy)
 
 **Future Phases Will Add**:
-- Phase 2: CQRS handlers (when we need command/query separation)
-- Phase 3: Repository abstraction (when we need database flexibility)
+- Phase 3: Repository abstraction (when we need better testability)
 - Phase 4: Event subscribers (when we need audit/notifications)
 - Phase 5: Module system (when modules need to communicate)
 
