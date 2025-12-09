@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit } from '@angular/core';
 import { ContextType, OrganizationMember, OrganizationRole } from '@core';
-import { SHARED_IMPORTS, WorkspaceContextService } from '@shared';
-import { OrganizationMemberRepository } from '@shared/services/organization/organization-member.repository';
+import { SHARED_IMPORTS, WorkspaceContextService, OrganizationMemberRepository } from '@shared';
 import { HeaderContextSwitcherComponent } from '../../../layout/basic/widgets/context-switcher.component';
 import { NzMenuModule } from 'ng-zorro-antd/menu';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
