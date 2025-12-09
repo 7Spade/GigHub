@@ -81,38 +81,49 @@ import { CreateTeamComponent } from '../../shared/components/create-team/create-
         <header-user />
       </layout-default-header-item>
       <ng-template #asideUserTpl>
-        <div nz-dropdown nzTrigger="click" [nzDropdownMenu]="userMenu" class="alain-default__aside-user">
-          <nz-avatar class="alain-default__aside-user-avatar" [nzSrc]="user.avatar" />
-          <div class="alain-default__aside-user-info">
-            <strong>{{ user.name }}</strong>
-            <p class="mb0">{{ user.email }}</p>
+        @if (user) {
+          <div nz-dropdown nzTrigger="click" [nzDropdownMenu]="userMenu" class="alain-default__aside-user">
+            <nz-avatar class="alain-default__aside-user-avatar" [nzSrc]="user.avatar" />
+            <div class="alain-default__aside-user-info">
+              <strong>{{ user.name }}</strong>
+              <p class="mb0">{{ user.email }}</p>
+            </div>
           </div>
-        </div>
-        <nz-dropdown-menu #userMenu="nzDropdownMenu">
-          <ul nz-menu>
-            <!-- 上下文切換器區域 -->
-            <li nz-menu-item [nzDisabled]="true" style="cursor: default; opacity: 1; background: transparent;">
-              <div style="font-weight: 600; color: rgba(0, 0, 0, 0.85); margin-bottom: 4px;">切換工作區</div>
-            </li>
-            <li style="padding: 0;">
-              <header-context-switcher />
-            </li>
-            <li nz-menu-divider></li>
-
-            <!-- Create Organization/Team buttons -->
-            <li nz-menu-item (click)="openCreateOrganization()">
-              <i nz-icon nzType="plus-circle" class="mr-sm"></i>
-              <span>建立組織</span>
-            </li>
-            @if (isOrganizationContext()) {
-              <li nz-menu-item (click)="openCreateTeam()">
-                <i nz-icon nzType="usergroup-add" class="mr-sm"></i>
-                <span>建立團隊</span>
+          <nz-dropdown-menu #userMenu="nzDropdownMenu">
+            <ul nz-menu>
+              <!-- 上下文切換器區域 -->
+              <li nz-menu-item [nzDisabled]="true" style="cursor: default; opacity: 1; background: transparent;">
+                <div style="font-weight: 600; color: rgba(0, 0, 0, 0.85); margin-bottom: 4px;">切換工作區</div>
               </li>
-            }
-            <li nz-menu-divider></li>
-          </ul>
-        </nz-dropdown-menu>
+              <li style="padding: 0;">
+                <header-context-switcher />
+              </li>
+              <li nz-menu-divider></li>
+
+              <!-- Create Organization/Team buttons -->
+              <li nz-menu-item (click)="openCreateOrganization()">
+                <i nz-icon nzType="plus-circle" class="mr-sm"></i>
+                <span>建立組織</span>
+              </li>
+              @if (isOrganizationContext()) {
+                <li nz-menu-item (click)="openCreateTeam()">
+                  <i nz-icon nzType="usergroup-add" class="mr-sm"></i>
+                  <span>建立團隊</span>
+                </li>
+              }
+              <li nz-menu-divider></li>
+            </ul>
+          </nz-dropdown-menu>
+        } @else {
+          <!-- Loading state or default avatar when user is not yet loaded -->
+          <div class="alain-default__aside-user">
+            <nz-avatar class="alain-default__aside-user-avatar" nzIcon="user" />
+            <div class="alain-default__aside-user-info">
+              <strong>載入中...</strong>
+              <p class="mb0">--</p>
+            </div>
+          </div>
+        }
       </ng-template>
       <ng-template #contentTpl>
         <router-outlet />

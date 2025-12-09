@@ -16,6 +16,7 @@ import { Injectable, computed, inject, signal, effect, untracked } from '@angula
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ContextType, Account, Organization, Team, Bot } from '@core';
 import { FirebaseAuthService } from '@core';
+import { SettingsService } from '@delon/theme';
 import { OrganizationRepository } from './organization/organization.repository';
 import { TeamRepository } from './team/team.repository';
 import { combineLatest, EMPTY } from 'rxjs';
@@ -29,6 +30,7 @@ export class WorkspaceContextService {
   private readonly firebaseAuth = inject(FirebaseAuthService);
   private readonly organizationRepo = inject(OrganizationRepository);
   private readonly teamRepo = inject(TeamRepository);
+  private readonly settingsService = inject(SettingsService);
 
   // Convert Firebase auth user observable to a reactive signal
   private readonly firebaseUser = toSignal(this.firebaseAuth.user$, { initialValue: null });
@@ -147,13 +149,23 @@ export class WorkspaceContextService {
       
       if (user) {
         // Convert Firebase user to Account
-        this.currentUserState.set({
+        const accountData = {
           id: user.uid,
           uid: user.uid,
           name: user.displayName || user.email || 'User',
           email: user.email || '',
           avatar_url: user.photoURL,
           created_at: new Date().toISOString()
+        };
+        
+        this.currentUserState.set(accountData);
+        
+        // Initialize ng-alain SettingsService user to prevent JSON parse errors
+        // This ensures the sidebar user component has data on first load
+        this.settingsService.setUser({
+          name: accountData.name,
+          avatar: accountData.avatar_url || './assets/tmp/img/avatar.jpg',
+          email: accountData.email
         });
 
         // Schedule data loading outside the effect
