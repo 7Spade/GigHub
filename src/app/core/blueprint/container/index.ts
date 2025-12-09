@@ -6,3 +6,5 @@
 
 export * from './resource-provider.interface';
 export * from './resource-provider';
+export * from './module-registry.interface';
+export * from './module-registry';

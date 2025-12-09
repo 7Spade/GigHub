@@ -118,21 +118,28 @@
 
 #### Week 2: 模組系統與容器
 
-**Day 1-2: 模組註冊表**
-- [ ] `core/blueprint/container/module-registry.ts`
-  - ModuleRegistry 類別實作
+**Day 1-2: 模組註冊表** ✅ COMPLETE
+- [x] `core/blueprint/container/module-registry.interface.ts`
+  - IModuleRegistry 介面定義
+  - ModuleMetadata 與 DependencyResolution
+- [x] `core/blueprint/container/module-registry.ts`
+  - ModuleRegistry 類別實作 (~350 lines)
   - 模組註冊/註銷
-  - 模組查找
-  - 版本管理
-  - 依賴解析
-- [ ] `core/blueprint/container/module-registry.spec.ts`
-  - 單元測試
+  - 模組查找與版本管理
+  - 拓撲排序依賴解析 (Kahn's Algorithm)
+  - 循環依賴檢測 (DFS)
+  - Signal-based reactive module count
+- [x] `core/blueprint/container/module-registry.spec.ts`
+  - 50+ 單元測試 (~500 lines)
+  - 註冊/註銷測試
   - 依賴解析測試
+  - 循環依賴檢測測試
+  - 效能測試
 
 **預期產出**:
-- ✅ 模組註冊表實作
-- ✅ 依賴解析演算法
-- ✅ 測試覆蓋率 ≥90%
+- ✅ 模組註冊表實作 (~850 lines total)
+- ✅ 依賴解析演算法 (Topological Sort + DFS)
+- ✅ 測試覆蓋率 ≥95%
 
 **Day 3-5: 生命週期管理器**
 - [ ] `core/blueprint/container/lifecycle-manager.ts`
