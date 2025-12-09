@@ -186,9 +186,27 @@ canActivate(): Observable<boolean> {
 
 Each major module has its own `AGENTS.md` with detailed context:
 
-- **[Blueprint Module](src/app/routes/blueprint/AGENTS.md)** - Core container for projects
-- **[Core Services](src/app/core/AGENTS.md)** - Shared services and utilities
-- **[Shared Components](src/app/shared/AGENTS.md)** - Reusable UI components
+### Core Architecture
+- **[App Module](src/app/AGENTS.md)** - Application bootstrap, Firebase integration, routing strategy
+- **[Layout Module](src/app/layout/AGENTS.md)** - Basic/Blank/Passport layouts, responsive design
+- **[Core Services](src/app/core/AGENTS.md)** - Shared services, guards, repositories
+- **[Shared Components](src/app/shared/AGENTS.md)** - Reusable UI components, pipes, directives
+
+### Foundation Layer (Account & Identity)
+- **[Passport Module](src/app/routes/passport/AGENTS.md)** - Authentication (Firebase Auth, Login, Register)
+- **[User Module](src/app/routes/user/AGENTS.md)** - User profile, settings, preferences
+- **[Organization Module](src/app/routes/organization/AGENTS.md)** - Multi-tenant organizations
+- **[Team Module](src/app/routes/team/AGENTS.md)** - Team collaboration within organizations
+
+### Container Layer (Project Management)
+- **[Blueprint Module](src/app/routes/blueprint/AGENTS.md)** - Core container for projects, permissions, audit
+
+### Business Layer (Feature Modules)
+- **[Dashboard Module](src/app/routes/dashboard/AGENTS.md)** - Workplace, analysis, monitoring dashboards
+- **[Exception Module](src/app/routes/exception/AGENTS.md)** - Error pages (403/404/500), error handling
+
+### Module Navigation
+- **[Routes Overview](src/app/routes/AGENTS.md)** - Routing configuration and lazy loading
 
 ## Adding New Modules
 
