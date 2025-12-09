@@ -1,0 +1,113 @@
+import { Injectable, inject } from '@angular/core';
+import {
+  Firestore,
+  addDoc,
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  updateDoc,
+  deleteDoc,
+  query,
+  where,
+  orderBy,
+  CollectionReference,
+  DocumentReference,
+  Timestamp,
+  QueryConstraint
+} from '@angular/fire/firestore';
+import { Observable, from, map, catchError, of } from 'rxjs';
+import { Organization, LoggerService } from '@core';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class OrganizationRepository {
+  private readonly firestore = inject(Firestore);
+  private readonly logger = inject(LoggerService);
+  private readonly collectionName = 'organizations';
+
+  private getCollectionRef(): CollectionReference {
+    return collection(this.firestore, this.collectionName);
+  }
+
+  private getDocRef(organizationId: string): DocumentReference {
+    return doc(this.firestore, this.collectionName, organizationId);
+  }
+
+  private toOrganization(data: any, id: string): Organization {
+    return {
+      id,
+      name: data.name,
+      description: data.description || null,
+      logo_url: data.logo_url || null,
+      created_by: data.created_by,
+      created_at: data.created_at instanceof Timestamp ? data.created_at.toDate().toISOString() : data.created_at
+    };
+  }
+
+  findById(organizationId: string): Observable<Organization | null> {
+    return from(getDoc(this.getDocRef(organizationId))).pipe(
+      map(snapshot => (snapshot.exists() ? this.toOrganization(snapshot.data(), snapshot.id) : null)),
+      catchError(error => {
+        this.logger.error('[OrganizationRepository]', 'findById failed', error as Error);
+        return of(null);
+      })
+    );
+  }
+
+  findByCreator(creatorId: string): Observable<Organization[]> {
+    const q = query(
+      this.getCollectionRef(),
+      where('created_by', '==', creatorId),
+      orderBy('created_at', 'desc')
+    );
+
+    return from(getDocs(q)).pipe(
+      map(snapshot => snapshot.docs.map(docSnap => this.toOrganization(docSnap.data(), docSnap.id))),
+      catchError(error => {
+        this.logger.error('[OrganizationRepository]', 'findByCreator failed', error as Error);
+        return of([]);
+      })
+    );
+  }
+
+  async create(organization: Omit<Organization, 'id' | 'created_at'>): Promise<Organization> {
+    const now = Timestamp.now();
+    const docData = {
+      ...organization,
+      created_at: now
+    };
+
+    try {
+      const docRef = await addDoc(this.getCollectionRef(), docData);
+      return this.toOrganization(docData, docRef.id);
+    } catch (error: any) {
+      this.logger.error('[OrganizationRepository]', 'create failed', error as Error);
+      throw error;
+    }
+  }
+
+  async update(organizationId: string, data: Partial<Organization>): Promise<void> {
+    const docData = { ...data };
+    delete (docData as any).id;
+    delete (docData as any).created_by;
+    delete (docData as any).created_at;
+
+    try {
+      await updateDoc(this.getDocRef(organizationId), docData);
+    } catch (error: any) {
+      this.logger.error('[OrganizationRepository]', 'update failed', error as Error);
+      throw error;
+    }
+  }
+
+  async delete(organizationId: string): Promise<void> {
+    try {
+      await deleteDoc(this.getDocRef(organizationId));
+    } catch (error: any) {
+      this.logger.error('[OrganizationRepository]', 'delete failed', error as Error);
+      throw error;
+    }
+  }
+}

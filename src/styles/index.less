@@ -1,0 +1,988 @@
+/* ============================================
+ * Azure Dragon Theme - Global Styles
+ * 青龍主題 - 全局樣式
+ * ============================================
+ * Version: 1.1.0
+ * Compatible with:
+ * - ng-zorro-antd: 20.3.1+ (Current: 20.3.1, Latest: 20.4.3)
+ * - ng-alain: 20.1.0+ (Current: 20.1.0, Latest: 20.1.0)
+ * - Angular: 20.3.0+ (Current: 20.3.0, Latest: 21.0.3)
+ *
+ * This file contains:
+ * - Global component style enhancements
+ * - Utility classes for Azure Dragon theme
+ * - Animation definitions
+ * - Accessibility improvements
+ *
+ * Note: Azure Dragon color variables are defined in theme.less
+ * and are available for use throughout this file.
+ *
+ * References:
+ * - Azure Dragon Design: docs/ui-theme/azure-dragon-theme.md
+ * - Hover States: docs/ui-theme/HOVER_STATES_IMPROVEMENTS.md
+ * ============================================ */
+
+// ============================================
+// Utility Classes for Azure Dragon Theme
+// 青龍主題工具類
+// ============================================
+
+// Background Colors
+.azure-bg-primary {
+  background-color: @azure-6 !important;
+}
+
+.azure-bg-gradient {
+  background: @gradient-dragon-soaring !important;
+}
+
+.azure-bg-gradient-sky {
+  background: @gradient-azure-sky !important;
+}
+
+.azure-bg-light {
+  background-color: @azure-1 !important;
+}
+
+// Text Colors
+.azure-text-primary {
+  color: @azure-6 !important;
+}
+
+.azure-text-jade {
+  color: @jade-4 !important;
+}
+
+.azure-text-cyan {
+  color: @cyan-3 !important;
+}
+
+// Border Colors
+.azure-border-primary {
+  border-color: @azure-6 !important;
+}
+
+.azure-border-jade {
+  border-color: @jade-4 !important;
+}
+
+// Card Styles with Azure Dragon Theme
+.azure-card {
+  background: #ffffff;
+  border: 1px solid @border-color-split;
+  border-radius: 8px;
+  box-shadow: @shadow-azure-sm;
+  transition: all @transition-base;
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 8px;
+    border: 1px solid @azure-6;
+    opacity: 0;
+    transition: opacity @transition-base;
+    pointer-events: none;
+  }
+
+  &:hover {
+    box-shadow: @shadow-azure-lg;
+    transform: translateY(-2px);
+
+    &::after {
+      opacity: 1;
+    }
+  }
+}
+
+.azure-card-featured {
+  background: @gradient-dragon-soaring;
+  color: #ffffff;
+  border: none;
+  box-shadow: @shadow-azure-lg;
+}
+
+.azure-card-highlight {
+  background: @gradient-dawn-light;
+  border: 2px solid @azure-6;
+  box-shadow: @shadow-azure-md;
+}
+
+// Button Enhancements
+.ant-btn-primary {
+  background: @gradient-dragon-soaring;
+  border: none;
+  transition: all @transition-base;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: @gradient-dragon-scales;
+    opacity: 0;
+    transition: opacity @transition-base;
+  }
+
+  &:hover,
+  &:focus {
+    box-shadow: @shadow-azure-md;
+    transform: translateY(-1px);
+
+    &::before {
+      opacity: 1;
+    }
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: @shadow-azure-sm;
+  }
+
+  & > * {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+// Secondary and Default Button Hover States
+.ant-btn-default {
+  transition: all @transition-base;
+
+  &:hover,
+  &:focus {
+    color: @azure-6;
+    border-color: @azure-6;
+    background: @azure-1;
+  }
+}
+
+.ant-btn-dashed {
+  transition: all @transition-base;
+
+  &:hover,
+  &:focus {
+    color: @azure-6;
+    border-color: @azure-6;
+    background: fade(@azure-1, 50%);
+  }
+}
+
+.ant-btn-text {
+  transition: all @transition-fast;
+
+  &:hover,
+  &:focus {
+    color: @azure-5;
+    background: fade(@azure-1, 60%);
+  }
+}
+
+.ant-btn-link {
+  transition: color @transition-fast;
+
+  &:hover,
+  &:focus {
+    color: @azure-5;
+  }
+}
+
+// Header Gradient Enhancement
+.alain-default__header {
+  background: @gradient-dragon-soaring !important;
+  box-shadow: @shadow-azure-md;
+}
+
+// Navigation Active State
+.alain-default__nav-item.active,
+.alain-default__nav-item:hover {
+  color: @azure-6 !important;
+  background: fade(@azure-1, 80%);
+  border-left: 3px solid @azure-6;
+  transition: all @transition-fast;
+}
+
+.alain-default__nav-item {
+  transition: all @transition-fast;
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: @azure-6;
+    transform: scaleY(0);
+    transition: transform @transition-fast;
+  }
+
+  &:hover::before {
+    transform: scaleY(1);
+  }
+}
+
+// Scrollbar Styling
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: @azure-1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: @azure-4;
+  border-radius: 4px;
+  transition: background @transition-fast;
+
+  &:hover {
+    background: @azure-6;
+  }
+
+  &:active {
+    background: @azure-7;
+  }
+}
+
+::-webkit-scrollbar-corner {
+  background: @azure-1;
+}
+
+// Loading State with Azure Dragon Theme
+.ant-spin-dot-item {
+  background-color: @azure-6;
+}
+
+// Tag Styles
+.ant-tag-blue {
+  color: @azure-6;
+  background: @azure-1;
+  border-color: @azure-3;
+  transition: all @transition-fast;
+  cursor: pointer;
+
+  &:hover {
+    background: @azure-2;
+    border-color: @azure-4;
+    transform: translateY(-1px);
+  }
+}
+
+.ant-tag-cyan {
+  color: @cyan-3;
+  background: @cyan-1;
+  border-color: @cyan-2;
+  transition: all @transition-fast;
+  cursor: pointer;
+
+  &:hover {
+    background: fade(@cyan-2, 60%);
+    border-color: @cyan-3;
+    transform: translateY(-1px);
+  }
+}
+
+.ant-tag-green {
+  color: @jade-4;
+  background: @jade-1;
+  border-color: @jade-2;
+  transition: all @transition-fast;
+  cursor: pointer;
+
+  &:hover {
+    background: fade(@jade-2, 60%);
+    border-color: @jade-3;
+    transform: translateY(-1px);
+  }
+}
+
+.ant-tag-checkable {
+  transition: all @transition-fast;
+
+  &:hover {
+    color: @azure-6;
+  }
+
+  &:not(.ant-tag-checkable-checked):hover {
+    color: @azure-6;
+  }
+}
+
+// Badge Colors
+.ant-badge-status-processing {
+  background-color: @azure-6;
+}
+
+.ant-badge-status-success {
+  background-color: @jade-4;
+}
+
+// Progress Bar
+.ant-progress-bg {
+  background: @gradient-dragon-soaring !important;
+}
+
+// Alert Styles
+.ant-alert-info {
+  background-color: @azure-1;
+  border: 1px solid @azure-3;
+  transition: all @transition-fast;
+
+  .ant-alert-icon {
+    color: @azure-6;
+  }
+
+  &:hover {
+    background-color: fade(@azure-2, 60%);
+    border-color: @azure-4;
+  }
+}
+
+.ant-alert-success {
+  background-color: @jade-1;
+  border: 1px solid @jade-2;
+  transition: all @transition-fast;
+
+  .ant-alert-icon {
+    color: @jade-4;
+  }
+
+  &:hover {
+    background-color: fade(@jade-2, 60%);
+    border-color: @jade-3;
+  }
+}
+
+.ant-alert-close-icon {
+  transition: all @transition-fast;
+
+  &:hover {
+    color: @azure-6;
+    transform: scale(1.1);
+  }
+}
+
+// Modal & Drawer
+.ant-modal-header,
+.ant-drawer-header {
+  background: @gradient-dawn-light;
+  border-bottom: 2px solid @azure-2;
+  transition: all @transition-base;
+}
+
+.ant-modal-title,
+.ant-drawer-title {
+  color: @azure-7;
+  font-weight: 600;
+}
+
+.ant-modal-close,
+.ant-drawer-close {
+  transition: all @transition-fast;
+
+  &:hover {
+    color: @azure-6;
+    background: fade(@azure-1, 50%);
+    border-radius: 4px;
+  }
+}
+
+.ant-modal-footer {
+  border-top: 1px solid @border-color-split;
+  transition: all @transition-fast;
+
+  .ant-btn {
+    transition: all @transition-fast;
+  }
+}
+
+// Dropdown & Select
+.ant-dropdown-menu-item,
+.ant-select-item-option {
+  transition: all @transition-fast;
+
+  &:hover {
+    background: fade(@azure-1, 80%);
+    color: @azure-6;
+  }
+}
+
+.ant-dropdown-menu-item-selected,
+.ant-select-item-option-selected {
+  background: fade(@azure-1, 90%);
+  color: @azure-6;
+  font-weight: 500;
+
+  &:hover {
+    background: @azure-2;
+  }
+}
+
+.ant-select-selector {
+  transition: all @transition-fast !important;
+
+  &:hover {
+    border-color: @azure-5 !important;
+  }
+}
+
+.ant-select-arrow {
+  transition: all @transition-fast;
+  color: @text-color-secondary;
+
+  &:hover {
+    color: @azure-6;
+  }
+}
+.ant-input:focus,
+.ant-input-focused,
+.ant-select-focused .ant-select-selector {
+  border-color: @azure-6 !important;
+  box-shadow: 0 0 0 2px fade(@azure-6, 20%) !important;
+  transition: all @transition-fast;
+}
+
+.ant-input:hover:not(:disabled):not([disabled]),
+.ant-select:hover:not(.ant-select-disabled) .ant-select-selector {
+  border-color: @azure-5;
+  transition: all @transition-fast;
+}
+
+.ant-checkbox-wrapper {
+  transition: all @transition-fast;
+
+  &:hover .ant-checkbox-inner {
+    border-color: @azure-6;
+  }
+}
+
+.ant-checkbox-checked .ant-checkbox-inner {
+  background-color: @azure-6;
+  border-color: @azure-6;
+  transition: all @transition-fast;
+}
+
+.ant-checkbox:hover .ant-checkbox-inner,
+.ant-checkbox-input:focus + .ant-checkbox-inner {
+  border-color: @azure-6;
+}
+
+.ant-radio-wrapper {
+  transition: all @transition-fast;
+
+  &:hover .ant-radio-inner {
+    border-color: @azure-6;
+  }
+}
+
+.ant-radio-checked .ant-radio-inner {
+  border-color: @azure-6;
+  transition: all @transition-fast;
+
+  &::after {
+    background-color: @azure-6;
+  }
+}
+
+.ant-radio:hover .ant-radio-inner,
+.ant-radio-input:focus + .ant-radio-inner {
+  border-color: @azure-6;
+}
+
+.ant-switch {
+  transition: all @transition-base;
+
+  &:hover:not(.ant-switch-disabled) {
+    background-color: fade(@azure-6, 70%);
+  }
+}
+
+.ant-switch-checked {
+  background-color: @azure-6;
+
+  &:hover:not(.ant-switch-disabled) {
+    background-color: @azure-5;
+  }
+}
+
+// Table Enhancements
+.ant-table-thead > tr > th {
+  background: @gradient-dawn-light;
+  color: @azure-7;
+  font-weight: 600;
+  transition: all @transition-fast;
+}
+
+.ant-table-tbody > tr {
+  transition: all @transition-fast;
+
+  &:hover > td {
+    background: fade(@azure-1, 80%);
+  }
+}
+
+.ant-table-row-selected > td {
+  background: fade(@azure-1, 90%);
+  border-color: @azure-3;
+  transition: all @transition-fast;
+}
+
+.ant-table-cell {
+  transition: background @transition-fast;
+}
+
+// Tabs
+.ant-tabs-tab {
+  transition: all @transition-fast;
+
+  &:hover {
+    color: @azure-5;
+  }
+
+  &.ant-tabs-tab-active .ant-tabs-tab-btn {
+    color: @azure-6;
+  }
+}
+
+.ant-tabs-ink-bar {
+  background: @gradient-dragon-soaring;
+  height: 3px;
+  transition: all @transition-base;
+}
+
+// Menu
+.ant-menu-item-selected {
+  background-color: @azure-1;
+  color: @azure-6;
+  border-left: 3px solid @azure-6;
+  transition: all @transition-fast;
+}
+
+.ant-menu-item:hover,
+.ant-menu-submenu-title:hover {
+  color: @azure-6;
+  background: fade(@azure-1, 70%);
+  transition: all @transition-fast;
+
+  &::after {
+    border-right-color: @azure-6;
+  }
+}
+
+.ant-menu-item,
+.ant-menu-submenu-title {
+  transition: all @transition-fast;
+}
+
+// Pagination
+.ant-pagination-item-active {
+  background: @gradient-dragon-soaring;
+  border-color: @azure-6;
+  transition: all @transition-base;
+
+  a {
+    color: #ffffff;
+  }
+
+  &:hover {
+    box-shadow: @shadow-azure-sm;
+    transform: translateY(-1px);
+  }
+}
+
+.ant-pagination-item {
+  transition: all @transition-fast;
+
+  &:hover {
+    border-color: @azure-6;
+    transform: translateY(-1px);
+
+    a {
+      color: @azure-6;
+    }
+  }
+}
+
+.ant-pagination-prev,
+.ant-pagination-next {
+  transition: all @transition-fast;
+
+  &:hover {
+    .ant-pagination-item-link {
+      color: @azure-6;
+      border-color: @azure-6;
+    }
+  }
+}
+
+// Steps
+.ant-steps-item {
+  transition: all @transition-fast;
+
+  &:hover {
+    .ant-steps-item-icon {
+      border-color: @azure-5;
+    }
+
+    .ant-steps-item-title {
+      color: @azure-6;
+    }
+  }
+}
+
+.ant-steps-item-process .ant-steps-item-icon {
+  background: @gradient-dragon-soaring;
+  border-color: @azure-6;
+  transition: all @transition-base;
+}
+
+.ant-steps-item-finish {
+  .ant-steps-item-icon {
+    border-color: @azure-6;
+    transition: all @transition-fast;
+
+    .ant-steps-icon {
+      color: @azure-6;
+    }
+
+    &:hover {
+      border-color: @azure-5;
+      background: fade(@azure-1, 50%);
+    }
+  }
+
+  .ant-steps-item-title {
+    &:hover {
+      color: @azure-6;
+    }
+  }
+}
+
+// Timeline
+.ant-timeline-item-head-blue {
+  background-color: @azure-6;
+  border-color: @azure-6;
+}
+
+// Skeleton Loading Animation
+.ant-skeleton-element {
+  .ant-skeleton-button,
+  .ant-skeleton-input,
+  .ant-skeleton-image,
+  .ant-skeleton-avatar {
+    background: linear-gradient(90deg, @azure-1 25%, @azure-2 37%, @azure-1 63%);
+    background-size: 400% 100%;
+    animation: ant-skeleton-loading 1.4s ease infinite;
+  }
+}
+
+// Custom Animation - Dragon Flow Effect
+@keyframes dragon-flow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.dragon-effect {
+  background: linear-gradient(270deg, @azure-6, @jade-4, @cyan-3, @azure-6);
+  background-size: 400% 400%;
+  animation: dragon-flow 8s ease infinite;
+}
+
+// Pulse Effect
+@keyframes dragon-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 fade(@azure-6, 70%);
+  }
+  50% {
+    box-shadow: 0 0 0 10px fade(@azure-6, 0%);
+  }
+}
+
+.dragon-pulse {
+  animation: dragon-pulse 2s ease-in-out infinite;
+}
+
+// Glow Effect
+.azure-glow {
+  box-shadow: @glow-azure;
+}
+
+.jade-glow {
+  box-shadow: @glow-jade;
+}
+
+// Glow Effect
+.azure-glow {
+  box-shadow: @glow-azure;
+  transition: box-shadow @transition-base;
+
+  &:hover {
+    box-shadow: @glow-azure, @shadow-azure-lg;
+  }
+}
+
+.jade-glow {
+  box-shadow: @glow-jade;
+  transition: box-shadow @transition-base;
+
+  &:hover {
+    box-shadow: @glow-jade, @shadow-azure-lg;
+  }
+}
+
+// Tooltip & Popover Enhancements
+.ant-tooltip-inner {
+  background: @azure-7;
+  transition: all @transition-fast;
+}
+
+.ant-tooltip-arrow-content {
+  background: @azure-7;
+}
+
+.ant-popover-inner {
+  box-shadow: @shadow-azure-lg;
+  transition: all @transition-base;
+}
+
+.ant-popover-inner-content {
+  color: @text-color;
+}
+
+// Breadcrumb Enhancements
+.ant-breadcrumb-link {
+  transition: all @transition-fast;
+
+  &:hover {
+    color: @azure-6;
+    background: fade(@azure-1, 50%);
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin: -2px -6px;
+  }
+}
+
+.ant-breadcrumb-separator {
+  color: @text-color-secondary;
+}
+
+// Link Enhancements
+a {
+  transition: color @transition-fast;
+
+  &:hover {
+    color: @azure-5;
+  }
+
+  &:active {
+    color: @azure-7;
+  }
+}
+
+// Collapse Panel Enhancements
+.ant-collapse-item {
+  transition: all @transition-fast;
+
+  &:hover {
+    border-color: @azure-5;
+  }
+}
+
+.ant-collapse-header {
+  transition: all @transition-fast;
+
+  &:hover {
+    color: @azure-6 !important;
+    background: fade(@azure-1, 40%);
+  }
+}
+
+.ant-collapse-content {
+  transition: all @transition-base;
+}
+
+// Avatar Enhancements
+.ant-avatar {
+  transition: all @transition-fast;
+  border: 2px solid transparent;
+
+  &:hover {
+    border-color: @azure-6;
+    box-shadow: @shadow-azure-sm;
+    transform: scale(1.05);
+  }
+}
+
+.ant-avatar-group .ant-avatar:hover {
+  z-index: 2;
+}
+
+// Statistic Enhancements
+.ant-statistic-title {
+  color: @text-color-secondary;
+  transition: color @transition-fast;
+}
+
+.ant-statistic:hover .ant-statistic-title {
+  color: @azure-6;
+}
+
+.ant-statistic-content {
+  color: @azure-6;
+  transition: all @transition-fast;
+}
+
+// Card Action Buttons
+.ant-card-actions > li {
+  transition: all @transition-fast;
+
+  &:hover {
+    color: @azure-6;
+    background: fade(@azure-1, 50%);
+  }
+}
+
+// Input Number Enhancements
+.ant-input-number {
+  transition: all @transition-fast;
+
+  &:hover {
+    border-color: @azure-5;
+  }
+
+  &:focus-within {
+    border-color: @azure-6;
+    box-shadow: 0 0 0 2px fade(@azure-6, 20%);
+  }
+}
+
+.ant-input-number-handler {
+  transition: all @transition-fast;
+
+  &:hover {
+    color: @azure-6;
+  }
+}
+
+// Rate (Star Rating) Enhancements
+.ant-rate-star {
+  transition: all @transition-fast;
+
+  &:hover {
+    transform: scale(1.1);
+  }
+}
+
+.ant-rate-star-full .ant-rate-star-second {
+  color: @azure-6;
+}
+
+// Slider Enhancements
+.ant-slider-track {
+  background: @gradient-dragon-soaring;
+  transition: all @transition-fast;
+}
+
+.ant-slider-handle {
+  border-color: @azure-6;
+  transition: all @transition-fast;
+
+  &:hover,
+  &:focus {
+    border-color: @azure-5;
+    box-shadow: 0 0 0 4px fade(@azure-6, 20%);
+  }
+}
+
+.ant-slider:hover .ant-slider-track {
+  background: @gradient-dragon-scales;
+}
+
+// Upload Component Enhancements
+.ant-upload {
+  transition: all @transition-fast;
+
+  &:hover {
+    border-color: @azure-6;
+  }
+}
+
+.ant-upload-drag {
+  transition: all @transition-base;
+
+  &:hover {
+    border-color: @azure-6;
+    background: fade(@azure-1, 30%);
+  }
+}
+
+.ant-upload-list-item {
+  transition: all @transition-fast;
+
+  &:hover {
+    background: fade(@azure-1, 50%);
+  }
+}
+
+// Transfer Component Enhancements
+.ant-transfer-list-content-item {
+  transition: all @transition-fast;
+
+  &:hover {
+    background: fade(@azure-1, 70%);
+  }
+}
+
+.ant-transfer-list-content-item-checked {
+  background: fade(@azure-1, 90%);
+}
+
+// Responsive Utilities
+@media (max-width: @screen-sm) {
+  .alain-default__header {
+    background: @azure-6 !important; // Use solid color on mobile for better performance
+  }
+}
+
+// Print Styles
+@media print {
+  .azure-bg-gradient,
+  .azure-bg-gradient-sky,
+  .dragon-effect {
+    background: @azure-6 !important; // Use solid colors for printing
+  }
+}
+
+// Accessibility Enhancements
+.azure-focus-visible:focus-visible {
+  outline: 2px solid @azure-6;
+  outline-offset: 2px;
+}
+
+// Dark Mode Support (Optional - for future implementation)
+// @media (prefers-color-scheme: dark) {
+//   body {
+//     background-color: @azure-10;
+//     color: @text-color;
+//   }
+// }

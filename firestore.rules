@@ -1,0 +1,265 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // ==========================================
+    // Helper Functions (19 functions as documented)
+    // ==========================================
+    
+    /**
+     * Check if user is authenticated
+     */
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    /**
+     * Get current account ID from auth token
+     */
+    function getCurrentAccountId() {
+      return request.auth != null ? request.auth.uid : null;
+    }
+    
+    /**
+     * Check if current user is blueprint owner
+     */
+    function isBlueprintOwner(blueprintId) {
+      let blueprint = get(/databases/$(database)/documents/blueprints/$(blueprintId));
+      let accountId = getCurrentAccountId();
+      return blueprint.data.ownerType == 'user' && blueprint.data.ownerId == accountId;
+    }
+    
+    /**
+     * Get blueprint owner ID
+     */
+    function getOwnerId(blueprintId) {
+      let blueprint = get(/databases/$(database)/documents/blueprints/$(blueprintId));
+      return blueprint.data.ownerId;
+    }
+    
+    /**
+     * Get blueprint owner type
+     */
+    function getOwnerType(blueprintId) {
+      let blueprint = get(/databases/$(database)/documents/blueprints/$(blueprintId));
+      return blueprint.data.ownerType;
+    }
+    
+    /**
+     * Check if user is organization admin
+     */
+    function isOrganizationAdmin(organizationId) {
+      let accountId = getCurrentAccountId();
+      let orgDoc = get(/databases/$(database)/documents/organizations/$(organizationId));
+      return orgDoc != null && accountId in orgDoc.data.adminIds;
+    }
+    
+    /**
+     * Check if user has member role in blueprint
+     */
+    function hasMemberRole(blueprintId, allowedRoles) {
+      let accountId = getCurrentAccountId();
+      let memberPath = /databases/$(database)/documents/blueprints/$(blueprintId)/members/$(accountId);
+      let member = exists(memberPath) ? get(memberPath) : null;
+      return member != null && member.data.role in allowedRoles;
+    }
+    
+    /**
+     * Check if user belongs to team with blueprint access
+     */
+    function hasTeamAccess(blueprintId, requiredAccess) {
+      let accountId = getCurrentAccountId();
+      // Query would be needed here - simplified for now
+      return false;
+    }
+    
+    /**
+     * Check if user can read blueprint
+     */
+    function canReadBlueprint(blueprintId) {
+      let ownerType = getOwnerType(blueprintId);
+      let ownerId = getOwnerId(blueprintId);
+      
+      return isBlueprintOwner(blueprintId)
+        || (ownerType == 'organization' && isOrganizationAdmin(ownerId))
+        || hasMemberRole(blueprintId, ['viewer', 'contributor', 'maintainer'])
+        || hasTeamAccess(blueprintId, ['read', 'write', 'admin']);
+    }
+    
+    /**
+     * Check if user can edit blueprint
+     */
+    function canEditBlueprint(blueprintId) {
+      let ownerType = getOwnerType(blueprintId);
+      let ownerId = getOwnerId(blueprintId);
+      
+      return isBlueprintOwner(blueprintId)
+        || (ownerType == 'organization' && isOrganizationAdmin(ownerId))
+        || hasMemberRole(blueprintId, ['maintainer', 'contributor'])
+        || hasTeamAccess(blueprintId, ['write', 'admin']);
+    }
+    
+    /**
+     * Check if user can delete blueprint
+     */
+    function canDeleteBlueprint(blueprintId) {
+      let ownerType = getOwnerType(blueprintId);
+      let ownerId = getOwnerId(blueprintId);
+      
+      return isBlueprintOwner(blueprintId)
+        || (ownerType == 'organization' && isOrganizationAdmin(ownerId));
+    }
+    
+    /**
+     * Check if user can manage members
+     */
+    function canManageMembers(blueprintId) {
+      return canEditBlueprint(blueprintId);
+    }
+    
+    /**
+     * Check if user can manage settings
+     */
+    function canManageSettings(blueprintId) {
+      let ownerType = getOwnerType(blueprintId);
+      let ownerId = getOwnerId(blueprintId);
+      
+      return isBlueprintOwner(blueprintId)
+        || (ownerType == 'organization' && isOrganizationAdmin(ownerId))
+        || hasMemberRole(blueprintId, ['maintainer']);
+    }
+    
+    /**
+     * Validate blueprint data
+     */
+    function isValidBlueprintData(data) {
+      return data.name is string && data.name.size() >= 3
+        && data.slug is string && data.slug.matches('^[a-z0-9-]+$')
+        && data.ownerType in ['user', 'organization']
+        && data.status in ['draft', 'active', 'archived'];
+    }
+    
+    /**
+     * Check if update is only soft delete
+     */
+    function isSoftDelete(before, after) {
+      return before.deletedAt == null 
+        && after.deletedAt != null
+        && after.status == 'archived';
+    }
+    
+    // ==========================================
+    // Blueprints Collection Rules
+    // ==========================================
+    
+    match /blueprints/{blueprintId} {
+      // Allow create for authenticated users
+      allow create: if isAuthenticated()
+        && request.resource.data.ownerType in ['user', 'organization']
+        && request.resource.data.ownerId == getCurrentAccountId()
+        && isValidBlueprintData(request.resource.data);
+      
+      // Allow read if user has read permission
+      allow read: if canReadBlueprint(blueprintId);
+      
+      // Allow update if user has edit permission (excluding deletedAt field)
+      allow update: if canEditBlueprint(blueprintId)
+        && isValidBlueprintData(request.resource.data)
+        && request.resource.data.deletedAt == resource.data.deletedAt;
+      
+      // Allow soft delete (setting deletedAt field)
+      allow update: if canDeleteBlueprint(blueprintId)
+        && isSoftDelete(resource.data, request.resource.data);
+      
+      // Members subcollection
+      match /members/{memberId} {
+        allow read: if canReadBlueprint(blueprintId);
+        allow create: if canManageMembers(blueprintId)
+          && request.resource.data.blueprintId == blueprintId;
+        allow update: if canManageMembers(blueprintId);
+        allow delete: if canManageMembers(blueprintId);
+      }
+      
+      // Team roles subcollection
+      match /teamRoles/{teamId} {
+        allow read: if canReadBlueprint(blueprintId);
+        allow write: if canManageSettings(blueprintId);
+      }
+      
+      // Audit logs subcollection (read-only for users)
+      match /auditLogs/{logId} {
+        allow read: if canReadBlueprint(blueprintId);
+        allow create: if false; // Only via Cloud Functions
+        allow update, delete: if false; // Immutable
+      }
+      
+      // Events subcollection
+      match /events/{eventId} {
+        allow read: if canReadBlueprint(blueprintId);
+        allow create: if canEditBlueprint(blueprintId);
+        allow update, delete: if false; // Events are immutable
+      }
+      
+      // Configuration subcollection
+      match /configuration/{configId} {
+        allow read: if canReadBlueprint(blueprintId);
+        allow write: if canManageSettings(blueprintId);
+      }
+      
+      // Module data subcollections
+      match /tasks/{taskId} {
+        allow read: if canReadBlueprint(blueprintId);
+        allow create, update, delete: if canEditBlueprint(blueprintId);
+      }
+      
+      match /logs/{logId} {
+        allow read: if canReadBlueprint(blueprintId);
+        allow create, update, delete: if canEditBlueprint(blueprintId);
+      }
+      
+      match /quality/{qualityId} {
+        allow read: if canReadBlueprint(blueprintId);
+        allow create, update, delete: if canEditBlueprint(blueprintId);
+      }
+    }
+    
+    // ==========================================
+    // Accounts Collection Rules
+    // ==========================================
+    
+    match /accounts/{accountId} {
+      allow read: if isAuthenticated() && getCurrentAccountId() == accountId;
+      allow create: if isAuthenticated() && getCurrentAccountId() == accountId;
+      allow update: if isAuthenticated() && getCurrentAccountId() == accountId;
+    }
+    
+    // ==========================================
+    // Organizations Collection Rules
+    // ==========================================
+    
+    match /organizations/{organizationId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update, delete: if isOrganizationAdmin(organizationId);
+      
+      match /members/{memberId} {
+        allow read: if isAuthenticated();
+        allow write: if isOrganizationAdmin(organizationId);
+      }
+    }
+    
+    // ==========================================
+    // Teams Collection Rules
+    // ==========================================
+    
+    match /teams/{teamId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
+      
+      match /members/{memberId} {
+        allow read: if isAuthenticated();
+        allow write: if isAuthenticated();
+      }
+    }
+  }
+}

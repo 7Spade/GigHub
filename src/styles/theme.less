@@ -1,0 +1,189 @@
+// ============================================
+// Azure Dragon Theme - LESS Variables
+// 青龍主題 - LESS 變量定義
+// ============================================
+// Version: 1.1.0
+// Compatible with:
+// - ng-zorro-antd: 20.3.1+ (Current: 20.3.1, Latest: 20.4.3)
+// - ng-alain: 20.1.0+ (Current: 20.1.0, Latest: 20.1.0)
+// - Angular: 20.3.0+ (Current: 20.3.0, Latest: 21.0.3)
+//
+// References:
+// - ng-zorro-antd docs: https://ng.ant.design/docs/customize-theme/en
+// - Context7 Documentation: /ng-zorro/ng-zorro-antd
+// - Azure Dragon Design: docs/ui-theme/azure-dragon-theme.md
+//
+// IMPORTANT: Define Azure Dragon colors BEFORE importing @delon/theme
+// to ensure they override the default values
+// ============================================
+
+// ============================================
+// Primary Azure Dragon Colors (青龍主色系)
+// ============================================
+// 10-level color palette from lightest to darkest
+@azure-1: #E6F7FF;   // Lightest - Backgrounds, hover states
+@azure-2: #BAE7FF;   // Very Light - Active backgrounds
+@azure-3: #91D5FF;   // Light - Secondary elements, borders
+@azure-4: #69C0FF;   // Medium Light - Disabled states, placeholders
+@azure-5: #40A9FF;   // Medium - Hover primary, auxiliary color
+@azure-6: #0EA5E9;   // ★ MAIN AZURE - Primary brand color (Sky Blue)
+@azure-7: #0C83BA;   // Medium Dark - Active primary, pressed states
+@azure-8: #0A688B;   // Dark - Text on light backgrounds
+@azure-9: #084C5C;   // Very Dark - Deep emphasis
+@azure-10: #06303D;  // Darkest - Dark mode backgrounds
+
+// ============================================
+// Secondary Colors - Jade Green (翡翠綠)
+// ============================================
+// Represents dragon scales, vitality, and success
+@jade-1: #E6FFF9;    // Lightest jade - Success backgrounds
+@jade-2: #B3FFE6;    // Very light jade - Hover success states
+@jade-3: #7FFFD4;    // Light jade - Secondary success elements
+@jade-4: #14B8A6;    // ★ MAIN JADE - Success color (Teal/Turquoise)
+@jade-5: #0D9488;    // Dark jade - Active success states
+@jade-6: #0A7C6C;    // Darkest jade - Deep success emphasis
+
+// ============================================
+// Secondary Colors - Cyan (青綠)
+// ============================================
+// Represents dragon's breath, information, and clarity
+@cyan-1: #E0F7FA;    // Lightest cyan - Info backgrounds
+@cyan-2: #B2EBF2;    // Very light cyan - Hover info states
+@cyan-3: #06B6D4;    // ★ MAIN CYAN - Info color (Sky-cyan)
+@cyan-4: #0891B2;    // Dark cyan - Active info states
+@cyan-5: #0E7490;    // Darkest cyan - Deep info emphasis
+
+// ============================================
+// Ant Design / ng-zorro-antd Core Variables Override
+// Ant Design / ng-zorro-antd 核心變量覆蓋
+// ============================================
+// These variables override the default Ant Design theme
+// Must be defined BEFORE importing theme files
+// Primary & Semantic Colors
+@primary-color: @azure-6;        // Primary brand color (all primary buttons, links)
+@link-color: @azure-6;            // Link text color
+@success-color: @jade-4;          // Success states (alerts, badges, etc.)
+@warning-color: #F59E0B;          // Warning states (Amber 500)
+@error-color: #EF4444;            // Error states (Red 500)
+@info-color: @cyan-3;             // Info states (Cyan 500)
+@processing-color: @azure-6;      // Processing/loading states
+
+// ============================================
+// Background Colors (背景色)
+// ============================================
+@body-background: #F8FAFC;            // Body background (Slate 50)
+@component-background: #FFFFFF;       // Component background (White)
+@layout-body-background: #F1F5F9;     // Layout content area (Slate 100)
+
+// ============================================
+// Text Colors (文字色)
+// ============================================
+@text-color: #1E293B;                 // Primary text (Slate 800) - WCAG AA compliant
+@text-color-secondary: #64748B;       // Secondary text (Slate 500) - Descriptions, labels
+@heading-color: #0F172A;              // Heading text (Slate 900) - Titles, headers
+@disabled-color: #94A3B8;             // Disabled text (Slate 400) - Inactive elements
+
+// ============================================
+// Border Colors (邊框色)
+// ============================================
+@border-color-base: #CBD5E1;          // Base border color (Slate 300)
+@border-color-split: #E2E8F0;         // Split/divider lines (Slate 200)
+
+// ============================================
+// Interaction States (交互狀態)
+// ============================================
+@item-hover-bg: @azure-1;             // Hover background for list items, menu items
+@item-active-bg: @azure-2;            // Active/selected background
+
+// ============================================
+// ng-alain Layout Customizations
+// ng-alain 佈局自定義
+// ============================================
+// IMPORTANT: Must be defined BEFORE @delon/theme import
+@alain-default-header-bg: @azure-6;
+@alain-default-header-hg: 64px;
+@alain-default-header-padding: 0 16px;
+@layout-header-background: @azure-6;
+
+// Sidebar customizations
+@alain-default-aside-wd: 200px;
+@alain-default-aside-bg: #ffffff;
+@alain-default-aside-scrollbar-width: 0;
+@alain-default-aside-scrollbar-height: 0;
+@alain-default-aside-scrollbar-track-color: transparent;
+@alain-default-aside-scrollbar-thumb-color: @azure-4;
+@alain-default-aside-nav-padding-top-bottom: 8px;
+@alain-default-aside-nav-text-color: rgba(0, 0, 0, 0.85);
+@alain-default-aside-nav-text-hover-color: @azure-6;
+@alain-default-aside-nav-group-text-color: rgba(0, 0, 0, 0.45);
+@alain-default-aside-nav-selected-text-color: @azure-6;
+@alain-default-aside-nav-selected-bg: @azure-1;
+@alain-default-aside-nav-selected-border-color: @azure-6;
+
+// Content area
+@alain-default-content-bg: @body-background;
+@alain-default-content-padding: 24px;
+
+// Component customizations
+@btn-primary-bg: @azure-6;
+@btn-primary-color: #FFFFFF;
+@menu-highlight-color: @azure-6;
+@menu-item-active-bg: @azure-1;
+@tabs-ink-bar-color: @azure-6;
+@tabs-highlight-color: @azure-6;
+@progress-default-color: @azure-6;
+@badge-color: @azure-6;
+
+// ============================================
+// Azure Dragon Gradients (青龍漸變)
+// ============================================
+// Professional gradients for modern UI design
+// Usage: background: @gradient-dragon-soaring;
+@gradient-dragon-soaring: linear-gradient(135deg, @azure-6 0%, @jade-4 100%);
+@gradient-azure-sky: linear-gradient(180deg, @azure-6 0%, @cyan-3 50%, @jade-4 100%);
+@gradient-dragon-scales: linear-gradient(45deg, @azure-7 0%, @jade-5 50%, @azure-6 100%);
+@gradient-dawn-light: linear-gradient(135deg, @azure-1 0%, @cyan-1 50%, @jade-1 100%);
+@gradient-deep-mystery: linear-gradient(135deg, @azure-9 0%, @jade-6 100%);
+
+// ============================================
+// Azure Dragon Shadows (青龍陰影)
+// ============================================
+// Subtle shadows with Azure Dragon color tint
+@shadow-azure-sm: 0 1px 2px rgba(14, 165, 233, 0.05);
+@shadow-azure-md: 0 4px 6px rgba(14, 165, 233, 0.1);
+@shadow-azure-lg: 0 10px 15px rgba(14, 165, 233, 0.15);
+@shadow-azure-xl: 0 20px 25px rgba(14, 165, 233, 0.2);
+
+// ============================================
+// Glow Effects (光暈效果)
+// ============================================
+// Use sparingly for important interactive elements
+@glow-azure: 0 0 20px rgba(14, 165, 233, 0.5);
+@glow-jade: 0 0 20px rgba(20, 184, 166, 0.5);
+
+// ============================================
+// Transition Timing (過渡時間)
+// ============================================
+// Three-tier transition system for optimal UX
+@transition-fast: 0.15s ease;    // Quick interactions (hover, focus)
+@transition-base: 0.3s ease;     // Standard transitions (expand, slide)
+@transition-slow: 0.5s ease;     // Smooth animations (page transitions)
+
+// ============================================
+// Import Delon Theme
+// 導入 Delon 主題
+// ============================================
+// Available themes:
+// - `theme-default.less` - Default theme (recommended)
+// - `theme-dark.less` - Official dark theme
+// - `theme-compact.less` - Official compact theme
+// 
+// Current: Default theme with Azure Dragon customizations
+@import '@delon/theme/theme-default.less';
+
+// ============================================
+// Post-Import Customizations
+// 導入後的自定義
+// ============================================
+// Any additional customizations that must come after theme import
+// can be added here if needed
