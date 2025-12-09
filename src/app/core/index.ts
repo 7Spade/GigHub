@@ -5,5 +5,6 @@ export * from './net/index';
 export * from './services/supabase.service';
 export * from './services/firebase-auth.service';
 export * from './services/logger/logger.service';
+export * from './services/event-bus/event-bus.service';
 export * from './startup/startup.service';
 export * from './start-page.guard';
