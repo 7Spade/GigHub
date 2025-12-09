@@ -7,8 +7,8 @@ import { NzResultModule } from 'ng-zorro-antd/result';
 import { NzDescriptionsModule } from 'ng-zorro-antd/descriptions';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
 import { SHARED_IMPORTS } from '@shared';
-import { Blueprint, LoggerService } from '@core';
-import { BlueprintService } from '@shared';
+import { Blueprint, LoggerService, FirebaseAuthService } from '@core';
+import { BlueprintFacade } from '@shared';
 
 /**
  * Blueprint Detail Component
@@ -178,11 +178,12 @@ export class BlueprintDetailComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly message = inject(NzMessageService);
   private readonly logger = inject(LoggerService);
-  private readonly blueprintService = inject(BlueprintService);
+  private readonly authService = inject(FirebaseAuthService);
+  readonly facade = inject(BlueprintFacade);
 
-  // Reactive state
-  loading = signal(true);
-  blueprint = signal<Blueprint | null>(null);
+  // Reactive state from Facade
+  loading = this.facade.loading;
+  blueprint = this.facade.currentBlueprint;
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
@@ -198,29 +199,19 @@ export class BlueprintDetailComponent implements OnInit {
    * Load blueprint details
    * 載入藍圖詳情
    */
-  private loadBlueprint(id: string): void {
-    this.loading.set(true);
-
-    this.blueprintService.getById(id).subscribe({
-      next: (data: Blueprint | null) => {
-        this.loading.set(false);
-        
-        if (data) {
-          this.blueprint.set(data);
-          this.logger.info('[BlueprintDetailComponent]', `Loaded blueprint: ${data.name}`);
-        } else {
-          // Blueprint not found - show 404 state
-          this.blueprint.set(null);
-          this.logger.warn('[BlueprintDetailComponent]', `Blueprint not found: ${id}`);
-        }
-      },
-      error: (error: Error) => {
-        this.loading.set(false);
-        this.blueprint.set(null); // Set to null to trigger 404 UI
-        this.message.error('載入藍圖失敗');
-        this.logger.error('[BlueprintDetailComponent]', 'Failed to load blueprint', error);
+  private async loadBlueprint(id: string): Promise<void> {
+    try {
+      await this.facade.getById(id);
+      const blueprint = this.blueprint();
+      if (blueprint) {
+        this.logger.info('[BlueprintDetailComponent]', `Loaded blueprint: ${blueprint.name}`);
+      } else {
+        this.logger.warn('[BlueprintDetailComponent]', `Blueprint not found: ${id}`);
       }
-    });
+    } catch (error) {
+      this.message.error('載入藍圖失敗');
+      this.logger.error('[BlueprintDetailComponent]', 'Failed to load blueprint', error as Error);
+    }
   }
 
   /**
@@ -325,6 +316,7 @@ export class BlueprintDetailComponent implements OnInit {
    * 編輯藍圖
    */
   edit(): void {
+    // TODO: Open modal for editing
     this.message.info('編輯功能待實作');
   }
 
@@ -332,7 +324,27 @@ export class BlueprintDetailComponent implements OnInit {
    * Delete blueprint
    * 刪除藍圖
    */
-  delete(): void {
-    this.message.info('刪除功能待實作');
+  async delete(): Promise<void> {
+    const blueprint = this.blueprint();
+    const user = this.authService.currentUser;
+    
+    if (!blueprint) {
+      this.message.error('找不到藍圖');
+      return;
+    }
+    
+    if (!user) {
+      this.message.error('請先登入');
+      return;
+    }
+    
+    try {
+      await this.facade.deleteBlueprint(blueprint.id, user.uid);
+      this.message.success('藍圖已刪除');
+      this.router.navigate(['/blueprint']);
+    } catch (error) {
+      this.message.error('刪除藍圖失敗');
+      this.logger.error('[BlueprintDetailComponent]', 'Failed to delete blueprint', error as Error);
+    }
   }
 }
