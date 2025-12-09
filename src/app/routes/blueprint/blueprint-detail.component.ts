@@ -203,15 +203,20 @@ export class BlueprintDetailComponent implements OnInit {
 
     this.blueprintService.getById(id).subscribe({
       next: (data: Blueprint | null) => {
-        this.blueprint.set(data);
         this.loading.set(false);
         
         if (data) {
+          this.blueprint.set(data);
           this.logger.info('[BlueprintDetailComponent]', `Loaded blueprint: ${data.name}`);
+        } else {
+          // Blueprint not found - show 404 state
+          this.blueprint.set(null);
+          this.logger.warn('[BlueprintDetailComponent]', `Blueprint not found: ${id}`);
         }
       },
       error: (error: Error) => {
         this.loading.set(false);
+        this.blueprint.set(null); // Set to null to trigger 404 UI
         this.message.error('載入藍圖失敗');
         this.logger.error('[BlueprintDetailComponent]', 'Failed to load blueprint', error);
       }
