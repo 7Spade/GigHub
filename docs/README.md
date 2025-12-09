@@ -87,6 +87,23 @@
 
 ---
 
+### 🏛️ 架構文檔 (Architecture Documentation) - [`docs/`](.)
+
+| 文檔 | 描述 | 語言 | 狀態 |
+|------|------|------|------|
+| [Blueprint 領域架構](./BLUEPRINT_DOMAIN_ARCHITECTURE.md) | Phase 1.1 領域層實作指南 | 繁中 | ✅ |
+| [Blueprint 架構總覽](./GigHub_Blueprint_Architecture.md) | 完整架構規劃文檔 | 繁中 | ✅ |
+| [Blueprint 實作總結](./BLUEPRINT_IMPLEMENTATION_SUMMARY.md) | Phase 1 實作摘要 | EN | ✅ |
+
+**領域驅動設計 (DDD)**:
+- **Value Objects**: BlueprintId, Slug, OwnerInfo
+- **Domain Events**: 7種事件類型 (Created, Updated, Deleted, etc.)
+- **EventBus**: RxJS + Signals 事件總線
+- **Facade Pattern**: 簡化 UI 交互的門面模式
+- **Modern Patterns**: Angular 20 Signals, Computed, inject()
+
+---
+
 ### 📁 舊版架構文檔 (Legacy Architecture Docs) - [`architecture/`](./architecture/)
 
 **已整合到其他資料夾**:
@@ -117,7 +134,9 @@
 
 #### 了解專案架構
 → [設計文檔索引](./design/README-zh-TW.md)  
-→ [SaaS 多租戶實作](./design/saas-implementation-zh-TW.md)
+→ [SaaS 多租戶實作](./design/saas-implementation-zh-TW.md)  
+→ [Blueprint 領域架構](./BLUEPRINT_DOMAIN_ARCHITECTURE.md)  
+→ [Blueprint 完整架構](./GigHub_Blueprint_Architecture.md)
 
 #### 自訂 UI 樣式
 → [Azure Dragon 主題指南](./ui-theme/azure-dragon-theme-zh-TW.md)  
@@ -157,6 +176,22 @@ yarn analyze:view
 ---
 
 ## 📝 變更記錄 (Changelog)
+
+### v1.1.0 (2025-12-09) - Blueprint 領域架構實作
+
+**✨ 新增 (Domain Layer)**:
+- ✅ Value Objects (BlueprintId, Slug, OwnerInfo)
+- ✅ Domain Events (7 種事件類型)
+- ✅ EventBus Service (RxJS + Signals)
+- ✅ BlueprintFacade (Signals 狀態管理)
+- ✅ 完整領域架構文檔
+
+**🎨 Modern Angular 20**:
+- ✅ Signals 反應式狀態
+- ✅ Computed Signals 派生狀態
+- ✅ inject() 依賴注入
+- ✅ 不可變 Value Objects
+- ✅ 事件驅動架構
 
 ### v1.0.0 (2025-01-09) - 文檔重組與中文化
 
