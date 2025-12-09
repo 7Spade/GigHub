@@ -5,3 +5,4 @@
  */
 
 export * from './resource-provider.interface';
+export * from './resource-provider';
