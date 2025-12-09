@@ -12,7 +12,7 @@
  * @module shared/services
  */
 
-import { Injectable, computed, inject, signal, effect } from '@angular/core';
+import { Injectable, computed, inject, signal, effect, untracked } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ContextType, Account, Organization, Team, Bot } from '@core';
 import { FirebaseAuthService } from '@core';
@@ -111,6 +111,7 @@ export class WorkspaceContextService {
 
   constructor() {
     // 監聽認證狀態並自動載入資料
+    // Use effect with allowSignalWrites to handle async operations properly
     effect(() => {
       const user = this.firebaseUser();
       
@@ -125,15 +126,16 @@ export class WorkspaceContextService {
           created_at: new Date().toISOString()
         });
 
-        // Load organizations and teams from Firebase
-        this.loadUserData(user.uid);
-        
-        // Restore context from localStorage
-        this.restoreContext();
+        // Schedule data loading outside the effect
+        // Use untracked to prevent infinite loops
+        untracked(() => {
+          this.loadUserData(user.uid);
+          this.restoreContext();
+        });
       } else {
         this.reset();
       }
-    });
+    }, { allowSignalWrites: true });
   }
   
   /**

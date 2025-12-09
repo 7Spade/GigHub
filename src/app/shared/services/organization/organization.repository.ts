@@ -57,16 +57,30 @@ export class OrganizationRepository {
   }
 
   findByCreator(creatorId: string): Observable<Organization[]> {
+    // Note: Removed orderBy to avoid requiring a composite Firestore index
+    // Sorting can be done in-memory if needed
     const q = query(
       this.getCollectionRef(),
-      where('created_by', '==', creatorId),
-      orderBy('created_at', 'desc')
+      where('created_by', '==', creatorId)
     );
 
     return from(getDocs(q)).pipe(
-      map(snapshot => snapshot.docs.map(docSnap => this.toOrganization(docSnap.data(), docSnap.id))),
+      map(snapshot => {
+        const orgs = snapshot.docs.map(docSnap => this.toOrganization(docSnap.data(), docSnap.id));
+        // Sort in-memory by created_at descending
+        return orgs.sort((a, b) => {
+          const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
+          const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
+          return dateB - dateA;
+        });
+      }),
       catchError(error => {
         this.logger.error('[OrganizationRepository]', 'findByCreator failed', error as Error);
+        console.error('[OrganizationRepository] findByCreator error details:', {
+          code: error?.code,
+          message: error?.message,
+          creatorId
+        });
         return of([]);
       })
     );

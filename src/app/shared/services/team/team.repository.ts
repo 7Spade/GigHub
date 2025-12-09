@@ -55,16 +55,30 @@ export class TeamRepository {
   }
 
   findByOrganization(organizationId: string): Observable<Team[]> {
+    // Note: Removed orderBy to avoid requiring a composite Firestore index
+    // Sorting can be done in-memory if needed
     const q = query(
       this.getCollectionRef(),
-      where('organization_id', '==', organizationId),
-      orderBy('created_at', 'desc')
+      where('organization_id', '==', organizationId)
     );
 
     return from(getDocs(q)).pipe(
-      map(snapshot => snapshot.docs.map(docSnap => this.toTeam(docSnap.data(), docSnap.id))),
+      map(snapshot => {
+        const teams = snapshot.docs.map(docSnap => this.toTeam(docSnap.data(), docSnap.id));
+        // Sort in-memory by created_at descending
+        return teams.sort((a, b) => {
+          const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
+          const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
+          return dateB - dateA;
+        });
+      }),
       catchError(error => {
         this.logger.error('[TeamRepository]', 'findByOrganization failed', error as Error);
+        console.error('[TeamRepository] findByOrganization error details:', {
+          code: error?.code,
+          message: error?.message,
+          organizationId
+        });
         return of([]);
       })
     );
