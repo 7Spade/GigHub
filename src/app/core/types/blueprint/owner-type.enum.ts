@@ -6,5 +6,7 @@ export enum OwnerType {
   /** 個人用戶 | User-owned blueprint */
   USER = 'user',
   /** 組織 | Organization-owned blueprint */
-  ORGANIZATION = 'organization'
+  ORGANIZATION = 'organization',
+  /** 團隊 | Team-owned blueprint */
+  TEAM = 'team'
 }

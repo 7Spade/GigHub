@@ -5,11 +5,12 @@ import { OrganizationMemberRepository } from '@shared/services/organization/orga
 import { HeaderContextSwitcherComponent } from '../../../layout/basic/widgets/context-switcher.component';
 import { NzMenuModule } from 'ng-zorro-antd/menu';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
+import { NzEmptyModule } from 'ng-zorro-antd/empty';
 
 @Component({
   selector: 'app-organization-members',
   standalone: true,
-  imports: [SHARED_IMPORTS, NzMenuModule, NzAlertModule, HeaderContextSwitcherComponent],
+  imports: [SHARED_IMPORTS, NzMenuModule, NzAlertModule, NzEmptyModule, HeaderContextSwitcherComponent],
   template: `
     <page-header [title]="'組織成員'" [content]="headerContent"></page-header>
     
@@ -103,12 +104,12 @@ export class OrganizationMembersComponent implements OnInit {
 
     this.loading.set(true);
     this.memberRepository.findByOrganization(orgId).subscribe({
-      next: (members) => {
+      next: (members: OrganizationMember[]) => {
         this.members.set(members);
         this.loading.set(false);
         console.log('[OrganizationMembersComponent] ✅ Loaded members:', members.length);
       },
-      error: (error) => {
+      error: (error: Error) => {
         console.error('[OrganizationMembersComponent] ❌ Failed to load members:', error);
         this.members.set([]);
         this.loading.set(false);

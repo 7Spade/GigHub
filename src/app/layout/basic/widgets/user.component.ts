@@ -12,7 +12,7 @@ import { NzMenuModule } from 'ng-zorro-antd/menu';
   selector: 'header-user',
   template: `
     <div class="alain-default__nav-item d-flex align-items-center px-sm" nz-dropdown nzPlacement="bottomRight" [nzDropdownMenu]="userMenu">
-      @if (user?.avatar) {
+      @if (user && user.avatar) {
         <nz-avatar [nzSrc]="user.avatar" nzSize="small" class="mr-sm" />
       } @else {
         <nz-avatar [nzIcon]="contextIcon()" nzSize="small" class="mr-sm" />
