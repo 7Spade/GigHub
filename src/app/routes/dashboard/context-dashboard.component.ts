@@ -18,7 +18,11 @@ interface SummaryCard {
   standalone: true,
   imports: [SHARED_IMPORTS, NzMenuModule, NzAlertModule, HeaderContextSwitcherComponent],
   template: `
-    <page-header [title]="pageTitle()" [desc]="pageDescription()"></page-header>
+    <page-header [title]="pageTitle()" [content]="pageContent">
+      <ng-template #pageContent>
+        <div>{{ pageDescription() }}</div>
+      </ng-template>
+    </page-header>
 
     @if (!contextMatched()) {
       <nz-alert

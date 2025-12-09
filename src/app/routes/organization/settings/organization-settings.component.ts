@@ -10,7 +10,11 @@ import { NzAlertModule } from 'ng-zorro-antd/alert';
   standalone: true,
   imports: [SHARED_IMPORTS, NzMenuModule, NzAlertModule, HeaderContextSwitcherComponent],
   template: `
-    <page-header [title]="'組織設定'" [desc]="'調整組織偏好與資訊。'"></page-header>
+    <page-header [title]="'組織設定'" [content]="headerContent"></page-header>
+    
+    <ng-template #headerContent>
+      <div>調整組織偏好與資訊。</div>
+    </ng-template>
 
     @if (!isOrganizationContext()) {
       <nz-alert

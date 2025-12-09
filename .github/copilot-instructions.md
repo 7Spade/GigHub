@@ -10,6 +10,15 @@
 - **TypeScript 5.9** with strict mode
 - **RxJS 7.8** for reactive programming
 
+### Modern Angular Features (v19+)
+- ✅ **Signals**: Reactive state management with `signal()`, `computed()`, `effect()`
+- ✅ **New Control Flow**: `@if`, `@for`, `@switch` syntax (replaces `*ngIf`, `*ngFor`)
+- ✅ **Modern Inputs/Outputs**: `input()`, `output()`, `model()` functions
+- ✅ **Functional Router Guards**: Function-based guards with `inject()`
+- ⚠️ **Zoneless** (optional): Remove Zone.js dependency for better performance
+- ⚠️ **SSR + Hydration** (optional): Server-side rendering with client hydration
+- ⚠️ **View Transitions** (optional): Built-in page transition animations
+
 ## Autonomous Tool Usage
 
 This repository is configured with MCP (Model Context Protocol) tools for enhanced AI assistance:
@@ -39,6 +48,7 @@ This repository is configured with MCP (Model Context Protocol) tools for enhanc
 - Unsure about API signatures or best practices
 - Need to verify framework-specific patterns
 - Working with version-specific features
+- **Querying modern Angular features** (Signals, new control flow, Zoneless, etc.)
 
 **Use sequential-thinking when:**
 - Analyzing complex bugs
@@ -81,9 +91,10 @@ This repository is configured with MCP (Model Context Protocol) tools for enhanc
 
 **Component Standards**:
 - Use Standalone Components (no NgModules)
-- Use Signals for state management
+- Use Signals for state management (`signal()`, `computed()`, `effect()`)
 - Use `inject()` for dependency injection
-- Use `input()`, `output()` instead of decorators (Angular ≥19)
+- Use `input()`, `output()`, `model()` instead of decorators (Angular ≥19)
+- Use new control flow syntax (`@if`, `@for`, `@switch`) instead of structural directives
 - Import from `SHARED_IMPORTS` for common modules
 
 **Naming Conventions**:
@@ -110,9 +121,16 @@ import { SHARED_IMPORTS } from '@shared';
   selector: 'app-example',
   standalone: true,
   imports: [SHARED_IMPORTS],
-  template: `<st [data]="data()" [columns]="columns" />`
+  template: `
+    @if (loading()) {
+      <nz-spin nzSimple />
+    } @else {
+      <st [data]="data()" [columns]="columns" />
+    }
+  `
 })
 export class ExampleComponent {
+  loading = signal(false);
   data = signal<any[]>([]);
   columns: STColumn[] = [...];
 }
@@ -169,17 +187,31 @@ export class DataService {
 - [ ] Follows project architecture
 - [ ] Uses SHARED_IMPORTS
 - [ ] Signals for state management
+- [ ] **Uses new control flow syntax** (`@if`, `@for`, `@switch`)
+- [ ] **Uses modern input/output functions** (`input()`, `output()`, `model()`)
+- [ ] **Uses `inject()` for dependency injection**
 - [ ] Proper error handling
 
 ## Additional Documentation
 
 See `.github/instructions/` for detailed guidelines:
-- `angular.instructions.md` - Angular 20 best practices
-- `typescript-5-es2022.instructions.md` - TypeScript standards
-- `ng-alain-delon.instructions.md` - ng-alain & Delon framework
-- `ng-zorro-antd.instructions.md` - Ant Design components
-- `sql-sp-generation.instructions.md` - Database guidelines
-- `memory-bank.instructions.md` - Documentation patterns
+- `angular.instructions.md` - Angular 20 基礎開發指引
+- `angular-modern-features.instructions.md` - **Angular 現代化特性指南** ⭐
+  - Signals 模式與最佳實踐
+  - Standalone Components 完整指南
+  - 新控制流語法 (@if, @for, @switch)
+  - Zoneless Angular 架構
+  - SSR + Hydration 配置
+  - 內建 View Transitions
+  - Functional Router Guards
+  - 遷移工具使用說明
+- `enterprise-angular-architecture.instructions.md` - 企業級架構模式
+- `typescript-5-es2022.instructions.md` - TypeScript 標準
+- `ng-alain-delon.instructions.md` - ng-alain & Delon 框架
+- `ng-zorro-antd.instructions.md` - Ant Design 元件
+- `angular-fire.instructions.md` - AngularFire 整合
+- `sql-sp-generation.instructions.md` - 資料庫指引
+- `memory-bank.instructions.md` - 文件模式
 
 ## Getting Help
 

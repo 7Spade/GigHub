@@ -8,7 +8,11 @@ import { SHARED_IMPORTS } from '@shared';
   standalone: true,
   imports: [SHARED_IMPORTS],
   template: `
-    <page-header [title]="'個人設定'" [desc]="'管理通知與偏好設定。'"></page-header>
+    <page-header [title]="'個人設定'" [content]="headerContent"></page-header>
+    
+    <ng-template #headerContent>
+      <div>管理通知與偏好設定。</div>
+    </ng-template>
 
     <nz-card>
       <form nz-form [formGroup]="form" nzLayout="vertical" (ngSubmit)="save()">

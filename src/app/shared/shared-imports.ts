@@ -30,7 +30,7 @@
  * ```
  */
 
-import { AsyncPipe, JsonPipe, NgTemplateOutlet } from '@angular/common';
+import { CommonModule, AsyncPipe, JsonPipe, NgTemplateOutlet } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterOutlet, RouterLink } from '@angular/router';
 import { DatePipe, I18nPipe } from '@delon/theme';
@@ -47,6 +47,9 @@ export { OPTIONAL_ZORRO_MODULES } from './shared-zorro.module';
  * 包含表單、路由、常用管道等基礎功能
  */
 const CORE_ANGULAR_MODULES = [
+  /** CommonModule - 提供 *ngIf, *ngFor 等常用指令 */
+  CommonModule,
+  
   /** 表單模組 */
   FormsModule,
   ReactiveFormsModule,

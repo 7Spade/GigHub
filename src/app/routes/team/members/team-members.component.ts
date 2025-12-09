@@ -10,7 +10,11 @@ import { NzAlertModule } from 'ng-zorro-antd/alert';
   standalone: true,
   imports: [SHARED_IMPORTS, NzMenuModule, NzAlertModule, HeaderContextSwitcherComponent],
   template: `
-    <page-header [title]="'團隊成員'" [desc]="'檢視並管理目前團隊的成員。'"></page-header>
+    <page-header [title]="'團隊成員'" [content]="headerContent"></page-header>
+    
+    <ng-template #headerContent>
+      <div>檢視並管理目前團隊的成員。</div>
+    </ng-template>
 
     @if (!isTeamContext()) {
       <nz-alert
