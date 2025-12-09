@@ -6,3 +6,4 @@
 
 export * from './event-bus.interface';
 export * from './event-types';
+export * from './event-bus';
