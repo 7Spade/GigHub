@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit } from '@angular/core';
 import { ContextType, Team } from '@core';
-import { SHARED_IMPORTS, WorkspaceContextService } from '@shared';
-import { TeamRepository } from '@shared/services/team/team.repository';
+import { SHARED_IMPORTS, WorkspaceContextService, TeamRepository } from '@shared';
 import { HeaderContextSwitcherComponent } from '../../../layout/basic/widgets/context-switcher.component';
 import { NzMenuModule } from 'ng-zorro-antd/menu';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
@@ -37,15 +36,15 @@ import { NzMessageService } from 'ng-zorro-antd/message';
       </ul>
     </nz-card>
 
-    <nz-card nzTitle="團隊列表" [nzLoading]="loading()">
-      <nz-card-extra>
+    <nz-card nzTitle="團隊列表" [nzExtra]="extraTemplate" [nzLoading]="loading()">
+      <ng-template #extraTemplate>
         @if (isOrganizationContext()) {
           <button nz-button nzType="primary" nzSize="small" (click)="openCreateTeamModal()">
             <span nz-icon nzType="plus"></span>
             建立團隊
           </button>
         }
-      </nz-card-extra>
+      </ng-template>
       
       @if (teams().length > 0) {
         <nz-list [nzDataSource]="teams()" [nzRenderItem]="teamTpl" [nzItemLayout]="'horizontal'"></nz-list>
