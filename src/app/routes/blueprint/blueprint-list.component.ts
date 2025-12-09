@@ -6,7 +6,7 @@ import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzSpaceModule } from 'ng-zorro-antd/space';
 import { SHARED_IMPORTS } from '@shared';
 import { Blueprint, BlueprintStatus, LoggerService, FirebaseAuthService, OwnerType, ContextType } from '@core';
-import { BlueprintService, WorkspaceContextService } from '@shared';
+import { BlueprintFacade, WorkspaceContextService } from '@shared';
 
 /**
  * Blueprint List Component
@@ -74,13 +74,13 @@ export class BlueprintListComponent implements OnInit {
   private readonly modal = inject(ModalHelper);
   private readonly message = inject(NzMessageService);
   private readonly logger = inject(LoggerService);
-  private readonly blueprintService = inject(BlueprintService);
+  readonly facade = inject(BlueprintFacade);
   private readonly authService = inject(FirebaseAuthService);
   private readonly workspaceContext = inject(WorkspaceContextService);
 
-  // Reactive state with Signals
-  loading = signal(false);
-  blueprints = signal<Blueprint[]>([]);
+  // Reactive state from Facade Signals
+  loading = this.facade.loading;
+  blueprints = this.facade.blueprints;
   filterStatus: BlueprintStatus | null = null;
   
   constructor() {
@@ -167,7 +167,7 @@ export class BlueprintListComponent implements OnInit {
    * Load blueprints for current workspace context
    * 載入當前工作區上下文的藍圖
    */
-  private loadBlueprints(): void {
+  private async loadBlueprints(): Promise<void> {
     const user = this.authService.currentUser;
     if (!user) {
       this.message.error('請先登入');
@@ -204,25 +204,18 @@ export class BlueprintListComponent implements OnInit {
         break;
     }
 
-    this.loading.set(true);
-    
-    this.blueprintService.getByOwner(ownerType, ownerId).subscribe({
-      next: (data) => {
-        // Apply filter if set
-        const filtered = this.filterStatus
-          ? data.filter(b => b.status === this.filterStatus)
-          : data;
-        
-        this.blueprints.set(filtered);
-        this.loading.set(false);
-        this.logger.info('[BlueprintListComponent]', `Loaded ${filtered.length} blueprints for ${ownerType}:${ownerId}`);
-      },
-      error: (error) => {
-        this.loading.set(false);
-        this.message.error('載入藍圖失敗');
-        this.logger.error('[BlueprintListComponent]', 'Failed to load blueprints', error);
-      }
-    });
+    try {
+      await this.facade.listBlueprints({
+        ownerId,
+        ownerType,
+        status: this.filterStatus ?? undefined
+      });
+      
+      this.logger.info('[BlueprintListComponent]', `Loaded ${this.blueprints().length} blueprints for ${ownerType}:${ownerId}`);
+    } catch (error) {
+      this.message.error('載入藍圖失敗');
+      this.logger.error('[BlueprintListComponent]', 'Failed to load blueprints', error as Error);
+    }
   }
 
   /**
@@ -304,11 +297,17 @@ export class BlueprintListComponent implements OnInit {
    */
   async delete(record: STData): Promise<void> {
     const blueprint = record as unknown as Blueprint;
+    const user = this.authService.currentUser;
+    
+    if (!user) {
+      this.message.error('請先登入');
+      return;
+    }
     
     try {
-      await this.blueprintService.delete(blueprint.id);
+      await this.facade.deleteBlueprint(blueprint.id, user.uid);
       this.message.success('藍圖已刪除');
-      this.refresh();
+      this.logger.info('[BlueprintListComponent]', `Deleted blueprint ${blueprint.id}`);
     } catch (error) {
       this.message.error('刪除藍圖失敗');
       this.logger.error('[BlueprintListComponent]', 'Failed to delete blueprint', error as Error);
