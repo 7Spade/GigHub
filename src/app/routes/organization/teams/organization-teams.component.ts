@@ -6,6 +6,7 @@ import { ContextType, Team } from '@core';
 import { SHARED_IMPORTS, WorkspaceContextService, TeamRepository, TeamMemberRepository, BreadcrumbService } from '@shared';
 import { CreateTeamModalComponent } from '../../../shared/components/create-team-modal/create-team-modal.component';
 import { EditTeamModalComponent } from '../../../shared/components/edit-team-modal/edit-team-modal.component';
+import { TeamDetailDrawerComponent } from '../../../shared/components/team-detail-drawer/team-detail-drawer.component';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
 import { NzModalService } from 'ng-zorro-antd/modal';
@@ -14,6 +15,7 @@ import { NzTableModule } from 'ng-zorro-antd/table';
 import { NzTagModule } from 'ng-zorro-antd/tag';
 import { NzDescriptionsModule } from 'ng-zorro-antd/descriptions';
 import { NzSpaceModule } from 'ng-zorro-antd/space';
+import { NzDrawerService } from 'ng-zorro-antd/drawer';
 
 @Component({
   selector: 'app-organization-teams',
@@ -77,7 +79,7 @@ import { NzSpaceModule } from 'ng-zorro-antd/space';
               <th nzWidth="250px">團隊名稱</th>
               <th>描述</th>
               <th nzWidth="180px">建立時間</th>
-              <th nzWidth="260px">操作</th>
+              <th nzWidth="320px">操作</th>
             </tr>
           </thead>
           <tbody>
@@ -94,6 +96,16 @@ import { NzSpaceModule } from 'ng-zorro-antd/space';
                 <td>{{ formatDate(team.created_at) }}</td>
                 <td>
                   <nz-space>
+                    <button 
+                      *nzSpaceItem 
+                      nz-button 
+                      nzType="link" 
+                      nzSize="small" 
+                      (click)="viewTeamDetails(team)"
+                    >
+                      <span nz-icon nzType="eye"></span>
+                      查看
+                    </button>
                     <button 
                       *nzSpaceItem 
                       nz-button 
@@ -164,6 +176,7 @@ export class OrganizationTeamsComponent implements OnInit {
   private readonly modal = inject(NzModalService);
   private readonly message = inject(NzMessageService);
   private readonly router = inject(Router);
+  private readonly drawer = inject(NzDrawerService);
 
   private readonly teamsState = signal<Team[]>([]);
   private readonly memberCountsState = signal<Map<string, number>>(new Map());
@@ -344,6 +357,34 @@ export class OrganizationTeamsComponent implements OnInit {
     // Switch to team context and navigate to members page
     this.workspaceContext.switchToTeam(team.id);
     this.router.navigate(['/team/members']);
+  }
+
+  viewTeamDetails(team: Team): void {
+    const orgId = this.currentOrgId();
+    if (!orgId) {
+      this.message.error('無法獲取組織 ID');
+      return;
+    }
+
+    const drawerRef = this.drawer.create({
+      nzTitle: '團隊詳情',
+      nzContent: TeamDetailDrawerComponent,
+      nzData: {
+        team: team,
+        organizationId: orgId
+      },
+      nzWidth: 520,
+      nzClosable: true
+    });
+
+    drawerRef.afterClose.subscribe((result) => {
+      if (result?.deleted || result) {
+        // Reload teams if team was modified or deleted
+        if (orgId) {
+          this.loadTeams(orgId);
+        }
+      }
+    });
   }
 
   formatDate(dateStr: string | undefined): string {
