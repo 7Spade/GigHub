@@ -118,8 +118,8 @@ export class FirebaseAuthService {
       // Get the ID token from Firebase
       const idToken = await user.getIdToken();
       
-      // Extract user name from email or displayName
-      const displayName = user.displayName || user.email?.split('@')[0] || 'User';
+      // Extract user name with improved fallback logic
+      const displayName = this.getDisplayName(user);
       
       // Set the token in Delon's token service
       // The token format follows @delon/auth's ITokenModel
@@ -142,6 +142,33 @@ export class FirebaseAuthService {
     } catch (error) {
       console.error('Error syncing user to services:', error);
     }
+  }
+
+  /**
+   * Get display name for user with improved fallback logic
+   * 
+   * Priority: displayName (if not 'user') > email prefix (if not 'user') > full email > UID prefix
+   * This prevents "USER" from appearing in the UI
+   */
+  private getDisplayName(user: User): string {
+    // Check displayName first (but avoid generic 'user')
+    if (user.displayName && user.displayName.toLowerCase() !== 'user') {
+      return user.displayName;
+    }
+
+    // Use email if available
+    if (user.email) {
+      const emailPrefix = user.email.split('@')[0];
+      // Avoid generic 'user' prefix, prefer full email
+      if (emailPrefix && emailPrefix.toLowerCase() !== 'user') {
+        return emailPrefix;
+      }
+      // Return full email as fallback
+      return user.email;
+    }
+
+    // Last resort: use UID prefix (better than generic '使用者')
+    return `用戶-${user.uid.substring(0, 8)}`;
   }
 
   /**
