@@ -26,373 +26,128 @@ src/app/routes/user/
 
 ## Data Models
 
-### User (Firebase Auth User)
+### FirebaseUser (Firebase Auth User)
 
-Firebase Authentication provides core user identity:
-
-```typescript
-interface FirebaseUser {
-  uid: string;                // Unique user ID
-  email: string;              // Email address
-  emailVerified: boolean;     // Email verification status
-  displayName: string | null; // Display name
-  photoURL: string | null;    // Avatar URL
-  phoneNumber: string | null; // Phone number
-  disabled: boolean;          // Account disabled flag
-  metadata: {
-    creationTime: string;
-    lastSignInTime: string;
-  };
-}
-```
+**規則**:
+- 使用 Firebase Authentication 提供的核心用戶身份
+- `uid` 為唯一用戶識別碼
+- `email` 為必填欄位
+- `emailVerified` 追蹤郵件驗證狀態
+- `displayName` 和 `photoURL` 可為 null
+- `metadata` 包含創建時間和最後登入時間
 
 ### UserProfile (Extended Profile in Firestore)
 
-```typescript
-interface UserProfile {
-  user_id: string;            // Firebase Auth UID
-  
-  // Basic Info
-  display_name: string;
-  email: string;
-  avatar_url?: string;
-  phone?: string;
-  bio?: string;
-  
-  // Professional
-  job_title?: string;
-  company?: string;
-  department?: string;
-  
-  // Preferences
-  language: 'zh-TW' | 'en-US';
-  timezone: string;
-  theme: 'light' | 'dark' | 'auto';
-  
-  // Notifications
-  email_notifications: boolean;
-  push_notifications: boolean;
-  
-  // Privacy
-  profile_visibility: 'public' | 'organization' | 'private';
-  
-  // Metadata
-  created_at: string;
-  updated_at: string;
-}
-```
+**規則**:
+- `user_id` 必須對應 Firebase Auth UID
+- 基本資訊欄位：`display_name`（必填）、`email`（必填）、`avatar_url`（選填）、`phone`（選填）、`bio`（選填）
+- 專業資訊欄位：`job_title`、`company`、`department`（皆選填）
+- 偏好設定：`language` 必須為 'zh-TW' 或 'en-US'，`timezone` 必填，`theme` 必須為 'light'、'dark' 或 'auto'
+- 通知設定：`email_notifications` 和 `push_notifications` 為布林值
+- 隱私設定：`profile_visibility` 必須為 'public'、'organization' 或 'private'
+- 必須包含 `created_at` 和 `updated_at` 時間戳記
 
 ## Key Features
 
 ### User Profile Page
 
-- Display user information
-- Edit profile fields
-- Upload/change avatar
-- View activity history
+**規則**:
+- 必須顯示用戶基本資訊
+- 必須支援編輯個人資料欄位
+- 必須支援上傳/更換頭像功能
+- 必須顯示活動歷史記錄
 
 ### Account Settings
 
 #### Profile Settings
-- Basic information (name, email, phone)
-- Professional details (job title, company)
-- Bio and description
-- Avatar upload (Firebase Storage)
+
+**規則**:
+- 基本資訊欄位：姓名、電子郵件（唯讀）、電話號碼
+- 專業資訊欄位：職稱、公司、部門
+- 個人簡介欄位：Bio 描述
+- 頭像上傳必須使用 Firebase Storage
 
 #### Security Settings
-- Change password
-- Two-factor authentication (2FA)
-- Active sessions
-- Login history
+
+**規則**:
+- 必須支援變更密碼功能
+- 必須支援雙因素驗證（2FA）設定
+- 必須顯示活躍的登入工作階段
+- 必須顯示登入歷史記錄
 
 #### Notification Preferences
-- Email notifications toggle
-- Push notifications toggle
-- Notification categories (tasks, mentions, updates)
-- Frequency settings (real-time, daily digest, weekly)
+
+**規則**:
+- 必須提供電子郵件通知開關
+- 必須提供推播通知開關
+- 必須支援通知類別設定（任務、提及、更新）
+- 必須支援頻率設定（即時、每日摘要、每週）
 
 #### Preferences
-- Language selection
-- Timezone configuration
-- Theme (light/dark/auto)
-- Date/time format
+
+**規則**:
+- 必須支援語言選擇（zh-TW、en-US）
+- 必須支援時區設定
+- 必須支援主題切換（light/dark/auto）
+- 必須支援日期/時間格式設定
 
 ## Routing
 
-```typescript
-export const routes: Routes = [
-  {
-    path: 'profile',
-    component: UserProfileComponent,
-    canActivate: [authGuard],
-    data: { title: 'My Profile' }
-  },
-  {
-    path: 'settings',
-    component: UserSettingsComponent,
-    canActivate: [authGuard],
-    children: [
-      { path: 'profile', component: ProfileSettingsComponent },
-      { path: 'security', component: SecuritySettingsComponent },
-      { path: 'notifications', component: NotificationSettingsComponent },
-      { path: 'preferences', component: PreferencesComponent }
-    ]
-  }
-];
-```
+**規則**:
+- `/profile` 路由必須使用 `authGuard` 保護
+- `/settings` 路由必須使用 `authGuard` 保護
+- `/settings` 下必須包含子路由：`profile`、`security`、`notifications`、`preferences`
+- 所有路由必須設定 `title` 資料屬性
 
-## Implementation Examples
+## Component Implementation Rules
 
-### Profile Component
+### ProfileSettingsComponent
 
-```typescript
-import { Component, signal, inject } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { SHARED_IMPORTS } from '@shared';
-import { FirebaseAuthService } from '@core/services/firebase-auth.service';
-import { UserProfileService } from '@shared/services/user/user-profile.service';
+**規則**:
+- 必須使用 `signal()` 管理 `loading` 和 `avatarUrl` 狀態
+- 必須使用 `FormBuilder` 建立表單
+- 必須使用 `computed()` 計算用戶名稱首字母
+- 必須在 `ngOnInit()` 中載入個人資料
+- 必須使用 `UserProfileService` 更新個人資料
+- 必須同時更新 Firebase Auth 的 `displayName`
+- 必須處理表單驗證錯誤
+- 必須顯示成功/失敗訊息
 
-@Component({
-  selector: 'app-profile-settings',
-  standalone: true,
-  imports: [SHARED_IMPORTS],
-  template: `
-    <nz-card nzTitle="Profile Settings">
-      <form nz-form [formGroup]="form" (ngSubmit)="save()">
-        <!-- Avatar Upload -->
-        <nz-form-item>
-          <nz-form-control>
-            <nz-upload
-              nzAction="/api/upload/avatar"
-              nzListType="picture-card"
-              [nzShowUploadList]="false"
-              (nzChange)="handleAvatarChange($event)">
-              <nz-avatar
-                [nzSize]="128"
-                [nzSrc]="avatarUrl()"
-                [nzText]="userInitial()" />
-            </nz-upload>
-          </nz-form-control>
-        </nz-form-item>
-        
-        <!-- Display Name -->
-        <nz-form-item>
-          <nz-form-label nzRequired>Display Name</nz-form-label>
-          <nz-form-control nzErrorTip="Please enter your name">
-            <input nz-input formControlName="displayName" />
-          </nz-form-control>
-        </nz-form-item>
-        
-        <!-- Email (read-only) -->
-        <nz-form-item>
-          <nz-form-label>Email</nz-form-label>
-          <nz-form-control>
-            <input nz-input formControlName="email" [disabled]="true" />
-          </nz-form-control>
-        </nz-form-item>
-        
-        <!-- Phone -->
-        <nz-form-item>
-          <nz-form-label>Phone</nz-form-label>
-          <nz-form-control>
-            <input nz-input formControlName="phone" />
-          </nz-form-control>
-        </nz-form-item>
-        
-        <!-- Bio -->
-        <nz-form-item>
-          <nz-form-label>Bio</nz-form-label>
-          <nz-form-control>
-            <textarea nz-input formControlName="bio" [nzAutosize]="{ minRows: 3, maxRows: 6 }"></textarea>
-          </nz-form-control>
-        </nz-form-item>
-        
-        <!-- Save Button -->
-        <button nz-button nzType="primary" [nzLoading]="loading()">
-          Save Changes
-        </button>
-      </form>
-    </nz-card>
-  `
-})
-export class ProfileSettingsComponent {
-  private fb = inject(FormBuilder);
-  private authService = inject(FirebaseAuthService);
-  private profileService = inject(UserProfileService);
-  
-  loading = signal(false);
-  avatarUrl = signal('');
-  
-  form: FormGroup = this.fb.group({
-    displayName: ['', Validators.required],
-    email: [''],
-    phone: [''],
-    bio: ['']
-  });
-  
-  userInitial = computed(() => {
-    return this.form.get('displayName')?.value?.charAt(0).toUpperCase() || 'U';
-  });
-  
-  ngOnInit(): void {
-    this.loadProfile();
-  }
-  
-  async loadProfile(): Promise<void> {
-    const user = this.authService.currentUser;
-    if (!user) return;
-    
-    const profile = await this.profileService.getProfile(user.uid);
-    
-    this.form.patchValue({
-      displayName: profile.display_name,
-      email: profile.email,
-      phone: profile.phone,
-      bio: profile.bio
-    });
-    
-    this.avatarUrl.set(profile.avatar_url || '');
-  }
-  
-  async save(): Promise<void> {
-    if (this.form.invalid) return;
-    
-    this.loading.set(true);
-    
-    try {
-      const user = this.authService.currentUser!;
-      await this.profileService.updateProfile(user.uid, {
-        display_name: this.form.value.displayName,
-        phone: this.form.value.phone,
-        bio: this.form.value.bio
-      });
-      
-      // Also update Firebase Auth display name
-      await this.authService.updateProfile({
-        displayName: this.form.value.displayName
-      });
-      
-      this.message.success('Profile updated successfully');
-    } catch (error) {
-      this.message.error('Failed to update profile');
-    } finally {
-      this.loading.set(false);
-    }
-  }
-  
-  handleAvatarChange(info: any): void {
-    if (info.file.status === 'done') {
-      this.avatarUrl.set(info.file.response.url);
-    }
-  }
-}
-```
+### NotificationSettingsComponent
 
-### Notification Preferences
-
-```typescript
-@Component({
-  selector: 'app-notification-settings',
-  standalone: true,
-  imports: [SHARED_IMPORTS],
-  template: `
-    <nz-card nzTitle="Notification Preferences">
-      <form nz-form [formGroup]="form" (ngSubmit)="save()">
-        <!-- Email Notifications -->
-        <nz-form-item>
-          <nz-form-control>
-            <label nz-checkbox formControlName="emailNotifications">
-              Email Notifications
-            </label>
-          </nz-form-control>
-        </nz-form-item>
-        
-        <!-- Push Notifications -->
-        <nz-form-item>
-          <nz-form-control>
-            <label nz-checkbox formControlName="pushNotifications">
-              Push Notifications
-            </label>
-          </nz-form-control>
-        </nz-form-item>
-        
-        <!-- Notification Categories -->
-        <nz-divider nzText="Categories"></nz-divider>
-        
-        @for (category of notificationCategories; track category.key) {
-          <nz-form-item>
-            <nz-form-control>
-              <label nz-checkbox [formControlName]="category.key">
-                {{ category.label }}
-              </label>
-              <div class="help-text">{{ category.description }}</div>
-            </nz-form-control>
-          </nz-form-item>
-        }
-        
-        <button nz-button nzType="primary" [nzLoading]="loading()">
-          Save Preferences
-        </button>
-      </form>
-    </nz-card>
-  `
-})
-export class NotificationSettingsComponent {
-  notificationCategories = [
-    {
-      key: 'taskAssigned',
-      label: 'Task Assigned',
-      description: 'Notify when a task is assigned to you'
-    },
-    {
-      key: 'taskCompleted',
-      label: 'Task Completed',
-      description: 'Notify when a task you created is completed'
-    },
-    {
-      key: 'mentioned',
-      label: 'Mentions',
-      description: 'Notify when someone mentions you'
-    },
-    {
-      key: 'blueprintUpdated',
-      label: 'Blueprint Updates',
-      description: 'Notify about changes to your blueprints'
-    }
-  ];
-  
-  // Implementation similar to ProfileSettingsComponent
-}
-```
+**規則**:
+- 必須定義通知類別陣列（taskAssigned、taskCompleted、mentioned、blueprintUpdated）
+- 必須使用 Reactive Forms 管理通知偏好設定
+- 必須支援儲存通知偏好設定
+- 必須顯示載入狀態
 
 ## Firebase/Firestore Collections
 
 ### Collections
 
-- **user_profiles** - Extended user profile data
-- **user_preferences** - User settings and preferences
-- **user_sessions** - Active sessions (optional)
+**規則**:
+- `user_profiles` collection 儲存擴展的用戶個人資料資料
+- `user_preferences` collection 儲存用戶設定和偏好
+- `user_sessions` collection 儲存活躍工作階段（選用）
 
 ### Security Rules
 
-```javascript
-match /user_profiles/{userId} {
-  allow read: if request.auth.uid == userId;
-  allow write: if request.auth.uid == userId;
-}
-
-match /user_preferences/{userId} {
-  allow read, write: if request.auth.uid == userId;
-}
-```
+**規則**:
+- `user_profiles/{userId}` 文件只能由該用戶本人讀寫
+- `user_preferences/{userId}` 文件只能由該用戶本人讀寫
+- 所有規則必須檢查 `request.auth.uid == userId`
 
 ## Best Practices
 
-1. **Privacy** - Respect user data privacy
-2. **Validation** - Validate all input fields
-3. **Real-time Sync** - Use Firebase Auth state listener
-4. **Avatar Storage** - Use Firebase Storage for images
-5. **Preferences** - Cache locally for performance
+**規則**:
+1. 必須尊重用戶資料隱私，僅允許用戶存取自己的資料
+2. 必須驗證所有輸入欄位
+3. 必須使用 Firebase Auth 狀態監聽器進行即時同步
+4. 頭像圖片必須使用 Firebase Storage 儲存
+5. 偏好設定必須在本地快取以提升效能
+6. 必須使用 Signals 管理元件狀態
+7. 必須使用 `inject()` 進行依賴注入
+8. 必須實作錯誤處理和載入狀態
 
 ## Related Documentation
 

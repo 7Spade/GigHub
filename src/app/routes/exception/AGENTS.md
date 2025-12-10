@@ -26,653 +26,139 @@ src/app/routes/exception/
 
 ### 403 Forbidden
 
-**Purpose**: Display when user lacks permission for requested resource
-
-**Usage**:
-```typescript
-// In route guard
-if (!hasPermission) {
-  return router.createUrlTree(['/exception/403']);
-}
-```
+**規則**:
+- 用途：當用戶缺乏請求資源的權限時顯示
+- 在路由守衛中使用：如果沒有權限，必須重定向到 `/exception/403`
+- 必須顯示清楚的錯誤訊息
+- 必須提供返回首頁和返回上一頁的按鈕
 
 ### 404 Not Found
 
-**Purpose**: Display when requested route/resource doesn't exist
-
-**Usage**:
-```typescript
-// Catch-all route
-{
-  path: '**',
-  redirectTo: '/exception/404'
-}
-```
+**規則**:
+- 用途：當請求的路由/資源不存在時顯示
+- 在 catch-all 路由中使用：`{ path: '**', redirectTo: '/exception/404' }`
+- 必須顯示清楚的錯誤訊息
+- 必須提供返回首頁和返回上一頁的按鈕
 
 ### 500 Server Error
 
-**Purpose**: Display when server encounters an error
-
-**Usage**:
-```typescript
-// In error interceptor
-if (error.status >= 500) {
-  router.navigate(['/exception/500']);
-}
-```
+**規則**:
+- 用途：當伺服器遇到錯誤時顯示
+- 在錯誤攔截器中使用：如果錯誤狀態碼 >= 500，必須導航到 `/exception/500`
+- 必須顯示清楚的錯誤訊息
+- 必須提供返回首頁和返回上一頁的按鈕
 
 ## Exception Component
 
-### Reusable Component
-
-**File**: `exception.component.ts`
-
-```typescript
-import { Component, input } from '@angular/core';
-import { Router } from '@angular/router';
-import { SHARED_IMPORTS } from '@shared';
-
-type ExceptionType = '403' | '404' | '500';
-
-interface ExceptionConfig {
-  type: 'success' | 'error' | 'info' | 'warning' | '403' | '404' | '500';
-  title: string;
-  description: string;
-  icon?: string;
-}
-
-@Component({
-  selector: 'app-exception',
-  standalone: true,
-  imports: [SHARED_IMPORTS],
-  template: `
-    <div class="exception-container">
-      <nz-result
-        [nzStatus]="config().type"
-        [nzTitle]="config().title"
-        [nzSubTitle]="config().description"
-        [nzIcon]="config().icon">
-        
-        <div nz-result-extra>
-          <button
-            nz-button
-            nzType="primary"
-            nzSize="large"
-            (click)="goHome()">
-            <span nz-icon nzType="home"></span>
-            Back to Home
-          </button>
-          
-          <button
-            nz-button
-            nzSize="large"
-            (click)="goBack()">
-            <span nz-icon nzType="arrow-left"></span>
-            Go Back
-          </button>
-        </div>
-      </nz-result>
-    </div>
-  `,
-  styles: [`
-    .exception-container {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      padding: 24px;
-    }
-  `]
-})
-export class ExceptionComponent {
-  type = input.required<ExceptionType>();
-  
-  private router = Router;
-  
-  config = computed((): ExceptionConfig => {
-    const configs: Record<ExceptionType, ExceptionConfig> = {
-      '403': {
-        type: '403',
-        title: '403',
-        description: 'Sorry, you don\'t have permission to access this page.',
-        icon: 'lock'
-      },
-      '404': {
-        type: '404',
-        title: '404',
-        description: 'Sorry, the page you visited does not exist.',
-        icon: 'file-search'
-      },
-      '500': {
-        type: '500',
-        title: '500',
-        description: 'Sorry, something went wrong on our server.',
-        icon: 'close-circle'
-      }
-    };
-    
-    return configs[this.type()];
-  });
-  
-  goHome(): void {
-    this.router.navigate(['/']);
-  }
-  
-  goBack(): void {
-    window.history.back();
-  }
-}
-```
-
-### Usage in Routes
-
-```typescript
-// routes.ts
-export const routes: Routes = [
-  {
-    path: '403',
-    component: ExceptionComponent,
-    data: { type: '403', title: 'Access Denied' }
-  },
-  {
-    path: '404',
-    component: ExceptionComponent,
-    data: { type: '404', title: 'Not Found' }
-  },
-  {
-    path: '500',
-    component: ExceptionComponent,
-    data: { type: '500', title: 'Server Error' }
-  },
-  {
-    path: 'trigger',
-    component: TriggerComponent,
-    data: { title: 'Error Trigger' }
-  }
-];
-```
+**規則**:
+- 必須使用 `input()` 接收 `type` 參數（'403' | '404' | '500'）
+- 必須使用 `computed()` 計算配置（標題、描述、圖示）
+- 必須使用 ng-zorro-antd 的 `nz-result` 元件
+- 必須提供 `goHome()` 方法導航到首頁
+- 必須提供 `goBack()` 方法返回上一頁
+- 必須根據錯誤類型顯示適當的狀態和訊息
 
 ## Trigger Component
 
-### Development Testing Tool
-
-**Purpose**: Manually trigger errors for testing error handling
-
-**File**: `trigger.component.ts`
-
-```typescript
-import { Component } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Router } from '@angular/router';
-import { SHARED_IMPORTS } from '@shared';
-
-@Component({
-  selector: 'app-trigger',
-  standalone: true,
-  imports: [SHARED_IMPORTS],
-  template: `
-    <div class="trigger-container">
-      <nz-card nzTitle="Error Trigger (Development Only)">
-        <p>Use these buttons to test error handling and exception pages.</p>
-        
-        <nz-space nzDirection="vertical" nzSize="large">
-          <!-- Navigate to Exception Pages -->
-          <button nz-button nzDanger (click)="navigate403()">
-            Navigate to 403 Forbidden
-          </button>
-          
-          <button nz-button nzDanger (click)="navigate404()">
-            Navigate to 404 Not Found
-          </button>
-          
-          <button nz-button nzDanger (click)="navigate500()">
-            Navigate to 500 Server Error
-          </button>
-          
-          <nz-divider />
-          
-          <!-- Trigger HTTP Errors -->
-          <button nz-button (click)="trigger404Http()">
-            Trigger 404 HTTP Error
-          </button>
-          
-          <button nz-button (click)="trigger500Http()">
-            Trigger 500 HTTP Error
-          </button>
-          
-          <nz-divider />
-          
-          <!-- Trigger Runtime Errors -->
-          <button nz-button (click)="triggerRuntimeError()">
-            Trigger Runtime Error
-          </button>
-          
-          <button nz-button (click)="triggerAsyncError()">
-            Trigger Async Error
-          </button>
-        </nz-space>
-      </nz-card>
-    </div>
-  `,
-  styles: [`
-    .trigger-container {
-      padding: 24px;
-      max-width: 600px;
-      margin: 0 auto;
-    }
-  `]
-})
-export class TriggerComponent {
-  constructor(
-    private http: HttpClient,
-    private router: Router
-  ) {}
-  
-  // Navigate to exception pages
-  navigate403(): void {
-    this.router.navigate(['/exception/403']);
-  }
-  
-  navigate404(): void {
-    this.router.navigate(['/exception/404']);
-  }
-  
-  navigate500(): void {
-    this.router.navigate(['/exception/500']);
-  }
-  
-  // Trigger HTTP errors
-  trigger404Http(): void {
-    this.http.get('/api/nonexistent-endpoint').subscribe({
-      error: (err) => console.error('404 Error:', err)
-    });
-  }
-  
-  trigger500Http(): void {
-    this.http.get('/api/error-endpoint').subscribe({
-      error: (err) => console.error('500 Error:', err)
-    });
-  }
-  
-  // Trigger runtime errors
-  triggerRuntimeError(): void {
-    throw new Error('Test runtime error');
-  }
-  
-  async triggerAsyncError(): Promise<void> {
-    await new Promise((_, reject) => {
-      setTimeout(() => reject(new Error('Test async error')), 100);
-    });
-  }
-}
-```
+**規則**:
+- 用途：手動觸發錯誤以測試錯誤處理（僅開發環境）
+- 必須提供導航到異常頁面的按鈕（403、404、500）
+- 必須提供觸發 HTTP 錯誤的按鈕（404、500）
+- 必須提供觸發執行時錯誤的按鈕
+- 必須提供觸發非同步錯誤的按鈕
 
 ## Global Error Handler
 
-### Error Handler Service
-
-**File**: `@core/errors/global-error-handler.ts`
-
-```typescript
-import { ErrorHandler, Injectable, inject } from '@angular/core';
-import { Router } from '@angular/router';
-import { NzMessageService } from 'ng-zorro-antd/message';
-import { LoggerService } from '@core/services/logger.service';
-
-@Injectable()
-export class GlobalErrorHandler implements ErrorHandler {
-  private logger = inject(LoggerService);
-  private message = inject(NzMessageService);
-  private router = inject(Router);
-  
-  handleError(error: any): void {
-    console.error('Global error caught:', error);
-    
-    // Log error
-    this.logger.error('Unhandled error', error);
-    
-    // Determine error type and navigate
-    if (this.isHttpError(error)) {
-      this.handleHttpError(error);
-    } else if (this.isFirebaseError(error)) {
-      this.handleFirebaseError(error);
-    } else {
-      this.handleGenericError(error);
-    }
-  }
-  
-  private isHttpError(error: any): boolean {
-    return error?.status !== undefined;
-  }
-  
-  private isFirebaseError(error: any): boolean {
-    return error?.code?.startsWith('auth/') || error?.code?.startsWith('firestore/');
-  }
-  
-  private handleHttpError(error: any): void {
-    const status = error.status;
-    
-    if (status === 403) {
-      this.message.error('Access denied');
-      this.router.navigate(['/exception/403']);
-    } else if (status === 404) {
-      this.message.error('Resource not found');
-      this.router.navigate(['/exception/404']);
-    } else if (status >= 500) {
-      this.message.error('Server error occurred');
-      this.router.navigate(['/exception/500']);
-    }
-  }
-  
-  private handleFirebaseError(error: any): void {
-    // Handle Firebase-specific errors
-    this.message.error('Firebase error: ' + error.message);
-  }
-  
-  private handleGenericError(error: any): void {
-    // Show generic error message
-    this.message.error('An unexpected error occurred');
-    
-    // In production, could navigate to 500 page
-    if (error?.severity === 'critical') {
-      this.router.navigate(['/exception/500']);
-    }
-  }
-}
-```
-
-### Register in app.config.ts
-
-```typescript
-import { ApplicationConfig, ErrorHandler } from '@angular/core';
-import { GlobalErrorHandler } from '@core/errors/global-error-handler';
-
-export const appConfig: ApplicationConfig = {
-  providers: [
-    // ... other providers
-    {
-      provide: ErrorHandler,
-      useClass: GlobalErrorHandler
-    }
-  ]
-};
-```
+**規則**:
+- 必須實作 `ErrorHandler` 介面
+- 必須在 `app.config.ts` 中註冊為 `ErrorHandler` 提供者
+- 必須處理 HTTP 錯誤、Firebase 錯誤和一般錯誤
+- 必須根據錯誤類型導航到適當的異常頁面
+- 必須記錄所有錯誤到 `LoggerService`
+- 必須顯示用戶友善的錯誤訊息
 
 ## HTTP Error Interceptor
 
-### Error Interceptor
-
-**File**: `@core/interceptors/error.interceptor.ts`
-
-```typescript
-import { inject } from '@angular/core';
-import { HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
-import { Router } from '@angular/router';
-import { NzMessageService } from 'ng-zorro-antd/message';
-import { catchError, throwError } from 'rxjs';
-
-export const errorInterceptor: HttpInterceptorFn = (req, next) => {
-  const router = inject(Router);
-  const message = inject(NzMessageService);
-  
-  return next(req).pipe(
-    catchError((error: HttpErrorResponse) => {
-      // Handle different HTTP errors
-      switch (error.status) {
-        case 401:
-          message.error('Session expired. Please login again.');
-          router.navigate(['/passport/login']);
-          break;
-          
-        case 403:
-          message.error('You don\'t have permission to access this resource.');
-          router.navigate(['/exception/403']);
-          break;
-          
-        case 404:
-          message.error('Resource not found.');
-          // Don't navigate for 404 - let the component handle it
-          break;
-          
-        case 500:
-        case 502:
-        case 503:
-          message.error('Server error. Please try again later.');
-          router.navigate(['/exception/500']);
-          break;
-          
-        default:
-          message.error('An error occurred. Please try again.');
-      }
-      
-      return throwError(() => error);
-    })
-  );
-};
-```
+**規則**:
+- 必須使用 `HttpInterceptorFn` 實作
+- 必須在 `app.config.ts` 中註冊為 HTTP 攔截器
+- 必須處理 401（未授權）、403（禁止）、404（未找到）、500+（伺服器錯誤）狀態碼
+- 401 錯誤必須重定向到登入頁面
+- 403 錯誤必須導航到 `/exception/403`
+- 500+ 錯誤必須導航到 `/exception/500`
+- 必須顯示適當的錯誤訊息
+- 必須使用 `throwError()` 重新拋出錯誤
 
 ## Custom Error Classes
 
-### Typed Errors
-
-**File**: `@core/errors/custom-errors.ts`
-
-```typescript
-export enum ErrorSeverity {
-  Low = 'low',
-  Medium = 'medium',
-  High = 'high',
-  Critical = 'critical'
-}
-
-export class AppError extends Error {
-  constructor(
-    message: string,
-    public code: string,
-    public severity: ErrorSeverity = ErrorSeverity.Medium,
-    public recoverable: boolean = true,
-    public context?: Record<string, any>
-  ) {
-    super(message);
-    this.name = 'AppError';
-  }
-}
-
-export class PermissionDeniedError extends AppError {
-  constructor(resource: string, action: string) {
-    super(
-      `Permission denied: Cannot ${action} ${resource}`,
-      'PERMISSION_DENIED',
-      ErrorSeverity.High,
-      false,
-      { resource, action }
-    );
-    this.name = 'PermissionDeniedError';
-  }
-}
-
-export class ResourceNotFoundError extends AppError {
-  constructor(resourceType: string, resourceId: string) {
-    super(
-      `${resourceType} not found: ${resourceId}`,
-      'RESOURCE_NOT_FOUND',
-      ErrorSeverity.Medium,
-      false,
-      { resourceType, resourceId }
-    );
-    this.name = 'ResourceNotFoundError';
-  }
-}
-
-export class ValidationError extends AppError {
-  constructor(
-    message: string,
-    public errors: Record<string, string[]>
-  ) {
-    super(
-      message,
-      'VALIDATION_ERROR',
-      ErrorSeverity.Low,
-      true,
-      { errors }
-    );
-    this.name = 'ValidationError';
-  }
-}
-```
+**規則**:
+- 必須定義 `ErrorSeverity` 枚舉（Low、Medium、High、Critical）
+- 必須建立 `AppError` 基礎錯誤類別
+- 必須建立 `PermissionDeniedError` 錯誤類別
+- 必須建立 `ResourceNotFoundError` 錯誤類別
+- 必須建立 `ValidationError` 錯誤類別
+- 所有錯誤類別必須包含 `code`、`severity`、`recoverable` 和 `context` 屬性
 
 ## Error Boundary Component
 
-### Component-Level Error Handling
-
-```typescript
-import { Component, input, signal } from '@angular/core';
-import { SHARED_IMPORTS } from '@shared';
-
-@Component({
-  selector: 'app-error-boundary',
-  standalone: true,
-  imports: [SHARED_IMPORTS],
-  template: `
-    @if (error()) {
-      <nz-result
-        nzStatus="error"
-        [nzTitle]="error()!.message"
-        [nzSubTitle]="getSubtitle()">
-        
-        <div nz-result-extra>
-          @if (error()!.recoverable) {
-            <button nz-button nzType="primary" (click)="retry()">
-              <span nz-icon nzType="reload"></span>
-              Retry
-            </button>
-          }
-          
-          <button nz-button (click)="reset()">
-            <span nz-icon nzType="close"></span>
-            Dismiss
-          </button>
-        </div>
-      </nz-result>
-    } @else {
-      <ng-content />
-    }
-  `
-})
-export class ErrorBoundaryComponent {
-  error = signal<AppError | null>(null);
-  
-  catchError(error: Error | AppError): void {
-    if (error instanceof AppError) {
-      this.error.set(error);
-    } else {
-      this.error.set(new AppError(
-        error.message,
-        'UNKNOWN_ERROR',
-        ErrorSeverity.Medium,
-        true
-      ));
-    }
-  }
-  
-  getSubtitle(): string {
-    const err = this.error();
-    if (!err) return '';
-    
-    return err.recoverable
-      ? 'This error is recoverable. You can retry the operation.'
-      : 'Please contact support if this problem persists.';
-  }
-  
-  retry(): void {
-    this.error.set(null);
-    // Emit retry event or call retry callback
-  }
-  
-  reset(): void {
-    this.error.set(null);
-  }
-}
-```
-
-### Usage
-
-```typescript
-<app-error-boundary>
-  <app-my-component />
-</app-error-boundary>
-```
+**規則**:
+- 必須使用 `signal()` 管理錯誤狀態
+- 必須提供 `catchError()` 方法捕獲錯誤
+- 必須根據錯誤類型顯示適當的結果頁面
+- 如果錯誤可恢復，必須提供重試按鈕
+- 必須提供重置錯誤狀態的方法
+- 必須使用 `<ng-content />` 顯示子元件內容
 
 ## Best Practices
 
-### 1. Error Handling Strategy
+### Error Handling Strategy
 
-- **Client-side validation** - Catch errors before API calls
-- **HTTP interceptor** - Handle HTTP errors globally
-- **Global error handler** - Catch unhandled errors
-- **Error boundary** - Component-level error containment
+**規則**:
+1. 客戶端驗證：在 API 呼叫前捕獲錯誤
+2. HTTP 攔截器：全域處理 HTTP 錯誤
+3. 全域錯誤處理器：捕獲未處理的錯誤
+4. 錯誤邊界：元件層級的錯誤包含
 
-### 2. User Communication
+### User Communication
 
-- **Clear messages** - Explain what went wrong
-- **Actionable feedback** - Provide next steps
-- **Consistent design** - Use ng-zorro Result component
-- **Helpful links** - Link to support or documentation
+**規則**:
+1. 必須提供清楚的訊息說明問題
+2. 必須提供可操作的回饋和下一步
+3. 必須使用一致的設計（ng-zorro Result 元件）
+4. 必須提供有用的連結（支援或文件）
 
-### 3. Error Logging
+### Error Logging
 
-- **Log all errors** - Use LoggerService
-- **Include context** - Add relevant metadata
-- **Severity levels** - Categorize errors
-- **Send to backend** - Aggregate errors for analysis
+**規則**:
+1. 必須記錄所有錯誤到 `LoggerService`
+2. 必須包含相關的上下文資訊
+3. 必須設定錯誤嚴重性等級
+4. 必須在生產環境中將錯誤發送到後端進行分析
 
-### 4. Development vs Production
+### Development vs Production
 
-- **Development** - Show detailed error messages
-- **Production** - Show user-friendly messages
-- **Stack traces** - Only in development
-- **Error reporting** - Send to monitoring service in production
+**規則**:
+1. 開發環境：必須顯示詳細的錯誤訊息
+2. 生產環境：必須顯示用戶友善的訊息
+3. 堆疊追蹤：僅在開發環境中顯示
+4. 錯誤報告：在生產環境中必須發送到監控服務
 
 ## Testing
 
-### Unit Tests
-
-```typescript
-describe('ExceptionComponent', () => {
-  it('should display 404 page', () => {
-    const component = TestBed.createComponent(ExceptionComponent);
-    component.componentRef.setInput('type', '404');
-    component.detectChanges();
-    
-    const title = component.nativeElement.querySelector('.ant-result-title');
-    expect(title.textContent).toContain('404');
-  });
-});
-```
-
-### E2E Tests
-
-```typescript
-test('should show 404 page for invalid route', async ({ page }) => {
-  await page.goto('/invalid-route');
-  await expect(page.locator('text=404')).toBeVisible();
-  await expect(page.locator('text=page you visited does not exist')).toBeVisible();
-});
-```
+**規則**:
+- 必須為 `ExceptionComponent` 編寫單元測試
+- 必須測試 404 頁面顯示
+- 必須測試錯誤處理器行為
+- 必須測試 HTTP 攔截器
+- 必須編寫 E2E 測試驗證錯誤頁面顯示
 
 ## Troubleshooting
 
-**Issue**: Errors not caught by global handler  
-**Solution**: Ensure GlobalErrorHandler is registered in app.config.ts
-
-**Issue**: HTTP errors not triggering interceptor  
-**Solution**: Verify errorInterceptor is registered with provideHttpClient
-
-**Issue**: Error pages not displaying  
-**Solution**: Check exception routes are registered correctly
-
-**Issue**: Infinite error loop  
-**Solution**: Ensure error handlers don't throw new errors
+**規則**:
+- 如果錯誤未被全域處理器捕獲，必須確保 `GlobalErrorHandler` 在 `app.config.ts` 中註冊
+- 如果 HTTP 錯誤未觸發攔截器，必須驗證 `errorInterceptor` 已註冊到 `provideHttpClient`
+- 如果錯誤頁面未顯示，必須檢查異常路由是否正確註冊
+- 如果出現無限錯誤循環，必須確保錯誤處理器不會拋出新錯誤
 
 ## Related Documentation
 

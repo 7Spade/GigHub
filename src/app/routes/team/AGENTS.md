@@ -26,146 +26,124 @@ src/app/routes/team/
 
 ### Team
 
-```typescript
-interface Team {
-  id: string;
-  organization_id: string;
-  name: string;
-  description?: string;
-  
-  // Leadership
-  leader_id: string;          // Team leader user ID
-  
-  // Status
-  status: 'active' | 'archived';
-  
-  // Metadata
-  created_at: string;
-  updated_at: string;
-  deleted_at?: string;
-}
-```
+**規則**:
+- `id` 為唯一識別碼
+- `organization_id` 為必填，指定所屬組織
+- `name` 為必填欄位
+- `description` 為選填欄位
+- `leader_id` 為必填，指定團隊領導者用戶 ID
+- `status` 必須為 'active' 或 'archived'
+- 必須包含 `created_at` 和 `updated_at` 時間戳記
+- `deleted_at` 用於軟刪除（選填）
 
 ### TeamMember
 
-```typescript
-interface TeamMember {
-  id: string;
-  team_id: string;
-  user_id: string;
-  
-  role: 'leader' | 'member';
-  
-  joined_at: string;
-  added_by: string;
-}
-```
+**規則**:
+- `id` 為唯一識別碼
+- `team_id` 為必填，指定所屬團隊
+- `user_id` 為必填，指定用戶 ID
+- `role` 必須為 'leader' 或 'member'
+- 必須包含 `joined_at` 時間戳記
+- `added_by` 為必填，記錄新增成員的用戶 ID
+
+### BlueprintTeamPermission
+
+**規則**:
+- `blueprint_id` 為必填，指定藍圖 ID
+- `team_id` 為必填，指定團隊 ID
+- `role` 必須為 'viewer'、'contributor' 或 'maintainer'
 
 ## Key Features
 
 ### Team List
 
-- Display all teams in organization
-- Filter by status or leader
-- Create new team
-- Team member count
+**規則**:
+- 必須顯示組織內所有團隊
+- 必須支援依狀態或領導者篩選
+- 必須提供建立新團隊按鈕
+- 必須顯示團隊成員數量
 
 ### Team Detail
 
-- Team information and description
-- Member list with roles
-- Team activity timeline
-- Assigned blueprints
+**規則**:
+- 必須顯示團隊資訊和描述
+- 必須顯示成員列表及其角色
+- 必須顯示團隊活動時間軸
+- 必須顯示已分配的藍圖
 
 ### Member Management
 
-- Add organization members to team
-- Assign team roles (leader/member)
-- Remove team members
-- Transfer leadership
+**規則**:
+- 只能將組織成員加入團隊
+- 必須支援指派團隊角色（leader/member）
+- 必須支援移除團隊成員
+- 必須支援轉移領導權
 
 ### Team Permissions
 
-Teams can be granted permissions on blueprints:
-
-```typescript
-interface BlueprintTeamPermission {
-  blueprint_id: string;
-  team_id: string;
-  role: 'viewer' | 'contributor' | 'maintainer';
-}
-```
+**規則**:
+- 團隊可以被授予藍圖權限
+- 團隊成員繼承團隊權限
+- 簡化權限管理流程
 
 ## Routing
 
-```typescript
-export const routes: Routes = [
-  {
-    path: '',
-    component: TeamListComponent,
-    data: { title: 'Teams' }
-  },
-  {
-    path: ':id',
-    component: TeamDetailComponent,
-    children: [
-      { path: 'members', component: TeamMemberListComponent },
-      { path: 'blueprints', component: TeamBlueprintsComponent }
-    ]
-  }
-];
-```
+**規則**:
+- 根路徑 `/` 必須顯示團隊列表
+- `/:id` 路徑必須顯示團隊詳情
+- `/:id/members` 子路由必須顯示成員列表
+- `/:id/blueprints` 子路由必須顯示團隊藍圖
 
 ## Firebase/Firestore Collections
 
 ### Collections
 
-- **teams** - Team documents
-- **team_members** - Team membership
-- **blueprint_team_permissions** - Team access to blueprints
+**規則**:
+- `teams` collection 儲存團隊文件
+- `team_members` collection 儲存團隊成員關係
+- `blueprint_team_permissions` collection 儲存團隊對藍圖的存取權限
 
 ### Security Rules
 
-```javascript
-match /teams/{teamId} {
-  allow read: if isMemberOfTeam(teamId) || isMemberOfOrg(getTeamOrgId(teamId));
-  allow write: if isTeamLeader(teamId) || isOrgAdmin(getTeamOrgId(teamId));
-}
-
-match /team_members/{memberId} {
-  allow read: if isMemberOfTeam(getTeamId(memberId));
-  allow create: if isTeamLeader(getTeamId(memberId));
-  allow delete: if isTeamLeader(getTeamId(memberId)) || isSelf(resource.data.user_id);
-}
-```
+**規則**:
+- `teams/{teamId}` 文件：團隊成員或組織成員可讀取，團隊領導者或組織管理員可寫入
+- `team_members/{memberId}` 文件：團隊成員可讀取，團隊領導者可建立，團隊領導者或本人可刪除
+- 所有規則必須檢查用戶是否為團隊成員或組織成員
 
 ## Integration Points
 
 ### With Organization
 
-- Teams belong to organizations
-- Only organization members can join teams
-- Organization admins can manage all teams
+**規則**:
+- 團隊必須隸屬於組織
+- 只有組織成員才能加入團隊
+- 組織管理員可以管理所有團隊
 
 ### With Blueprint
 
-- Teams can be granted blueprint access
-- Team members inherit team permissions
-- Simplifies permission management
+**規則**:
+- 團隊可以被授予藍圖存取權限
+- 團隊成員繼承團隊權限
+- 簡化權限管理流程
 
 ### Use Cases
 
-1. **Project Teams** - Assign teams to specific blueprints
-2. **Department Teams** - Engineering, QA, Management teams
-3. **External Teams** - Contractor or client teams
+**規則**:
+1. 專案團隊：將團隊分配給特定藍圖
+2. 部門團隊：工程、QA、管理團隊
+3. 外部團隊：承包商或客戶團隊
 
 ## Best Practices
 
-1. **Team Size** - Keep teams manageable (5-15 members)
-2. **Clear Roles** - Define team leader and responsibilities
-3. **Permission Inheritance** - Use team permissions for efficiency
-4. **Activity Tracking** - Log team actions for accountability
-5. **Communication** - Integrate with notification system
+**規則**:
+1. 團隊規模必須保持在可管理範圍（5-15 名成員）
+2. 必須明確定義團隊領導者和職責
+3. 必須使用團隊權限以提升效率
+4. 必須記錄團隊操作以確保責任制
+5. 必須與通知系統整合
+6. 必須使用 Signals 管理元件狀態
+7. 必須使用 `inject()` 進行依賴注入
+8. 必須實作錯誤處理和載入狀態
 
 ## Related Documentation
 

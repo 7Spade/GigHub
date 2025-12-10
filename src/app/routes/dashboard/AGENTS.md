@@ -42,588 +42,99 @@ src/app/routes/dashboard/
 
 ### Workplace Dashboard (Default)
 
-**Purpose**: Main entry dashboard showing actionable insights
-
-**File**: `workplace/workplace.component.ts`
-
-**Features**:
-- **Quick Stats Cards** - Key metrics at a glance
-- **Recent Activity** - Latest actions across blueprints
-- **Active Tasks** - User's assigned tasks
-- **Blueprint List** - Quick access to active projects
-- **Shortcuts** - Frequently used actions
-- **Calendar Widget** - Upcoming events and deadlines
-
-**Layout**:
-```html
-<div class="workplace-dashboard">
-  <!-- Header -->
-  <app-page-header
-    title="Workplace"
-    subtitle="Welcome back, {{ userName() }}">
-    <button nz-button nzType="primary" (click)="createBlueprint()">
-      <span nz-icon nzType="plus"></span>
-      New Blueprint
-    </button>
-  </app-page-header>
-  
-  <!-- Stats Row -->
-  <nz-row [nzGutter]="16">
-    <nz-col [nzSpan]="6">
-      <nz-card>
-        <nz-statistic
-          nzTitle="Total Blueprints"
-          [nzValue]="blueprintCount()"
-          [nzPrefix]="projectIcon" />
-      </nz-card>
-    </nz-col>
-    <nz-col [nzSpan]="6">
-      <nz-card>
-        <nz-statistic
-          nzTitle="Active Tasks"
-          [nzValue]="taskCount()"
-          [nzPrefix]="taskIcon" />
-      </nz-card>
-    </nz-col>
-    <nz-col [nzSpan]="6">
-      <nz-card>
-        <nz-statistic
-          nzTitle="Quality Issues"
-          [nzValue]="issueCount()"
-          [nzPrefix]="issueIcon"
-          [nzValueStyle]="{ color: '#cf1322' }" />
-      </nz-card>
-    </nz-col>
-    <nz-col [nzSpan]="6">
-      <nz-card>
-        <nz-statistic
-          nzTitle="Completion Rate"
-          [nzValue]="completionRate()"
-          nzSuffix="%"
-          [nzPrefix]="chartIcon" />
-      </nz-card>
-    </nz-col>
-  </nz-row>
-  
-  <!-- Content Grid -->
-  <nz-row [nzGutter]="16" class="mt-16">
-    <!-- Recent Activity -->
-    <nz-col [nzSpan]="16">
-      <nz-card nzTitle="Recent Activity">
-        <nz-timeline>
-          @for (activity of recentActivity(); track activity.id) {
-            <nz-timeline-item [nzColor]="activity.color">
-              <p>{{ activity.description }}</p>
-              <span class="timestamp">{{ activity.timestamp | timeAgo }}</span>
-            </nz-timeline-item>
-          }
-        </nz-timeline>
-      </nz-card>
-    </nz-col>
-    
-    <!-- Quick Actions -->
-    <nz-col [nzSpan]="8">
-      <nz-card nzTitle="Quick Actions">
-        <div class="quick-actions">
-          <button nz-button nzBlock (click)="createTask()">
-            <span nz-icon nzType="plus"></span>
-            New Task
-          </button>
-          <button nz-button nzBlock (click)="createDiary()">
-            <span nz-icon nzType="file-text"></span>
-            New Diary Entry
-          </button>
-          <button nz-button nzBlock (click)="createInspection()">
-            <span nz-icon nzType="safety"></span>
-            New Inspection
-          </button>
-        </div>
-      </nz-card>
-    </nz-col>
-  </nz-row>
-  
-  <!-- My Blueprints -->
-  <nz-row [nzGutter]="16" class="mt-16">
-    <nz-col [nzSpan]="24">
-      <nz-card nzTitle="My Blueprints">
-        <st
-          [data]="myBlueprints()"
-          [columns]="blueprintColumns"
-          [loading]="loading()"
-          (change)="handleTableChange($event)" />
-      </nz-card>
-    </nz-col>
-  </nz-row>
-</div>
-```
-
-**Implementation**:
-```typescript
-import { Component, signal, computed, inject } from '@angular/core';
-import { Router } from '@angular/router';
-import { SHARED_IMPORTS } from '@shared';
-import { STColumn } from '@delon/abc/st';
-import { BlueprintService } from '@shared/services/blueprint/blueprint.service';
-import { FirebaseAuthService } from '@core/services/firebase-auth.service';
-
-@Component({
-  selector: 'app-workplace',
-  standalone: true,
-  imports: [SHARED_IMPORTS],
-  templateUrl: './workplace.component.html',
-  styleUrl: './workplace.component.scss'
-})
-export class WorkplaceComponent {
-  private blueprintService = inject(BlueprintService);
-  private authService = inject(FirebaseAuthService);
-  private router = inject(Router);
-  
-  // State
-  loading = signal(false);
-  myBlueprints = signal<Blueprint[]>([]);
-  recentActivity = signal<Activity[]>([]);
-  
-  // Computed metrics
-  userName = computed(() => {
-    return this.authService.currentUser?.displayName || 'User';
-  });
-  
-  blueprintCount = computed(() => this.myBlueprints().length);
-  
-  taskCount = computed(() => {
-    // Calculate from blueprints
-    return this.myBlueprints()
-      .reduce((sum, bp) => sum + (bp.task_count || 0), 0);
-  });
-  
-  issueCount = computed(() => {
-    // Calculate quality issues
-    return this.myBlueprints()
-      .reduce((sum, bp) => sum + (bp.issue_count || 0), 0);
-  });
-  
-  completionRate = computed(() => {
-    const total = this.taskCount();
-    const completed = this.myBlueprints()
-      .reduce((sum, bp) => sum + (bp.completed_task_count || 0), 0);
-    return total > 0 ? Math.round((completed / total) * 100) : 0;
-  });
-  
-  // Table columns
-  blueprintColumns: STColumn[] = [
-    {
-      title: 'Name',
-      index: 'name',
-      click: (item) => this.viewBlueprint(item)
-    },
-    {
-      title: 'Status',
-      index: 'status',
-      type: 'badge',
-      badge: {
-        active: { text: 'Active', color: 'success' },
-        draft: { text: 'Draft', color: 'default' },
-        archived: { text: 'Archived', color: 'warning' }
-      }
-    },
-    {
-      title: 'Progress',
-      render: 'progressTemplate'
-    },
-    {
-      title: 'Last Updated',
-      index: 'updated_at',
-      type: 'date'
-    },
-    {
-      title: 'Actions',
-      buttons: [
-        {
-          text: 'View',
-          click: (item) => this.viewBlueprint(item)
-        },
-        {
-          text: 'Tasks',
-          click: (item) => this.viewTasks(item)
-        }
-      ]
-    }
-  ];
-  
-  ngOnInit(): void {
-    this.loadDashboardData();
-  }
-  
-  async loadDashboardData(): Promise<void> {
-    this.loading.set(true);
-    
-    try {
-      const [blueprints, activity] = await Promise.all([
-        this.blueprintService.list(),
-        this.loadRecentActivity()
-      ]);
-      
-      this.myBlueprints.set(blueprints);
-      this.recentActivity.set(activity);
-    } catch (error) {
-      console.error('Failed to load dashboard:', error);
-    } finally {
-      this.loading.set(false);
-    }
-  }
-  
-  async loadRecentActivity(): Promise<Activity[]> {
-    // Load recent activity from Firestore
-    return [];
-  }
-  
-  createBlueprint(): void {
-    this.router.navigate(['/blueprint', 'new']);
-  }
-  
-  createTask(): void {
-    // Navigate to task creation
-  }
-  
-  createDiary(): void {
-    // Navigate to diary entry
-  }
-  
-  createInspection(): void {
-    // Navigate to quality inspection
-  }
-  
-  viewBlueprint(blueprint: Blueprint): void {
-    this.router.navigate(['/blueprint', blueprint.id]);
-  }
-  
-  viewTasks(blueprint: Blueprint): void {
-    this.router.navigate(['/blueprint', blueprint.id, 'tasks']);
-  }
-  
-  handleTableChange(event: any): void {
-    // Handle ST table events (pagination, sorting, filtering)
-  }
-}
-```
+**規則**:
+- 用途：主要入口儀表板，顯示可操作的見解
+- 必須顯示快速統計卡片（關鍵指標）
+- 必須顯示最近活動（跨藍圖的最新操作）
+- 必須顯示活躍任務（用戶分配的任務）
+- 必須顯示藍圖列表（快速存取活躍專案）
+- 必須提供快捷方式（常用操作）
+- 必須提供日曆小工具（即將到來的事件和截止日期）
+- 必須使用 `signal()` 管理狀態
+- 必須使用 `computed()` 計算衍生指標
+- 必須使用 ST 表格顯示藍圖列表
 
 ### Analysis Dashboard
 
-**Purpose**: Data visualization and reporting for insights
-
-**File**: `analysis/analysis.component.ts`
-
-**Features**:
-- **Time-series Charts** - Task completion over time
-- **Progress Charts** - Blueprint progress visualization
-- **Quality Trends** - Issue tracking and trends
-- **Resource Utilization** - Team member workload
-- **Export Reports** - PDF/Excel export functionality
-
-**Charts**:
-```typescript
-import { Component, signal, computed } from '@angular/core';
-import { EChartsOption } from 'echarts';
-
-@Component({
-  selector: 'app-analysis',
-  standalone: true,
-  imports: [SHARED_IMPORTS],
-  template: `
-    <div class="analysis-dashboard">
-      <app-page-header title="Analysis" subtitle="Data insights and reports" />
-      
-      <!-- Date Range Selector -->
-      <nz-card>
-        <nz-range-picker
-          [(ngModel)]="dateRange"
-          (ngModelChange)="onDateRangeChange()" />
-      </nz-card>
-      
-      <!-- Charts Grid -->
-      <nz-row [nzGutter]="16" class="mt-16">
-        <!-- Task Completion Chart -->
-        <nz-col [nzSpan]="12">
-          <nz-card nzTitle="Task Completion Trend">
-            <div echarts [options]="taskChartOptions()" style="height: 400px;"></div>
-          </nz-card>
-        </nz-col>
-        
-        <!-- Quality Issues Chart -->
-        <nz-col [nzSpan]="12">
-          <nz-card nzTitle="Quality Issues">
-            <div echarts [options]="qualityChartOptions()" style="height: 400px;"></div>
-          </nz-card>
-        </nz-col>
-      </nz-row>
-      
-      <!-- Progress Chart -->
-      <nz-row [nzGutter]="16" class="mt-16">
-        <nz-col [nzSpan]="24">
-          <nz-card nzTitle="Blueprint Progress">
-            <div echarts [options]="progressChartOptions()" style="height: 400px;"></div>
-          </nz-card>
-        </nz-col>
-      </nz-row>
-    </div>
-  `
-})
-export class AnalysisComponent {
-  dateRange = signal<[Date, Date] | null>(null);
-  
-  taskChartOptions = computed((): EChartsOption => ({
-    title: { text: 'Task Completion' },
-    tooltip: { trigger: 'axis' },
-    xAxis: {
-      type: 'category',
-      data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-    },
-    yAxis: { type: 'value' },
-    series: [{
-      data: [5, 8, 12, 15, 10, 7, 9],
-      type: 'line',
-      smooth: true
-    }]
-  }));
-  
-  qualityChartOptions = computed((): EChartsOption => ({
-    title: { text: 'Quality Issues by Type' },
-    tooltip: { trigger: 'item' },
-    series: [{
-      type: 'pie',
-      radius: '50%',
-      data: [
-        { value: 12, name: 'Safety' },
-        { value: 8, name: 'Structural' },
-        { value: 5, name: 'Material' },
-        { value: 3, name: 'Other' }
-      ]
-    }]
-  }));
-  
-  progressChartOptions = computed((): EChartsOption => ({
-    title: { text: 'Blueprint Progress' },
-    tooltip: { trigger: 'axis' },
-    xAxis: {
-      type: 'category',
-      data: ['Blueprint A', 'Blueprint B', 'Blueprint C', 'Blueprint D']
-    },
-    yAxis: { type: 'value', max: 100 },
-    series: [{
-      data: [75, 60, 90, 45],
-      type: 'bar',
-      itemStyle: { color: '#52c41a' }
-    }]
-  }));
-  
-  onDateRangeChange(): void {
-    // Reload data for new date range
-  }
-}
-```
+**規則**:
+- 用途：資料視覺化和報告以獲得見解
+- 必須提供時間序列圖表（任務完成隨時間變化）
+- 必須提供進度圖表（藍圖進度視覺化）
+- 必須提供品質趨勢（問題追蹤和趨勢）
+- 必須提供資源利用率（團隊成員工作量）
+- 必須支援匯出報告功能（PDF/Excel）
+- 必須提供日期範圍選擇器
+- 必須使用 ECharts 進行圖表視覺化
 
 ### Monitor Dashboard
 
-**Purpose**: Real-time system health monitoring
-
-**File**: `monitor/monitor.component.ts`
-
-**Features**:
-- **System Health** - API uptime and response times
-- **Database Performance** - Firestore query metrics
-- **User Activity** - Active users and sessions
-- **Error Tracking** - Recent errors and warnings
-- **Auto-refresh** - Updates every 30 seconds
-
-**Implementation**:
-```typescript
-@Component({
-  selector: 'app-monitor',
-  standalone: true,
-  imports: [SHARED_IMPORTS],
-  template: `
-    <div class="monitor-dashboard">
-      <app-page-header title="Monitor" subtitle="System health and performance">
-        <button nz-button (click)="refresh()">
-          <span nz-icon nzType="reload"></span>
-          Refresh
-        </button>
-      </app-page-header>
-      
-      <!-- Health Status -->
-      <nz-alert
-        [nzType]="healthStatus().type"
-        [nzMessage]="healthStatus().message"
-        [nzDescription]="healthStatus().description"
-        nzShowIcon />
-      
-      <!-- Metrics Grid -->
-      <nz-row [nzGutter]="16" class="mt-16">
-        <nz-col [nzSpan]="8">
-          <app-cpu-usage />
-        </nz-col>
-        <nz-col [nzSpan]="8">
-          <app-memory-usage />
-        </nz-col>
-        <nz-col [nzSpan]="8">
-          <app-api-health />
-        </nz-col>
-      </nz-row>
-      
-      <!-- Recent Errors -->
-      <nz-row [nzGutter]="16" class="mt-16">
-        <nz-col [nzSpan]="24">
-          <nz-card nzTitle="Recent Errors">
-            <nz-list
-              [nzDataSource]="recentErrors()"
-              [nzRenderItem]="errorTemplate">
-            </nz-list>
-          </nz-card>
-        </nz-col>
-      </nz-row>
-    </div>
-  `
-})
-export class MonitorComponent {
-  healthStatus = signal({
-    type: 'success' as 'success' | 'warning' | 'error',
-    message: 'All Systems Operational',
-    description: 'All services running normally'
-  });
-  
-  recentErrors = signal<Error[]>([]);
-  
-  constructor() {
-    // Auto-refresh every 30 seconds
-    effect(() => {
-      const interval = setInterval(() => this.refresh(), 30000);
-      return () => clearInterval(interval);
-    });
-  }
-  
-  async refresh(): Promise<void> {
-    // Reload monitoring data
-  }
-}
-```
+**規則**:
+- 用途：即時系統健康監控
+- 必須顯示系統健康狀態（API 正常運行時間和回應時間）
+- 必須顯示資料庫效能（Firestore 查詢指標）
+- 必須顯示用戶活動（活躍用戶和工作階段）
+- 必須顯示錯誤追蹤（最近的錯誤和警告）
+- 必須支援自動刷新（每 30 秒更新）
+- 必須提供手動刷新按鈕
 
 ## Context Switching
 
-### Context Dashboard Component
-
-**Purpose**: Switch between user/organization/blueprint contexts
-
-**File**: `context-dashboard.component.ts`
-
-```typescript
-@Component({
-  selector: 'app-context-dashboard',
-  standalone: true,
-  imports: [SHARED_IMPORTS],
-  template: `
-    <div class="context-switcher">
-      <nz-segmented
-        [nzOptions]="contextOptions"
-        [(ngModel)]="activeContext"
-        (ngModelChange)="onContextChange()" />
-      
-      @switch (activeContext) {
-        @case ('user') {
-          <app-workplace />
-        }
-        @case ('organization') {
-          <app-organization-dashboard />
-        }
-        @case ('blueprint') {
-          <app-blueprint-dashboard />
-        }
-      }
-    </div>
-  `
-})
-export class ContextDashboardComponent {
-  activeContext = signal<'user' | 'organization' | 'blueprint'>('user');
-  
-  contextOptions = [
-    { label: 'My Work', value: 'user' },
-    { label: 'Organization', value: 'organization' },
-    { label: 'Blueprint', value: 'blueprint' }
-  ];
-  
-  onContextChange(): void {
-    // Save preference and reload data
-  }
-}
-```
+**規則**:
+- 必須支援在用戶/組織/藍圖上下文之間切換
+- 必須使用 `signal()` 管理當前活動上下文
+- 必須根據上下文載入相應的儀表板資料
+- 必須保存用戶偏好設定
 
 ## Routing Configuration
 
-```typescript
-// routes.ts
-export const routes: Routes = [
-  {
-    path: '',
-    redirectTo: 'workplace',
-    pathMatch: 'full'
-  },
-  {
-    path: 'workplace',
-    component: WorkplaceComponent,
-    data: { title: 'Workplace' }
-  },
-  {
-    path: 'analysis',
-    component: AnalysisComponent,
-    data: { title: 'Analysis' }
-  },
-  {
-    path: 'monitor',
-    component: MonitorComponent,
-    canActivate: [adminGuard],  // Admin only
-    data: { title: 'Monitor' }
-  }
-];
-```
+**規則**:
+- 根路徑 `/` 必須重定向到 `workplace`
+- `/workplace` 路由必須顯示工作場所儀表板
+- `/analysis` 路由必須顯示分析儀表板
+- `/monitor` 路由必須使用 `adminGuard` 保護（僅管理員）
+- 所有路由必須設定 `title` 資料屬性
 
 ## Best Practices
 
-1. **Performance**
-   - Use `computed()` for derived metrics
-   - Implement virtual scrolling for large lists
-   - Lazy load charts on viewport visibility
-   - Cache API responses with TTL
+### Performance
 
-2. **User Experience**
-   - Show loading states during data fetch
-   - Provide empty states with helpful actions
-   - Use optimistic UI updates
-   - Auto-refresh with user control
+**規則**:
+1. 必須使用 `computed()` 計算衍生指標
+2. 對於大型列表必須實作虛擬滾動
+3. 必須在視窗可見時延遲載入圖表
+4. 必須使用 TTL 快取 API 回應
 
-3. **Data Visualization**
-   - Choose appropriate chart types
-   - Use consistent color schemes
-   - Provide interactive tooltips
-   - Support export to PDF/Excel
+### User Experience
 
-4. **Accessibility**
-   - Provide text alternatives for charts
-   - Use semantic HTML
-   - Support keyboard navigation
-   - Test with screen readers
+**規則**:
+1. 必須在資料載入期間顯示載入狀態
+2. 必須提供空狀態和有用的操作
+3. 必須使用樂觀 UI 更新
+4. 必須提供用戶控制的自動刷新
+
+### Data Visualization
+
+**規則**:
+1. 必須選擇適當的圖表類型
+2. 必須使用一致的配色方案
+3. 必須提供互動式工具提示
+4. 必須支援匯出為 PDF/Excel
+
+### Accessibility
+
+**規則**:
+1. 必須為圖表提供文字替代方案
+2. 必須使用語義化 HTML
+3. 必須支援鍵盤導航
+4. 必須使用螢幕閱讀器進行測試
 
 ## Testing
 
-```typescript
-describe('WorkplaceComponent', () => {
-  it('should calculate metrics correctly', () => {
-    const component = TestBed.createComponent(WorkplaceComponent).componentInstance;
-    component.myBlueprints.set(mockBlueprints);
-    
-    expect(component.blueprintCount()).toBe(3);
-    expect(component.taskCount()).toBeGreaterThan(0);
-  });
-});
-```
+**規則**:
+- 必須為 `WorkplaceComponent` 編寫單元測試
+- 必須測試指標計算是否正確
+- 必須測試圖表資料載入
+- 必須編寫 E2E 測試驗證儀表板功能
 
 ## Related Documentation
 
