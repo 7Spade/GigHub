@@ -45,6 +45,25 @@
 
 ---
 
+### 🎯 實作文檔 (Implementation Docs)
+
+| 文檔 | 描述 | 語言 | 狀態 |
+|------|------|------|------|
+| [🗺️ 現代化路線圖](./MODERNIZATION_ROADMAP.md) | PR #18 完整實施計畫 | 繁中 | ✅ |
+| [👥 團隊管理技術文檔](./TEAM_MANAGEMENT_TECHNICAL_DOC.md) | 團隊管理功能技術說明 | 繁中 | ✅ |
+| [🧪 團隊管理測試指南](./TEAM_MANAGEMENT_TESTING_GUIDE.md) | 測試策略與檢查清單 | 繁中 | ✅ |
+| [✨ UX 現代化提案](./UX_MODERNIZATION_PROPOSAL.md) | PR #19 UX 改進提案 | 繁中 | ✅ |
+| [⚡ UX 快速實施指南](./UX_QUICK_IMPLEMENTATION_GUIDE.md) | UX 功能實施步驟 | 繁中 | ✅ |
+| [🎨 UX 視覺模型](./UX_VISUAL_MOCKUPS.md) | UI/UX 設計參考 | 繁中 | ✅ |
+
+**涵蓋內容**:
+- 📋 Phase-by-phase 實施計畫
+- 🔧 AsyncState、Modal、Drawer 模式實作
+- 🎨 Breadcrumb、Team Detail Drawer 等 UX 元件
+- ✅ 完整的測試策略與驗收標準
+
+---
+
 ### 🔐 身份驗證 (Authentication) - [`authentication/`](./authentication/)
 
 | 文檔 | 描述 | 語言 | 狀態 |

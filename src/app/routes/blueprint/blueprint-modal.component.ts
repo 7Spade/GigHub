@@ -1,4 +1,5 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NZ_MODAL_DATA, NzModalRef } from 'ng-zorro-antd/modal';
 import { NzMessageService } from 'ng-zorro-antd/message';
@@ -11,6 +12,11 @@ import { FirebaseAuthService } from '@core';
 /**
  * Blueprint Create/Edit Modal Component
  * 藍圖建立/編輯模態元件
+ * 
+ * ✅ Modernized with:
+ * - Signals for reactive state
+ * - takeUntilDestroyed for subscription management
+ * - async/await for operations
  */
 @Component({
   selector: 'app-blueprint-modal',
@@ -109,7 +115,9 @@ export class BlueprintModalComponent implements OnInit {
   private readonly authService = inject(FirebaseAuthService);
   private readonly workspaceContext = inject(WorkspaceContextService);
   private readonly data: { blueprint?: Blueprint } = inject(NZ_MODAL_DATA, { optional: true }) || {};
+  private readonly destroyRef = inject(DestroyRef);
 
+  // ✅ Modern Pattern: Use Signals
   submitting = signal(false);
   isEdit = false;
 
@@ -144,13 +152,15 @@ export class BlueprintModalComponent implements OnInit {
       this.isEdit = true;
       this.populateForm(this.data.blueprint);
     } else {
-      // Auto-generate slug from name
-      this.form.get('name')?.valueChanges.subscribe(name => {
-        if (name && !this.isEdit) {
-          const slug = this.generateSlug(name);
-          this.form.get('slug')?.setValue(slug, { emitEvent: false });
-        }
-      });
+      // ✅ Auto-generate slug from name with proper cleanup
+      this.form.get('name')?.valueChanges
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(name => {
+          if (name && !this.isEdit) {
+            const slug = this.generateSlug(name);
+            this.form.get('slug')?.setValue(slug, { emitEvent: false });
+          }
+        });
     }
   }
 

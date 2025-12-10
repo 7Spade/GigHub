@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, input } from '@angular/core';
 import { SocialService } from '@delon/auth';
 import { SettingsService } from '@delon/theme';
 
@@ -11,7 +11,7 @@ import { SettingsService } from '@delon/theme';
 export class CallbackComponent implements OnInit {
   private readonly socialService = inject(SocialService);
   private readonly settingsSrv = inject(SettingsService);
-  @Input() type = '';
+  type = input<string>('');
 
   ngOnInit(): void {
     this.mockModel();
@@ -21,7 +21,7 @@ export class CallbackComponent implements OnInit {
     const info = {
       token: '123456789',
       name: 'cipchk',
-      email: `${this.type}@${this.type}.com`,
+      email: `${this.type()}@${this.type()}.com`,
       id: 10000,
       time: +new Date()
     };

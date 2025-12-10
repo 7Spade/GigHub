@@ -1,17 +1,18 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit } from '@angular/core';
-import { ContextType, TeamMember, TeamRole } from '@core';
-import { SHARED_IMPORTS, WorkspaceContextService, TeamMemberRepository } from '@shared';
-import { HeaderContextSwitcherComponent } from '../../../layout/basic/widgets/context-switcher.component';
-import { NzMenuModule } from 'ng-zorro-antd/menu';
+import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit, effect } from '@angular/core';
+import { ContextType, TeamMember, TeamRole, OrganizationMember } from '@core';
+import { SHARED_IMPORTS, WorkspaceContextService, TeamMemberRepository, OrganizationMemberRepository, BreadcrumbService } from '@shared';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
 import { NzModalService } from 'ng-zorro-antd/modal';
 import { NzMessageService } from 'ng-zorro-antd/message';
+import { NzSelectModule } from 'ng-zorro-antd/select';
+import { NzSpaceModule } from 'ng-zorro-antd/space';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-team-members',
   standalone: true,
-  imports: [SHARED_IMPORTS, NzMenuModule, NzAlertModule, NzEmptyModule, HeaderContextSwitcherComponent],
+  imports: [SHARED_IMPORTS, NzAlertModule, NzEmptyModule, NzSelectModule, NzSpaceModule, FormsModule],
   template: `
     <page-header [title]="'團隊成員'" [content]="headerContent"></page-header>
     
@@ -23,26 +24,35 @@ import { NzMessageService } from 'ng-zorro-antd/message';
       <nz-alert
         nzType="info"
         nzShowIcon
-        nzMessage="請切換到團隊上下文"
-        nzDescription="使用下方切換器切換到目標團隊後即可管理成員。"
+        nzMessage="請先選擇團隊"
+        nzDescription="請從側邊欄選擇一個團隊以管理成員。"
         class="mb-md"
       />
     }
 
-    <nz-card class="mb-md" nzTitle="工作區切換器">
-      <div class="text-grey mb-sm">切換到目標團隊後，即可同步顯示成員列表。</div>
-      <ul nz-menu nzMode="inline" class="bg-transparent border-0">
-        <header-context-switcher />
-      </ul>
-    </nz-card>
-
     <nz-card nzTitle="成員列表" [nzExtra]="extraTemplate" [nzLoading]="loading()">
       <ng-template #extraTemplate>
         @if (isTeamContext()) {
-          <button nz-button nzType="primary" nzSize="small" (click)="openAddMemberModal()">
-            <span nz-icon nzType="plus"></span>
-            添加成員
-          </button>
+          <nz-space>
+            <button 
+              *nzSpaceItem 
+              nz-button 
+              nzType="primary" 
+              (click)="openAddMemberModal()"
+            >
+              <span nz-icon nzType="user-add"></span>
+              新增成員
+            </button>
+            <button 
+              *nzSpaceItem 
+              nz-button 
+              nzType="default"
+              (click)="refreshMembers()"
+            >
+              <span nz-icon nzType="reload"></span>
+              重新整理
+            </button>
+          </nz-space>
         }
       </ng-template>
       
@@ -53,7 +63,7 @@ import { NzMessageService } from 'ng-zorro-antd/message';
               <th nzWidth="200px">成員 ID</th>
               <th nzWidth="140px">角色</th>
               <th nzWidth="200px">加入時間</th>
-              <th nzWidth="120px">操作</th>
+              <th nzWidth="200px">操作</th>
             </tr>
           </thead>
           <tbody>
@@ -65,9 +75,31 @@ import { NzMessageService } from 'ng-zorro-antd/message';
                 </td>
                 <td>{{ member.joined_at || '-' }}</td>
                 <td>
-                  @if (member.role !== TeamRole.LEADER) {
-                    <a nz-popconfirm nzPopconfirmTitle="確定移除此成員？" (nzOnConfirm)="removeMember(member)">移除</a>
-                  }
+                  <nz-space>
+                    <button 
+                      *nzSpaceItem 
+                      nz-button 
+                      nzType="link" 
+                      nzSize="small" 
+                      (click)="changeRole(member)"
+                    >
+                      <span nz-icon nzType="swap"></span>
+                      變更角色
+                    </button>
+                    <button 
+                      *nzSpaceItem 
+                      nz-button 
+                      nzType="link" 
+                      nzSize="small" 
+                      nzDanger
+                      nz-popconfirm 
+                      nzPopconfirmTitle="確定移除此成員？" 
+                      (nzOnConfirm)="removeMember(member)"
+                    >
+                      <span nz-icon nzType="user-delete"></span>
+                      移除
+                    </button>
+                  </nz-space>
                 </td>
               </tr>
             }
@@ -89,6 +121,9 @@ import { NzMessageService } from 'ng-zorro-antd/message';
       .border-0 {
         border: 0;
       }
+      .mr-sm {
+        margin-right: 8px;
+      }
     `
   ],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -96,6 +131,8 @@ import { NzMessageService } from 'ng-zorro-antd/message';
 export class TeamMembersComponent implements OnInit {
   private readonly workspaceContext = inject(WorkspaceContextService);
   private readonly memberRepository = inject(TeamMemberRepository);
+  private readonly orgMemberRepository = inject(OrganizationMemberRepository);
+  private readonly breadcrumbService = inject(BreadcrumbService);
   private readonly modal = inject(NzModalService);
   private readonly message = inject(NzMessageService);
 
@@ -105,12 +142,52 @@ export class TeamMembersComponent implements OnInit {
   // Add TeamRole to template
   readonly TeamRole = TeamRole;
 
+  constructor() {
+    // Auto-reload members when team context changes
+    effect(() => {
+      const teamId = this.currentTeamId();
+      if (teamId) {
+        this.loadMembers(teamId);
+      }
+    });
+  }
+
   ngOnInit(): void {
-    // Load members when component initializes
+    // Set breadcrumbs
+    const teamName = this.workspaceContext.contextLabel();
+    const orgName = this.getOrganizationName();
     const teamId = this.currentTeamId();
+    
     if (teamId) {
-      this.loadMembers(teamId);
+      this.breadcrumbService.setBreadcrumbs([
+        { label: '首頁', url: '/', icon: 'home' },
+        { label: orgName, url: null, icon: 'team' },
+        { label: teamName, url: null, icon: 'usergroup-add' },
+        { label: '成員管理', url: null }
+      ]);
+    } else {
+      this.breadcrumbService.setBreadcrumbs([
+        { label: '首頁', url: '/', icon: 'home' },
+        { label: '成員管理', url: null }
+      ]);
     }
+    
+    // Load members when component initializes
+    const teamId2 = this.currentTeamId();
+    if (teamId2) {
+      this.loadMembers(teamId2);
+    }
+  }
+  
+  private getOrganizationName(): string {
+    const teams = this.workspaceContext.teams();
+    const currentTeam = teams.find(t => t.id === this.currentTeamId());
+    if (currentTeam) {
+      const orgs = this.workspaceContext.organizations();
+      const org = orgs.find(o => o.id === currentTeam.organization_id);
+      return org?.name || '組織';
+    }
+    return '組織';
   }
 
   private loadMembers(teamId: string): void {
@@ -145,52 +222,120 @@ export class TeamMembersComponent implements OnInit {
     return this.workspaceContext.contextType() === ContextType.TEAM;
   }
 
+  refreshMembers(): void {
+    const teamId = this.currentTeamId();
+    if (teamId) {
+      this.message.info('正在重新整理...');
+      this.loadMembers(teamId);
+    }
+  }
+
   openAddMemberModal(): void {
-    this.modal.create({
-      nzTitle: '添加團隊成員',
-      nzContent: `
-        <form nz-form>
-          <nz-form-item>
-            <nz-form-label nzRequired>用戶 ID/Email</nz-form-label>
-            <nz-form-control>
-              <input nz-input id="userId" placeholder="請輸入用戶 ID 或 Email" />
-            </nz-form-control>
-          </nz-form-item>
-          <nz-form-item>
-            <nz-form-label>角色</nz-form-label>
-            <nz-form-control>
-              <nz-select id="role" nzPlaceHolder="選擇角色" style="width: 100%">
-                <nz-option nzValue="${TeamRole.MEMBER}" nzLabel="成員"></nz-option>
-                <nz-option nzValue="${TeamRole.LEADER}" nzLabel="領導"></nz-option>
-              </nz-select>
-            </nz-form-control>
-          </nz-form-item>
-        </form>
-      `,
-      nzOnOk: async () => {
-        const userId = (document.getElementById('userId') as HTMLInputElement)?.value;
-        const role = (document.getElementById('role') as HTMLSelectElement)?.value || TeamRole.MEMBER;
+    const teamId = this.currentTeamId();
+    if (!teamId) {
+      this.message.error('無法獲取團隊 ID');
+      return;
+    }
+
+    // Get current team to find organization
+    const currentTeam = this.workspaceContext.teams().find(t => t.id === teamId);
+    if (!currentTeam) {
+      this.message.error('找不到團隊資訊');
+      return;
+    }
+
+    // Load organization members
+    this.loading.set(true);
+    this.orgMemberRepository.findByOrganization(currentTeam.organization_id).subscribe({
+      next: (orgMembers: OrganizationMember[]) => {
+        this.loading.set(false);
         
-        if (!userId || userId.trim() === '') {
-          this.message.error('請輸入用戶 ID');
-          return false;
+        // Filter out members already in team
+        const currentMemberIds = this.members().map(m => m.user_id);
+        const availableMembers = orgMembers.filter(om => !currentMemberIds.includes(om.user_id));
+
+        if (availableMembers.length === 0) {
+          this.message.warning('所有組織成員都已加入此團隊');
+          return;
         }
 
-        const teamId = this.currentTeamId();
-        if (!teamId) {
-          this.message.error('無法獲取團隊 ID');
+        this.showAddMemberDialog(teamId, availableMembers);
+      },
+      error: (error: Error) => {
+        this.loading.set(false);
+        console.error('[TeamMembersComponent] ❌ Failed to load org members:', error);
+        this.message.error('載入組織成員失敗');
+      }
+    });
+  }
+
+  private showAddMemberDialog(teamId: string, availableMembers: OrganizationMember[]): void {
+    let selectedUserId = '';
+    let selectedRole: TeamRole = TeamRole.MEMBER;
+
+    const modalRef = this.modal.create({
+      nzTitle: '新增團隊成員',
+      nzContent: `
+        <div>
+          <div class="mb-md">
+            <label class="d-block mb-sm"><strong>選擇成員</strong></label>
+            <select id="selectMember" class="ant-input" style="width: 100%; padding: 4px 11px; border: 1px solid #d9d9d9; border-radius: 2px;">
+              <option value="">請選擇要加入的成員</option>
+              ${availableMembers.map(m => `<option value="${m.user_id}">${m.user_id}</option>`).join('')}
+            </select>
+          </div>
+          <div class="mb-md">
+            <label class="d-block mb-sm"><strong>角色</strong></label>
+            <select id="selectRole" class="ant-input" style="width: 100%; padding: 4px 11px; border: 1px solid #d9d9d9; border-radius: 2px;">
+              <option value="${TeamRole.MEMBER}">團隊成員</option>
+              <option value="${TeamRole.LEADER}">團隊領導</option>
+            </select>
+          </div>
+        </div>
+      `,
+      nzOnOk: async () => {
+        selectedUserId = (document.getElementById('selectMember') as HTMLSelectElement)?.value || '';
+        selectedRole = (document.getElementById('selectRole') as HTMLSelectElement)?.value as TeamRole || TeamRole.MEMBER;
+
+        if (!selectedUserId) {
+          this.message.error('請選擇成員');
           return false;
         }
 
         try {
-          await this.memberRepository.addMember(teamId, userId.trim(), role as TeamRole);
-          this.message.success('成員已添加');
+          await this.memberRepository.addMember(teamId, selectedUserId, selectedRole);
+          this.message.success('成員已加入團隊');
           this.loadMembers(teamId);
           return true;
         } catch (error) {
           console.error('[TeamMembersComponent] ❌ Failed to add member:', error);
-          this.message.error('添加成員失敗');
+          this.message.error('新增成員失敗');
           return false;
+        }
+      }
+    });
+  }
+
+  changeRole(member: TeamMember): void {
+    const newRole = member.role === TeamRole.LEADER ? TeamRole.MEMBER : TeamRole.LEADER;
+    const roleLabel = newRole === TeamRole.LEADER ? '團隊領導' : '團隊成員';
+
+    this.modal.confirm({
+      nzTitle: '變更成員角色',
+      nzContent: `確定將此成員角色變更為「${roleLabel}」？`,
+      nzOnOk: async () => {
+        const teamId = this.currentTeamId();
+        if (!teamId) return;
+
+        try {
+          // Remove and re-add with new role (simple approach)
+          await this.memberRepository.removeMember(member.id);
+          await this.memberRepository.addMember(teamId, member.user_id, newRole);
+          this.message.success('角色已變更');
+          this.loadMembers(teamId);
+        } catch (error) {
+          console.error('[TeamMembersComponent] ❌ Failed to change role:', error);
+          this.message.error('變更角色失敗');
         }
       }
     });
