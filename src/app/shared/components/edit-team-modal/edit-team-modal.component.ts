@@ -13,7 +13,7 @@
  * @module shared/components
  */
 
-import { ChangeDetectionStrategy, Component, inject, signal, input, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal, Inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Team } from '@core';
 import { TeamRepository } from '@shared';
@@ -21,7 +21,7 @@ import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzFormModule } from 'ng-zorro-antd/form';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzMessageService } from 'ng-zorro-antd/message';
-import { NzModalRef } from 'ng-zorro-antd/modal';
+import { NzModalRef, NZ_MODAL_DATA } from 'ng-zorro-antd/modal';
 
 @Component({
   selector: 'app-edit-team-modal',
@@ -92,13 +92,13 @@ import { NzModalRef } from 'ng-zorro-antd/modal';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class EditTeamModalComponent implements OnInit {
-  // Use input() function (Angular 19+ modern pattern)
-  team = input.required<Team>();
-
   private readonly fb = inject(FormBuilder);
   private readonly teamRepository = inject(TeamRepository);
   private readonly modal = inject(NzModalRef);
   private readonly message = inject(NzMessageService);
+  
+  // Inject modal data using NZ_MODAL_DATA token
+  private readonly modalData = inject<{ team: Team }>(NZ_MODAL_DATA);
 
   loading = signal(false);
   
@@ -109,7 +109,7 @@ export class EditTeamModalComponent implements OnInit {
 
   ngOnInit(): void {
     // Initialize form with team data
-    const teamData = this.team();
+    const teamData = this.modalData.team;
     this.form.patchValue({
       name: teamData.name,
       description: teamData.description || ''
@@ -144,7 +144,7 @@ export class EditTeamModalComponent implements OnInit {
       return;
     }
 
-    const teamData = this.team();
+    const teamData = this.modalData.team;
     
     this.loading.set(true);
     try {

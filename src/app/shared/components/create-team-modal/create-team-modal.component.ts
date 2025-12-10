@@ -14,7 +14,7 @@
  * @module shared/components
  */
 
-import { ChangeDetectionStrategy, Component, inject, signal, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal, Inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Team } from '@core';
 import { TeamRepository } from '@shared';
@@ -22,7 +22,7 @@ import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzFormModule } from 'ng-zorro-antd/form';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzMessageService } from 'ng-zorro-antd/message';
-import { NzModalRef } from 'ng-zorro-antd/modal';
+import { NzModalRef, NZ_MODAL_DATA } from 'ng-zorro-antd/modal';
 
 @Component({
   selector: 'app-create-team-modal',
@@ -93,13 +93,13 @@ import { NzModalRef } from 'ng-zorro-antd/modal';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CreateTeamModalComponent {
-  // Use input() function (Angular 19+ modern pattern)
-  organizationId = input.required<string>();
-
   private readonly fb = inject(FormBuilder);
   private readonly teamRepository = inject(TeamRepository);
   private readonly modal = inject(NzModalRef);
   private readonly message = inject(NzMessageService);
+  
+  // Inject modal data using NZ_MODAL_DATA token
+  private readonly modalData = inject<{ organizationId: string }>(NZ_MODAL_DATA);
 
   loading = signal(false);
   
@@ -136,7 +136,7 @@ export class CreateTeamModalComponent {
       return;
     }
 
-    const orgId = this.organizationId();
+    const orgId = this.modalData.organizationId;
     if (!orgId) {
       this.message.error('無法獲取組織 ID');
       return;

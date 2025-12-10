@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit, effect } from '@angular/core';
+import { Router } from '@angular/router';
 import { ContextType, Team } from '@core';
 import { SHARED_IMPORTS, WorkspaceContextService, TeamRepository } from '@shared';
 import { HeaderContextSwitcherComponent } from '../../../layout/basic/widgets/context-switcher.component';
@@ -67,7 +68,7 @@ import { NzDescriptionsModule } from 'ng-zorro-antd/descriptions';
               <th nzWidth="200px">團隊名稱</th>
               <th>描述</th>
               <th nzWidth="200px">建立時間</th>
-              <th nzWidth="150px">操作</th>
+              <th nzWidth="220px">操作</th>
             </tr>
           </thead>
           <tbody>
@@ -79,6 +80,7 @@ import { NzDescriptionsModule } from 'ng-zorro-antd/descriptions';
                 <td>{{ team.description || '尚無描述' }}</td>
                 <td>{{ formatDate(team.created_at) }}</td>
                 <td>
+                  <a (click)="manageMembers(team)" class="mr-sm">管理成員</a>
                   <a (click)="openEditTeamModal(team)" class="mr-sm">編輯</a>
                   <a nz-popconfirm nzPopconfirmTitle="確定刪除此團隊？此操作無法復原。" (nzOnConfirm)="deleteTeam(team)">刪除</a>
                 </td>
@@ -114,6 +116,7 @@ export class OrganizationTeamsComponent implements OnInit {
   private readonly teamRepository = inject(TeamRepository);
   private readonly modal = inject(NzModalService);
   private readonly message = inject(NzMessageService);
+  private readonly router = inject(Router);
 
   private readonly teamsState = signal<Team[]>([]);
   loading = signal(false);
@@ -228,6 +231,12 @@ export class OrganizationTeamsComponent implements OnInit {
       console.error('[OrganizationTeamsComponent] ❌ Failed to delete team:', error);
       this.message.error('刪除團隊失敗');
     }
+  }
+
+  manageMembers(team: Team): void {
+    // Switch to team context and navigate to members page
+    this.workspaceContext.switchToTeam(team.id);
+    this.router.navigate(['/team/members']);
   }
 
   formatDate(dateStr: string | undefined): string {
