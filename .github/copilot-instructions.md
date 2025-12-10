@@ -1,5 +1,26 @@
 # GigHub - Copilot Instructions
 
+> **⚠️ ATTENTION COPILOT**: You MUST read this entire file before responding to ANY request. This is MANDATORY, not optional.
+
+## 🎯 Quick Start (READ THIS FIRST)
+
+**Before doing ANYTHING, you must:**
+
+1. ✅ **Read this file completely** - `.github/copilot-instructions.md`
+2. ✅ **Check mandatory tool usage policy** - See section below
+3. ✅ **Use context7** for ANY framework/library question
+4. ✅ **Use sequential-thinking** for complex problems
+5. ✅ **Use software-planning-tool** for new features
+6. ✅ **Reference quick-reference.instructions.md** for common patterns
+
+**New to this project?** Read these in order:
+1. This file (copilot-instructions.md) - Overview & mandatory policies
+2. `.github/instructions/quick-reference.instructions.md` - Common patterns
+3. `.github/copilot/constraints.md` - Forbidden practices
+4. `.github/copilot/shortcuts/chat-shortcuts.md` - Chat shortcuts
+
+---
+
 ## Project Overview
 
 **GigHub** is an enterprise-level construction site progress tracking management system built with:
@@ -19,48 +40,93 @@
 - ⚠️ **SSR + Hydration** (optional): Server-side rendering with client hydration
 - ⚠️ **View Transitions** (optional): Built-in page transition animations
 
-## Autonomous Tool Usage
+## 🚨 MANDATORY Tool Usage Policy
 
-This repository is configured with MCP (Model Context Protocol) tools for enhanced AI assistance:
+**CRITICAL**: This repository requires Copilot to **ALWAYS** read this instruction file and **MANDATORILY** use the following MCP tools. This is not optional.
 
-### Available MCP Tools
+### Tool Usage Requirements
 
-1. **context7**: Access up-to-date documentation for external libraries
-   - Use when working with Angular, ng-alain, ng-zorro-antd, Supabase, or other frameworks
-   - Ensures accurate API usage and best practices
-   - Automatically queries the latest documentation
+#### 1. **context7** (MANDATORY for all library/framework questions) 🔴
 
-2. **sequential-thinking**: Multi-step reasoning for complex problems
-   - Use for architectural decisions
-   - Problem analysis and solution design
-   - Complex debugging scenarios
+**YOU MUST USE context7 BEFORE:**
+- Writing ANY code using external libraries (Angular, ng-alain, ng-zorro-antd, Supabase, RxJS)
+- Answering questions about framework APIs or best practices
+- Implementing features with third-party dependencies
+- Verifying syntax or method signatures
 
-3. **software-planning-tool**: Structured planning for features
-   - Use for new feature development
-   - Architecture refactoring
-   - Complex technical decisions
-   - Generate step-by-step implementation plans
+**Workflow (REQUIRED):**
+```
+1. Call resolve-library-id({ libraryName: "library-name" })
+2. Call get-library-docs({ context7CompatibleLibraryID: "/lib/lib", topic: "topic" })
+3. Read package.json to verify version
+4. Use documentation to provide accurate answers
+```
 
-### When to Use Tools
+**Examples of WHEN YOU MUST USE context7:**
+- "How to use Angular Signals?" → MUST call context7 first
+- "ng-alain ST table setup?" → MUST call context7 first
+- "Supabase authentication?" → MUST call context7 first
+- "RxJS operators?" → MUST call context7 first
 
-**Use context7 when:**
-- Implementing features with external libraries
-- Unsure about API signatures or best practices
-- Need to verify framework-specific patterns
-- Working with version-specific features
-- **Querying modern Angular features** (Signals, new control flow, Zoneless, etc.)
+**❌ NEVER:**
+- Guess or assume API signatures
+- Provide outdated syntax
+- Skip context7 verification for framework code
 
-**Use sequential-thinking when:**
-- Analyzing complex bugs
-- Designing system architecture
+#### 2. **sequential-thinking** (MANDATORY for complex tasks) 🟡
+
+**YOU MUST USE sequential-thinking WHEN:**
+- Designing system architecture or new features
+- Analyzing complex bugs with multiple potential causes
 - Making technical trade-off decisions
-- Multi-step problem solving
+- Breaking down large tasks into steps
+- Planning refactoring strategies
 
-**Use software-planning-tool when:**
-- Planning new features
-- Refactoring large modules
+**Workflow (REQUIRED):**
+```
+1. Identify the problem complexity (if >2 steps, use sequential-thinking)
+2. Call sequential-thinking to analyze
+3. Document the reasoning process
+4. Present the solution with justification
+```
+
+#### 3. **software-planning-tool** (MANDATORY for new features) 🟢
+
+**YOU MUST USE software-planning-tool WHEN:**
+- User requests new feature development
+- Planning major refactoring work
 - Designing integration patterns
 - Creating implementation roadmaps
+
+**Workflow (REQUIRED):**
+```
+1. Call start_planning({ goal: "feature description" })
+2. Call add_todo for each subtask
+3. Document the plan
+4. Track progress with update_todo_status
+```
+
+### Quick Reference
+
+**ALWAYS use these tools - this is MANDATORY:**
+
+| Scenario | Required Tool | Why |
+|----------|--------------|-----|
+| Any Angular/ng-alain/Supabase code | context7 | Ensure accurate, up-to-date syntax |
+| Complex architectural decision | sequential-thinking | Structured reasoning process |
+| New feature request | software-planning-tool | Organized implementation plan |
+| Bug analysis (>2 potential causes) | sequential-thinking | Systematic problem solving |
+| API usage question | context7 | Verify current documentation |
+
+### Compliance Check
+
+**Before providing ANY solution, ask yourself:**
+1. ✅ Did I check if context7 is needed?
+2. ✅ Did I check if sequential-thinking is needed?
+3. ✅ Did I check if software-planning-tool is needed?
+4. ✅ Did I read this instruction file?
+
+**If answer to ANY question is NO, STOP and use the required tool(s) first.**
 
 ## Repository Guidelines
 
@@ -195,7 +261,7 @@ export class DataService {
 ## Additional Documentation
 
 See `.github/instructions/` for detailed guidelines:
-- `angular.instructions.md` - Angular 20 基礎開發指引
+- `quick-reference.instructions.md` - **快速參考指南** ⭐ (常用模式速查)
 - `angular-modern-features.instructions.md` - **Angular 現代化特性指南** ⭐
   - Signals 模式與最佳實踐
   - Standalone Components 完整指南
@@ -205,22 +271,45 @@ See `.github/instructions/` for detailed guidelines:
   - 內建 View Transitions
   - Functional Router Guards
   - 遷移工具使用說明
+- `angular.instructions.md` - Angular 20 基礎開發指引
 - `enterprise-angular-architecture.instructions.md` - 企業級架構模式
 - `typescript-5-es2022.instructions.md` - TypeScript 標準
 - `ng-alain-delon.instructions.md` - ng-alain & Delon 框架
 - `ng-zorro-antd.instructions.md` - Ant Design 元件
-- `angular-fire.instructions.md` - AngularFire 整合
 - `sql-sp-generation.instructions.md` - 資料庫指引
 - `memory-bank.instructions.md` - 文件模式
 
+See `.github/copilot/` for additional resources:
+- `shortcuts/chat-shortcuts.md` - **Copilot Chat 快捷指令** ⭐
+- `constraints.md` - **禁止模式與約束** 🚫
+- `security-rules.yml` - 安全規則配置
+
 ## Getting Help
 
-1. **Use context7** for library-specific questions
-2. **Use sequential-thinking** for complex analysis
-3. **Use software-planning-tool** for feature planning
-4. **Reference docs/** for architecture documentation
-5. **Check `.github/agents/`** for specialized assistance
+1. **Start here**: Read this file (copilot-instructions.md)
+2. **Quick patterns**: Check quick-reference.instructions.md
+3. **Library questions**: Use context7 tool (MANDATORY)
+4. **Complex analysis**: Use sequential-thinking tool (MANDATORY)
+5. **Feature planning**: Use software-planning-tool (MANDATORY)
+6. **Chat shortcuts**: Use shortcuts from chat-shortcuts.md
+7. **Check constraints**: Review constraints.md for forbidden patterns
+8. **Architecture docs**: Reference docs/ directory
+9. **Specialized agents**: Check `.github/agents/` for domain experts
 
 ---
 
-**Note**: This repository emphasizes learning from existing patterns while creating maintainable, modern implementations. Always prioritize code quality, security, and maintainability over quick solutions.
+## 📢 FINAL REMINDER
+
+**YOU MUST:**
+- ✅ Read this instruction file at the start of EVERY session
+- ✅ Use context7 for ALL framework/library questions (MANDATORY)
+- ✅ Use sequential-thinking for complex problems (MANDATORY)
+- ✅ Use software-planning-tool for new features (MANDATORY)
+- ✅ Follow the quick reference guide for common patterns
+- ✅ Check constraints.md for forbidden practices
+
+**FAILURE TO FOLLOW THESE REQUIREMENTS WILL RESULT IN INCORRECT OR OUTDATED CODE.**
+
+---
+
+**Note**: This repository emphasizes learning from existing patterns while creating maintainable, modern implementations. Always prioritize code quality, security, and maintainability over quick solutions. The mandatory tool usage policy ensures you provide accurate, up-to-date, and well-reasoned solutions.
