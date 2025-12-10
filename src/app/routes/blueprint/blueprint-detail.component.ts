@@ -1,12 +1,13 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DatePipe } from '@angular/common';
+import { firstValueFrom } from 'rxjs';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzStatisticModule } from 'ng-zorro-antd/statistic';
 import { NzResultModule } from 'ng-zorro-antd/result';
 import { NzDescriptionsModule } from 'ng-zorro-antd/descriptions';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
-import { SHARED_IMPORTS } from '@shared';
+import { SHARED_IMPORTS, createAsyncState } from '@shared';
 import { Blueprint, LoggerService } from '@core';
 import { BlueprintService } from '@shared';
 
@@ -18,6 +19,8 @@ import { BlueprintService } from '@shared';
  * - Display blueprint information
  * - Show enabled modules
  * - Navigate to module pages
+ * 
+ * ✅ Modernized with AsyncState pattern
  */
 @Component({
   selector: 'app-blueprint-detail',
@@ -182,9 +185,12 @@ export class BlueprintDetailComponent implements OnInit {
   private readonly logger = inject(LoggerService);
   private readonly blueprintService = inject(BlueprintService);
 
-  // Reactive state
-  loading = signal(true);
-  blueprint = signal<Blueprint | null>(null);
+  // ✅ Modern Pattern: Use AsyncState
+  readonly blueprintState = createAsyncState<Blueprint | null>(null);
+  
+  // Convenience accessor
+  readonly blueprint = this.blueprintState.data;
+  readonly loading = this.blueprintState.loading;
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
@@ -199,30 +205,25 @@ export class BlueprintDetailComponent implements OnInit {
   /**
    * Load blueprint details
    * 載入藍圖詳情
+   * ✅ Using AsyncState for automatic state management
    */
-  private loadBlueprint(id: string): void {
-    this.loading.set(true);
-
-    this.blueprintService.getById(id).subscribe({
-      next: (data: Blueprint | null) => {
-        this.loading.set(false);
-        
-        if (data) {
-          this.blueprint.set(data);
-          this.logger.info('[BlueprintDetailComponent]', `Loaded blueprint: ${data.name}`);
-        } else {
-          // Blueprint not found - show 404 state
-          this.blueprint.set(null);
-          this.logger.warn('[BlueprintDetailComponent]', `Blueprint not found: ${id}`);
-        }
-      },
-      error: (error: Error) => {
-        this.loading.set(false);
-        this.blueprint.set(null); // Set to null to trigger 404 UI
-        this.message.error('載入藍圖失敗');
-        this.logger.error('[BlueprintDetailComponent]', 'Failed to load blueprint', error);
+  private async loadBlueprint(id: string): Promise<void> {
+    try {
+      const data = await firstValueFrom(this.blueprintService.getById(id));
+      
+      if (data) {
+        this.blueprintState.setData(data);
+        this.logger.info('[BlueprintDetailComponent]', `Loaded blueprint: ${data.name}`);
+      } else {
+        // Blueprint not found - show 404 state
+        this.blueprintState.setData(null);
+        this.logger.warn('[BlueprintDetailComponent]', `Blueprint not found: ${id}`);
       }
-    });
+    } catch (error) {
+      this.blueprintState.setData(null); // Set to null to trigger 404 UI
+      this.message.error('載入藍圖失敗');
+      this.logger.error('[BlueprintDetailComponent]', 'Failed to load blueprint', error as Error);
+    }
   }
 
   /**
