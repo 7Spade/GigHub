@@ -483,9 +483,9 @@ removeOrganization(orgId: string): void
    - `/llmstxt/angular_dev_assets_context_llms-full_txt` - Full context
 
 3. **Related Documentation**
-   - `docs/AUTHENTICATION_RACE_CONDITIONS_ANALYSIS.md` - 問題分析
-   - `docs/MODERNIZATION_ANALYSIS.md` - 現代化方案
-   - `docs/WORKSPACE_CONTEXT_REFACTORING.md` - 本文件
+   - `docs/Auth-AUTHENTICATION_RACE_CONDITIONS_ANALYSIS.md` - 問題分析
+   - `docs/System-MODERNIZATION_ANALYSIS.md` - 現代化方案
+   - `docs/System-WORKSPACE_CONTEXT_REFACTORING.md` - 本文件
 
 ---
 

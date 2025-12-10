@@ -46,7 +46,7 @@
 
 ### 2. 側邊欄功能設計文件
 
-**檔案**: `docs/SIDEBAR_FEATURES_DESIGN.md`
+**檔案**: `docs/System-SIDEBAR_FEATURES_DESIGN.md`
 
 #### 核心內容
 
@@ -421,9 +421,9 @@ const canCreate = computed(() => {
 ```
 docs/
 ├── BLUEPRINT_CONTAINER_DESIGN.md    ← 藍圖邏輯容器設計（本次建立）
-├── SIDEBAR_FEATURES_DESIGN.md       ← 側邊欄功能設計（本次建立）
-├── SAAS_IMPLEMENTATION.md           ← 現有 SaaS 實作文件
-├── CONTEXT_SWITCHER_UI.md           ← 現有上下文切換器文件
+├── System-SIDEBAR_FEATURES_DESIGN.md       ← 側邊欄功能設計（本次建立）
+├── Account-SAAS_IMPLEMENTATION.md           ← 現有 SaaS 實作文件
+├── System-CONTEXT_SWITCHER_UI.md           ← 現有上下文切換器文件
 └── README.md                         ← 文件索引
 
 src/assets/tmp/
@@ -456,8 +456,8 @@ src/assets/tmp/
 - [Supabase Row Level Security](https://supabase.com/docs/guides/auth/row-level-security)
 
 ### 專案內部文件
-- `docs/SAAS_IMPLEMENTATION.md` - SaaS 多租戶實作
-- `docs/CONTEXT_SWITCHER_UI.md` - 上下文切換器 UI
+- `docs/Account-SAAS_IMPLEMENTATION.md` - SaaS 多租戶實作
+- `docs/System-CONTEXT_SWITCHER_UI.md` - 上下文切換器 UI
 - `src/app/core/types/account.types.ts` - 帳戶類型定義
 - `src/app/shared/services/workspace-context.service.ts` - 工作區上下文服務
 

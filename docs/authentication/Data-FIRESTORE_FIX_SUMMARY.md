@@ -289,7 +289,7 @@ initializeFirestore(app, {
 
 ## Next Steps
 
-1. **Test the fix** using FIRESTORE_FIX_TESTING.md guide
+1. **Test the fix** using Data-FIRESTORE_FIX_TESTING.md guide
 2. **Monitor console logs** for any errors
 3. **Verify in production** after deployment
 4. **Update Firestore rules** if needed for production security

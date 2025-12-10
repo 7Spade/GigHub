@@ -265,14 +265,14 @@ combineLatest([obs1, obs2, obs3]).subscribe(([r1, r2, r3]) => {
 
 ### 新增的檔案
 
-1. **`docs/fix-data-refresh-issue.md`**
+1. **`docs/Data-fix-data-refresh-issue.md`**
    - 詳細問題分析
    - 技術實作說明
    - 測試步驟
    - 未來改進建議
    - Angular 20 模式說明
 
-2. **`docs/SOLUTION_SUMMARY.md`**
+2. **`docs/System-SOLUTION_SUMMARY.md`**
    - 解決方案總結
    - 根本原因分析
    - 技術細節
@@ -382,7 +382,7 @@ const organizations = toSignal(organizations$, { initialValue: [] });
 - [Real-time Updates](https://github.com/angular/angularfire/blob/main/docs/firestore/querying-collections.md)
 
 ### 專案文檔
-- [問題修復詳細說明](./fix-data-refresh-issue.md)
+- [問題修復詳細說明](./Data-fix-data-refresh-issue.md)
 - [專案架構文檔](../README.md)
 
 ## 總結 (Summary)
