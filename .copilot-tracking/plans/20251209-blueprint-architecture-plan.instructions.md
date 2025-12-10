@@ -4,60 +4,60 @@ applyTo: '.copilot-tracking/changes/20251209-blueprint-architecture-changes.md'
 
 <!-- markdownlint-disable-file -->
 
-# Task Checklist: GigHub Blueprint Architecture Refactoring
+# 任務檢查清單：GigHub Blueprint 架構重構 (Task Checklist: GigHub Blueprint Architecture Refactoring)
 
-## Overview
+## 概述 (Overview)
 
-Restructure the Blueprint module using Hexagonal Architecture, DDD, CQRS, and Event-Driven patterns to achieve clean separation of concerns, testability, and extensibility.
+使用六邊形架構、DDD、CQRS 和事件驅動模式重構 Blueprint 模組，以實現關注點的清晰分離、可測試性和可擴展性。
 
-## Objectives
+## 目標 (Objectives)
 
-- Decouple business logic from infrastructure dependencies
-- Implement clear architectural boundaries (Domain, Application, Infrastructure)
-- Enable database flexibility (Firestore/Supabase)
-- Support event-driven inter-module communication
-- Achieve 80%+ test coverage
-- Maintain backward compatibility throughout migration
+- 將業務邏輯與基礎設施相依性解耦
+- 實作清晰的架構邊界（領域層、應用層、基礎設施層）
+- 支援資料庫彈性（Firestore/Supabase）
+- 支援事件驅動的模組間通訊
+- 達成 80%+ 的測試覆蓋率
+- 在遷移過程中維持向後相容性
 
-## Research Summary
+## 研究摘要 (Research Summary)
 
-**Source Research**: `.copilot-tracking/research/20251209-blueprint-architecture-analysis-research.md`
+**來源研究 (Source Research)**: `.copilot-tracking/research/20251209-blueprint-architecture-analysis-research.md`
 
-**Key Architectural Decisions**:
-- Hexagonal Architecture with Ports & Adapters
-- Domain-Driven Design with Aggregates and Value Objects
-- CQRS for read/write separation
-- Event-Driven Architecture for module communication
-- Facade Pattern for UI simplification
+**關鍵架構決策 (Key Architectural Decisions)**:
+- 帶埠與適配器的六邊形架構
+- 領域驅動設計，包含聚合和值物件
+- CQRS 用於讀寫分離
+- 事件驅動架構用於模組通訊
+- Facade 模式用於簡化 UI
 
-**Source Documentation**: `docs/GigHub_Blueprint_Architecture.md` (1910 lines)
+**來源文檔 (Source Documentation)**: `docs/GigHub_Blueprint_Architecture.md` (1910 行)
 
-## Implementation Checklist
+## 實作檢查清單 (Implementation Checklist)
 
-### [ ] Phase 1: Foundation Refactoring (Weeks 1-2)
+### [ ] 階段 1：基礎重構 (Phase 1: Foundation Refactoring) (第 1-2 週)
 
-#### [ ] 1.1: Create Domain Layer Structure
-- [ ] Define repository interfaces
-  - Details: .copilot-tracking/details/20251209-blueprint-architecture-details.md (Lines 20-45)
-- [ ] Create value objects
-  - Details: .copilot-tracking/details/20251209-blueprint-architecture-details.md (Lines 47-68)
-- [ ] Define domain events
-  - Details: .copilot-tracking/details/20251209-blueprint-architecture-details.md (Lines 70-92)
-- [ ] Implement aggregate base class
-  - Details: .copilot-tracking/details/20251209-blueprint-architecture-details.md (Lines 94-110)
+#### [ ] 1.1: 建立領域層結構 (Create Domain Layer Structure)
+- [ ] 定義儲存庫介面
+  - 詳細資訊 (Details): .copilot-tracking/details/20251209-blueprint-architecture-details.md (Lines 20-45)
+- [ ] 建立值物件
+  - 詳細資訊 (Details): .copilot-tracking/details/20251209-blueprint-architecture-details.md (Lines 47-68)
+- [ ] 定義領域事件
+  - 詳細資訊 (Details): .copilot-tracking/details/20251209-blueprint-architecture-details.md (Lines 70-92)
+- [ ] 實作聚合基底類別
+  - 詳細資訊 (Details): .copilot-tracking/details/20251209-blueprint-architecture-details.md (Lines 94-110)
 
-#### [ ] 1.2: Introduce Facade Pattern
-- [ ] Create BlueprintFacade service
-  - Details: .copilot-tracking/details/20251209-blueprint-architecture-details.md (Lines 112-145)
-- [ ] Delegate to existing BlueprintService
-  - Details: .copilot-tracking/details/20251209-blueprint-architecture-details.md (Lines 147-160)
-- [ ] Update UI components to use Facade
-  - Details: .copilot-tracking/details/20251209-blueprint-architecture-details.md (Lines 162-180)
+#### [ ] 1.2: 引入 Facade 模式 (Introduce Facade Pattern)
+- [ ] 建立 BlueprintFacade 服務
+  - 詳細資訊 (Details): .copilot-tracking/details/20251209-blueprint-architecture-details.md (Lines 112-145)
+- [ ] 委派給現有的 BlueprintService
+  - 詳細資訊 (Details): .copilot-tracking/details/20251209-blueprint-architecture-details.md (Lines 147-160)
+- [ ] 更新 UI 元件以使用 Facade
+  - 詳細資訊 (Details): .copilot-tracking/details/20251209-blueprint-architecture-details.md (Lines 162-180)
 
-#### [ ] 1.3: Setup Event Bus Infrastructure
-- [ ] Create EventBus service with RxJS
-  - Details: .copilot-tracking/details/20251209-blueprint-architecture-details.md (Lines 182-215)
-- [ ] Define event interfaces
+#### [ ] 1.3: 設定 Event Bus 基礎設施 (Setup Event Bus Infrastructure)
+- [ ] 使用 RxJS 建立 EventBus 服務
+  - 詳細資訊 (Details): .copilot-tracking/details/20251209-blueprint-architecture-details.md (Lines 182-215)
+- [ ] 定義事件介面
   - Details: .copilot-tracking/details/20251209-blueprint-architecture-details.md (Lines 217-235)
 - [ ] Add logging for debugging
   - Details: .copilot-tracking/details/20251209-blueprint-architecture-details.md (Lines 237-250)
