@@ -17,513 +17,223 @@ The routes directory contains:
 src/app/routes/
 ├── routes.ts                   # Main routing configuration
 ├── blueprint/                  # Blueprint container module (AGENTS.md)
-│   ├── blueprint-list.component.ts
-│   ├── blueprint-detail.component.ts
-│   ├── blueprint-modal.component.ts
-│   ├── members/                # Member management
-│   ├── audit/                  # Audit logs
-│   └── routes.ts
 ├── dashboard/                  # Dashboard views
-│   ├── workplace/              # Main workplace dashboard
-│   ├── analysis/               # Analytics dashboard
-│   ├── monitor/                # Monitoring dashboard
-│   └── routes.ts
 ├── passport/                   # Authentication flows
-│   ├── login/                  # Login page
-│   ├── register/               # Registration
-│   ├── lock/                   # Lock screen
-│   └── routes.ts
 └── exception/                  # Error pages
-    ├── 403.component.ts        # Forbidden
-    ├── 404.component.ts        # Not Found
-    ├── 500.component.ts        # Server Error
-    └── routes.ts
 ```
 
 ## Main Routing Configuration
 
-**Location**: `src/app/routes/routes.ts`
-
-```typescript
-export const routes: Routes = [
-  {
-    path: '',
-    component: LayoutBasicComponent,
-    canActivate: [authGuard],
-    children: [
-      // Dashboard (default route)
-      {
-        path: '',
-        redirectTo: 'dashboard',
-        pathMatch: 'full'
-      },
-      {
-        path: 'dashboard',
-        loadChildren: () => import('./dashboard/routes').then(m => m.routes),
-        data: { title: 'Dashboard' }
-      },
-      
-      // Blueprint module (Container Layer)
-      {
-        path: 'blueprint',
-        loadChildren: () => import('./blueprint/routes').then(m => m.routes),
-        data: { title: 'Blueprints' }
-      },
-      
-      // Business Layer modules (lazy-loaded when Blueprint enables them)
-      {
-        path: 'blueprint/:blueprintId/tasks',
-        canActivate: [moduleEnabledGuard('task')],
-        loadChildren: () => import('./task/routes').then(m => m.routes),
-        data: { title: 'Tasks', module: 'task' }
-      },
-      {
-        path: 'blueprint/:blueprintId/diary',
-        canActivate: [moduleEnabledGuard('diary')],
-        loadChildren: () => import('./diary/routes').then(m => m.routes),
-        data: { title: 'Construction Diary', module: 'diary' }
-      },
-      {
-        path: 'blueprint/:blueprintId/quality',
-        canActivate: [moduleEnabledGuard('quality')],
-        loadChildren: () => import('./quality/routes').then(m => m.routes),
-        data: { title: 'Quality Control', module: 'quality' }
-      },
-      {
-        path: 'blueprint/:blueprintId/financial',
-        canActivate: [moduleEnabledGuard('financial')],
-        loadChildren: () => import('./financial/routes').then(m => m.routes),
-        data: { title: 'Financial', module: 'financial' }
-      }
-    ]
-  },
-  
-  // Authentication routes (no auth required)
-  {
-    path: 'passport',
-    component: LayoutPassportComponent,
-    children: [
-      {
-        path: 'login',
-        loadChildren: () => import('./passport/login/routes').then(m => m.routes),
-        data: { title: 'Login' }
-      },
-      {
-        path: 'register',
-        loadChildren: () => import('./passport/register/routes').then(m => m.routes),
-        data: { title: 'Register' }
-      },
-      {
-        path: 'lock',
-        loadChildren: () => import('./passport/lock/routes').then(m => m.routes),
-        data: { title: 'Lock Screen' }
-      }
-    ]
-  },
-  
-  // Exception routes
-  {
-    path: 'exception',
-    loadChildren: () => import('./exception/routes').then(m => m.routes)
-  },
-  
-  // Catch-all route
-  {
-    path: '**',
-    redirectTo: 'exception/404'
-  }
-];
-```
+**規則**:
+- 主路由配置檔案位於 `src/app/routes/routes.ts`
+- 根路徑必須使用 `LayoutBasicComponent` 並使用 `authGuard` 保護
+- 預設路由必須重定向到 `dashboard`
+- 所有功能模組必須使用懶載入模式
+- 認證路由必須使用 `LayoutPassportComponent`
+- 異常路由不需要認證
+- catch-all 路由必須重定向到 `/exception/404`
 
 ## Feature Module Patterns
 
 ### Module Routing Template
 
-Each feature module should follow this pattern:
-
-```typescript
-// src/app/routes/[module-name]/routes.ts
-import { Routes } from '@angular/router';
-import { permissionGuard } from '@core/guards/permission.guard';
-
-export const routes: Routes = [
-  {
-    path: '',
-    component: ModuleListComponent,
-    data: { title: 'Module List' }
-  },
-  {
-    path: ':id',
-    component: ModuleDetailComponent,
-    canActivate: [permissionGuard('read')],
-    data: { title: 'Module Detail' }
-  },
-  {
-    path: ':id/edit',
-    component: ModuleEditComponent,
-    canActivate: [permissionGuard('edit')],
-    data: { title: 'Edit Module' }
-  }
-];
-```
+**規則**:
+- 每個功能模組必須遵循標準路由模式
+- 列表路由使用空路徑 `''`
+- 詳情路由使用 `:id` 參數
+- 編輯路由使用 `:id/edit` 路徑
+- 所有路由必須設定 `title` 資料屬性
+- 需要權限的路由必須使用 `permissionGuard`
 
 ### Lazy Loading Benefits
 
-1. **Smaller initial bundle** - Only load dashboard & auth initially
-2. **Faster initial load** - Reduced time to interactive
-3. **On-demand loading** - Load features when needed
-4. **Better code splitting** - Webpack creates separate chunks
-5. **Improved caching** - Unchanged modules stay cached
+**規則**:
+1. 必須使用懶載入以減少初始套件大小
+2. 必須僅在需要時載入功能
+3. 必須利用 Webpack 程式碼分割
+4. 必須改善快取策略（未變更的模組保持快取）
 
 ### Route Data
 
-Use route `data` to pass configuration:
-
-```typescript
-{
-  path: 'blueprint',
-  data: {
-    title: 'Blueprints',              // Page title
-    breadcrumb: 'Blueprints',         // Breadcrumb label
-    permission: 'read_blueprint',     // Required permission
-    module: 'blueprint',              // Module ID (for feature flags)
-    showInMenu: true,                 // Show in sidebar menu
-    icon: 'project',                  // Menu icon
-    order: 10                         // Menu order
-  }
-}
-```
+**規則**:
+- 必須使用路由 `data` 傳遞配置
+- 必須包含 `title`（頁面標題）
+- 可以包含 `breadcrumb`（麵包屑標籤）
+- 可以包含 `permission`（所需權限）
+- 可以包含 `module`（模組 ID，用於功能標誌）
+- 可以包含 `showInMenu`（是否在側邊欄選單顯示）
+- 可以包含 `icon`（選單圖示）
+- 可以包含 `order`（選單順序）
 
 ## Route Guards
 
 ### Authentication Guard
 
-**Protects routes requiring login**:
-```typescript
-{
-  path: 'dashboard',
-  canActivate: [authGuard],
-  loadChildren: () => import('./dashboard/routes')
-}
-```
+**規則**:
+- 必須檢查用戶是否已認證
+- 如果未認證，必須重定向到登入頁面並帶上返回 URL
+- 必須使用 `inject()` 注入服務
 
 ### Permission Guard
 
-**Protects routes based on permissions**:
-```typescript
-{
-  path: 'blueprint/:id',
-  canActivate: [permissionGuard('read')],
-  component: BlueprintDetailComponent
-}
-```
+**規則**:
+- 必須檢查用戶是否具有所需權限
+- 如果沒有權限，必須重定向到 `/exception/403`
+- 必須從路由參數中取得資源 ID
+- 必須使用 `PermissionService` 檢查權限
 
 ### Module Enabled Guard
 
-**Ensures blueprint has module enabled**:
-```typescript
-{
-  path: 'blueprint/:blueprintId/tasks',
-  canActivate: [moduleEnabledGuard('task')],
-  loadChildren: () => import('./task/routes')
-}
-```
+**規則**:
+- 必須檢查藍圖是否啟用了指定模組
+- 如果模組未啟用，必須重定向到藍圖詳情頁面並帶上錯誤查詢參數
+- 必須從路由參數中取得 `blueprintId`
+- 必須查詢 Firestore 檢查 `enabled_modules` 陣列
 
 ### Guard Composition
 
-**Combine multiple guards**:
-```typescript
-{
-  path: 'blueprint/:blueprintId/tasks/:id/edit',
-  canActivate: [
-    authGuard,                        // Must be logged in
-    permissionGuard('edit'),          // Must have edit permission
-    moduleEnabledGuard('task')        // Task module must be enabled
-  ],
-  component: TaskEditComponent
-}
-```
+**規則**:
+- 可以組合多個守衛：`[authGuard, permissionGuard('edit'), moduleEnabledGuard('task')]`
+- 守衛執行順序：認證 → 權限 → 模組啟用
+- 所有守衛必須通過才能存取路由
 
 ## Module Organization
 
 ### Foundation Layer Routes
 
-**Account & Organization Management**:
-- `/account/profile` - User profile
-- `/account/settings` - User settings
-- `/organization` - Organization list
-- `/organization/:id` - Organization details
-- `/organization/:id/teams` - Team management
+**規則**:
+- `/account/profile` - 用戶個人資料
+- `/account/settings` - 用戶設定
+- `/organization` - 組織列表
+- `/organization/:id` - 組織詳情
+- `/organization/:id/teams` - 團隊管理
 
 ### Container Layer Routes
 
-**Blueprint Management**:
-- `/blueprint` - Blueprint list
-- `/blueprint/:id` - Blueprint details
-- `/blueprint/:id/members` - Member management
-- `/blueprint/:id/audit` - Audit logs
-- `/blueprint/:id/settings` - Blueprint settings
+**規則**:
+- `/blueprint` - 藍圖列表
+- `/blueprint/:id` - 藍圖詳情
+- `/blueprint/:id/members` - 成員管理
+- `/blueprint/:id/audit` - 稽核日誌
+- `/blueprint/:id/settings` - 藍圖設定
 
 ### Business Layer Routes
 
-**Blueprint-scoped Modules**:
-- `/blueprint/:blueprintId/tasks` - Task management
-- `/blueprint/:blueprintId/diary` - Construction diary
-- `/blueprint/:blueprintId/quality` - Quality control
-- `/blueprint/:blueprintId/financial` - Financial management
-- `/blueprint/:blueprintId/files` - File management
+**規則**:
+- `/blueprint/:blueprintId/tasks` - 任務管理
+- `/blueprint/:blueprintId/diary` - 施工日誌
+- `/blueprint/:blueprintId/quality` - 品質控制
+- `/blueprint/:blueprintId/financial` - 財務管理
+- `/blueprint/:blueprintId/files` - 檔案管理
 
 ## Navigation Patterns
 
 ### Hierarchical Navigation
 
-```typescript
-// From blueprint list to detail
-router.navigate(['/blueprint', blueprintId]);
-
-// From blueprint detail to tasks
-router.navigate(['/blueprint', blueprintId, 'tasks']);
-
-// From task list to task detail
-router.navigate(['/blueprint', blueprintId, 'tasks', taskId]);
-```
+**規則**:
+- 從藍圖列表到詳情：`router.navigate(['/blueprint', blueprintId])`
+- 從藍圖詳情到任務：`router.navigate(['/blueprint', blueprintId, 'tasks'])`
+- 從任務列表到詳情：`router.navigate(['/blueprint', blueprintId, 'tasks', taskId])`
 
 ### Relative Navigation
 
-```typescript
-// Navigate up one level
-router.navigate(['../'], { relativeTo: this.route });
-
-// Navigate to sibling route
-router.navigate(['../audit'], { relativeTo: this.route });
-
-// Navigate with query params
-router.navigate(['/blueprint'], {
-  queryParams: { status: 'active', owner: 'me' }
-});
-```
+**規則**:
+- 向上導航一層：`router.navigate(['../'], { relativeTo: this.route })`
+- 導航到兄弟路由：`router.navigate(['../audit'], { relativeTo: this.route })`
+- 帶查詢參數導航：`router.navigate(['/blueprint'], { queryParams: { status: 'active' } })`
 
 ### Programmatic Navigation
 
-```typescript
-@Component({...})
-export class MyComponent {
-  private router = inject(Router);
-  private route = inject(ActivatedRoute);
-  
-  goToBlueprint(id: string) {
-    this.router.navigate(['/blueprint', id]);
-  }
-  
-  goBack() {
-    // Use browser back
-    window.history.back();
-    
-    // Or navigate to parent
-    this.router.navigate(['../'], { relativeTo: this.route });
-  }
-  
-  goToDashboard() {
-    this.router.navigate(['/dashboard']);
-  }
-}
-```
+**規則**:
+- 必須使用 `inject(Router)` 注入路由器
+- 必須使用 `inject(ActivatedRoute)` 注入當前路由
+- 可以使用 `window.history.back()` 返回上一頁
+- 必須處理導航錯誤
 
 ## Route Parameters
 
 ### Reading Route Parameters
 
-```typescript
-@Component({...})
-export class BlueprintDetailComponent implements OnInit {
-  private route = inject(ActivatedRoute);
-  
-  blueprintId = signal<string>('');
-  
-  ngOnInit() {
-    // Using snapshot (one-time read)
-    this.blueprintId.set(this.route.snapshot.paramMap.get('id') || '');
-    
-    // Using observable (reactive)
-    this.route.paramMap.subscribe(params => {
-      const id = params.get('id');
-      if (id) {
-        this.blueprintId.set(id);
-        this.loadBlueprint(id);
-      }
-    });
-  }
-}
-```
+**規則**:
+- 可以使用 `route.snapshot.paramMap.get('id')` 一次性讀取
+- 可以使用 `route.paramMap.subscribe()` 響應式讀取
+- 必須使用 `signal()` 儲存路由參數
+- 必須在參數變更時重新載入資料
 
 ### Reading Query Parameters
 
-```typescript
-ngOnInit() {
-  // Snapshot
-  const status = this.route.snapshot.queryParamMap.get('status');
-  
-  // Observable
-  this.route.queryParamMap.subscribe(params => {
-    const status = params.get('status');
-    const owner = params.get('owner');
-    this.filterBlueprints(status, owner);
-  });
-}
-```
+**規則**:
+- 可以使用 `route.snapshot.queryParamMap.get('status')` 一次性讀取
+- 可以使用 `route.queryParamMap.subscribe()` 響應式讀取
+- 必須使用查詢參數進行篩選和分頁
 
 ## Breadcrumbs
 
-### Dynamic Breadcrumbs
-
-```typescript
-@Component({...})
-export class BlueprintDetailComponent {
-  breadcrumbs = computed(() => {
-    const blueprint = this.blueprint();
-    return [
-      { label: 'Home', path: '/' },
-      { label: 'Blueprints', path: '/blueprint' },
-      { label: blueprint?.name || 'Loading...', path: null }
-    ];
-  });
-}
-```
-
-**Template**:
-```html
-<app-page-header
-  [title]="blueprint()?.name"
-  [breadcrumbs]="breadcrumbs()">
-</app-page-header>
-```
+**規則**:
+- 必須使用 `computed()` 計算麵包屑
+- 麵包屑必須包含首頁、父級路由和當前路由
+- 必須使用 `PageHeaderComponent` 顯示麵包屑
+- 最後一項不能有路徑（當前頁面）
 
 ## Module-Specific AGENTS.md
 
-Each major feature module should have its own `AGENTS.md`:
-
-### Blueprint Module
-**File**: `src/app/routes/blueprint/AGENTS.md`  
-**Content**: Detailed context for blueprint management, permissions, members, audit logs
-
-### Task Module (Future)
-**File**: `src/app/routes/task/AGENTS.md`  
-**Content**: Task management patterns, status workflows, assignments
-
-### Diary Module (Future)
-**File**: `src/app/routes/diary/AGENTS.md`  
-**Content**: Daily log patterns, weather integration, photo uploads
-
-### Quality Module (Future)
-**File**: `src/app/routes/quality/AGENTS.md`  
-**Content**: Inspection checklists, defect tracking, compliance
+**規則**:
+- 每個主要功能模組必須有自己的 `AGENTS.md`
+- Blueprint 模組：`src/app/routes/blueprint/AGENTS.md`
+- 未來模組（Task、Diary、Quality）也必須建立 `AGENTS.md`
 
 ## Adding New Routes
 
-### Step-by-Step Process
-
-1. **Create module directory**:
-   ```bash
-   mkdir -p src/app/routes/my-module
-   ```
-
-2. **Create routes file**:
-   ```typescript
-   // src/app/routes/my-module/routes.ts
-   export const routes: Routes = [
-     {
-       path: '',
-       component: MyModuleListComponent
-     }
-   ];
-   ```
-
-3. **Create components**:
-   ```bash
-   ng generate component routes/my-module/my-module-list --standalone
-   ```
-
-4. **Register in main routes**:
-   ```typescript
-   // src/app/routes/routes.ts
-   {
-     path: 'my-module',
-     loadChildren: () => import('./my-module/routes').then(m => m.routes)
-   }
-   ```
-
-5. **Add to sidebar menu** (if applicable):
-   ```typescript
-   // src/app/layout/basic/widgets/sidebar/sidebar.component.ts
-   {
-     text: 'My Module',
-     icon: 'icon-name',
-     link: '/my-module'
-   }
-   ```
-
-6. **Create AGENTS.md** (for complex modules):
-   ```markdown
-   # My Module Agent Guide
-   
-   ## Purpose
-   ...
-   
-   ## Components
-   ...
-   ```
+**規則**:
+1. 必須建立模組目錄：`src/app/routes/[module-name]/`
+2. 必須建立路由檔案：`routes.ts`
+3. 必須建立元件（使用 `ng generate component --standalone`）
+4. 必須在主路由中註冊（`src/app/routes/routes.ts`）
+5. 如果適用，必須加入側邊欄選單
+6. 複雜模組必須建立 `AGENTS.md`
 
 ## Best Practices
 
 ### Route Design
-1. **Use lazy loading** for all feature modules
-2. **Keep route paths simple** and descriptive
-3. **Use kebab-case** for route segments
-4. **Nest related routes** logically
-5. **Avoid deep nesting** (max 3-4 levels)
+
+**規則**:
+1. 所有功能模組必須使用懶載入
+2. 路由路徑必須簡單且描述性
+3. 路由區段必須使用 kebab-case
+4. 相關路由必須邏輯巢狀
+5. 避免深度巢狀（最多 3-4 層）
 
 ### Guards
-1. **Order guards carefully** - Auth first, then permissions
-2. **Cache permission checks** - Avoid repeated database queries
-3. **Provide feedback** - Clear error messages on guard failure
-4. **Test edge cases** - Handle missing IDs, expired sessions
+
+**規則**:
+1. 必須仔細排序守衛（認證優先，然後權限）
+2. 必須快取權限檢查（避免重複資料庫查詢）
+3. 必須提供回饋（守衛失敗時顯示清楚的錯誤訊息）
+4. 必須測試邊緣情況（處理缺失 ID、過期工作階段）
 
 ### Navigation
-1. **Use relative navigation** when possible
-2. **Preserve query params** if needed: `{ queryParamsHandling: 'preserve' }`
-3. **Handle navigation errors** - Catch router errors
-4. **Provide loading states** - Show spinner during navigation
+
+**規則**:
+1. 盡可能使用相對導航
+2. 如果需要，必須保留查詢參數：`{ queryParamsHandling: 'preserve' }`
+3. 必須處理導航錯誤
+4. 必須提供載入狀態（導航期間顯示載入器）
 
 ### Module Organization
-1. **Group related features** in same directory
-2. **Create module-level AGENTS.md** for complex features
-3. **Use consistent naming** across modules
-4. **Share common components** via shared module
+
+**規則**:
+1. 相關功能必須分組在同一目錄
+2. 複雜功能必須建立模組級 `AGENTS.md`
+3. 模組間必須使用一致的命名
+4. 通用元件必須透過 shared 模組共享
 
 ## Troubleshooting
 
-### Route Not Found
-- Check route path spelling
-- Verify module is registered in main routes
-- Check if guard is blocking access
-- Ensure lazy-loaded module exports routes
-
-### Guard Blocking Access
-- Verify user is authenticated
-- Check user has required permission
-- Ensure module is enabled in blueprint
-- Check guard logic for bugs
-
-### Breadcrumbs Not Showing
-- Verify breadcrumb data in route config
-- Check if component is using PageHeaderComponent
-- Ensure breadcrumb items have correct format
-
-### Module Not Loading
-- Check browser console for errors
-- Verify import path is correct
-- Ensure module exports routes constant
-- Check for circular dependencies
+**規則**:
+- 如果路由未找到，必須檢查路由路徑拼寫、驗證模組是否在主路由中註冊、檢查守衛是否阻擋存取、確保懶載入模組匯出路由
+- 如果守衛阻擋存取，必須驗證用戶是否已認證、檢查用戶是否具有所需權限、確保藍圖中啟用了模組、檢查守衛邏輯是否有錯誤
+- 如果麵包屑未顯示，必須驗證路由配置中的麵包屑資料、檢查元件是否使用 `PageHeaderComponent`、確保麵包屑項目格式正確
+- 如果模組未載入，必須檢查瀏覽器控制台錯誤、驗證匯入路徑是否正確、確保模組匯出路由常數、檢查是否有循環依賴
 
 ## Related Documentation
 

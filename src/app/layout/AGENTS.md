@@ -39,782 +39,161 @@ src/app/layout/
 
 ### Basic Layout (LayoutBasicComponent)
 
-**Purpose**: Main application layout for authenticated users
-
-**Features**:
-- **Top Header Bar** - Logo, breadcrumbs, user menu, notifications
-- **Left Sidebar** - Collapsible navigation menu with icons
-- **Main Content Area** - Router outlet for feature modules
-- **Footer** (optional) - Copyright and links
-- **Responsive** - Collapses sidebar on mobile
-
-**Usage**:
-```typescript
-// In routes.ts
-{
-  path: '',
-  component: LayoutBasicComponent,
-  canActivate: [authGuard],
-  children: [
-    { path: 'dashboard', loadChildren: () => import('./dashboard/routes') },
-    { path: 'blueprint', loadChildren: () => import('./blueprint/routes') }
-  ]
-}
-```
-
-**Template Structure**:
-```html
-<nz-layout class="full-height">
-  <!-- Sidebar -->
-  <nz-sider
-    [nzCollapsed]="isCollapsed()"
-    [nzWidth]="240"
-    [nzCollapsedWidth]="64">
-    <app-sidebar [collapsed]="isCollapsed()" />
-  </nz-sider>
-  
-  <!-- Main Content -->
-  <nz-layout>
-    <!-- Header -->
-    <nz-header>
-      <app-header
-        (toggleSidebar)="toggleCollapsed()"
-        (logout)="handleLogout()" />
-    </nz-header>
-    
-    <!-- Content Area -->
-    <nz-content class="content-area">
-      <router-outlet />
-    </nz-content>
-    
-    <!-- Footer (optional) -->
-    <nz-footer>
-      © 2025 GigHub. All Rights Reserved.
-    </nz-footer>
-  </nz-layout>
-</nz-layout>
-```
-
-**State Management**:
-```typescript
-import { Component, signal } from '@angular/core';
-import { SHARED_IMPORTS } from '@shared';
-
-@Component({
-  selector: 'layout-basic',
-  standalone: true,
-  imports: [SHARED_IMPORTS, HeaderComponent, SidebarComponent],
-  templateUrl: './basic.component.html',
-  styleUrl: './basic.component.scss'
-})
-export class LayoutBasicComponent {
-  // Sidebar collapse state
-  isCollapsed = signal(false);
-  
-  toggleCollapsed(): void {
-    this.isCollapsed.update(collapsed => !collapsed);
-  }
-  
-  handleLogout(): void {
-    // Handled by HeaderComponent
-  }
-}
-```
+**規則**:
+- 用途：已認證用戶的主要應用程式佈局
+- 必須包含頂部標題列（標誌、麵包屑、用戶選單、通知）
+- 必須包含左側邊欄（可折疊的導航選單，帶圖示）
+- 必須包含主要內容區域（功能模組的路由出口）
+- 可以包含頁尾（版權和連結）
+- 必須支援響應式設計（在行動裝置上折疊邊欄）
+- 必須使用 `signal()` 管理邊欄折疊狀態
+- 必須使用 ng-zorro-antd 的 `nz-layout`、`nz-sider`、`nz-header`、`nz-content` 元件
 
 ### Blank Layout (LayoutBlankComponent)
 
-**Purpose**: Minimal layout for fullscreen or focused tasks
-
-**Features**:
-- **No header/sidebar** - Just content area
-- **Simple container** - Minimal styling
-- **Fullscreen capable** - No distractions
-
-**Usage**:
-```typescript
-// For specific routes that need minimal UI
-{
-  path: 'preview',
-  component: LayoutBlankComponent,
-  children: [
-    { path: ':id', component: PreviewComponent }
-  ]
-}
-```
-
-**Template**:
-```html
-<div class="blank-layout">
-  <router-outlet />
-</div>
-```
-
-**Implementation**:
-```typescript
-@Component({
-  selector: 'layout-blank',
-  standalone: true,
-  imports: [RouterOutlet],
-  template: `<router-outlet />`,
-  styles: [`
-    :host {
-      display: block;
-      width: 100%;
-      height: 100vh;
-    }
-  `]
-})
-export class LayoutBlankComponent {}
-```
+**規則**:
+- 用途：全螢幕或專注任務的最小佈局
+- 不能包含標題/邊欄（僅內容區域）
+- 必須是簡單的容器（最小樣式）
+- 必須支援全螢幕功能（無干擾）
+- 必須僅包含 `<router-outlet />`
 
 ### Passport Layout (LayoutPassportComponent)
 
-**Purpose**: Authentication and onboarding layout
-
-**Features**:
-- **Centered content** - Focus on auth forms
-- **Brand imagery** - Logo and marketing content
-- **Form optimization** - Optimized for form entry
-- **No navigation** - Clean, distraction-free
-
-**Usage**:
-```typescript
-// For authentication routes
-{
-  path: 'passport',
-  component: LayoutPassportComponent,
-  children: [
-    { path: 'login', component: LoginComponent },
-    { path: 'register', component: RegisterComponent },
-    { path: 'lock', component: LockComponent }
-  ]
-}
-```
-
-**Template Structure**:
-```html
-<div class="passport-layout">
-  <div class="passport-container">
-    <!-- Branding Section (left/top) -->
-    <div class="passport-branding">
-      <div class="logo">
-        <img src="assets/logo.svg" alt="GigHub">
-        <h1>GigHub</h1>
-      </div>
-      <p class="tagline">
-        工地施工進度追蹤管理系統
-      </p>
-    </div>
-    
-    <!-- Form Section (right/bottom) -->
-    <div class="passport-form">
-      <router-outlet />
-    </div>
-  </div>
-</div>
-```
-
-**Styling**:
-```scss
-.passport-layout {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  
-  .passport-container {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    max-width: 1000px;
-    width: 100%;
-    background: white;
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    
-    @media (max-width: 768px) {
-      grid-template-columns: 1fr;
-    }
-  }
-  
-  .passport-branding {
-    padding: 60px;
-    background: #f7fafc;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-  }
-  
-  .passport-form {
-    padding: 60px;
-  }
-}
-```
+**規則**:
+- 用途：認證和入門流程佈局
+- 必須居中顯示內容（專注於認證表單）
+- 必須包含品牌圖像（標誌和行銷內容）
+- 必須優化表單輸入（針對表單輸入優化）
+- 不能包含導航（乾淨、無干擾）
+- 必須使用響應式網格佈局（桌面：左右分欄，行動：上下堆疊）
 
 ## Layout Widgets
 
 ### Header Component
 
-**Purpose**: Top navigation bar with user menu and actions
-
-**File**: `basic/widgets/header/header.component.ts`
-
-**Features**:
-- **Logo/Brand** - Clickable logo to home
-- **Breadcrumbs** - Dynamic navigation path
-- **Search** (optional) - Global search
-- **Notifications** - Bell icon with badge
-- **User Menu** - Avatar with dropdown (profile, settings, logout)
-- **Theme Toggle** (optional) - Dark/light mode
-
-**Implementation**:
-```typescript
-import { Component, output, inject, signal } from '@angular/core';
-import { Router } from '@angular/router';
-import { SHARED_IMPORTS } from '@shared';
-import { FirebaseAuthService } from '@core/services/firebase-auth.service';
-
-@Component({
-  selector: 'app-header',
-  standalone: true,
-  imports: [SHARED_IMPORTS],
-  template: `
-    <div class="header-container">
-      <!-- Sidebar Toggle -->
-      <button
-        nz-button
-        nzType="text"
-        (click)="toggleSidebar.emit()">
-        <span nz-icon nzType="menu-fold"></span>
-      </button>
-      
-      <!-- Breadcrumbs -->
-      <nz-breadcrumb>
-        @for (item of breadcrumbs(); track item.path) {
-          <nz-breadcrumb-item>
-            @if (item.path) {
-              <a [routerLink]="item.path">{{ item.label }}</a>
-            } @else {
-              {{ item.label }}
-            }
-          </nz-breadcrumb-item>
-        }
-      </nz-breadcrumb>
-      
-      <div class="spacer"></div>
-      
-      <!-- Notifications -->
-      <button
-        nz-button
-        nzType="text"
-        nz-dropdown
-        [nzDropdownMenu]="notificationMenu">
-        <nz-badge [nzCount]="notificationCount()">
-          <span nz-icon nzType="bell"></span>
-        </nz-badge>
-      </button>
-      
-      <!-- User Menu -->
-      <div class="user-menu">
-        <nz-avatar
-          [nzSrc]="userAvatar()"
-          [nzText]="userInitial()"
-          nz-dropdown
-          [nzDropdownMenu]="userDropdown">
-        </nz-avatar>
-        
-        <nz-dropdown-menu #userDropdown="nzDropdownMenu">
-          <ul nz-menu>
-            <li nz-menu-item (click)="navigateToProfile()">
-              <span nz-icon nzType="user"></span>
-              Profile
-            </li>
-            <li nz-menu-item (click)="navigateToSettings()">
-              <span nz-icon nzType="setting"></span>
-              Settings
-            </li>
-            <li nz-menu-divider></li>
-            <li nz-menu-item (click)="handleLogout()">
-              <span nz-icon nzType="logout"></span>
-              Logout
-            </li>
-          </ul>
-        </nz-dropdown-menu>
-      </div>
-    </div>
-  `,
-  styles: [`
-    .header-container {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      height: 64px;
-      padding: 0 24px;
-      background: #fff;
-      border-bottom: 1px solid #f0f0f0;
-    }
-    
-    .spacer {
-      flex: 1;
-    }
-    
-    .user-menu {
-      cursor: pointer;
-    }
-  `]
-})
-export class HeaderComponent {
-  toggleSidebar = output<void>();
-  logout = output<void>();
-  
-  private auth = inject(FirebaseAuthService);
-  private router = inject(Router);
-  
-  breadcrumbs = signal([
-    { label: 'Home', path: '/' },
-    { label: 'Dashboard', path: null }
-  ]);
-  
-  notificationCount = signal(3);
-  userAvatar = signal('');
-  userInitial = signal('U');
-  
-  navigateToProfile(): void {
-    this.router.navigate(['/account/profile']);
-  }
-  
-  navigateToSettings(): void {
-    this.router.navigate(['/account/settings']);
-  }
-  
-  async handleLogout(): Promise<void> {
-    await this.auth.signOut();
-    this.logout.emit();
-  }
-}
-```
+**規則**:
+- 必須包含標誌/品牌（可點擊的標誌導航到首頁）
+- 必須包含動態麵包屑（導航路徑）
+- 可以包含搜尋功能（全域搜尋）
+- 必須包含通知（帶徽章的鈴鐺圖示）
+- 必須包含用戶選單（帶下拉選單的頭像：個人資料、設定、登出）
+- 可以包含主題切換（深色/淺色模式）
+- 必須使用 `output()` 發出 `toggleSidebar` 和 `logout` 事件
+- 必須使用 `signal()` 管理麵包屑、通知計數、用戶頭像狀態
 
 ### Sidebar Component
 
-**Purpose**: Left navigation menu with hierarchical structure
-
-**File**: `basic/widgets/sidebar/sidebar.component.ts`
-
-**Features**:
-- **Menu Items** - Icon + label navigation
-- **Sub-menus** - Expandable nested menus
-- **Active Indicator** - Highlights current route
-- **Collapse Support** - Shows only icons when collapsed
-- **Permission-based** - Hides items user can't access
-
-**Menu Structure**:
-```typescript
-interface MenuItem {
-  text: string;
-  icon: string;
-  link?: string;
-  badge?: number | string;
-  children?: MenuItem[];
-  permission?: string;
-}
-
-const menuItems: MenuItem[] = [
-  {
-    text: 'Dashboard',
-    icon: 'dashboard',
-    link: '/dashboard'
-  },
-  {
-    text: 'Blueprints',
-    icon: 'project',
-    link: '/blueprint'
-  },
-  {
-    text: 'Organization',
-    icon: 'team',
-    children: [
-      { text: 'Overview', icon: 'info-circle', link: '/organization' },
-      { text: 'Teams', icon: 'team', link: '/organization/teams' },
-      { text: 'Members', icon: 'user', link: '/organization/members' }
-    ]
-  },
-  {
-    text: 'Settings',
-    icon: 'setting',
-    link: '/settings',
-    permission: 'admin'
-  }
-];
-```
-
-**Implementation**:
-```typescript
-@Component({
-  selector: 'app-sidebar',
-  standalone: true,
-  imports: [SHARED_IMPORTS],
-  template: `
-    <div class="sidebar-container">
-      <!-- Logo -->
-      <div class="sidebar-logo" [class.collapsed]="collapsed()">
-        @if (!collapsed()) {
-          <img src="assets/logo.svg" alt="GigHub">
-          <span>GigHub</span>
-        } @else {
-          <img src="assets/logo-icon.svg" alt="G">
-        }
-      </div>
-      
-      <!-- Menu -->
-      <ul nz-menu
-          nzMode="inline"
-          [nzInlineCollapsed]="collapsed()"
-          [nzTheme]="'dark'">
-        @for (item of filteredMenuItems(); track item.text) {
-          @if (item.children) {
-            <!-- Submenu -->
-            <li nz-submenu
-                [nzTitle]="item.text"
-                [nzIcon]="item.icon">
-              <ul>
-                @for (child of item.children; track child.text) {
-                  <li nz-menu-item
-                      [routerLink]="child.link"
-                      routerLinkActive="ant-menu-item-selected">
-                    <span nz-icon [nzType]="child.icon"></span>
-                    <span>{{ child.text }}</span>
-                  </li>
-                }
-              </ul>
-            </li>
-          } @else {
-            <!-- Single item -->
-            <li nz-menu-item
-                [routerLink]="item.link"
-                routerLinkActive="ant-menu-item-selected">
-              <span nz-icon [nzType]="item.icon"></span>
-              <span>{{ item.text }}</span>
-              @if (item.badge) {
-                <nz-badge [nzCount]="item.badge" />
-              }
-            </li>
-          }
-        }
-      </ul>
-    </div>
-  `
-})
-export class SidebarComponent {
-  collapsed = input<boolean>(false);
-  
-  private permissionService = inject(PermissionService);
-  
-  menuItems = signal<MenuItem[]>(menuItems);
-  
-  // Filter menu items based on permissions
-  filteredMenuItems = computed(() => {
-    return this.menuItems().filter(item => {
-      if (!item.permission) return true;
-      return this.permissionService.hasPermission(item.permission);
-    });
-  });
-}
-```
+**規則**:
+- 必須包含選單項目（圖示 + 標籤導航）
+- 必須支援子選單（可展開的巢狀選單）
+- 必須顯示活動指示器（突出顯示當前路由）
+- 必須支援折疊（折疊時僅顯示圖示）
+- 必須基於權限顯示（隱藏用戶無法存取的項目）
+- 必須使用 `input()` 接收 `collapsed` 狀態
+- 必須使用 `computed()` 過濾基於權限的選單項目
 
 ### Notification Component
 
-**Purpose**: Notification center dropdown
-
-**Features**:
-- **Badge Count** - Shows unread count
-- **Notification List** - Recent notifications
-- **Mark as Read** - Individual or bulk actions
-- **Filter** - By type or date
-- **Real-time Updates** - Firestore subscriptions
-
-**Implementation**:
-```typescript
-@Component({
-  selector: 'app-notification',
-  standalone: true,
-  imports: [SHARED_IMPORTS],
-  template: `
-    <nz-dropdown-menu #notificationMenu="nzDropdownMenu">
-      <div class="notification-dropdown">
-        <div class="notification-header">
-          <h4>Notifications</h4>
-          <a (click)="markAllAsRead()">Mark all as read</a>
-        </div>
-        
-        <div class="notification-list">
-          @for (notif of notifications(); track notif.id) {
-            <div class="notification-item" [class.unread]="!notif.read">
-              <nz-avatar [nzIcon]="notif.icon" [nzStyle]="{ backgroundColor: notif.color }" />
-              <div class="notification-content">
-                <p class="title">{{ notif.title }}</p>
-                <p class="description">{{ notif.description }}</p>
-                <span class="time">{{ notif.timestamp | timeAgo }}</span>
-              </div>
-              @if (!notif.read) {
-                <button nz-button nzType="text" (click)="markAsRead(notif)">
-                  <span nz-icon nzType="check"></span>
-                </button>
-              }
-            </div>
-          }
-          
-          @if (notifications().length === 0) {
-            <nz-empty nzNotFoundContent="No notifications" />
-          }
-        </div>
-        
-        <div class="notification-footer">
-          <a [routerLink]="['/notifications']">View all notifications</a>
-        </div>
-      </div>
-    </nz-dropdown-menu>
-  `
-})
-export class NotificationComponent {
-  notifications = signal<Notification[]>([]);
-  
-  async markAsRead(notif: Notification): Promise<void> {
-    // Update notification status
-  }
-  
-  async markAllAsRead(): Promise<void> {
-    // Mark all as read
-  }
-}
-```
+**規則**:
+- 必須顯示徽章計數（顯示未讀計數）
+- 必須顯示通知列表（最近的通知）
+- 必須支援標記為已讀（個別或批量操作）
+- 必須支援篩選（依類型或日期）
+- 必須支援即時更新（Firestore 訂閱）
+- 必須使用 `signal()` 管理通知列表狀態
 
 ## Responsive Design
 
 ### Breakpoints
 
-```scss
-// Mobile First
-$breakpoint-xs: 0;      // Extra small devices (phones)
-$breakpoint-sm: 576px;  // Small devices (phones landscape)
-$breakpoint-md: 768px;  // Medium devices (tablets)
-$breakpoint-lg: 992px;  // Large devices (desktops)
-$breakpoint-xl: 1200px; // Extra large devices (large desktops)
-$breakpoint-xxl: 1600px; // XXL devices (ultra-wide)
-```
+**規則**:
+- 必須使用行動優先設計方法
+- 斷點定義：XS (0px)、SM (576px)、MD (768px)、LG (992px)、XL (1200px)、XXL (1600px)
 
 ### Mobile Behavior
 
-**Sidebar**:
-- **Desktop (≥992px)**: Persistent sidebar, collapsible
-- **Tablet (768px-991px)**: Collapsible sidebar, overlay
-- **Mobile (<768px)**: Hidden by default, drawer overlay
-
-**Header**:
-- **Desktop**: Full breadcrumbs, all icons visible
-- **Tablet**: Shortened breadcrumbs, essential icons
-- **Mobile**: Hamburger menu, user avatar only
-
-**Content**:
-- **All sizes**: Fluid width with max constraints
-- **Mobile**: Increased padding, larger tap targets
+**規則**:
+- 邊欄：桌面 (≥992px) 持久邊欄可折疊，平板 (768px-991px) 可折疊邊欄覆蓋，行動 (<768px) 預設隱藏抽屜覆蓋
+- 標題：桌面完整麵包屑所有圖示可見，平板縮短麵包屑基本圖示，行動漢堡選單僅用戶頭像
+- 內容：所有尺寸流體寬度帶最大約束，行動裝置增加填充更大的點擊目標
 
 ### Implementation
 
-```typescript
-import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-
-@Component({...})
-export class LayoutBasicComponent {
-  private breakpointObserver = inject(BreakpointObserver);
-  
-  isMobile = signal(false);
-  isTablet = signal(false);
-  
-  constructor() {
-    // Observe breakpoints
-    this.breakpointObserver
-      .observe([Breakpoints.Handset])
-      .pipe(takeUntilDestroyed())
-      .subscribe(result => {
-        this.isMobile.set(result.matches);
-      });
-      
-    this.breakpointObserver
-      .observe([Breakpoints.Tablet])
-      .pipe(takeUntilDestroyed())
-      .subscribe(result => {
-        this.isTablet.set(result.matches);
-      });
-  }
-  
-  // Auto-collapse sidebar on mobile
-  sidebarMode = computed(() => {
-    return this.isMobile() ? 'over' : 'side';
-  });
-}
-```
+**規則**:
+- 必須使用 `BreakpointObserver` 觀察斷點
+- 必須使用 `signal()` 管理 `isMobile` 和 `isTablet` 狀態
+- 必須使用 `computed()` 計算邊欄模式（行動裝置為 'over'，桌面為 'side'）
+- 必須使用 `takeUntilDestroyed()` 管理訂閱
 
 ## Layout Switching
 
-### Route-Based Layout Selection
-
-```typescript
-// routes.ts
-export const routes: Routes = [
-  // Basic Layout (authenticated routes)
-  {
-    path: '',
-    component: LayoutBasicComponent,
-    canActivate: [authGuard],
-    children: [
-      { path: 'dashboard', loadChildren: () => import('./dashboard/routes') },
-      { path: 'blueprint', loadChildren: () => import('./blueprint/routes') }
-    ]
-  },
-  
-  // Passport Layout (auth routes)
-  {
-    path: 'passport',
-    component: LayoutPassportComponent,
-    children: [
-      { path: 'login', loadChildren: () => import('./passport/login/routes') },
-      { path: 'register', loadChildren: () => import('./passport/register/routes') }
-    ]
-  },
-  
-  // Blank Layout (special routes)
-  {
-    path: 'preview',
-    component: LayoutBlankComponent,
-    children: [
-      { path: ':id', component: PreviewComponent }
-    ]
-  }
-];
-```
+**規則**:
+- 必須基於路由選擇佈局
+- 基本佈局用於已認證路由（使用 `authGuard`）
+- 護照佈局用於認證路由（不需要守衛）
+- 空白佈局用於特殊路由（預覽等）
+- 必須在 `routes.ts` 中配置佈局元件
 
 ## Theme Support
 
-### ng-zorro-antd Theming
-
-```typescript
-// app.config.ts
-import { provideNzConfig } from 'ng-zorro-antd/core/config';
-
-export const appConfig: ApplicationConfig = {
-  providers: [
-    provideNzConfig({
-      theme: {
-        primaryColor: '#1890ff',
-        errorColor: '#ff4d4f',
-        warningColor: '#faad14',
-        successColor: '#52c41a',
-        infoColor: '#1890ff'
-      }
-    })
-  ]
-};
-```
-
-### Dark Mode (Optional)
-
-```typescript
-export class ThemeService {
-  private darkMode = signal(false);
-  
-  toggleDarkMode(): void {
-    this.darkMode.update(dark => !dark);
-    document.body.classList.toggle('dark-theme', this.darkMode());
-  }
-}
-```
-
-```scss
-// Global dark theme styles
-body.dark-theme {
-  --background-color: #141414;
-  --text-color: #ffffff;
-  --border-color: #303030;
-  
-  .ant-layout {
-    background: var(--background-color);
-    color: var(--text-color);
-  }
-}
-```
+**規則**:
+- 必須使用 ng-zorro-antd 主題設定
+- 必須在 `app.config.ts` 中使用 `provideNzConfig` 設定主題顏色
+- 可以支援深色模式（可選）
+- 如果實作深色模式，必須使用 `ThemeService` 管理主題狀態
+- 必須使用 CSS 變數或 SCSS 變數管理主題顏色
 
 ## Best Practices
 
-### 1. Layout Components
+### Layout Components
 
-- **Keep layouts simple** - Focus on structure, not business logic
-- **Use signals** - For reactive UI state (collapsed, theme)
-- **Extract widgets** - Reusable header, sidebar, footer components
-- **Responsive first** - Mobile-first design approach
+**規則**:
+1. 必須保持佈局簡單（專注於結構，而非業務邏輯）
+2. 必須使用 signals 管理 UI 狀態（折疊、主題）
+3. 必須提取小工具（可重用的標題、邊欄、頁尾元件）
+4. 必須優先考慮響應式設計（行動優先方法）
 
-### 2. Performance
+### Performance
 
-- **Lazy load layouts** - Load layout components on demand
-- **OnPush detection** - All layout components use OnPush
-- **Minimize re-renders** - Use signals for fine-grained updates
-- **Virtual scrolling** - For long notification lists
+**規則**:
+1. 必須延遲載入佈局元件（按需載入）
+2. 所有佈局元件必須使用 OnPush 變更檢測
+3. 必須最小化重新渲染（使用 signals 進行細粒度更新）
+4. 對於長通知列表必須使用虛擬滾動
 
-### 3. Accessibility
+### Accessibility
 
-- **Semantic HTML** - Use proper HTML5 elements
-- **ARIA labels** - For icon-only buttons
-- **Keyboard navigation** - Full keyboard support
-- **Focus management** - Trap focus in modals/drawers
-- **Screen reader** - Test with screen readers
+**規則**:
+1. 必須使用語義化 HTML（使用適當的 HTML5 元素）
+2. 必須提供 ARIA 標籤（僅圖示按鈕）
+3. 必須支援鍵盤導航（完整的鍵盤支援）
+4. 必須管理焦點（在模態/抽屜中捕獲焦點）
+5. 必須使用螢幕閱讀器進行測試
 
-### 4. State Management
+### State Management
 
-- **Layout state** - Sidebar collapse, theme in signals
-- **User state** - From FirebaseAuth
-- **Notifications** - Real-time Firestore subscriptions
-- **Preferences** - Persist in localStorage or Firestore
+**規則**:
+1. 佈局狀態（邊欄折疊、主題）必須使用 signals
+2. 用戶狀態必須來自 FirebaseAuth
+3. 通知必須使用即時 Firestore 訂閱
+4. 偏好設定必須持久化到 localStorage 或 Firestore
 
 ## Testing
 
-### Unit Tests
-
-```typescript
-describe('LayoutBasicComponent', () => {
-  it('should toggle sidebar', () => {
-    const component = TestBed.createComponent(LayoutBasicComponent).componentInstance;
-    const initialState = component.isCollapsed();
-    
-    component.toggleCollapsed();
-    
-    expect(component.isCollapsed()).toBe(!initialState);
-  });
-});
-```
-
-### E2E Tests
-
-```typescript
-test('sidebar navigation', async ({ page }) => {
-  await page.goto('/');
-  await page.click('text=Blueprints');
-  await expect(page).toHaveURL(/.*blueprint/);
-});
-```
+**規則**:
+- 必須為 `LayoutBasicComponent` 編寫單元測試
+- 必須測試邊欄切換功能
+- 必須測試響應式行為
+- 必須編寫 E2E 測試驗證導航功能
 
 ## Troubleshooting
 
-**Issue**: Sidebar not collapsing on mobile  
-**Solution**: Check `BreakpointObserver` is correctly setting `isMobile` signal
-
-**Issue**: User menu not showing  
-**Solution**: Verify Firebase Auth is initialized and user is logged in
-
-**Issue**: Notifications not updating  
-**Solution**: Check Firestore subscription in `ngOnInit` with `takeUntilDestroyed()`
-
-**Issue**: Layout flickering on route change  
-**Solution**: Use `@defer` for lazy-loaded components
+**規則**:
+- 如果邊欄在行動裝置上未折疊，必須檢查 `BreakpointObserver` 是否正確設定 `isMobile` signal
+- 如果用戶選單未顯示，必須驗證 Firebase Auth 已初始化且用戶已登入
+- 如果通知未更新，必須檢查 `ngOnInit` 中的 Firestore 訂閱是否使用 `takeUntilDestroyed()`
+- 如果路由變更時佈局閃爍，必須使用 `@defer` 延遲載入元件
 
 ## Related Documentation
 

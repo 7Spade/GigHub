@@ -17,596 +17,274 @@ Welcome to the GigHub construction site progress tracking management system. Thi
 - **Reactive**: RxJS 7.8.x
 - **Package Manager**: Yarn 4.9.2
 
-**Note**: Supabase (@supabase/supabase-js 2.86.x) is used only for statistics queries, not as the primary backend.
+**規則**:
+- Supabase (@supabase/supabase-js 2.86.x) 僅用於統計查詢，不是主要後端
+- 所有主要應用程式資料（blueprints、tasks 等）必須使用 Firebase/Firestore
 
 ## Architecture
 
 ### Three-Layer Architecture
 
-```
-┌─────────────────────────────────────────────────────────┐
-│                    Business Layer                        │
-│  Tasks • Construction Diary • Quality Control • Finance  │
-└─────────────────────────────────────────────────────────┘
-                           ↓
-┌─────────────────────────────────────────────────────────┐
-│                   Container Layer                        │
-│    Blueprint • Permissions • Events • Configurations     │
-└─────────────────────────────────────────────────────────┘
-                           ↓
-┌─────────────────────────────────────────────────────────┐
-│                  Foundation Layer                        │
-│        Account • Auth • Organization • Teams             │
-└─────────────────────────────────────────────────────────┘
-```
+**規則**:
+- 業務層 (Business Layer): Tasks、Construction Diary、Quality Control、Finance
+- 容器層 (Container Layer): Blueprint、Permissions、Events、Configurations
+- 基礎層 (Foundation Layer): Account、Auth、Organization、Teams
 
 ### Directory Structure
 
-```
-src/app/
-├── core/               # Core services, guards, interceptors
-│   ├── services/       # Singleton services
-│   ├── guards/         # Route guards
-│   ├── errors/         # Custom error classes
-│   └── startup/        # App initialization
-├── routes/             # Feature modules (lazy-loaded)
-│   ├── blueprint/      # Blueprint management (AGENTS.md)
-│   ├── dashboard/      # Dashboard views
-│   ├── passport/       # Auth flows
-│   └── exception/      # Error pages
-├── shared/             # Shared components & utilities (AGENTS.md)
-│   ├── components/     # Reusable components
-│   ├── services/       # Shared services
-│   ├── pipes/          # Custom pipes
-│   └── directives/     # Custom directives
-└── layout/             # App layout components
-    ├── basic/          # Basic layout
-    └── passport/       # Auth layout
-```
+**規則**:
+- `src/app/core/` - 核心服務、守衛、攔截器
+- `src/app/routes/` - 功能模組（懶載入）
+- `src/app/shared/` - 共享元件與工具
+- `src/app/layout/` - 應用程式佈局元件
 
 ## Working with This Project
 
 ### Common Tasks
 
-1. **Adding a new feature module**
-   - Create under `src/app/routes/[module-name]/`
-   - Include module-level `AGENTS.md` for context
-   - Register in `src/app/routes/routes.ts`
-   - Follow lazy-loading pattern
-
-2. **Creating components**
-   - Use standalone components (no NgModules)
-   - Import from `SHARED_IMPORTS` for common modules
-   - Use Signals for state management
-   - Apply `OnPush` change detection
-
-3. **Adding services**
-   - Place in `src/app/core/services/` for global services
-   - Place in `src/app/shared/services/` for shared utilities
-   - Use `providedIn: 'root'` for singletons
-   - Use `inject()` function for DI
-
-4. **Database operations**
-   - Use Firestore via @angular/fire
-   - Use repository pattern for data access
-   - Implement Firestore Security Rules
-   - Follow naming: `[entity].repository.ts`
-   - Place in `src/app/core/infra/repositories/`
+**規則**:
+1. 新增功能模組時，必須在 `src/app/routes/[module-name]/` 下建立，包含模組級 `AGENTS.md`，並在 `src/app/routes/routes.ts` 註冊，遵循懶載入模式
+2. 建立元件時，必須使用 standalone components（不使用 NgModules），從 `SHARED_IMPORTS` 匯入通用模組，使用 Signals 進行狀態管理，應用 `OnPush` 變更檢測
+3. 新增服務時，全域服務放在 `src/app/core/services/`，共享工具放在 `src/app/shared/services/`，使用 `providedIn: 'root'` 作為單例，使用 `inject()` 函數進行依賴注入
+4. 資料庫操作時，必須使用 Firestore via @angular/fire，使用 repository 模式進行資料存取，實作 Firestore Security Rules，遵循命名：`[entity].repository.ts`，放在 `src/app/core/infra/repositories/`
 
 ### Code Standards
 
 #### TypeScript
-- Strict mode enabled
-- No `any` types - use `unknown` with type guards
-- Prefer interfaces over type aliases for objects
-- Use JSDoc for public APIs
+
+**規則**:
+- 必須啟用嚴格模式
+- 禁止使用 `any` 類型，使用 `unknown` 配合類型守衛
+- 物件類型優先使用 `interface` 而非 `type` 別名
+- 公開 API 必須使用 JSDoc
 
 #### Angular Patterns
-```typescript
-// ✅ Good: Standalone component with Signals
-import { Component, signal, computed } from '@angular/core';
-import { SHARED_IMPORTS } from '@shared';
 
-@Component({
-  selector: 'app-example',
-  standalone: true,
-  imports: [SHARED_IMPORTS],
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `...`
-})
-export class ExampleComponent {
-  count = signal(0);
-  doubled = computed(() => this.count() * 2);
-}
-```
+**規則**:
+- 必須使用 Standalone Components（不使用 NgModules）
+- 必須從 `@shared` 匯入 `SHARED_IMPORTS`
+- 必須使用 Signals 進行狀態管理
+- 必須應用 `OnPush` 變更檢測策略
+- 必須使用 `inject()` 函數進行依賴注入
 
 #### Naming Conventions
-- Components: `feature-name.component.ts`
-- Services: `feature-name.service.ts`
-- Guards: `feature-name.guard.ts`
-- Models: `feature-name.model.ts`
-- Use kebab-case for file names
-- Use PascalCase for class names
+
+**規則**:
+- 元件：`feature-name.component.ts`
+- 服務：`feature-name.service.ts`
+- 守衛：`feature-name.guard.ts`
+- 模型：`feature-name.model.ts`
+- 檔案名稱使用 kebab-case
+- 類別名稱使用 PascalCase
 
 ### Permission System
 
-The project uses a hierarchical permission model:
-
-```
-Blueprint (Container)
-├── Owner (Full Control)
-├── Maintainer (Manage Members + Settings)
-├── Contributor (Edit Content)
-└── Viewer (Read Only)
-```
-
-**Checking permissions:**
-```typescript
-// In components
-const canEdit = await this.permissionService.canEdit(blueprintId);
-
-// In guards
-canActivate(): Observable<boolean> {
-  return this.permissionService.hasRole(blueprintId, 'contributor');
-}
-
-// In Firestore Security Rules
-// See firestore.rules in project root
-```
+**規則**:
+- 專案使用階層式權限模型
+- Blueprint (Container) 包含 Owner（完全控制）、Maintainer（管理成員與設定）、Contributor（編輯內容）、Viewer（唯讀）
+- 在元件中使用 `permissionService.canEdit(blueprintId)` 檢查權限
+- 在守衛中使用 `permissionService.hasRole(blueprintId, 'contributor')` 檢查角色
+- 在 Firestore Security Rules 中實作權限檢查（見專案根目錄的 `firestore.rules`）
 
 ## Shared Context
 
 ### State Management
-- Use **Signals** for local component state
-- Use **Services** for shared state across components
-- Use **Firestore Snapshots** for real-time data sync
-- Avoid complex state management libraries (no NgRx needed)
+
+**規則**:
+- 必須使用 Signals 管理本地元件狀態
+- 必須使用 Services 管理跨元件共享狀態
+- 必須使用 Firestore Snapshots 進行即時資料同步
+- 禁止使用複雜狀態管理庫（不需要 NgRx）
 
 ### HTTP & API
-- Use **@angular/fire** services (Firestore, Auth, Storage)
-- Follow repository pattern for data access
-- Implement error handling in repositories
-- Use RxJS operators for data transformation
-- Use `collectionData()` and `docData()` from @angular/fire for observables
+
+**規則**:
+- 必須使用 @angular/fire 服務（Firestore、Auth、Storage）
+- 必須遵循 repository 模式進行資料存取
+- 必須在 repositories 中實作錯誤處理
+- 必須使用 RxJS 運算子進行資料轉換
+- 必須使用 @angular/fire 的 `collectionData()` 和 `docData()` 取得 observables
 
 ### Forms
-- Use **Reactive Forms** (`FormGroup`, `FormControl`)
-- Implement form validation with `Validators`
-- Use ng-zorro form components for consistent UI
-- Extract reusable form validators to shared services
+
+**規則**:
+- 必須使用 Reactive Forms（`FormGroup`、`FormControl`）
+- 必須使用 `Validators` 實作表單驗證
+- 必須使用 ng-zorro 表單元件保持一致的 UI
+- 必須將可重用的表單驗證器提取到共享服務
 
 ### Styling
-- Use **SCSS** for styles
-- Follow **Ant Design** guidelines
-- Prefer **ng-zorro components** over custom HTML
-- Use **Tailwind** utility classes when appropriate
-- Component-scoped styles by default
+
+**規則**:
+- 必須使用 SCSS 進行樣式設計
+- 必須遵循 Ant Design 指南
+- 優先使用 ng-zorro 元件而非自訂 HTML
+- 適當時使用 Tailwind 工具類
+- 預設使用元件作用域樣式
 
 ## Module-Specific Agents
 
-Each major module has its own `AGENTS.md` with detailed context:
-
-### Core Architecture
-- **[App Module](src/app/AGENTS.md)** - Application bootstrap, Firebase integration, routing strategy
-- **[Layout Module](src/app/layout/AGENTS.md)** - Basic/Blank/Passport layouts, responsive design
-- **[Core Services](src/app/core/AGENTS.md)** - Shared services, guards, repositories
-- **[Shared Components](src/app/shared/AGENTS.md)** - Reusable UI components, pipes, directives
-
-### Foundation Layer (Account & Identity)
-- **[Passport Module](src/app/routes/passport/AGENTS.md)** - Authentication (Firebase Auth, Login, Register)
-- **[User Module](src/app/routes/user/AGENTS.md)** - User profile, settings, preferences
-- **[Organization Module](src/app/routes/organization/AGENTS.md)** - Multi-tenant organizations
-- **[Team Module](src/app/routes/team/AGENTS.md)** - Team collaboration within organizations
-
-### Container Layer (Project Management)
-- **[Blueprint Module](src/app/routes/blueprint/AGENTS.md)** - Core container for projects, permissions, audit
-
-### Business Layer (Feature Modules)
-- **[Dashboard Module](src/app/routes/dashboard/AGENTS.md)** - Workplace, analysis, monitoring dashboards
-- **[Exception Module](src/app/routes/exception/AGENTS.md)** - Error pages (403/404/500), error handling
-
-### Module Navigation
-- **[Routes Overview](src/app/routes/AGENTS.md)** - Routing configuration and lazy loading
+**規則**:
+- 每個主要模組都有自己的 `AGENTS.md` 提供詳細上下文
+- 核心架構模組：App Module、Layout Module、Core Services、Shared Components
+- 基礎層模組：Passport Module、User Module、Organization Module、Team Module
+- 容器層模組：Blueprint Module
+- 業務層模組：Dashboard Module、Exception Module
+- 模組導航：Routes Overview
 
 ## Adding New Modules
 
-To add a new business module to GigHub:
-
-### 1. Plan Module Structure
-
-```
-src/app/routes/[module-name]/
-├── AGENTS.md                    # Module-specific agent context
-├── [module]-list.component.ts   # List/index view
-├── [module]-detail.component.ts # Detail view
-├── [module]-modal.component.ts  # Create/edit modal
-└── components/                  # Module-specific components
-```
-
-### 2. Define Data Model
-
-```typescript
-// src/app/core/types/[module].types.ts
-export interface ModuleEntity {
-  id: string;
-  blueprint_id: string;
-  name: string;
-  // ... other fields
-  created_at: string;
-  updated_at: string;
-  deleted_at?: string; // Soft delete
-}
-```
-
-### 3. Create Repository
-
-```typescript
-// src/app/core/infra/repositories/[module]/[module].repository.ts
-import { Injectable, inject } from '@angular/core';
-import { Firestore, collection, collectionData, query, where } from '@angular/fire/firestore';
-import { Observable } from 'rxjs';
-
-@Injectable({ providedIn: 'root' })
-export class ModuleRepository {
-  private firestore = inject(Firestore);
-  
-  list(blueprintId: string): Observable<ModuleEntity[]> {
-    const collectionRef = collection(this.firestore, 'module_table');
-    const q = query(
-      collectionRef,
-      where('blueprint_id', '==', blueprintId),
-      where('deleted_at', '==', null)
-    );
-    
-    return collectionData(q, { idField: 'id' }) as Observable<ModuleEntity[]>;
-  }
-}
-```
-
-### 4. Implement Firestore Security Rules
-
-```javascript
-// In firestore.rules
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /module_table/{moduleId} {
-      allow read: if canReadBlueprint(resource.data.blueprint_id);
-      allow write: if canEditBlueprint(resource.data.blueprint_id);
-    }
-    
-    function canReadBlueprint(blueprintId) {
-      let blueprint = get(/databases/$(database)/documents/blueprints/$(blueprintId));
-      return request.auth != null && (
-        blueprint.data.owner_id == request.auth.uid ||
-        exists(/databases/$(database)/documents/blueprint_members/$(blueprintId + '_' + request.auth.uid))
-      );
-    }
-  }
-}
-```
-
-### 5. Create UI Components
-
-Use ng-alain's ST table for lists:
-```typescript
-columns: STColumn[] = [
-  { title: 'Name', index: 'name' },
-  { title: 'Status', index: 'status', type: 'badge' },
-  { title: 'Created', index: 'created_at', type: 'date' },
-  {
-    title: 'Actions',
-    buttons: [
-      { text: 'Edit', click: (item) => this.edit(item) },
-      { text: 'Delete', click: (item) => this.delete(item) }
-    ]
-  }
-];
-```
-
-### 6. Register Routes
-
-```typescript
-// src/app/routes/routes.ts
-{
-  path: 'module-name',
-  loadChildren: () => import('./module-name/routes').then(m => m.routes)
-}
-```
-
-### 7. Document in AGENTS.md
-
-Create `src/app/routes/[module-name]/AGENTS.md` documenting:
-- Module purpose
-- Data models
-- Key components
-- Integration points
-- Common operations
+**規則**:
+1. 規劃模組結構：必須建立模組目錄、包含 `AGENTS.md`、建立列表/詳情/模態元件
+2. 定義資料模型：必須在 `src/app/core/types/[module].types.ts` 定義介面，包含 `id`、`blueprint_id`、`created_at`、`updated_at`、`deleted_at`（軟刪除）
+3. 建立 Repository：必須在 `src/app/core/infra/repositories/[module]/[module].repository.ts` 實作，使用 @angular/fire 進行 Firestore 操作
+4. 實作 Firestore Security Rules：必須在 `firestore.rules` 中實作權限檢查，使用 `canReadBlueprint()` 和 `canEditBlueprint()` 輔助函數
+5. 建立 UI 元件：必須使用 ng-alain 的 ST table 進行列表顯示
+6. 註冊路由：必須在 `src/app/routes/routes.ts` 中註冊，使用懶載入模式
+7. 文件化：必須在 `src/app/routes/[module-name]/AGENTS.md` 中記錄模組目的、資料模型、關鍵元件、整合點、常見操作
 
 ## Testing
 
-- **Unit Tests**: Place next to source files (`.spec.ts`)
-- **E2E Tests**: Place in `/e2e/` directory
-- Run tests: `yarn test`
-- Run E2E: `yarn e2e`
+**規則**:
+- 單元測試必須放在源檔案旁邊（`.spec.ts`）
+- E2E 測試必須放在 `/e2e/` 目錄
+- 執行測試：`yarn test`
+- 執行 E2E：`yarn e2e`
 
 ## Build & Deploy
 
-```bash
-# Development
-yarn start                  # Dev server on http://localhost:4200
-
-# Production build
-yarn build                  # Output to /dist
-
-# Lint & format
-yarn lint                   # ESLint
-yarn format                 # Prettier
-```
+**規則**:
+- 開發環境：`yarn start`（開發伺服器在 http://localhost:4200）
+- 生產構建：`yarn build`（輸出到 `/dist`）
+- 程式碼檢查與格式化：`yarn lint`（ESLint）、`yarn format`（Prettier）
 
 ## Getting Help
 
-1. **Check module-specific AGENTS.md** for detailed context
-2. **Review existing implementations** in similar modules
-3. **Consult architecture docs** in `/docs/architecture/`
-4. **Check API references** in `/docs/reference/api/`
-5. **Review permission system** in `/docs/guides/permission-system.md`
+**規則**:
+1. 必須先檢查模組特定的 AGENTS.md 獲取詳細上下文
+2. 必須檢視類似模組的現有實作
+3. 必須查閱 `/docs/architecture/` 中的架構文件
+4. 必須檢查 `/docs/reference/api/` 中的 API 參考
+5. 必須檢視 `/docs/guides/permission-system.md` 中的權限系統
 
 ## Enterprise Development Standards
 
 ### 奧卡姆剃刀原則 (Occam's Razor Principle)
 
-**適用於所有模組的簡化準則**:
-
-1. **最小化層級** - 僅需三層 (UI → Service → Repository)
-2. **避免抽象過度** - 直接注入服務，不建立不必要的 Facade
-3. **單一數據流** - 使用 Signals 而非複雜狀態管理
-4. **組合優於繼承** - 使用服務組合而非深層繼承樹
+**規則**:
+1. 必須最小化層級，僅需三層（UI → Service → Repository）
+2. 必須避免抽象過度，直接注入服務，不建立不必要的 Facade
+3. 必須使用單一資料流，使用 Signals 而非複雜狀態管理
+4. 必須使用組合優於繼承，使用服務組合而非深層繼承樹
 
 ### 共享上下文原則 (Shared Context Principles)
 
-所有模組必須遵循統一的上下文傳遞模式:
-
-```
-User Context (Auth)
-    ↓
-Organization Context (Account)
-    ↓
-Blueprint Context (Container)
-    ↓
-Module Context (Business)
-```
-
-**實作規範**:
-- 使用 `inject()` 注入上層上下文服務
-- 使用 `signal()` 保存當前上下文狀態
-- 使用 `computed()` 計算衍生狀態
-- 上下文變更自動傳播到子元件
+**規則**:
+- 所有模組必須遵循統一的上下文傳遞模式：User Context (Auth) → Organization Context (Account) → Blueprint Context (Container) → Module Context (Business)
+- 必須使用 `inject()` 注入上層上下文服務
+- 必須使用 `signal()` 保存當前上下文狀態
+- 必須使用 `computed()` 計算衍生狀態
+- 上下文變更必須自動傳播到子元件
 
 ### 事件驅動架構 (Event-Driven Architecture)
 
-#### 統一事件匯流排
-
-所有模組事件透過 `BlueprintEventBus` 集中管理:
-
-```typescript
-// 發送事件
-eventBus.emit({
-  type: 'module.action',
-  blueprintId: 'xxx',
-  timestamp: Date.now(),
-  actor: userId,
-  data: payload
-});
-
-// 訂閱事件
-eventBus.events$
-  .pipe(
-    filter(e => e.type === 'module.action'),
-    takeUntilDestroyed()
-  )
-  .subscribe(event => {
-    // Handle event
-  });
-```
-
-**事件命名規範**: `[module].[action]` (例如: `task.created`, `diary.updated`)
+**規則**:
+- 所有模組事件必須透過 `BlueprintEventBus` 集中管理
+- 事件命名必須遵循規範：`[module].[action]`（例如：`task.created`、`diary.updated`）
+- 發送事件時必須包含 `type`、`blueprintId`、`timestamp`、`actor`、`data`
+- 訂閱事件時必須使用 `takeUntilDestroyed()` 進行清理
 
 ### 錯誤處理標準 (Error Handling Standards)
 
-#### 四層錯誤防護
-
-1. **UI 層**: Error Boundary Component 捕獲顯示錯誤
-2. **Service 層**: Try-catch 包裝，拋出類型化錯誤
-3. **Repository 層**: Firestore 錯誤轉換為領域錯誤
-4. **Global 層**: GlobalErrorHandler 記錄所有未捕獲錯誤
-
-**錯誤分級**:
-- `Critical`: 系統級錯誤，需立即處理
-- `High`: 功能無法使用，需修復
-- `Medium`: 部分功能受影響，可降級使用
-- `Low`: 不影響核心功能，可忽略
+**規則**:
+- 必須實作四層錯誤防護：UI 層（Error Boundary Component）、Service 層（Try-catch 包裝）、Repository 層（Firestore 錯誤轉換）、Global 層（GlobalErrorHandler）
+- 錯誤分級：`Critical`（系統級錯誤，需立即處理）、`High`（功能無法使用，需修復）、`Medium`（部分功能受影響，可降級使用）、`Low`（不影響核心功能，可忽略）
+- 必須拋出類型化錯誤（繼承 BlueprintError）
+- 必須包含錯誤上下文資訊
 
 ### 生命週期管理標準 (Lifecycle Management Standards)
 
-#### 元件生命週期最佳實踐
-
-```typescript
-export class StandardComponent implements OnInit, OnDestroy {
-  // 1. 依賴注入 (Constructor)
-  private service = inject(MyService);
-  
-  // 2. 狀態定義 (Signals)
-  data = signal<Data[]>([]);
-  loading = signal(false);
-  
-  // 3. 計算狀態 (Computed)
-  filteredData = computed(() => this.data().filter(d => !d.deleted));
-  
-  // 4. 初始化 (OnInit)
-  ngOnInit(): void {
-    this.loadData();
-    this.setupSubscriptions();
-  }
-  
-  // 5. 訂閱管理 (takeUntilDestroyed)
-  private setupSubscriptions(): void {
-    this.service.updates$
-      .pipe(takeUntilDestroyed())
-      .subscribe(update => this.handleUpdate(update));
-  }
-  
-  // 6. 清理 (OnDestroy) - 通常不需要，因為使用 takeUntilDestroyed
-  ngOnDestroy(): void {
-    // 僅在需要手動清理時使用
-  }
-}
-```
-
-**禁止事項**:
-- ❌ 在 constructor 中執行業務邏輯
-- ❌ 手動管理 subscriptions (使用 takeUntilDestroyed)
-- ❌ 在 ngOnDestroy 中執行非同步操作
-- ❌ 忘記清理定時器與事件監聽器
+**規則**:
+- 元件生命週期必須遵循：Construction（僅注入依賴）→ Initialization（在 `ngOnInit` 中執行業務邏輯）→ Active（使用 Signals 處理響應式）→ Cleanup（在 `ngOnDestroy` 中清理）
+- 禁止在 constructor 中執行業務邏輯
+- 禁止手動管理 subscriptions，必須使用 `takeUntilDestroyed()`
+- 禁止在 `ngOnDestroy` 中執行非同步操作
+- 必須清理定時器與事件監聽器
 
 ### 模塊擴展規範 (Module Extension Standards)
 
-#### 標準化擴展流程
-
-新增任何業務模塊必須遵循以下步驟:
-
-1. **註冊階段**:
-   - 在 `module-registry.ts` 註冊模塊定義
-   - 定義模塊 ID、名稱、圖示、路由
-   - 聲明依賴的其他模塊
-
-2. **實作階段**:
-   - 建立模塊目錄結構
-   - 實作 Repository → Service → Component
-   - 整合 Event Bus 發送領域事件
-   - 實作 Error Boundary
-
-3. **整合階段**:
-   - 註冊路由與守衛
-   - 加入 Blueprint 模塊列表
-   - 更新 Firestore Security Rules
-   - 建立模塊專屬 AGENTS.md
-
-4. **測試階段**:
-   - 單元測試 (Service, Repository)
-   - 元件測試 (UI Components)
-   - 整合測試 (與 Blueprint 整合)
-   - E2E 測試 (完整使用者流程)
-
-**模塊清單範本**: 參考 `src/app/routes/blueprint/AGENTS.md` 的「系統化模塊擴展」章節
+**規則**:
+1. 註冊階段：必須在 `module-registry.ts` 註冊模塊定義，定義模塊 ID、名稱、圖示、路由，聲明依賴的其他模塊
+2. 實作階段：必須建立模塊目錄結構，實作 Repository → Service → Component，整合 Event Bus 發送領域事件，實作 Error Boundary
+3. 整合階段：必須註冊路由與守衛，加入 Blueprint 模塊列表，更新 Firestore Security Rules，建立模塊專屬 AGENTS.md
+4. 測試階段：必須進行單元測試（Service、Repository）、元件測試（UI Components）、整合測試（與 Blueprint 整合）、E2E 測試（完整使用者流程）
 
 ### 代碼審查檢查點 (Code Review Checklist)
 
-在提交 PR 前，確認以下項目:
-
-#### 架構檢查
-- [ ] 遵循三層架構 (UI → Service → Repository)
-- [ ] 使用 Signals 進行狀態管理
-- [ ] 使用 Standalone Components
-- [ ] 正確注入依賴 (使用 `inject()`)
-
-#### 上下文檢查
-- [ ] 正確傳遞 Blueprint Context
-- [ ] 使用 computed() 計算衍生狀態
-- [ ] 上下文清理正確實作
-
-#### 事件檢查
-- [ ] 所有領域事件透過 EventBus 發送
-- [ ] 事件命名遵循規範 (`[module].[action]`)
-- [ ] 事件訂閱使用 takeUntilDestroyed()
-
-#### 錯誤處理檢查
-- [ ] Service 方法包含 try-catch
-- [ ] 拋出類型化錯誤 (繼承 BlueprintError)
-- [ ] UI 使用 Error Boundary Component
-- [ ] 錯誤分級正確設定
-
-#### 生命週期檢查
-- [ ] 不在 constructor 執行業務邏輯
-- [ ] 使用 takeUntilDestroyed() 管理訂閱
-- [ ] 手動資源清理在 ngOnDestroy
-
-#### 文檔檢查
-- [ ] 更新或建立模塊 AGENTS.md
-- [ ] 程式碼包含 JSDoc 註解
-- [ ] 複雜邏輯有文字說明
-
-#### 測試檢查
-- [ ] 單元測試覆蓋率 > 80%
-- [ ] 關鍵業務邏輯有測試
-- [ ] E2E 測試涵蓋主要流程
+**規則**:
+- 架構檢查：必須遵循三層架構、使用 Signals 進行狀態管理、使用 Standalone Components、正確注入依賴
+- 上下文檢查：必須正確傳遞 Blueprint Context、使用 `computed()` 計算衍生狀態、上下文清理正確實作
+- 事件檢查：所有領域事件必須透過 EventBus 發送、事件命名必須遵循規範、事件訂閱必須使用 `takeUntilDestroyed()`
+- 錯誤處理檢查：Service 方法必須包含 try-catch、必須拋出類型化錯誤、UI 必須使用 Error Boundary Component、錯誤分級必須正確設定
+- 生命週期檢查：禁止在 constructor 執行業務邏輯、必須使用 `takeUntilDestroyed()` 管理訂閱、手動資源清理必須在 `ngOnDestroy`
+- 文檔檢查：必須更新或建立模塊 AGENTS.md、程式碼必須包含 JSDoc 註解、複雜邏輯必須有文字說明
+- 測試檢查：單元測試覆蓋率必須 > 80%、關鍵業務邏輯必須有測試、E2E 測試必須涵蓋主要流程
 
 ### AI 開發指引 (AI Development Guidelines)
 
-**給 AI 代理的明確指示**:
-
 #### 禁止行為
-1. ❌ 不要建立 NgModule (使用 Standalone Components)
-2. ❌ 不要使用 NgRx/Redux (使用 Signals)
-3. ❌ 不要建立 Facade 層 (直接使用 Service)
-4. ❌ 不要手動管理訂閱 (使用 takeUntilDestroyed)
-5. ❌ 不要使用 any 類型 (使用 unknown + type guards)
-6. ❌ 不要忽略錯誤處理 (必須 try-catch)
-7. ❌ 不要直接操作 Firestore (使用 Repository)
-8. ❌ 不要建立 SQL/RLS (使用 Firestore Security Rules)
+
+**規則**:
+1. 禁止建立 NgModule（必須使用 Standalone Components）
+2. 禁止使用 NgRx/Redux（必須使用 Signals）
+3. 禁止建立 Facade 層（必須直接使用 Service）
+4. 禁止手動管理訂閱（必須使用 `takeUntilDestroyed`）
+5. 禁止使用 `any` 類型（必須使用 `unknown` + type guards）
+6. 禁止忽略錯誤處理（必須 try-catch）
+7. 禁止直接操作 Firestore（必須使用 Repository）
+8. 禁止建立 SQL/RLS（必須使用 Firestore Security Rules）
 
 #### 必須行為
-1. ✅ 必須使用 Signals 管理狀態
-2. ✅ 必須使用 inject() 注入依賴
-3. ✅ 必須遵循三層架構
-4. ✅ 必須透過 EventBus 發送事件
-5. ✅ 必須實作 Error Boundary
-6. ✅ 必須建立 AGENTS.md 文檔
-7. ✅ 必須撰寫單元測試
-8. ✅ 必須實作 Firestore Security Rules
+
+**規則**:
+1. 必須使用 Signals 管理狀態
+2. 必須使用 `inject()` 注入依賴
+3. 必須遵循三層架構
+4. 必須透過 EventBus 發送事件
+5. 必須實作 Error Boundary
+6. 必須建立 AGENTS.md 文檔
+7. 必須撰寫單元測試
+8. 必須實作 Firestore Security Rules
 
 #### 決策樹
 
-```
-需要狀態管理？
-├─ 是 → 使用 signal()
-└─ 否 → 不需要狀態
-
-需要衍生狀態？
-├─ 是 → 使用 computed()
-└─ 否 → 直接使用原始 signal
-
-需要訂閱？
-├─ 是 → 使用 takeUntilDestroyed()
-└─ 否 → 不訂閱
-
-需要新模塊？
-├─ 是 → 遵循「模塊擴展規範」
-└─ 否 → 擴展現有模塊
-
-遇到錯誤？
-├─ 可恢復 → 拋出 recoverable=true 錯誤
-└─ 不可恢復 → 拋出 recoverable=false 錯誤
-```
+**規則**:
+- 需要狀態管理？是 → 使用 `signal()`，否 → 不需要狀態
+- 需要衍生狀態？是 → 使用 `computed()`，否 → 直接使用原始 signal
+- 需要訂閱？是 → 使用 `takeUntilDestroyed()`，否 → 不訂閱
+- 需要新模塊？是 → 遵循「模塊擴展規範」，否 → 擴展現有模塊
+- 遇到錯誤？可恢復 → 拋出 `recoverable=true` 錯誤，不可恢復 → 拋出 `recoverable=false` 錯誤
 
 ## Key Principles
 
-1. **Occam's Razor**: Keep implementations simple and focused
-2. **Type Safety**: Leverage TypeScript's strict mode
-3. **Modularity**: Clear boundaries between modules
-4. **Security**: Always implement Firestore Security Rules
-5. **Documentation**: Update AGENTS.md when adding features
-6. **Testing**: Write tests for critical business logic
-7. **Accessibility**: Follow WCAG 2.1 guidelines
-8. **Performance**: Use OnPush change detection and lazy loading
+**規則**:
+1. Occam's Razor：保持實作簡單且專注
+2. Type Safety：利用 TypeScript 嚴格模式
+3. Modularity：模組間保持清晰的邊界
+4. Security：始終實作 Firestore Security Rules
+5. Documentation：新增功能時更新 AGENTS.md
+6. Testing：為關鍵業務邏輯撰寫測試
+7. Accessibility：遵循 WCAG 2.1 指南
+8. Performance：使用 OnPush 變更檢測和懶載入
 
 ## Resources
 
-- **Project Docs**: `/docs/`
-- **Architecture**: `/docs/architecture/`
-- **Blueprint Design**: `/BLUEPRINT_MODULE_DOCUMENTATION.md`
-- **GitHub Agents**: `/.github/agents/`
-- **Copilot Setup**: `/.github/COPILOT_SETUP.md`
+**規則**:
+- 專案文件：`/docs/`
+- 架構文件：`/docs/architecture/`
+- Blueprint 設計：`/BLUEPRINT_MODULE_DOCUMENTATION.md`
+- GitHub Agents：`/.github/agents/`
+- Copilot 設定：`/.github/COPILOT_SETUP.md`
 
 ---
 

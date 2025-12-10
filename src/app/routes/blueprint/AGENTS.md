@@ -4,1538 +4,320 @@ The Blueprint module is the **Container Layer** core of GigHub - it provides the
 
 ## Module Purpose
 
-A Blueprint represents a construction project workspace that:
-- Contains tasks, diary entries, quality checks, and financial data
-- Manages member permissions and access control
-- Tracks audit logs for compliance
-- Configures enabled modules and settings
-- Supports both user-owned and organization-owned contexts
+**規則**:
+- Blueprint 代表一個建築專案工作區
+- 包含任務、日誌條目、品質檢查和財務資料
+- 管理成員權限和存取控制
+- 追蹤稽核日誌以符合規範
+- 配置啟用的模組和設定
+- 支援用戶擁有和組織擁有的上下文
 
 ## Module Structure
 
-```
-src/app/routes/blueprint/
-├── AGENTS.md                           # This file
-├── blueprint-list.component.ts         # List/index view with ST table
-├── blueprint-detail.component.ts       # Detail view with module dashboard
-├── blueprint-modal.component.ts        # Create/edit modal
-├── routes.ts                           # Module routing
-├── members/
-│   ├── blueprint-members.component.ts  # Member management
-│   └── member-modal.component.ts       # Add/edit member
-└── audit/
-    └── audit-logs.component.ts         # Audit log viewer
-```
+**規則**:
+- `src/app/routes/blueprint/AGENTS.md` - 本文件
+- `blueprint-list.component.ts` - 列表/索引視圖（使用 ST table）
+- `blueprint-detail.component.ts` - 詳情視圖（模組儀表板）
+- `blueprint-modal.component.ts` - 建立/編輯模態框
+- `routes.ts` - 模組路由
+- `members/blueprint-members.component.ts` - 成員管理
+- `members/member-modal.component.ts` - 新增/編輯成員
+- `audit/audit-logs.component.ts` - 稽核日誌檢視器
 
 ## Data Models
 
 ### Blueprint
 
-```typescript
-interface Blueprint {
-  id: string;                    // UUID primary key
-  name: string;                  // Display name (min 3 chars)
-  slug: string;                  // URL-friendly identifier (unique)
-  description?: string;          // Optional description
-  
-  // Ownership
-  owner_type: 'user' | 'organization';
-  owner_id: string;              // User ID or Organization ID
-  
-  // Status & Visibility
-  status: 'draft' | 'active' | 'archived';
-  visibility: 'public' | 'private';
-  
-  // Module Configuration
-  enabled_modules: string[];     // ['task', 'diary', 'quality', 'financial']
-  module_settings: Record<string, any>;
-  
-  // Metadata
-  created_at: string;
-  updated_at: string;
-  deleted_at?: string;           // Soft delete
-  created_by: string;
-  updated_by: string;
-}
-```
+**規則**:
+- 必須包含 `id`（UUID 主鍵）
+- 必須包含 `name`（顯示名稱，最少 3 個字元）
+- 必須包含 `slug`（URL 友好的識別符，唯一）
+- 可以包含 `description`（選填描述）
+- 必須包含 `owner_type`（'user' | 'organization'）
+- 必須包含 `owner_id`（用戶 ID 或組織 ID）
+- 必須包含 `status`（'draft' | 'active' | 'archived'）
+- 必須包含 `visibility`（'public' | 'private'）
+- 必須包含 `enabled_modules`（字串陣列，例如：['task', 'diary', 'quality', 'financial']）
+- 必須包含 `module_settings`（Record<string, any>）
+- 必須包含 `created_at`、`updated_at`（字串）
+- 可以包含 `deleted_at`（軟刪除）
+- 必須包含 `created_by`、`updated_by`（字串）
 
 ### BlueprintMember
 
-```typescript
-interface BlueprintMember {
-  id: string;
-  blueprint_id: string;
-  account_id: string;            // User/Bot ID
-  
-  // System Role (affects permissions)
-  role: 'viewer' | 'contributor' | 'maintainer';
-  
-  // Business Role (for display)
-  business_role?: 'project_manager' | 'site_supervisor' | 
-                  'engineer' | 'quality_inspector' | 
-                  'architect' | 'contractor' | 'client';
-  
-  is_external: boolean;          // External contractor flag
-  granted_at: string;
-  granted_by: string;
-}
-```
+**規則**:
+- 必須包含 `id`、`blueprint_id`、`account_id`（用戶/Bot ID）
+- 必須包含 `role`（'viewer' | 'contributor' | 'maintainer'，系統角色，影響權限）
+- 可以包含 `business_role`（'project_manager' | 'site_supervisor' | 'engineer' | 'quality_inspector' | 'architect' | 'contractor' | 'client'，業務角色，用於顯示）
+- 必須包含 `is_external`（布林值，外部承包商標記）
+- 必須包含 `granted_at`、`granted_by`（字串）
 
 ### AuditLog
 
-```typescript
-interface AuditLog {
-  id: string;
-  blueprint_id: string;
-  
-  // What happened
-  entity_type: 'Blueprint' | 'Member' | 'Task' | 'Log' | 'Quality' | 'Module';
-  entity_id: string;
-  operation: 'Create' | 'Update' | 'Delete' | 'Access' | 'PermissionGrant';
-  
-  // Who & When
-  actor_id: string;
-  actor_name: string;
-  timestamp: string;
-  
-  // Context
-  changes?: Record<string, any>;
-  metadata?: Record<string, any>;
-}
-```
+**規則**:
+- 必須包含 `id`、`blueprint_id`
+- 必須包含 `entity_type`（'Blueprint' | 'Member' | 'Task' | 'Log' | 'Quality' | 'Module'）
+- 必須包含 `entity_id`、`operation`（'Create' | 'Update' | 'Delete' | 'Access' | 'PermissionGrant'）
+- 必須包含 `actor_id`、`actor_name`、`timestamp`
+- 可以包含 `changes`、`metadata`（Record<string, any>）
 
 ## Enterprise Architecture Patterns
 
 ### 奧卡姆剃刀原則 (Occam's Razor Principle)
 
-**核心理念**: "如無必要，勿增實體" - 保持最小化複雜度
-
-Blueprint 模組遵循以下簡化原則：
-
-1. **單一資料流**: 所有狀態變更通過 Signal 流動
-2. **最少抽象層**: 僅三層 (UI → Service → Repository)
-3. **避免過度工程**: 
-   - ❌ 不使用 Redux/NgRx (Signals 已足夠)
-   - ❌ 不建立 Facade 層 (直接注入 Service)
-   - ❌ 不實作複雜狀態機 (使用簡單 status enum)
-4. **可組合性優於繼承**: 使用組合模式而非深層繼承
+**規則**:
+- 核心理念："如無必要，勿增實體" - 保持最小化複雜度
+- 必須使用單一資料流，所有狀態變更通過 Signal 流動
+- 必須使用最少抽象層，僅三層（UI → Service → Repository）
+- 禁止使用 Redux/NgRx（Signals 已足夠）
+- 禁止建立 Facade 層（直接注入 Service）
+- 禁止實作複雜狀態機（使用簡單 status enum）
+- 必須使用組合優於繼承，使用組合模式而非深層繼承
 
 ### 共享上下文 (Shared Context)
 
-#### Context Flow Architecture
-
-```
-User Context (Firebase Auth)
-    ↓
-Blueprint Context (Container)
-    ↓
-Module Context (Task/Diary/Quality)
-```
-
-#### Context Provider Pattern
-
-**BlueprintContextService** - 提供當前 Blueprint 上下文給所有子模組
-
-```typescript
-// src/app/routes/blueprint/services/blueprint-context.service.ts
-@Injectable()
-export class BlueprintContextService implements OnDestroy {
-  private currentBlueprintSignal = signal<Blueprint | null>(null);
-  
-  // Public readonly signal
-  blueprint = this.currentBlueprintSignal.asReadonly();
-  
-  // Computed derived state
-  blueprintId = computed(() => this.blueprint()?.id);
-  enabledModules = computed(() => this.blueprint()?.enabled_modules || []);
-  canEdit = computed(() => this.checkEditPermission());
-  
-  // Lifecycle
-  private destroy$ = new Subject<void>();
-  
-  constructor() {
-    // Auto-sync with route params
-    this.syncWithRoute();
-  }
-  
-  setBlueprint(blueprint: Blueprint): void {
-    this.currentBlueprintSignal.set(blueprint);
-  }
-  
-  isModuleEnabled(moduleId: string): boolean {
-    return this.enabledModules().includes(moduleId);
-  }
-  
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-}
-```
-
-**使用方式** (子模組注入):
-```typescript
-// In task module
-@Component({
-  providers: [BlueprintContextService] // Scoped to component tree
-})
-export class TaskListComponent {
-  private context = inject(BlueprintContextService);
-  
-  blueprintId = this.context.blueprintId; // Auto-updates
-  canEdit = this.context.canEdit;
-}
-```
-
-#### Context Boundaries
-
-1. **Route-level Context**: Blueprint ID from URL → Context Service
-2. **Component-level Context**: Scoped providers for isolated state
-3. **Module-level Context**: Shared within feature module
+**規則**:
+- 上下文流程架構：User Context (Firebase Auth) → Blueprint Context (Container) → Module Context (Task/Diary/Quality)
+- BlueprintContextService 必須提供當前 Blueprint 上下文給所有子模組
+- 必須使用 `signal<Blueprint | null>(null)` 保存當前 Blueprint
+- 必須使用 `computed()` 計算衍生狀態（blueprintId、enabledModules、canEdit）
+- 必須實作 `setBlueprint()` 方法設定 Blueprint
+- 必須實作 `isModuleEnabled()` 方法檢查模組是否啟用
+- 必須在子模組中使用 `inject(BlueprintContextService)` 注入上下文
+- 上下文邊界：Route-level Context（從 URL 取得 Blueprint ID）、Component-level Context（元件作用域的提供者）、Module-level Context（功能模組內共享）
 
 ### 事件系統 (Event System)
 
-#### Event Entry Points
-
-Blueprint 模組提供三種事件入口點:
-
-##### 1. Domain Events (領域事件)
-
-```typescript
-// src/app/routes/blueprint/events/blueprint.events.ts
-export enum BlueprintEventType {
-  Created = 'blueprint.created',
-  Updated = 'blueprint.updated',
-  Deleted = 'blueprint.deleted',
-  MemberAdded = 'blueprint.member.added',
-  MemberRemoved = 'blueprint.member.removed',
-  ModuleEnabled = 'blueprint.module.enabled',
-  ModuleDisabled = 'blueprint.module.disabled'
-}
-
-export interface BlueprintEvent<T = any> {
-  type: BlueprintEventType;
-  blueprintId: string;
-  timestamp: number;
-  actor: string;
-  data: T;
-}
-```
-
-##### 2. Event Bus Pattern
-
-```typescript
-// src/app/routes/blueprint/services/blueprint-event-bus.service.ts
-@Injectable({ providedIn: 'root' })
-export class BlueprintEventBus {
-  private eventSubject = new Subject<BlueprintEvent>();
-  
-  // Observable stream of all events
-  events$ = this.eventSubject.asObservable();
-  
-  // Filtered streams
-  created$ = this.events$.pipe(
-    filter(e => e.type === BlueprintEventType.Created)
-  );
-  
-  updated$ = this.events$.pipe(
-    filter(e => e.type === BlueprintEventType.Updated)
-  );
-  
-  // Emit event
-  emit(event: BlueprintEvent): void {
-    this.eventSubject.next(event);
-    this.logEvent(event); // Auto-logging
-  }
-  
-  // Subscribe to specific blueprint
-  forBlueprint(blueprintId: string): Observable<BlueprintEvent> {
-    return this.events$.pipe(
-      filter(e => e.blueprintId === blueprintId)
-    );
-  }
-  
-  private logEvent(event: BlueprintEvent): void {
-    // Send to audit log
-    console.log('[BlueprintEvent]', event);
-  }
-}
-```
-
-##### 3. Event Usage Pattern
-
-```typescript
-// In BlueprintService
-async create(data: CreateBlueprintDto): Promise<Blueprint> {
-  const blueprint = await this.repository.create(data);
-  
-  // Emit domain event
-  this.eventBus.emit({
-    type: BlueprintEventType.Created,
-    blueprintId: blueprint.id,
-    timestamp: Date.now(),
-    actor: this.auth.currentUser!.uid,
-    data: blueprint
-  });
-  
-  return blueprint;
-}
-
-// In other components (reactive)
-export class DashboardComponent {
-  private eventBus = inject(BlueprintEventBus);
-  
-  constructor() {
-    // React to blueprint changes
-    this.eventBus.created$
-      .pipe(takeUntilDestroyed())
-      .subscribe(event => {
-        this.refreshDashboard();
-      });
-  }
-}
-```
-
-#### Event Flow Diagram
-
-```
-User Action (UI)
-    ↓
-Component Method
-    ↓
-Service Method
-    ↓
-Repository Operation
-    ↓
-Event Bus Emit
-    ↓
-╔══════════════════════╗
-║   Event Subscribers   ║
-║  - Audit Log Writer  ║
-║  - Cache Invalidator ║
-║  - UI Refresh        ║
-║  - Analytics         ║
-╚══════════════════════╝
-```
+**規則**:
+- Blueprint 模組必須提供三種事件入口點：Domain Events（領域事件）、Event Bus Pattern（事件匯流排模式）、Event Usage Pattern（事件使用模式）
+- 必須定義 BlueprintEventType 枚舉（Created、Updated、Deleted、MemberAdded、MemberRemoved、ModuleEnabled、ModuleDisabled）
+- 必須定義 BlueprintEvent 介面（type、blueprintId、timestamp、actor、data）
+- BlueprintEventBus 必須實作 `events$` Observable 流
+- 必須提供過濾的流（created$、updated$）
+- 必須實作 `emit()` 方法發送事件
+- 必須實作 `forBlueprint()` 方法訂閱特定 Blueprint 的事件
+- 事件流程：User Action (UI) → Component Method → Service Method → Repository Operation → Event Bus Emit → Event Subscribers
+- 事件命名必須遵循規範：`[module].[action]`（例如：`task.created`、`diary.updated`）
 
 ### 錯誤邊界 (Error Boundaries)
 
-#### Error Handling Strategy
-
-##### 1. Error Classification
-
-```typescript
-// src/app/routes/blueprint/errors/blueprint-error.ts
-export enum BlueprintErrorSeverity {
-  Low = 'low',           // Non-critical, user can continue
-  Medium = 'medium',     // Important but recoverable
-  High = 'high',         // Critical, requires attention
-  Critical = 'critical'  // System-level, needs immediate fix
-}
-
-export class BlueprintError extends Error {
-  constructor(
-    message: string,
-    public code: string,
-    public severity: BlueprintErrorSeverity,
-    public recoverable: boolean,
-    public context?: Record<string, any>
-  ) {
-    super(message);
-    this.name = 'BlueprintError';
-  }
-}
-
-// Specific error types
-export class BlueprintNotFoundError extends BlueprintError {
-  constructor(blueprintId: string) {
-    super(
-      `Blueprint not found: ${blueprintId}`,
-      'BLUEPRINT_NOT_FOUND',
-      BlueprintErrorSeverity.High,
-      false,
-      { blueprintId }
-    );
-  }
-}
-
-export class BlueprintPermissionError extends BlueprintError {
-  constructor(action: string, blueprintId: string) {
-    super(
-      `Permission denied for ${action} on blueprint ${blueprintId}`,
-      'BLUEPRINT_PERMISSION_DENIED',
-      BlueprintErrorSeverity.High,
-      false,
-      { action, blueprintId }
-    );
-  }
-}
-```
-
-##### 2. Error Boundary Component
-
-```typescript
-// src/app/routes/blueprint/components/blueprint-error-boundary.component.ts
-@Component({
-  selector: 'blueprint-error-boundary',
-  standalone: true,
-  imports: [SHARED_IMPORTS],
-  template: `
-    @if (error()) {
-      <nz-result
-        [nzStatus]="getStatus()"
-        [nzTitle]="error()!.message"
-        [nzSubTitle]="getSubtitle()">
-        <div nz-result-extra>
-          @if (error()!.recoverable) {
-            <button nz-button nzType="primary" (click)="retry()">
-              Retry
-            </button>
-          }
-          <button nz-button (click)="goBack()">
-            Go Back
-          </button>
-        </div>
-      </nz-result>
-    } @else {
-      <ng-content />
-    }
-  `
-})
-export class BlueprintErrorBoundaryComponent {
-  error = signal<BlueprintError | null>(null);
-  
-  private router = inject(Router);
-  private logger = inject(LoggerService);
-  
-  catchError(error: unknown): void {
-    if (error instanceof BlueprintError) {
-      this.error.set(error);
-      this.logger.error('Blueprint Error', error, error.context);
-    } else {
-      // Wrap unknown errors
-      this.error.set(new BlueprintError(
-        String(error),
-        'UNKNOWN_ERROR',
-        BlueprintErrorSeverity.Medium,
-        true
-      ));
-    }
-  }
-  
-  retry(): void {
-    this.error.set(null);
-    // Retry logic
-  }
-  
-  goBack(): void {
-    this.router.navigate(['/blueprint']);
-  }
-  
-  getStatus(): 'error' | '403' | '404' | '500' {
-    const code = this.error()?.code;
-    if (code === 'BLUEPRINT_NOT_FOUND') return '404';
-    if (code === 'BLUEPRINT_PERMISSION_DENIED') return '403';
-    return 'error';
-  }
-  
-  getSubtitle(): string {
-    return this.error()?.recoverable 
-      ? 'This error is recoverable. Please try again.'
-      : 'Please contact support if this persists.';
-  }
-}
-```
-
-##### 3. Error Handling in Services
-
-```typescript
-// In BlueprintService
-async getById(id: string): Promise<Blueprint> {
-  try {
-    const blueprint = await this.repository.getById(id);
-    
-    if (!blueprint) {
-      throw new BlueprintNotFoundError(id);
-    }
-    
-    // Permission check
-    const canRead = await this.permissionService.canRead(id);
-    if (!canRead) {
-      throw new BlueprintPermissionError('read', id);
-    }
-    
-    return blueprint;
-  } catch (error) {
-    // Re-throw typed errors
-    if (error instanceof BlueprintError) {
-      throw error;
-    }
-    
-    // Wrap Firestore errors
-    if (error.code === 'permission-denied') {
-      throw new BlueprintPermissionError('read', id);
-    }
-    
-    // Generic error
-    throw new BlueprintError(
-      'Failed to load blueprint',
-      'BLUEPRINT_LOAD_FAILED',
-      BlueprintErrorSeverity.High,
-      true,
-      { error, blueprintId: id }
-    );
-  }
-}
-```
-
-##### 4. Global Error Handler
-
-```typescript
-// src/app/core/services/global-error-handler.service.ts
-@Injectable()
-export class GlobalErrorHandler implements ErrorHandler {
-  private logger = inject(LoggerService);
-  private message = inject(NzMessageService);
-  
-  handleError(error: any): void {
-    if (error instanceof BlueprintError) {
-      this.handleBlueprintError(error);
-    } else {
-      this.handleUnknownError(error);
-    }
-  }
-  
-  private handleBlueprintError(error: BlueprintError): void {
-    // Log with severity
-    this.logger.error(error.message, error, error.context);
-    
-    // Show user-friendly message
-    switch (error.severity) {
-      case BlueprintErrorSeverity.Critical:
-        this.message.error(error.message, { nzDuration: 0 });
-        break;
-      case BlueprintErrorSeverity.High:
-        this.message.error(error.message);
-        break;
-      case BlueprintErrorSeverity.Medium:
-        this.message.warning(error.message);
-        break;
-      case BlueprintErrorSeverity.Low:
-        this.message.info(error.message);
-        break;
-    }
-  }
-}
-```
+**規則**:
+- 必須實作四層錯誤防護：UI 層（Error Boundary Component）、Service 層（Try-catch 包裝）、Repository 層（Firestore 錯誤轉換）、Global 層（GlobalErrorHandler）
+- 必須定義錯誤分類：BlueprintErrorSeverity（Low、Medium、High、Critical）
+- BlueprintError 必須繼承自 Error，包含 `code`、`severity`、`recoverable`、`context`
+- 必須定義特定錯誤類型：BlueprintNotFoundError、BlueprintPermissionError
+- Error Boundary Component 必須捕獲並顯示錯誤
+- 必須實作 `catchError()` 方法處理錯誤
+- 必須實作 `retry()` 方法重試操作
+- 必須實作 `goBack()` 方法返回上一頁
+- Service 層必須使用 try-catch 包裝，拋出類型化錯誤
+- Repository 層必須將 Firestore 錯誤轉換為領域錯誤
+- GlobalErrorHandler 必須根據錯誤嚴重性顯示適當的訊息
 
 ### 生命週期管理 (Lifecycle Management)
 
-#### Component Lifecycle Hooks
-
-Blueprint 模組元件生命週期管理策略:
-
-##### 1. Lifecycle Phases
-
-```typescript
-export class BlueprintDetailComponent implements OnInit, OnDestroy {
-  // Phase 1: Construction
-  constructor() {
-    // Only inject dependencies
-    // NO business logic here
-  }
-  
-  // Phase 2: Initialization
-  ngOnInit(): void {
-    // Setup phase
-    this.loadBlueprint();
-    this.setupSubscriptions();
-    this.initializeContext();
-  }
-  
-  // Phase 3: Active (signal-based reactivity)
-  // No explicit hook - handled by signals
-  
-  // Phase 4: Cleanup
-  ngOnDestroy(): void {
-    // Cleanup subscriptions (auto with takeUntilDestroyed)
-    // Clear context
-    this.context.clear();
-  }
-}
-```
-
-##### 2. Lifecycle Best Practices
-
-```typescript
-// ✅ GOOD: Use takeUntilDestroyed() for subscriptions
-export class BlueprintListComponent {
-  private blueprintService = inject(BlueprintService);
-  
-  constructor() {
-    // Auto-cleanup with takeUntilDestroyed
-    this.blueprintService.list()
-      .pipe(takeUntilDestroyed())
-      .subscribe(blueprints => {
-        this.blueprints.set(blueprints);
-      });
-  }
-}
-
-// ✅ GOOD: Use signals for reactive state (no manual cleanup needed)
-export class BlueprintDetailComponent {
-  blueprint = signal<Blueprint | null>(null);
-  
-  // Computed values auto-update
-  blueprintName = computed(() => this.blueprint()?.name || 'Loading...');
-  enabledModules = computed(() => this.blueprint()?.enabled_modules || []);
-}
-
-// ❌ BAD: Manual subscription without cleanup
-export class BadComponent implements OnInit {
-  ngOnInit(): void {
-    this.service.data$.subscribe(data => {
-      // Memory leak - no cleanup!
-    });
-  }
-}
-```
-
-##### 3. Service Lifecycle
-
-```typescript
-// Singleton service (providedIn: 'root')
-@Injectable({ providedIn: 'root' })
-export class BlueprintService {
-  // Lives for entire application lifetime
-  // State persists across route changes
-  
-  private cacheSignal = signal<Map<string, Blueprint>>(new Map());
-  
-  // NO ngOnDestroy - never destroyed
-}
-
-// Scoped service (provided in component)
-@Injectable()
-export class BlueprintContextService implements OnDestroy {
-  // Lives only within component tree
-  // Destroyed when component is destroyed
-  
-  ngOnDestroy(): void {
-    this.cleanup();
-  }
-}
-```
-
-##### 4. Async Lifecycle
-
-```typescript
-export class BlueprintListComponent {
-  loading = signal(false);
-  error = signal<Error | null>(null);
-  
-  async loadBlueprints(): Promise<void> {
-    this.loading.set(true);
-    this.error.set(null);
-    
-    try {
-      const blueprints = await this.service.list();
-      this.blueprints.set(blueprints);
-    } catch (error) {
-      this.error.set(error as Error);
-    } finally {
-      this.loading.set(false);
-    }
-  }
-}
-```
+**規則**:
+- 元件生命週期必須遵循四個階段：Construction（僅注入依賴）、Initialization（在 `ngOnInit` 中執行業務邏輯）、Active（使用 Signals 處理響應式）、Cleanup（在 `ngOnDestroy` 中清理）
+- 禁止在 constructor 中執行業務邏輯
+- 必須使用 `takeUntilDestroyed()` 管理訂閱（自動清理）
+- 必須使用 Signals 進行響應式狀態管理（無需手動清理）
+- 禁止手動管理 subscriptions（不使用 `takeUntilDestroyed()`）
+- Service 生命週期：Singleton service（`providedIn: 'root'`）生命週期與應用程式相同，Scoped service（在元件中提供）生命週期與元件相同
+- 非同步生命週期必須使用 `signal(false)` 管理 loading 狀態，使用 `signal<Error | null>(null)` 管理 error 狀態
 
 ### 系統化模塊擴展 (Systematic Module Extension)
 
-#### Module Extension Framework
-
-##### 1. Module Registry Pattern
-
-```typescript
-// src/app/routes/blueprint/config/module-registry.ts
-export interface ModuleDefinition {
-  id: string;
-  name: string;
-  icon: string;
-  description: string;
-  route: string;
-  requiredPermission: string;
-  dependencies?: string[]; // Other module IDs
-  configSchema?: any;
-}
-
-export const BLUEPRINT_MODULES: Record<string, ModuleDefinition> = {
-  task: {
-    id: 'task',
-    name: '任務管理',
-    icon: 'check-square',
-    description: '追蹤與管理專案任務',
-    route: 'tasks',
-    requiredPermission: 'task:read'
-  },
-  diary: {
-    id: 'diary',
-    name: '施工日誌',
-    icon: 'file-text',
-    description: '記錄每日施工進度',
-    route: 'diary',
-    requiredPermission: 'diary:read',
-    dependencies: ['task'] // Requires task module
-  },
-  quality: {
-    id: 'quality',
-    name: '品質管理',
-    icon: 'safety',
-    description: '品質檢查與缺陷追蹤',
-    route: 'quality',
-    requiredPermission: 'quality:read'
-  },
-  financial: {
-    id: 'financial',
-    name: '財務管理',
-    icon: 'dollar',
-    description: '預算與成本追蹤',
-    route: 'financial',
-    requiredPermission: 'financial:read'
-  }
-};
-```
-
-##### 2. Adding New Module Checklist
-
-**步驟化新增模組流程**:
-
-```markdown
-## 新增模組檢查清單
-
-### Phase 1: 規劃 (Planning)
-- [ ] 定義模組 ID 與名稱
-- [ ] 設計資料模型 (interfaces)
-- [ ] 規劃 UI 元件結構
-- [ ] 確認依賴的其他模組
-- [ ] 設計權限需求
-
-### Phase 2: 註冊 (Registration)
-- [ ] 在 `module-registry.ts` 註冊模組定義
-- [ ] 更新 Blueprint 介面的 `enabled_modules` 類型
-- [ ] 在 Firestore 建立對應 collection
-- [ ] 建立 Firestore Security Rules
-
-### Phase 3: 實作 (Implementation)
-- [ ] 建立模組目錄: `src/app/routes/[module]/`
-- [ ] 建立 AGENTS.md 文件
-- [ ] 實作資料模型: `types/[module].types.ts`
-- [ ] 實作 Repository: `repositories/[module]/[module].repository.ts`
-- [ ] 實作 Service: `services/[module]/[module].service.ts`
-- [ ] 實作 List Component
-- [ ] 實作 Detail Component
-- [ ] 實作 Modal Component
-- [ ] 建立路由配置: `routes.ts`
-
-### Phase 4: 整合 (Integration)
-- [ ] 註冊路由到主路由: `src/app/routes/routes.ts`
-- [ ] 加入 moduleEnabledGuard
-- [ ] 整合到 Blueprint Detail 頁面
-- [ ] 加入側邊欄選單項目
-- [ ] 實作事件整合 (Event Bus)
-
-### Phase 5: 測試 (Testing)
-- [ ] 單元測試 (Repository, Service)
-- [ ] 元件測試 (List, Detail, Modal)
-- [ ] 整合測試 (與 Blueprint 整合)
-- [ ] 權限測試 (Security Rules)
-- [ ] E2E 測試 (使用者流程)
-
-### Phase 6: 文件 (Documentation)
-- [ ] 更新模組 AGENTS.md
-- [ ] 更新 Blueprint AGENTS.md (整合點)
-- [ ] 建立使用者指南
-- [ ] 建立 API 文件
-```
-
-##### 3. Module Template
-
-```typescript
-// Template for new module service
-// src/app/routes/[module]/services/[module].service.ts
-
-import { Injectable, inject } from '@angular/core';
-import { Observable } from 'rxjs';
-import { ModuleRepository } from '../repositories/[module].repository';
-import { ModuleEntity } from '../types/[module].types';
-import { BlueprintEventBus, BlueprintEventType } from '@routes/blueprint/services/blueprint-event-bus.service';
-
-@Injectable({ providedIn: 'root' })
-export class ModuleService {
-  private repository = inject(ModuleRepository);
-  private eventBus = inject(BlueprintEventBus);
-  private auth = inject(Auth);
-  
-  // CRUD Operations
-  async list(blueprintId: string): Promise<ModuleEntity[]> {
-    return this.repository.list(blueprintId);
-  }
-  
-  async getById(id: string): Promise<ModuleEntity> {
-    return this.repository.getById(id);
-  }
-  
-  async create(blueprintId: string, data: Partial<ModuleEntity>): Promise<ModuleEntity> {
-    const entity = await this.repository.create(blueprintId, data);
-    
-    // Emit event
-    this.eventBus.emit({
-      type: '[module].created' as BlueprintEventType,
-      blueprintId,
-      timestamp: Date.now(),
-      actor: this.auth.currentUser!.uid,
-      data: entity
-    });
-    
-    return entity;
-  }
-  
-  async update(id: string, data: Partial<ModuleEntity>): Promise<ModuleEntity> {
-    const entity = await this.repository.update(id, data);
-    
-    // Emit event
-    this.eventBus.emit({
-      type: '[module].updated' as BlueprintEventType,
-      blueprintId: entity.blueprint_id,
-      timestamp: Date.now(),
-      actor: this.auth.currentUser!.uid,
-      data: entity
-    });
-    
-    return entity;
-  }
-  
-  async delete(id: string): Promise<void> {
-    const entity = await this.repository.getById(id);
-    await this.repository.softDelete(id);
-    
-    // Emit event
-    this.eventBus.emit({
-      type: '[module].deleted' as BlueprintEventType,
-      blueprintId: entity.blueprint_id,
-      timestamp: Date.now(),
-      actor: this.auth.currentUser!.uid,
-      data: { id }
-    });
-  }
-}
-```
-
-##### 4. Module Integration Points
-
-```typescript
-// Blueprint Detail Component - Dynamic module loading
-export class BlueprintDetailComponent {
-  enabledModules = computed(() => {
-    const bp = this.blueprint();
-    if (!bp) return [];
-    
-    return bp.enabled_modules
-      .map(id => BLUEPRINT_MODULES[id])
-      .filter(m => m !== undefined);
-  });
-  
-  navigateToModule(module: ModuleDefinition): void {
-    this.router.navigate([
-      '/blueprint',
-      this.blueprint()!.id,
-      module.route
-    ]);
-  }
-}
-```
+**規則**:
+- 必須使用 Module Registry Pattern 註冊模塊定義
+- ModuleDefinition 必須包含 `id`、`name`、`icon`、`description`、`route`、`requiredPermission`、`dependencies`（可選）、`configSchema`（可選）
+- 新增模組必須遵循六個階段：規劃（定義模組 ID、設計資料模型、規劃 UI 元件結構、確認依賴、設計權限需求）、註冊（在 `module-registry.ts` 註冊、更新 Blueprint 介面、建立 Firestore collection、建立 Security Rules）、實作（建立模組目錄、建立 AGENTS.md、實作資料模型、實作 Repository、實作 Service、實作元件、建立路由配置）、整合（註冊路由、加入守衛、整合到 Blueprint Detail 頁面、加入側邊欄選單、實作事件整合）、測試（單元測試、元件測試、整合測試、權限測試、E2E 測試）、文件（更新模組 AGENTS.md、更新 Blueprint AGENTS.md、建立使用者指南、建立 API 文件）
+- 模組服務必須實作 CRUD 操作（list、getById、create、update、delete）
+- 模組服務必須在操作後透過 EventBus 發送事件
+- Blueprint Detail Component 必須動態載入啟用的模組
 
 ## Components Overview
 
 ### BlueprintListComponent
 
-**Purpose**: Main entry point showing all accessible blueprints  
-**File**: `blueprint-list.component.ts` (312 lines)
-
-**Key Features**:
-- ST table with pagination
-- Status filtering (draft/active/archived)
-- Owner type filtering
-- Quick actions (view, edit, delete)
-- Create new blueprint modal
-
-**State Management**:
-```typescript
-blueprints = signal<Blueprint[]>([]);
-loading = signal(false);
-selectedStatus = signal<string>('all');
-```
-
-**Table Configuration**:
-```typescript
-columns: STColumn[] = [
-  { title: 'Name', index: 'name', click: (item) => this.view(item) },
-  { title: 'Status', index: 'status', type: 'badge' },
-  { title: 'Owner', index: 'owner_type' },
-  { title: 'Modules', render: 'modulesTemplate' },
-  { title: 'Created', index: 'created_at', type: 'date' },
-  { title: 'Actions', buttons: [...] }
-];
-```
-
-**Common Operations**:
-- `loadBlueprints()`: Fetch and display blueprints
-- `create()`: Open modal for new blueprint
-- `edit(blueprint)`: Open modal for editing
-- `delete(blueprint)`: Soft delete with confirmation
+**規則**:
+- 目的：顯示所有可存取的 Blueprints 的主要入口點
+- 必須使用 ST table 進行列表顯示，包含分頁
+- 必須支援狀態篩選（draft/active/archived）
+- 必須支援擁有者類型篩選
+- 必須提供快速操作（view、edit、delete）
+- 必須提供建立新 Blueprint 的模態框
+- 必須使用 `signal<Blueprint[]>([])` 管理 Blueprints 列表
+- 必須使用 `signal(false)` 管理 loading 狀態
+- 必須使用 `signal<string>('all')` 管理選中的狀態
+- 必須實作 `loadBlueprints()` 方法載入並顯示 Blueprints
+- 必須實作 `create()` 方法開啟建立模態框
+- 必須實作 `edit(blueprint)` 方法開啟編輯模態框
+- 必須實作 `delete(blueprint)` 方法進行軟刪除（帶確認）
 
 ### BlueprintDetailComponent
 
-**Purpose**: Shows full blueprint information and quick actions  
-**File**: `blueprint-detail.component.ts` (384 lines)
-
-**Key Features**:
-- Basic info display (name, slug, status, owner)
-- Enabled modules grid with icons
-- Quick action buttons (members, settings, audit, export)
-- Breadcrumb navigation
-- Permission-based UI controls
-
-**State Management**:
-```typescript
-blueprint = signal<Blueprint | null>(null);
-loading = signal(false);
-canEdit = signal(false);
-canDelete = signal(false);
-canManageMembers = signal(false);
-```
-
-**Computed Values**:
-```typescript
-enabledModules = computed(() => {
-  const bp = this.blueprint();
-  return bp ? this.getModuleInfo(bp.enabled_modules) : [];
-});
-```
-
-**Permission Checks**:
-```typescript
-ngOnInit() {
-  this.loadBlueprint();
-  this.checkPermissions();
-}
-
-async checkPermissions() {
-  const blueprintId = this.blueprint()?.id;
-  if (!blueprintId) return;
-  
-  this.canEdit.set(
-    await this.permissionService.canEdit(blueprintId)
-  );
-  this.canManageMembers.set(
-    await this.permissionService.canManageMembers(blueprintId)
-  );
-}
-```
+**規則**:
+- 目的：顯示完整的 Blueprint 資訊和快速操作
+- 必須顯示基本資訊（name、slug、status、owner）
+- 必須顯示啟用的模組網格（帶圖示）
+- 必須提供快速操作按鈕（members、settings、audit、export）
+- 必須提供麵包屑導航
+- 必須提供基於權限的 UI 控制
+- 必須使用 `signal<Blueprint | null>(null)` 管理 Blueprint
+- 必須使用 `signal(false)` 管理 loading 狀態
+- 必須使用 `signal(false)` 管理權限狀態（canEdit、canDelete、canManageMembers）
+- 必須使用 `computed()` 計算啟用的模組資訊
+- 必須在 `ngOnInit` 中載入 Blueprint 並檢查權限
+- 必須實作 `checkPermissions()` 方法檢查權限
 
 ### BlueprintModalComponent
 
-**Purpose**: Unified create/edit modal with form validation  
-**File**: `blueprint-modal.component.ts` (332 lines)
-
-**Key Features**:
-- Reactive form with validation
-- Auto-generate slug from name
-- Module selection checkboxes
-- Owner type/ID selection
-- Status and visibility toggles
-
-**Form Definition**:
-```typescript
-form = this.fb.group({
-  name: ['', [Validators.required, Validators.minLength(3)]],
-  slug: ['', [Validators.required, Validators.pattern(/^[a-z0-9-]+$/)]],
-  description: [''],
-  owner_type: ['user', Validators.required],
-  owner_id: ['', Validators.required],
-  status: ['draft', Validators.required],
-  visibility: ['private', Validators.required],
-  enabled_modules: [[], Validators.required]
-});
-```
-
-**Auto-slug Generation**:
-```typescript
-ngOnInit() {
-  this.form.get('name')?.valueChanges.subscribe(name => {
-    if (this.mode === 'create') {
-      const slug = this.generateSlug(name);
-      this.form.patchValue({ slug }, { emitEvent: false });
-    }
-  });
-}
-
-generateSlug(name: string): string {
-  return name
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '');
-}
-```
-
-**Save Flow**:
-```typescript
-async save() {
-  if (!this.form.valid) return;
-  
-  const data = this.form.value;
-  
-  // Validate with ValidationService
-  const validation = this.validationService.validate(
-    data,
-    this.mode === 'create' ? 
-      BlueprintCreateSchema : 
-      BlueprintUpdateSchema
-  );
-  
-  if (!validation.valid) {
-    this.showErrors(validation.errors);
-    return;
-  }
-  
-  // Call service
-  const result = this.mode === 'create' ?
-    await this.blueprintService.create(data) :
-    await this.blueprintService.update(this.blueprint!.id, data);
-  
-  this.modal.close(result);
-}
-```
+**規則**:
+- 目的：統一的建立/編輯模態框，包含表單驗證
+- 必須使用 Reactive Form 進行表單管理
+- 必須實作表單驗證（name、slug、owner_type、owner_id、enabled_modules）
+- 必須自動從 name 生成 slug（僅在建立模式）
+- 必須提供模組選擇複選框
+- 必須提供擁有者類型/ID 選擇
+- 必須提供狀態和可見性切換
+- 必須在 `ngOnInit` 中監聽 name 變更並自動生成 slug
+- 必須實作 `generateSlug()` 方法生成 slug
+- 必須實作 `save()` 方法保存資料
+- 必須使用 ValidationService 進行驗證
+- 必須在驗證失敗時顯示錯誤
 
 ### BlueprintMembersComponent
 
-**Purpose**: Manage blueprint member access and roles  
-**File**: `members/blueprint-members.component.ts` (221 lines)
-
-**Key Features**:
-- ST table showing all members
-- Role badges (viewer/contributor/maintainer)
-- Business role display
-- Add/edit/remove member actions
-- External member indicator
-
-**Table Configuration**:
-```typescript
-columns: STColumn[] = [
-  { title: 'Account ID', index: 'account_id' },
-  { 
-    title: 'System Role', 
-    index: 'role',
-    type: 'badge',
-    badge: {
-      viewer: { text: 'Viewer', color: 'default' },
-      contributor: { text: 'Contributor', color: 'processing' },
-      maintainer: { text: 'Maintainer', color: 'success' }
-    }
-  },
-  { title: 'Business Role', index: 'business_role' },
-  { title: 'External', index: 'is_external', type: 'yn' },
-  { title: 'Granted', index: 'granted_at', type: 'date' },
-  { title: 'Actions', buttons: [...] }
-];
-```
-
-**Member Operations**:
-```typescript
-async addMember() {
-  const result = await this.modal.create(MemberModalComponent, {
-    mode: 'add',
-    blueprintId: this.blueprintId
-  }).toPromise();
-  
-  if (result) {
-    await this.loadMembers();
-  }
-}
-
-async removeMember(member: BlueprintMember) {
-  const confirmed = await this.modal.confirm({
-    title: 'Remove Member',
-    content: `Remove ${member.account_id}?`
-  }).toPromise();
-  
-  if (confirmed) {
-    await this.blueprintService.removeMember(
-      this.blueprintId, 
-      member.id
-    );
-    await this.loadMembers();
-  }
-}
-```
+**規則**:
+- 目的：管理 Blueprint 成員存取和角色
+- 必須使用 ST table 顯示所有成員
+- 必須顯示角色徽章（viewer/contributor/maintainer）
+- 必須顯示業務角色
+- 必須提供新增/編輯/移除成員的操作
+- 必須顯示外部成員指示器
+- 必須實作 `addMember()` 方法新增成員
+- 必須實作 `removeMember()` 方法移除成員（帶確認）
 
 ### AuditLogsComponent
 
-**Purpose**: View immutable audit trail  
-**File**: `audit/audit-logs.component.ts` (271 lines)
-
-**Key Features**:
-- ST table with all audit logs
-- Filter by entity type
-- Filter by operation
-- Timestamp formatting
-- Detail view modal
-
-**Filtering**:
-```typescript
-selectedEntityType = signal<string>('all');
-selectedOperation = signal<string>('all');
-
-filteredLogs = computed(() => {
-  let logs = this.logs();
-  
-  const entityType = this.selectedEntityType();
-  if (entityType !== 'all') {
-    logs = logs.filter(log => log.entity_type === entityType);
-  }
-  
-  const operation = this.selectedOperation();
-  if (operation !== 'all') {
-    logs = logs.filter(log => log.operation === operation);
-  }
-  
-  return logs;
-});
-```
+**規則**:
+- 目的：檢視不可變的稽核追蹤
+- 必須使用 ST table 顯示所有稽核日誌
+- 必須支援按實體類型篩選
+- 必須支援按操作篩選
+- 必須格式化時間戳記
+- 必須提供詳情視圖模態框
+- 必須使用 `signal<string>('all')` 管理選中的實體類型和操作
+- 必須使用 `computed()` 計算篩選後的日誌
 
 ## Permission System
 
 ### Role Hierarchy
 
-```
-Maintainer (維護者)
-├─ All permissions
-├─ Manage members
-├─ Manage settings
-├─ Delete blueprint
-└─ Full CRUD on all modules
-
-Contributor (貢獻者)
-├─ Read blueprint
-├─ Edit blueprint
-├─ CRUD on tasks, diary, quality
-└─ Cannot manage members/settings
-
-Viewer (檢視者)
-└─ Read-only access to all modules
-```
+**規則**:
+- Maintainer（維護者）：所有權限、管理成員、管理設定、刪除 Blueprint、所有模組的完整 CRUD
+- Contributor（貢獻者）：讀取 Blueprint、編輯 Blueprint、任務/日誌/品質的 CRUD、無法管理成員/設定
+- Viewer（檢視者）：所有模組的唯讀存取
 
 ### Permission Checks
 
-**Client-side (UI control)**:
-```typescript
-// In component
-canEdit = signal(false);
-
-ngOnInit() {
-  this.permissionService
-    .canEdit(this.blueprintId)
-    .subscribe(can => this.canEdit.set(can));
-}
-
-// In template
-@if (canEdit()) {
-  <button (click)="edit()">Edit</button>
-}
-```
-
-**Server-side (Firestore Security Rules)**:
-```javascript
-// In firestore.rules
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    // Blueprints collection
-    match /blueprints/{blueprintId} {
-      allow read: if canReadBlueprint(blueprintId);
-      allow update: if canEditBlueprint(blueprintId);
-      allow delete: if hasRole(blueprintId, 'maintainer');
-    }
-    
-    // Helper functions
-    function canReadBlueprint(blueprintId) {
-      let blueprint = get(/databases/$(database)/documents/blueprints/$(blueprintId));
-      return request.auth != null && (
-        // Owner check
-        blueprint.data.owner_type == 'user' && blueprint.data.owner_id == request.auth.uid ||
-        // Member check
-        exists(/databases/$(database)/documents/blueprint_members/$(blueprintId + '_' + request.auth.uid))
-      );
-    }
-    
-    function canEditBlueprint(blueprintId) {
-      return request.auth != null && (
-        canReadBlueprint(blueprintId) &&
-        hasRole(blueprintId, ['contributor', 'maintainer'])
-      );
-    }
-    
-    function hasRole(blueprintId, roles) {
-      let memberDoc = get(/databases/$(database)/documents/blueprint_members/$(blueprintId + '_' + request.auth.uid));
-      return memberDoc.data.role in roles;
-    }
-  }
-}
-```
+**規則**:
+- 客戶端（UI 控制）：必須在元件中使用 `permissionService.canEdit(blueprintId)` 檢查權限，必須使用 `signal(false)` 管理權限狀態，必須在模板中使用 `@if (canEdit())` 控制 UI 顯示
+- 伺服器端（Firestore Security Rules）：必須在 `firestore.rules` 中實作權限檢查，必須使用 `canReadBlueprint()` 函數檢查讀取權限，必須使用 `canEditBlueprint()` 函數檢查編輯權限，必須使用 `hasRole()` 函數檢查用戶角色，必須檢查擁有者（owner_type 和 owner_id），必須檢查成員（blueprint_members collection）
 
 ### Firestore Security Rules Structure
 
-**Main Rules File**: `firestore.rules` in project root
-
-**Key Functions**:
-- `canReadBlueprint()` - Check read permission
-- `canEditBlueprint()` - Check edit permission
-- `hasRole()` - Check user's role in blueprint
-- `isOwner()` - Check if user owns the blueprint
-
-**Protected Collections**:
-1. `blueprints` - Main blueprint documents
-2. `blueprint_members` - Member roles and permissions
-3. `blueprint_tasks` - Tasks (subcollection or top-level)
-4. `blueprint_logs` - Activity logs
-5. `blueprint_audit` - Audit logs (immutable)
-
-**Rule Examples**:
-```javascript
-// Read-only audit logs
-match /blueprint_audit/{auditId} {
-  allow read: if canReadBlueprint(resource.data.blueprint_id);
-  allow create: if true; // System creates these
-  allow update, delete: if false; // Immutable
-}
-
-// Member management (maintainer only)
-match /blueprint_members/{memberId} {
-  allow read: if canReadBlueprint(resource.data.blueprint_id);
-  allow write: if hasRole(resource.data.blueprint_id, ['maintainer']);
-}
-```
+**規則**:
+- 主要規則檔案：`firestore.rules` 在專案根目錄
+- 關鍵函數：`canReadBlueprint()`（檢查讀取權限）、`canEditBlueprint()`（檢查編輯權限）、`hasRole()`（檢查用戶在 Blueprint 中的角色）、`isOwner()`（檢查用戶是否擁有 Blueprint）
+- 受保護的集合：`blueprints`（主要 Blueprint 文件）、`blueprint_members`（成員角色和權限）、`blueprint_tasks`（任務）、`blueprint_logs`（活動日誌）、`blueprint_audit`（稽核日誌，不可變）
+- 稽核日誌規則：允許讀取（如果可讀取 Blueprint）、允許建立（系統建立）、禁止更新和刪除（不可變）
+- 成員管理規則：允許讀取（如果可讀取 Blueprint）、允許寫入（僅 maintainer）
 
 ## Validation
 
-### Schema-based Validation
-
-**Create Blueprint Schema**:
-```typescript
-export const BlueprintCreateSchema: ValidationSchema = {
-  name: [
-    { type: 'required', message: '名稱為必填' },
-    { type: 'minLength', value: 3, message: '名稱至少需要 3 個字元' },
-    { type: 'maxLength', value: 100, message: '名稱最多 100 個字元' }
-  ],
-  slug: [
-    { type: 'required', message: 'Slug 為必填' },
-    { 
-      type: 'pattern', 
-      value: /^[a-z0-9-]+$/, 
-      message: 'Slug 只能包含小寫字母、數字和連字符' 
-    }
-  ],
-  owner_type: [
-    { type: 'required', message: '擁有者類型為必填' }
-  ],
-  owner_id: [
-    { type: 'required', message: '擁有者 ID 為必填' }
-  ],
-  enabled_modules: [
-    { 
-      type: 'custom', 
-      value: (val) => Array.isArray(val) && val.length > 0,
-      message: '至少需要啟用一個模組' 
-    }
-  ]
-};
-```
-
-**Update Blueprint Schema**:
-```typescript
-export const BlueprintUpdateSchema: ValidationSchema = {
-  name: [
-    { type: 'minLength', value: 3, message: '名稱至少需要 3 個字元' },
-    { type: 'maxLength', value: 100, message: '名稱最多 100 個字元' }
-  ],
-  slug: [
-    { 
-      type: 'pattern', 
-      value: /^[a-z0-9-]+$/, 
-      message: 'Slug 只能包含小寫字母、數字和連字符' 
-    }
-  ]
-};
-```
+**規則**:
+- 必須使用基於 Schema 的驗證
+- BlueprintCreateSchema 必須驗證：name（必填、最少 3 個字元、最多 100 個字元）、slug（必填、只能包含小寫字母、數字和連字符）、owner_type（必填）、owner_id（必填）、enabled_modules（至少需要啟用一個模組）
+- BlueprintUpdateSchema 必須驗證：name（最少 3 個字元、最多 100 個字元）、slug（只能包含小寫字母、數字和連字符）
+- 必須使用 ValidationService 進行驗證
 
 ## Services & Repositories
 
 ### BlueprintService
 
-**Location**: `src/app/shared/services/blueprint/blueprint.service.ts`
-
-**Methods**:
-```typescript
-@Injectable({ providedIn: 'root' })
-export class BlueprintService {
-  // CRUD operations
-  async list(): Promise<Blueprint[]>
-  async getById(id: string): Promise<Blueprint>
-  async create(data: CreateBlueprintDto): Promise<Blueprint>
-  async update(id: string, data: UpdateBlueprintDto): Promise<Blueprint>
-  async delete(id: string): Promise<void>
-  
-  // Member management
-  async listMembers(blueprintId: string): Promise<BlueprintMember[]>
-  async addMember(blueprintId: string, data: AddMemberDto): Promise<BlueprintMember>
-  async updateMember(blueprintId: string, memberId: string, data: UpdateMemberDto): Promise<BlueprintMember>
-  async removeMember(blueprintId: string, memberId: string): Promise<void>
-  
-  // Audit logs
-  async getAuditLogs(blueprintId: string): Promise<AuditLog[]>
-  
-  // Module management
-  async enableModule(blueprintId: string, moduleId: string): Promise<void>
-  async disableModule(blueprintId: string, moduleId: string): Promise<void>
-}
-```
+**規則**:
+- 位置：`src/app/shared/services/blueprint/blueprint.service.ts`
+- 必須實作 CRUD 操作：`list()`、`getById(id)`、`create(data)`、`update(id, data)`、`delete(id)`
+- 必須實作成員管理：`listMembers(blueprintId)`、`addMember(blueprintId, data)`、`updateMember(blueprintId, memberId, data)`、`removeMember(blueprintId, memberId)`
+- 必須實作稽核日誌：`getAuditLogs(blueprintId)`
+- 必須實作模組管理：`enableModule(blueprintId, moduleId)`、`disableModule(blueprintId, moduleId)`
 
 ### BlueprintRepository
 
-**Location**: `src/app/core/infra/repositories/blueprint/blueprint.repository.ts`
-
-**Responsibilities**:
-- Direct Firestore database access
-- Query building with @angular/fire
-- Data transformation
-- Error handling
-
-**Example**:
-```typescript
-import { Injectable, inject } from '@angular/core';
-import { 
-  Firestore, 
-  collection, 
-  doc, 
-  getDoc, 
-  getDocs, 
-  addDoc, 
-  updateDoc, 
-  query, 
-  where, 
-  orderBy,
-  Timestamp 
-} from '@angular/fire/firestore';
-
-@Injectable({ providedIn: 'root' })
-export class BlueprintRepository {
-  private firestore = inject(Firestore);
-  
-  async list(): Promise<Blueprint[]> {
-    try {
-      const blueprintsRef = collection(this.firestore, 'blueprints');
-      const q = query(
-        blueprintsRef,
-        where('deleted_at', '==', null),
-        orderBy('created_at', 'desc')
-      );
-      
-      const querySnapshot = await getDocs(q);
-      return querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })) as Blueprint[];
-    } catch (error) {
-      throw new BlueprintError('Failed to fetch blueprints', {
-        severity: ErrorSeverity.High,
-        context: { error }
-      });
-    }
-  }
-  
-  async getById(id: string): Promise<Blueprint | null> {
-    const docRef = doc(this.firestore, 'blueprints', id);
-    const docSnap = await getDoc(docRef);
-    
-    if (!docSnap.exists()) return null;
-    
-    return { id: docSnap.id, ...docSnap.data() } as Blueprint;
-  }
-  
-  async create(data: Partial<Blueprint>): Promise<Blueprint> {
-    const blueprintsRef = collection(this.firestore, 'blueprints');
-    const docRef = await addDoc(blueprintsRef, {
-      ...data,
-      created_at: Timestamp.now(),
-      updated_at: Timestamp.now()
-    });
-    
-    return this.getById(docRef.id) as Promise<Blueprint>;
-  }
-  
-  async update(id: string, data: Partial<Blueprint>): Promise<Blueprint> {
-    const docRef = doc(this.firestore, 'blueprints', id);
-    await updateDoc(docRef, {
-      ...data,
-      updated_at: Timestamp.now()
-    });
-    
-    return this.getById(id) as Promise<Blueprint>;
-  }
-}
-```
+**規則**:
+- 位置：`src/app/core/infra/repositories/blueprint/blueprint.repository.ts`
+- 職責：直接 Firestore 資料庫存取、使用 @angular/fire 建立查詢、資料轉換、錯誤處理
+- 必須實作 `list()` 方法（查詢未刪除的 Blueprints，按建立時間降序）
+- 必須實作 `getById(id)` 方法（根據 ID 取得 Blueprint）
+- 必須實作 `create(data)` 方法（建立新的 Blueprint，自動設定 created_at 和 updated_at）
+- 必須實作 `update(id, data)` 方法（更新 Blueprint，自動設定 updated_at）
+- 必須實作 `findBySlug(slug)` 方法（根據 slug 查找 Blueprint）
+- 必須實作 `findByOwnerId(ownerId, ownerType)` 方法（根據擁有者查找 Blueprints）
 
 ## Available Modules
 
-Blueprints can enable the following business modules:
-
-| Module ID | Name | Icon | Description |
-|-----------|------|------|-------------|
-| `task` | 任務管理 | check-square | Task tracking and management |
-| `diary` | 施工日誌 | file-text | Daily construction logs |
-| `quality` | 品質管理 | safety | Quality control and inspections |
-| `financial` | 財務管理 | dollar | Budget and financial tracking |
-| `file` | 文件管理 | folder-open | Document storage and organization |
-| `notification` | 通知系統 | bell | In-app notifications |
-| `timeline` | 時間軸 | clock-circle | Project timeline visualization |
+**規則**:
+- Blueprints 可以啟用以下業務模組：task（任務管理）、diary（施工日誌）、quality（品質管理）、financial（財務管理）、file（文件管理）、notification（通知系統）、timeline（時間軸）
 
 ## Common Operations
 
-### Creating a Blueprint
-
-```typescript
-// In BlueprintListComponent
-async create() {
-  const result = await this.modal.create(BlueprintModalComponent, {
-    mode: 'create'
-  }).toPromise();
-  
-  if (result) {
-    await this.loadBlueprints();
-    this.message.success('Blueprint created successfully');
-  }
-}
-```
-
-### Adding a Member
-
-```typescript
-// In BlueprintMembersComponent
-async addMember() {
-  const result = await this.modal.create(MemberModalComponent, {
-    mode: 'add',
-    blueprintId: this.blueprintId
-  }).toPromise();
-  
-  if (result) {
-    await this.loadMembers();
-    this.message.success('Member added successfully');
-  }
-}
-```
-
-### Viewing Audit Logs
-
-```typescript
-// Navigate from detail page
-viewAudit() {
-  this.router.navigate(['/blueprint', this.blueprint()?.id, 'audit']);
-}
-```
+**規則**:
+- 建立 Blueprint：必須開啟建立模態框，必須驗證表單，必須在成功後重新載入列表並顯示成功訊息
+- 新增成員：必須開啟新增成員模態框，必須在成功後重新載入成員列表並顯示成功訊息
+- 檢視稽核日誌：必須從詳情頁面導航到稽核日誌頁面
 
 ## Integration Points
 
-### With Foundation Layer
-- **Account Service**: Validates owner_id existence
-- **Organization Service**: Checks org membership for org-owned blueprints
-- **Team Service**: Manages team-level access
-
-### With Business Layer
-- **Task Module**: Scoped by blueprint_id
-- **Diary Module**: Scoped by blueprint_id
-- **Quality Module**: Scoped by blueprint_id
-- **Financial Module**: Scoped by blueprint_id
-
-### With External Services
-- **Firebase Auth**: User identity and session management (@angular/fire/auth)
-- **Firebase Storage**: File uploads for blueprint documents (@angular/fire/storage)
-- **Firestore Realtime**: Real-time updates for collaboration (onSnapshot)
+**規則**:
+- 與基礎層整合：Account Service（驗證 owner_id 存在）、Organization Service（檢查組織成員資格）、Team Service（管理團隊級存取）
+- 與業務層整合：Task Module（限定在 blueprint_id 範圍內）、Diary Module（限定在 blueprint_id 範圍內）、Quality Module（限定在 blueprint_id 範圍內）、Financial Module（限定在 blueprint_id 範圍內）
+- 與外部服務整合：Firebase Auth（用戶身份和會話管理）、Firebase Storage（Blueprint 文件上傳）、Firestore Realtime（即時更新以進行協作）
 
 ## Testing
 
-### Unit Tests
-```typescript
-describe('BlueprintListComponent', () => {
-  it('should load blueprints on init', async () => {
-    const component = new BlueprintListComponent();
-    await component.ngOnInit();
-    expect(component.blueprints().length).toBeGreaterThan(0);
-  });
-  
-  it('should filter by status', () => {
-    component.selectedStatus.set('active');
-    const filtered = component.filteredBlueprints();
-    expect(filtered.every(b => b.status === 'active')).toBe(true);
-  });
-});
-```
-
-### E2E Tests
-```typescript
-test('should create new blueprint', async ({ page }) => {
-  await page.goto('/blueprint');
-  await page.click('button:has-text("New Blueprint")');
-  await page.fill('input[name="name"]', 'Test Project');
-  await page.click('button:has-text("Save")');
-  await expect(page.locator('text=Test Project')).toBeVisible();
-});
-```
+**規則**:
+- 單元測試：必須測試元件在初始化時載入 Blueprints，必須測試狀態篩選功能
+- E2E 測試：必須測試完整的 Blueprint 建立流程
 
 ## Troubleshooting
 
-### Common Issues
-
-**Issue**: Members not showing after adding  
-**Solution**: Check Firestore Security Rules for `blueprint_members` collection
-
-**Issue**: Can't edit blueprint even as owner  
-**Solution**: Verify `canEditBlueprint()` function in firestore.rules includes owner check
-
-**Issue**: Slug validation fails  
-**Solution**: Ensure slug only contains lowercase letters, numbers, and hyphens
-
-**Issue**: Module not appearing in detail view  
-**Solution**: Check `enabled_modules` array includes module ID
+**規則**:
+- 成員新增後未顯示：必須檢查 Firestore Security Rules 中的 `blueprint_members` collection
+- 即使作為擁有者也無法編輯 Blueprint：必須驗證 `firestore.rules` 中的 `canEditBlueprint()` 函數是否包含擁有者檢查
+- Slug 驗證失敗：必須確保 slug 只包含小寫字母、數字和連字符
+- 模組未出現在詳情視圖中：必須檢查 `enabled_modules` 陣列是否包含模組 ID
 
 ## Best Practices
 
-1. **Always check permissions** before showing UI controls
-2. **Use soft delete** (set `deleted_at`) instead of hard delete
-3. **Validate on both client and server** for security
-4. **Log important actions** to audit_logs table
-5. **Use transactions** for operations affecting multiple tables
-6. **Cache permission checks** (5-minute TTL) for performance
-7. **Follow naming conventions** for consistency
-8. **Write tests** for critical business logic
+**規則**:
+1. 必須在顯示 UI 控制項之前檢查權限
+2. 必須使用軟刪除（設定 `deleted_at`）而非硬刪除
+3. 必須在客戶端和伺服器端都進行驗證以確保安全
+4. 必須將重要操作記錄到 audit_logs 表
+5. 必須對影響多個表的操作使用交易
+6. 必須快取權限檢查（5 分鐘 TTL）以提高效能
+7. 必須遵循命名約定以保持一致性
+8. 必須為關鍵業務邏輯撰寫測試
 
 ## Related Documentation
 
-- **[Root AGENTS.md](../../AGENTS.md)** - Project-wide context
-- **[Blueprint Architecture](../../../docs/Blueprint_Architecture.md)** - Detailed design
-- **[Permission System](../../../docs/guides/permission-system.md)** - Authorization guide
-- **[Firestore Rules](../../../firestore.rules)** - Security rules
-- **[Firebase Console](https://console.firebase.google.com)** - Database management
+**規則**:
+- 必須參考 Root AGENTS.md 獲取專案總覽
+- 必須參考 Blueprint Architecture 獲取詳細設計
+- 必須參考 Permission System 獲取授權指南
+- 必須參考 Firestore Rules 獲取安全規則
+- 必須參考 Firebase Console 進行資料庫管理
 
 ---
 

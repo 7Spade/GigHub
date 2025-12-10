@@ -37,715 +37,133 @@ src/app/routes/passport/
 
 ## Authentication Strategy
 
-GigHub uses **Firebase Authentication** (@angular/fire/auth) as the primary identity provider:
-
-**Supported Methods**:
-- **Email/Password** - Traditional authentication
-- **Google OAuth** - Google account login
-- **GitHub OAuth** (optional) - GitHub account login
-- **Email Link** (optional) - Passwordless authentication
-
-**Firebase Auth Flow**:
-```
-1. User submits credentials
-   ↓
-2. Firebase Auth validates
-   ↓
-3. Firebase returns ID token
-   ↓
-4. Token stored in FirebaseAuth service
-   ↓
-5. Redirect to dashboard/return URL
-   ↓
-6. Token auto-refreshes (Firebase SDK handles this)
-```
+**規則**:
+- 使用 Firebase Authentication (@angular/fire/auth) 作為主要身份提供者
+- 支援的認證方式：Email/Password、Google OAuth、GitHub OAuth（選用）、Email Link（選用）
+- 認證流程：用戶提交憑證 → Firebase Auth 驗證 → 返回 ID token → 儲存在 FirebaseAuth 服務 → 重定向到儀表板/返回 URL → Token 自動刷新
 
 ## Login Component
 
-### Purpose
-
-Authenticate users and redirect to application
-
-**File**: `login/login.component.ts`
-
-### Features
-
-- **Email/Password Login** - Traditional authentication
-- **Social Login** - Google/GitHub OAuth
-- **Remember Me** - Persistent session
-- **Forgot Password Link** - Password reset flow
-- **Registration Link** - Navigate to signup
-- **Return URL** - Redirect after login
-
-### Implementation
-
-```typescript
-import { Component, signal, inject } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { NzMessageService } from 'ng-zorro-antd/message';
-import { SHARED_IMPORTS } from '@shared';
-import { FirebaseAuthService } from '@core/services/firebase-auth.service';
-
-@Component({
-  selector: 'app-login',
-  standalone: true,
-  imports: [SHARED_IMPORTS],
-  templateUrl: './login.component.html',
-  styleUrl: './login.component.scss'
-})
-export class LoginComponent {
-  private fb = inject(FormBuilder);
-  private authService = inject(FirebaseAuthService);
-  private router = inject(Router);
-  private route = inject(ActivatedRoute);
-  private message = inject(NzMessageService);
-  
-  // State
-  loading = signal(false);
-  socialLoading = signal<'google' | 'github' | null>(null);
-  
-  // Form
-  form: FormGroup = this.fb.group({
-    email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(6)]],
-    rememberMe: [false]
-  });
-  
-  // Return URL from query params
-  get returnUrl(): string {
-    return this.route.snapshot.queryParams['returnUrl'] || '/dashboard';
-  }
-  
-  async submit(): Promise<void> {
-    if (this.form.invalid) {
-      Object.values(this.form.controls).forEach(control => {
-        control.markAsDirty();
-        control.updateValueAndValidity();
-      });
-      return;
-    }
-    
-    this.loading.set(true);
-    
-    try {
-      const { email, password, rememberMe } = this.form.value;
-      
-      // Firebase email/password login
-      await this.authService.signIn(email, password);
-      
-      // Handle remember me
-      if (rememberMe) {
-        // Firebase handles persistence automatically
-        // You can configure persistence level in FirebaseAuthService
-      }
-      
-      this.message.success('Login successful');
-      await this.router.navigate([this.returnUrl]);
-    } catch (error: any) {
-      console.error('Login failed:', error);
-      
-      // Handle Firebase errors
-      if (error.code === 'auth/user-not-found') {
-        this.message.error('User not found');
-      } else if (error.code === 'auth/wrong-password') {
-        this.message.error('Incorrect password');
-      } else if (error.code === 'auth/too-many-requests') {
-        this.message.error('Too many failed attempts. Please try again later.');
-      } else {
-        this.message.error('Login failed. Please try again.');
-      }
-    } finally {
-      this.loading.set(false);
-    }
-  }
-  
-  async loginWithGoogle(): Promise<void> {
-    this.socialLoading.set('google');
-    
-    try {
-      await this.authService.signInWithGoogle();
-      this.message.success('Login successful');
-      await this.router.navigate([this.returnUrl]);
-    } catch (error: any) {
-      console.error('Google login failed:', error);
-      
-      if (error.code === 'auth/popup-closed-by-user') {
-        this.message.warning('Login cancelled');
-      } else {
-        this.message.error('Google login failed');
-      }
-    } finally {
-      this.socialLoading.set(null);
-    }
-  }
-  
-  async loginWithGithub(): Promise<void> {
-    this.socialLoading.set('github');
-    
-    try {
-      await this.authService.signInWithGithub();
-      this.message.success('Login successful');
-      await this.router.navigate([this.returnUrl]);
-    } catch (error: any) {
-      console.error('GitHub login failed:', error);
-      this.message.error('GitHub login failed');
-    } finally {
-      this.socialLoading.set(null);
-    }
-  }
-  
-  navigateToRegister(): void {
-    this.router.navigate(['/passport/register'], {
-      queryParams: { returnUrl: this.returnUrl }
-    });
-  }
-  
-  navigateToForgotPassword(): void {
-    this.router.navigate(['/passport/forgot-password']);
-  }
-}
-```
-
-### Template
-
-```html
-<div class="login-container">
-  <div class="login-card">
-    <!-- Logo & Title -->
-    <div class="login-header">
-      <img src="assets/logo.svg" alt="GigHub" class="logo">
-      <h1>Welcome to GigHub</h1>
-      <p>工地施工進度追蹤管理系統</p>
-    </div>
-    
-    <!-- Login Form -->
-    <form nz-form [formGroup]="form" (ngSubmit)="submit()">
-      <!-- Email -->
-      <nz-form-item>
-        <nz-form-control nzErrorTip="Please input valid email">
-          <nz-input-group nzPrefixIcon="mail">
-            <input
-              nz-input
-              formControlName="email"
-              type="email"
-              placeholder="Email address"
-              autocomplete="email" />
-          </nz-input-group>
-        </nz-form-control>
-      </nz-form-item>
-      
-      <!-- Password -->
-      <nz-form-item>
-        <nz-form-control nzErrorTip="Password must be at least 6 characters">
-          <nz-input-group nzPrefixIcon="lock">
-            <input
-              nz-input
-              formControlName="password"
-              type="password"
-              placeholder="Password"
-              autocomplete="current-password" />
-          </nz-input-group>
-        </nz-form-control>
-      </nz-form-item>
-      
-      <!-- Remember Me & Forgot Password -->
-      <div class="login-options">
-        <label nz-checkbox formControlName="rememberMe">
-          Remember me
-        </label>
-        <a (click)="navigateToForgotPassword()">Forgot password?</a>
-      </div>
-      
-      <!-- Submit Button -->
-      <button
-        nz-button
-        nzType="primary"
-        nzBlock
-        nzSize="large"
-        [nzLoading]="loading()"
-        [disabled]="form.invalid">
-        Login
-      </button>
-    </form>
-    
-    <!-- Social Login -->
-    <nz-divider nzText="Or login with"></nz-divider>
-    
-    <div class="social-buttons">
-      <button
-        nz-button
-        nzBlock
-        nzSize="large"
-        [nzLoading]="socialLoading() === 'google'"
-        (click)="loginWithGoogle()">
-        <span nz-icon nzType="google"></span>
-        Google
-      </button>
-      
-      <button
-        nz-button
-        nzBlock
-        nzSize="large"
-        [nzLoading]="socialLoading() === 'github'"
-        (click)="loginWithGithub()">
-        <span nz-icon nzType="github"></span>
-        GitHub
-      </button>
-    </div>
-    
-    <!-- Register Link -->
-    <div class="register-link">
-      Don't have an account?
-      <a (click)="navigateToRegister()">Register now</a>
-    </div>
-  </div>
-</div>
-```
+**規則**:
+- 必須支援 Email/Password 登入
+- 必須支援社交登入（Google/GitHub OAuth）
+- 必須支援「記住我」功能
+- 必須提供「忘記密碼」連結
+- 必須提供註冊連結
+- 必須支援返回 URL 重定向
+- 必須使用 `signal()` 管理 `loading` 和 `socialLoading` 狀態
+- 必須使用 Reactive Forms 建立登入表單
+- 必須驗證表單欄位（email 必填且格式正確，password 必填且至少 6 個字元）
+- 必須處理 Firebase 錯誤代碼並顯示適當的錯誤訊息
+- 必須在登入成功後重定向到返回 URL 或預設儀表板
 
 ## Register Component
 
-### Purpose
-
-Create new user accounts with Firebase Authentication
-
-**File**: `register/register.component.ts`
-
-### Features
-
-- **Email Verification** - Sends verification email after registration
-- **Password Strength** - Validates password complexity
-- **Terms & Conditions** - Checkbox for agreement
-- **User Profile** - Display name and optional fields
-- **Social Registration** - Google/GitHub account creation
-
-### Implementation
-
-```typescript
-@Component({
-  selector: 'app-register',
-  standalone: true,
-  imports: [SHARED_IMPORTS],
-  templateUrl: './register.component.html'
-})
-export class RegisterComponent {
-  private fb = inject(FormBuilder);
-  private authService = inject(FirebaseAuthService);
-  private router = inject(Router);
-  private message = inject(NzMessageService);
-  
-  loading = signal(false);
-  
-  form: FormGroup = this.fb.group({
-    displayName: ['', [Validators.required, Validators.minLength(2)]],
-    email: ['', [Validators.required, Validators.email]],
-    password: ['', [
-      Validators.required,
-      Validators.minLength(8),
-      this.passwordStrengthValidator()
-    ]],
-    confirmPassword: ['', [Validators.required]],
-    agreeToTerms: [false, [Validators.requiredTrue]]
-  }, {
-    validators: this.passwordMatchValidator
-  });
-  
-  passwordStrengthValidator() {
-    return (control: AbstractControl): ValidationErrors | null => {
-      const value = control.value;
-      if (!value) return null;
-      
-      const hasUpperCase = /[A-Z]/.test(value);
-      const hasLowerCase = /[a-z]/.test(value);
-      const hasNumeric = /[0-9]/.test(value);
-      const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(value);
-      
-      const passwordValid = hasUpperCase && hasLowerCase && hasNumeric && hasSpecialChar;
-      
-      return !passwordValid ? { passwordStrength: true } : null;
-    };
-  }
-  
-  passwordMatchValidator(group: AbstractControl): ValidationErrors | null {
-    const password = group.get('password')?.value;
-    const confirmPassword = group.get('confirmPassword')?.value;
-    return password === confirmPassword ? null : { passwordMismatch: true };
-  }
-  
-  async submit(): Promise<void> {
-    if (this.form.invalid) {
-      Object.values(this.form.controls).forEach(control => {
-        control.markAsDirty();
-        control.updateValueAndValidity();
-      });
-      return;
-    }
-    
-    this.loading.set(true);
-    
-    try {
-      const { displayName, email, password } = this.form.value;
-      
-      // Create user with Firebase
-      await this.authService.signUp(email, password, displayName);
-      
-      // Send email verification
-      await this.authService.sendEmailVerification();
-      
-      this.message.success('Registration successful! Please check your email.');
-      
-      // Navigate to registration result page
-      await this.router.navigate(['/passport/register-result'], {
-        queryParams: { email }
-      });
-    } catch (error: any) {
-      console.error('Registration failed:', error);
-      
-      if (error.code === 'auth/email-already-in-use') {
-        this.message.error('Email already registered');
-      } else if (error.code === 'auth/weak-password') {
-        this.message.error('Password is too weak');
-      } else {
-        this.message.error('Registration failed. Please try again.');
-      }
-    } finally {
-      this.loading.set(false);
-    }
-  }
-}
-```
+**規則**:
+- 必須在註冊後發送郵件驗證
+- 必須驗證密碼強度
+- 必須提供「條款與條件」勾選框
+- 必須支援用戶個人資料欄位（顯示名稱和選填欄位）
+- 必須支援社交註冊（Google/GitHub 帳號建立）
+- 必須使用 Reactive Forms 建立註冊表單
+- 必須驗證密碼複雜度（大寫字母、小寫字母、數字、特殊字元）
+- 必須驗證密碼確認是否匹配
+- 必須在註冊成功後導航到註冊結果頁面
 
 ## Lock Screen Component
 
-### Purpose
-
-Lock the current session for security
-
-**File**: `lock/lock.component.ts`
-
-### Features
-
-- **Session Lock** - Requires password to unlock
-- **User Avatar** - Shows current user
-- **Auto-lock** - After period of inactivity
-- **Unlock Animation** - Smooth transition
-
-### Implementation
-
-```typescript
-@Component({
-  selector: 'app-lock',
-  standalone: true,
-  imports: [SHARED_IMPORTS],
-  template: `
-    <div class="lock-container">
-      <nz-avatar
-        [nzSize]="128"
-        [nzSrc]="userAvatar()"
-        [nzText]="userInitial()" />
-      
-      <h2>{{ userName() }}</h2>
-      <p>Enter your password to unlock</p>
-      
-      <form [formGroup]="form" (ngSubmit)="unlock()">
-        <nz-form-item>
-          <nz-form-control>
-            <nz-input-group nzPrefixIcon="lock">
-              <input
-                nz-input
-                formControlName="password"
-                type="password"
-                placeholder="Password"
-                appAutoFocus />
-            </nz-input-group>
-          </nz-form-control>
-        </nz-form-item>
-        
-        <button
-          nz-button
-          nzType="primary"
-          nzBlock
-          [nzLoading]="loading()">
-          Unlock
-        </button>
-      </form>
-      
-      <a (click)="logout()">Login as different user</a>
-    </div>
-  `
-})
-export class LockComponent {
-  private authService = inject(FirebaseAuthService);
-  private router = inject(Router);
-  private message = inject(NzMessageService);
-  
-  loading = signal(false);
-  
-  form = inject(FormBuilder).group({
-    password: ['', Validators.required]
-  });
-  
-  userName = computed(() => {
-    return this.authService.currentUser?.displayName || 'User';
-  });
-  
-  userAvatar = computed(() => {
-    return this.authService.currentUser?.photoURL || '';
-  });
-  
-  userInitial = computed(() => {
-    return this.userName().charAt(0).toUpperCase();
-  });
-  
-  async unlock(): Promise<void> {
-    if (this.form.invalid) return;
-    
-    this.loading.set(true);
-    
-    try {
-      const { password } = this.form.value;
-      const email = this.authService.currentUser?.email;
-      
-      if (!email) throw new Error('No email');
-      
-      // Re-authenticate with Firebase
-      await this.authService.signIn(email, password);
-      
-      this.message.success('Unlocked successfully');
-      await this.router.navigate(['/dashboard']);
-    } catch (error) {
-      this.message.error('Incorrect password');
-    } finally {
-      this.loading.set(false);
-    }
-  }
-  
-  async logout(): Promise<void> {
-    await this.authService.signOut();
-    await this.router.navigate(['/passport/login']);
-  }
-}
-```
+**規則**:
+- 必須要求密碼才能解鎖
+- 必須顯示當前用戶頭像
+- 必須支援自動鎖定（非活動一段時間後）
+- 必須提供「以不同用戶登入」選項
+- 必須使用 Firebase Auth 重新驗證
+- 必須在解鎖成功後導航到儀表板
 
 ## Firebase Auth Service
 
-### Core Service
-
-**File**: `@core/services/firebase-auth.service.ts`
-
-```typescript
-import { Injectable, inject, signal } from '@angular/core';
-import { Router } from '@angular/router';
-import {
-  Auth,
-  User,
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-  signOut,
-  updateProfile,
-  sendEmailVerification,
-  sendPasswordResetEmail,
-  GoogleAuthProvider,
-  GithubAuthProvider,
-  signInWithPopup,
-  onAuthStateChanged
-} from '@angular/fire/auth';
-
-@Injectable({ providedIn: 'root' })
-export class FirebaseAuthService {
-  private auth = inject(Auth);
-  private router = inject(Router);
-  
-  // Current user as signal
-  currentUserSignal = signal<User | null>(null);
-  
-  constructor() {
-    // Listen to auth state changes
-    onAuthStateChanged(this.auth, (user) => {
-      this.currentUserSignal.set(user);
-    });
-  }
-  
-  get currentUser(): User | null {
-    return this.auth.currentUser;
-  }
-  
-  // Email/Password Authentication
-  async signIn(email: string, password: string): Promise<User> {
-    const { user } = await signInWithEmailAndPassword(this.auth, email, password);
-    return user;
-  }
-  
-  async signUp(email: string, password: string, displayName?: string): Promise<User> {
-    const { user } = await createUserWithEmailAndPassword(this.auth, email, password);
-    
-    // Update profile with display name
-    if (displayName) {
-      await updateProfile(user, { displayName });
-    }
-    
-    return user;
-  }
-  
-  async signOut(): Promise<void> {
-    await signOut(this.auth);
-    await this.router.navigate(['/passport/login']);
-  }
-  
-  // Social Authentication
-  async signInWithGoogle(): Promise<User> {
-    const provider = new GoogleAuthProvider();
-    const { user } = await signInWithPopup(this.auth, provider);
-    return user;
-  }
-  
-  async signInWithGithub(): Promise<User> {
-    const provider = new GithubAuthProvider();
-    const { user } = await signInWithPopup(this.auth, provider);
-    return user;
-  }
-  
-  // Email Verification
-  async sendEmailVerification(): Promise<void> {
-    const user = this.auth.currentUser;
-    if (user) {
-      await sendEmailVerification(user);
-    }
-  }
-  
-  // Password Reset
-  async sendPasswordResetEmail(email: string): Promise<void> {
-    await sendPasswordResetEmail(this.auth, email);
-  }
-  
-  // Utility
-  isAuthenticated(): boolean {
-    return this.currentUser !== null;
-  }
-  
-  isEmailVerified(): boolean {
-    return this.currentUser?.emailVerified || false;
-  }
-}
-```
+**規則**:
+- 必須使用 `@angular/fire/auth` 的 `Auth` 服務
+- 必須使用 `onAuthStateChanged` 監聽認證狀態變化
+- 必須提供 `currentUserSignal` 作為 Signal
+- 必須實作 `signIn()` 方法（Email/Password）
+- 必須實作 `signUp()` 方法（Email/Password）
+- 必須實作 `signOut()` 方法
+- 必須實作 `signInWithGoogle()` 方法
+- 必須實作 `signInWithGithub()` 方法
+- 必須實作 `sendEmailVerification()` 方法
+- 必須實作 `sendPasswordResetEmail()` 方法
+- 必須提供 `isAuthenticated()` 和 `isEmailVerified()` 輔助方法
 
 ## Route Guards
 
 ### Auth Guard
 
-```typescript
-import { inject } from '@angular/core';
-import { Router, CanActivateFn } from '@angular/router';
-import { FirebaseAuthService } from '@core/services/firebase-auth.service';
+**規則**:
+- 必須檢查用戶是否已認證
+- 如果未認證，必須重定向到登入頁面並帶上返回 URL
+- 必須使用 `inject()` 注入 `FirebaseAuthService` 和 `Router`
 
-export const authGuard: CanActivateFn = (route, state) => {
-  const authService = inject(FirebaseAuthService);
-  const router = inject(Router);
-  
-  if (authService.isAuthenticated()) {
-    return true;
-  }
-  
-  // Redirect to login with return URL
-  return router.createUrlTree(['/passport/login'], {
-    queryParams: { returnUrl: state.url }
-  });
-};
-```
+### Guest Guard
 
-### Guest Guard (Prevent authenticated users from accessing login)
-
-```typescript
-export const guestGuard: CanActivateFn = (route, state) => {
-  const authService = inject(FirebaseAuthService);
-  const router = inject(Router);
-  
-  if (!authService.isAuthenticated()) {
-    return true;
-  }
-  
-  // Already logged in, redirect to dashboard
-  return router.createUrlTree(['/dashboard']);
-};
-```
+**規則**:
+- 必須防止已認證用戶存取登入頁面
+- 如果已登入，必須重定向到儀表板
+- 必須使用 `inject()` 注入 `FirebaseAuthService` 和 `Router`
 
 ## Routing Configuration
 
-```typescript
-// routes.ts
-export const routes: Routes = [
-  {
-    path: 'login',
-    component: LoginComponent,
-    canActivate: [guestGuard],
-    data: { title: 'Login' }
-  },
-  {
-    path: 'register',
-    component: RegisterComponent,
-    canActivate: [guestGuard],
-    data: { title: 'Register' }
-  },
-  {
-    path: 'register-result',
-    component: RegisterResultComponent,
-    data: { title: 'Registration Successful' }
-  },
-  {
-    path: 'lock',
-    component: LockComponent,
-    canActivate: [authGuard],
-    data: { title: 'Lock Screen' }
-  },
-  {
-    path: 'callback',
-    component: CallbackComponent,
-    data: { title: 'Authenticating...' }
-  }
-];
-```
+**規則**:
+- `/login` 路由必須使用 `guestGuard` 保護
+- `/register` 路由必須使用 `guestGuard` 保護
+- `/register-result` 路由不需要守衛
+- `/lock` 路由必須使用 `authGuard` 保護
+- `/callback` 路由用於 OAuth 回調處理
+- 所有路由必須設定 `title` 資料屬性
 
 ## Best Practices
 
-1. **Security**
-   - Never store passwords in plaintext
-   - Use Firebase's secure authentication
-   - Implement email verification
-   - Enforce strong password policies
-   - Use HTTPS only
+### Security
 
-2. **User Experience**
-   - Show clear error messages
-   - Provide loading states
-   - Remember return URLs
-   - Auto-focus input fields
-   - Support keyboard navigation
+**規則**:
+1. 絕對不能以明文儲存密碼
+2. 必須使用 Firebase 的安全認證
+3. 必須實作郵件驗證
+4. 必須強制執行強密碼政策
+5. 生產環境必須僅使用 HTTPS
 
-3. **Firebase Integration**
-   - Handle all Firebase error codes
-   - Use Firebase Auth state listeners
-   - Implement proper token refresh
-   - Configure Firebase persistence
+### User Experience
 
-4. **Testing**
-   - Mock Firebase Auth in tests
-   - Test error scenarios
-   - Verify guard behavior
-   - Test social login flows
+**規則**:
+1. 必須顯示清楚的錯誤訊息
+2. 必須提供載入狀態
+3. 必須記住返回 URL
+4. 必須自動聚焦輸入欄位
+5. 必須支援鍵盤導航
+
+### Firebase Integration
+
+**規則**:
+1. 必須處理所有 Firebase 錯誤代碼
+2. 必須使用 Firebase Auth 狀態監聽器
+3. 必須實作適當的 token 刷新
+4. 必須設定 Firebase 持久性
+
+### Testing
+
+**規則**:
+1. 必須在測試中模擬 Firebase Auth
+2. 必須測試錯誤情境
+3. 必須驗證守衛行為
+4. 必須測試社交登入流程
 
 ## Troubleshooting
 
-**Issue**: Login fails with "auth/operation-not-allowed"  
-**Solution**: Enable Email/Password authentication in Firebase Console
-
-**Issue**: Google login popup blocked  
-**Solution**: Use `signInWithRedirect()` instead of `signInWithPopup()`
-
-**Issue**: Email verification not sent  
-**Solution**: Check Firebase email templates configuration
-
-**Issue**: Token expired errors  
-**Solution**: Firebase SDK auto-refreshes tokens, ensure proper error handling
+**規則**:
+- 如果登入失敗並顯示 "auth/operation-not-allowed"，必須在 Firebase Console 啟用 Email/Password 認證
+- 如果 Google 登入彈出視窗被阻擋，必須使用 `signInWithRedirect()` 而非 `signInWithPopup()`
+- 如果未發送郵件驗證，必須檢查 Firebase 郵件範本設定
+- 如果出現 token 過期錯誤，Firebase SDK 會自動刷新 token，必須確保適當的錯誤處理
 
 ## Related Documentation
 

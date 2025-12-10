@@ -4,733 +4,233 @@ The App module is the **entry point** of the GigHub application, responsible for
 
 ## Module Purpose
 
-The App module serves as:
-- **Application bootstrap point** - Initializes the Angular application
-- **Root configuration** - Provides app-wide configuration and services
-- **Layout orchestration** - Routes to different layout components based on context
-- **Global providers** - Registers global services, interceptors, and guards
-- **Firebase integration** - Configures @angular/fire with Firebase services
+**規則**:
+- App 模組作為應用程式啟動點，初始化 Angular 應用程式
+- 提供根配置，提供應用程式範圍的配置和服務
+- 協調佈局，根據上下文路由到不同的佈局元件
+- 註冊全域提供者，註冊全域服務、攔截器和守衛
+- 整合 Firebase，配置 @angular/fire 與 Firebase 服務
 
 ## Module Structure
 
-```
-src/app/
-├── AGENTS.md                    # This file
-├── app.component.ts             # Root component
-├── app.config.ts                # Application configuration (standalone)
-├── core/                        # Core services (AGENTS.md)
-│   ├── services/                # Singleton services
-│   ├── guards/                  # Route guards
-│   ├── errors/                  # Custom error classes
-│   ├── infra/                   # Infrastructure (repositories)
-│   ├── startup/                 # App initialization
-│   └── i18n/                    # Internationalization
-├── layout/                      # Layout components (AGENTS.md)
-│   ├── basic/                   # Main app layout
-│   ├── blank/                   # Blank layout (minimal)
-│   └── passport/                # Authentication layout
-├── routes/                      # Feature modules (AGENTS.md)
-│   ├── blueprint/               # Blueprint management
-│   ├── dashboard/               # Dashboard views
-│   ├── passport/                # Auth flows
-│   ├── exception/               # Error pages
-│   ├── organization/            # Organization management
-│   ├── team/                    # Team management
-│   └── user/                    # User management
-└── shared/                      # Shared components (AGENTS.md)
-    ├── components/              # Reusable components
-    ├── services/                # Shared services
-    ├── pipes/                   # Custom pipes
-    ├── directives/              # Custom directives
-    └── utils/                   # Utility functions
-```
+**規則**:
+- `src/app/AGENTS.md` - 本文件
+- `src/app/app.component.ts` - 根元件
+- `src/app/app.config.ts` - 應用程式配置（standalone）
+- `src/app/core/` - 核心服務
+- `src/app/layout/` - 佈局元件
+- `src/app/routes/` - 功能模組
+- `src/app/shared/` - 共享元件
 
 ## Application Configuration
 
 ### app.config.ts
 
-**Purpose**: Main application configuration using standalone components pattern (Angular 19+)
-
-```typescript
-import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
-import { provideRouter, withComponentInputBinding, withHashLocation } from '@angular/router';
-import { provideAnimations } from '@angular/platform-browser/animations';
-import { provideHttpClient, withInterceptors } from '@angular/common/http';
-import { provideFirebaseApp, initializeApp } from '@angular/fire/app';
-import { provideAuth, getAuth } from '@angular/fire/auth';
-import { provideFirestore, getFirestore } from '@angular/fire/firestore';
-import { provideStorage, getStorage } from '@angular/fire/storage';
-
-import { routes } from './routes/routes';
-import { environment } from '@env/environment';
-import { authInterceptor } from '@core/interceptors/auth.interceptor';
-import { errorInterceptor } from '@core/interceptors/error.interceptor';
-
-export const appConfig: ApplicationConfig = {
-  providers: [
-    // Zone change detection
-    provideZoneChangeDetection({ eventCoalescing: true }),
-    
-    // Router with modern features
-    provideRouter(
-      routes,
-      withComponentInputBinding(),  // Enable route input binding
-      withHashLocation()             // Use hash-based routing
-    ),
-    
-    // Animations
-    provideAnimations(),
-    
-    // HTTP with interceptors
-    provideHttpClient(
-      withInterceptors([authInterceptor, errorInterceptor])
-    ),
-    
-    // Firebase/Firestore
-    provideFirebaseApp(() => initializeApp(environment.firebase)),
-    provideAuth(() => getAuth()),
-    provideFirestore(() => getFirestore()),
-    provideStorage(() => getStorage()),
-    
-    // ng-alain configuration
-    ...provideNgAlain()
-  ]
-};
-```
-
-**Key Features**:
-- **Standalone Components**: No NgModules required (Angular 19+)
-- **Firebase Integration**: Configured via @angular/fire
-- **Modern Router**: Input binding and hash location
-- **HTTP Interceptors**: Auth token and error handling
-- **ng-alain**: Admin framework configuration
+**規則**:
+- 必須使用 standalone components 模式（Angular 19+）
+- 必須使用 `provideZoneChangeDetection()` 配置 Zone 變更檢測
+- 必須使用 `provideRouter()` 配置路由，啟用 `withComponentInputBinding()` 和 `withHashLocation()`
+- 必須使用 `provideAnimations()` 配置動畫
+- 必須使用 `provideHttpClient()` 配置 HTTP，使用 `withInterceptors()` 註冊攔截器
+- 必須使用 `provideFirebaseApp()`、`provideAuth()`、`provideFirestore()`、`provideStorage()` 配置 Firebase
+- 必須使用 `provideNgAlain()` 配置 ng-alain 管理框架
 
 ### app.component.ts
 
-**Purpose**: Root component that renders the router outlet
-
-```typescript
-import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
-
-@Component({
-  selector: 'app-root',
-  standalone: true,
-  imports: [RouterOutlet],
-  template: `<router-outlet />`,
-  styles: []
-})
-export class AppComponent {
-  title = 'GigHub';
-}
-```
-
-**Note**: The root component is minimal - all layout logic is delegated to layout components.
+**規則**:
+- 根元件必須是最小化的，僅渲染 router outlet
+- 所有佈局邏輯必須委派給佈局元件
+- 必須使用 standalone component
 
 ## Architecture Layers
 
 ### Foundation Layer (基礎層)
 
-**Purpose**: Core infrastructure and identity management
-
-**Modules**:
-- **Account & Auth**: User identity, authentication, session management
-- **Organization**: Multi-tenant organization management
-- **Team**: Team-based collaboration
-
-**Key Services**:
-- `FirebaseAuthService` - Firebase authentication (@angular/fire/auth)
-- `AccountService` - User account operations
-- `OrganizationService` - Organization CRUD
-- `TeamService` - Team management
+**規則**:
+- 目的：核心基礎設施和身份管理
+- 模組：Account & Auth（用戶身份、認證、會話管理）、Organization（多租戶組織管理）、Team（基於團隊的協作）
+- 關鍵服務：`FirebaseAuthService`（Firebase 認證）、`AccountService`（用戶帳號操作）、`OrganizationService`（組織 CRUD）、`TeamService`（團隊管理）
 
 ### Container Layer (容器層)
 
-**Purpose**: Project/workspace container and configuration
-
-**Modules**:
-- **Blueprint**: Main project container with permissions and settings
-- **Events**: Event bus for cross-module communication
-- **Permissions**: Fine-grained access control
-
-**Key Services**:
-- `BlueprintService` - Blueprint CRUD operations
-- `BlueprintEventBus` - Event-driven communication
-- `PermissionService` - Permission checking
+**規則**:
+- 目的：專案/工作區容器和配置
+- 模組：Blueprint（主要專案容器，包含權限和設定）、Events（跨模組通訊的事件匯流排）、Permissions（細粒度存取控制）
+- 關鍵服務：`BlueprintService`（Blueprint CRUD 操作）、`BlueprintEventBus`（事件驅動通訊）、`PermissionService`（權限檢查）
 
 ### Business Layer (業務層)
 
-**Purpose**: Domain-specific business modules
-
-**Modules**:
-- **Tasks**: Task management and tracking
-- **Diary**: Daily construction logs
-- **Quality**: Quality control and inspections
-- **Financial**: Budget and cost management
-
-**Pattern**: All business modules are scoped to a Blueprint container
+**規則**:
+- 目的：領域特定的業務模組
+- 模組：Tasks（任務管理和追蹤）、Diary（每日施工日誌）、Quality（品質控制和檢查）、Financial（預算和成本管理）
+- 模式：所有業務模組都必須限定在 Blueprint 容器範圍內
 
 ## Bootstrap Process
 
-### Initialization Flow
-
-```
-1. main.ts
-   ↓
-2. bootstrapApplication(AppComponent, appConfig)
-   ↓
-3. Load app.config.ts providers
-   ↓
-4. Initialize Firebase (@angular/fire)
-   ↓
-5. Register routes (lazy-loaded)
-   ↓
-6. Run APP_INITIALIZER (StartupService)
-   ↓
-7. Check authentication state
-   ↓
-8. Render AppComponent
-   ↓
-9. Navigate to initial route
-   ↓
-10. Load appropriate layout
-    ↓
-11. Load feature module (lazy)
-```
-
-### main.ts
-
-```typescript
-import { bootstrapApplication } from '@angular/platform-browser';
-import { AppComponent } from './app/app.component';
-import { appConfig } from './app/app.config';
-
-bootstrapApplication(AppComponent, appConfig)
-  .catch((err) => console.error(err));
-```
+**規則**:
+- 初始化流程：`main.ts` → `bootstrapApplication(AppComponent, appConfig)` → 載入 `app.config.ts` 提供者 → 初始化 Firebase → 註冊路由（懶載入）→ 執行 `APP_INITIALIZER`（StartupService）→ 檢查認證狀態 → 渲染 AppComponent → 導航到初始路由 → 載入適當的佈局 → 載入功能模組（懶載入）
+- `main.ts` 必須使用 `bootstrapApplication()` 啟動應用程式，必須處理啟動錯誤
 
 ## Firebase/Firestore Integration
 
-### Configuration
-
-Firebase is configured in `environment.ts`:
-
-```typescript
-export const environment = {
-  production: false,
-  firebase: {
-    apiKey: 'YOUR_API_KEY',
-    authDomain: 'YOUR_AUTH_DOMAIN',
-    projectId: 'YOUR_PROJECT_ID',
-    storageBucket: 'YOUR_STORAGE_BUCKET',
-    messagingSenderId: 'YOUR_MESSAGING_SENDER_ID',
-    appId: 'YOUR_APP_ID'
-  }
-};
-```
-
-### Firebase Services
-
-**Available via @angular/fire**:
-- **Authentication** (`provideAuth()`) - User authentication with Firebase Auth
-- **Firestore** (`provideFirestore()`) - NoSQL database
-- **Storage** (`provideStorage()`) - File storage
-- **Functions** (optional) - Cloud functions
-
-**Usage Pattern**:
-```typescript
-import { inject } from '@angular/core';
-import { Auth } from '@angular/fire/auth';
-import { Firestore } from '@angular/fire/firestore';
-
-export class MyService {
-  private auth = inject(Auth);
-  private firestore = inject(Firestore);
-  
-  // Use Firebase services
-}
-```
+**規則**:
+- Firebase 必須在 `environment.ts` 中配置
+- 必須使用 @angular/fire 提供的服務：Authentication（`provideAuth()`）、Firestore（`provideFirestore()`）、Storage（`provideStorage()`）、Functions（可選）
+- 必須使用 `inject()` 注入 Firebase 服務（`Auth`、`Firestore`）
 
 ## HTTP Interceptors
 
 ### AuthInterceptor
 
-**Purpose**: Automatically attach Firebase Auth token to requests
-
-```typescript
-export const authInterceptor: HttpInterceptorFn = (req, next) => {
-  const auth = inject(Auth);
-  
-  return from(auth.currentUser?.getIdToken()).pipe(
-    switchMap(token => {
-      if (token) {
-        const authReq = req.clone({
-          setHeaders: { Authorization: `Bearer ${token}` }
-        });
-        return next(authReq);
-      }
-      return next(req);
-    })
-  );
-};
-```
+**規則**:
+- 必須自動將 Firebase Auth token 附加到請求
+- 必須使用 `HttpInterceptorFn` 實作
+- 必須使用 `inject(Auth)` 注入認證服務
+- 必須處理 token 獲取失敗的情況
 
 ### ErrorInterceptor
 
-**Purpose**: Global error handling for HTTP requests
-
-```typescript
-export const errorInterceptor: HttpInterceptorFn = (req, next) => {
-  const message = inject(NzMessageService);
-  const logger = inject(LoggerService);
-  
-  return next(req).pipe(
-    catchError((error: HttpErrorResponse) => {
-      logger.error('HTTP Error', error);
-      
-      // Handle different error types
-      if (error.status === 401) {
-        message.error('Unauthorized - please login');
-      } else if (error.status === 403) {
-        message.error('Permission denied');
-      } else if (error.status >= 500) {
-        message.error('Server error - please try again');
-      }
-      
-      return throwError(() => error);
-    })
-  );
-};
-```
+**規則**:
+- 必須處理 HTTP 請求的全域錯誤
+- 必須記錄錯誤到 LoggerService
+- 必須根據錯誤狀態碼顯示適當的錯誤訊息（401、403、500+）
+- 必須使用 `NzMessageService` 顯示用戶友好的錯誤訊息
 
 ## State Management Strategy
 
 ### Signal-Based State
 
-GigHub uses **Angular Signals** (v19+) for reactive state management:
-
-**Advantages**:
-- **Fine-grained reactivity** - Only recompute what changed
-- **Automatic dependency tracking** - No manual subscriptions
-- **Better performance** - Less change detection overhead
-- **Simpler code** - No RxJS boilerplate for simple state
-
-**Pattern**:
-```typescript
-export class MyComponent {
-  // Writable signal
-  count = signal(0);
-  
-  // Computed signal (derived state)
-  doubled = computed(() => this.count() * 2);
-  
-  // Effect (side effects)
-  constructor() {
-    effect(() => {
-      console.log('Count changed:', this.count());
-    });
-  }
-  
-  // Update signal
-  increment() {
-    this.count.update(n => n + 1);
-  }
-}
-```
+**規則**:
+- 必須使用 Angular Signals（v19+）進行響應式狀態管理
+- 優點：細粒度響應式、自動依賴追蹤、更好的效能、更簡單的程式碼
+- 必須使用 `signal()` 定義可寫入的 signal
+- 必須使用 `computed()` 定義計算的 signal（衍生狀態）
+- 必須使用 `effect()` 處理副作用
 
 ### When to Use RxJS
 
-Use RxJS for:
-- **HTTP requests** - Already returns Observables
-- **WebSocket/Real-time data** - Firestore snapshots
-- **Event streams** - User input events
-- **Complex async flows** - Multiple async operations
-
-**Integration with Signals**:
-```typescript
-import { toSignal } from '@angular/core/rxjs-interop';
-
-export class MyComponent {
-  private service = inject(MyService);
-  
-  // Convert Observable to Signal
-  data = toSignal(this.service.data$, { initialValue: [] });
-}
-```
+**規則**:
+- 必須在以下情況使用 RxJS：HTTP 請求（已返回 Observables）、WebSocket/即時資料（Firestore snapshots）、事件流（用戶輸入事件）、複雜的非同步流程（多個非同步操作）
+- 必須使用 `toSignal()` 將 Observable 轉換為 Signal
 
 ## Routing Strategy
 
 ### Hash-Based Routing
 
-GigHub uses hash-based routing (`#/`) for compatibility:
-
-```typescript
-provideRouter(routes, withHashLocation())
-```
-
-**URLs**:
-- `/#/dashboard` - Dashboard
-- `/#/blueprint` - Blueprint list
-- `/#/blueprint/123` - Blueprint detail
-- `/#/passport/login` - Login page
-
-**Advantages**:
-- Works without server configuration
-- Compatible with Firebase Hosting
-- Easier deployment
+**規則**:
+- 必須使用基於 hash 的路由（`#/`）以獲得相容性
+- 優點：無需伺服器配置、與 Firebase Hosting 相容、更容易部署
+- URL 格式：`/#/dashboard`、`/#/blueprint`、`/#/blueprint/123`、`/#/passport/login`
 
 ### Route Input Binding
 
-Modern Angular route input binding enabled:
-
-```typescript
-provideRouter(routes, withComponentInputBinding())
-```
-
-**Benefit**: Route parameters automatically injected as component inputs
-
-**Example**:
-```typescript
-export class BlueprintDetailComponent {
-  // Automatically receives route parameter 'id'
-  id = input.required<string>();
-  
-  blueprint = computed(() => this.loadBlueprint(this.id()));
-}
-```
+**規則**:
+- 必須啟用現代 Angular 路由輸入綁定
+- 路由參數必須自動注入為元件輸入
+- 元件必須使用 `input.required<string>()` 接收路由參數
 
 ## Module Communication
 
 ### Event Bus Pattern
 
-Cross-module communication via `BlueprintEventBus`:
-
-```typescript
-// In any service
-private eventBus = inject(BlueprintEventBus);
-
-// Emit event
-this.eventBus.emit({
-  type: 'blueprint.created',
-  blueprintId: blueprint.id,
-  timestamp: Date.now(),
-  actor: userId,
-  data: blueprint
-});
-
-// Subscribe to events
-this.eventBus.created$
-  .pipe(takeUntilDestroyed())
-  .subscribe(event => {
-    console.log('Blueprint created:', event);
-  });
-```
-
-**Benefits**:
-- **Loose coupling** - Modules don't directly depend on each other
-- **Scalability** - Easy to add new event handlers
-- **Debugging** - Central event log
-- **Audit trail** - All events logged
+**規則**:
+- 跨模組通訊必須透過 `BlueprintEventBus` 進行
+- 發送事件時必須包含 `type`、`blueprintId`、`timestamp`、`actor`、`data`
+- 訂閱事件時必須使用 `takeUntilDestroyed()` 進行清理
+- 優點：鬆耦合、可擴展性、易於除錯、審計追蹤
 
 ## Environment Configuration
 
-### Development vs Production
-
-```typescript
-// environment.ts (development)
-export const environment = {
-  production: false,
-  apiUrl: 'http://localhost:5001',
-  firebase: { /* dev config */ },
-  logging: { enabled: true, level: 'debug' }
-};
-
-// environment.prod.ts (production)
-export const environment = {
-  production: true,
-  apiUrl: 'https://api.gighub.app',
-  firebase: { /* prod config */ },
-  logging: { enabled: true, level: 'error' }
-};
-```
-
-### Feature Flags
-
-```typescript
-export const features = {
-  enableNewDashboard: true,
-  enableRealtimeSync: true,
-  enableAdvancedPermissions: false
-};
-```
+**規則**:
+- 開發環境：`production: false`、使用本地 API 端點、啟用詳細日誌記錄、包含 Firebase 開發環境配置、啟用 Mock 資料（如適用）
+- 生產環境：`production: true`、使用生產 API 端點、僅記錄錯誤等級日誌、包含 Firebase 生產環境配置、停用 Mock 資料
+- 功能標誌必須在環境配置中定義
 
 ## Testing Strategy
 
-### Unit Tests
-
-Test components, services, and pipes in isolation:
-
-```typescript
-describe('AppComponent', () => {
-  it('should create', () => {
-    const component = TestBed.createComponent(AppComponent);
-    expect(component).toBeTruthy();
-  });
-});
-```
-
-### Integration Tests
-
-Test module integration and routing:
-
-```typescript
-describe('Dashboard Integration', () => {
-  it('should navigate to dashboard after login', async () => {
-    await authService.login('test@example.com', 'password');
-    expect(router.url).toBe('/dashboard');
-  });
-});
-```
-
-### E2E Tests
-
-Test complete user flows with Playwright:
-
-```typescript
-test('complete blueprint creation flow', async ({ page }) => {
-  await page.goto('/');
-  await page.click('text=New Blueprint');
-  await page.fill('input[name="name"]', 'Test Project');
-  await page.click('button:has-text("Save")');
-  await expect(page.locator('text=Test Project')).toBeVisible();
-});
-```
+**規則**:
+- 單元測試：必須在隔離環境中測試元件、服務和管道
+- 整合測試：必須測試模組整合和路由
+- E2E 測試：必須使用 Playwright 測試完整的用戶流程
 
 ## Performance Optimization
 
-### Lazy Loading
-
-All feature modules are lazy-loaded:
-
-```typescript
-{
-  path: 'blueprint',
-  loadChildren: () => import('./routes/blueprint/routes')
-    .then(m => m.routes)
-}
-```
-
-**Benefits**:
-- Smaller initial bundle
-- Faster first load
-- Better caching
-
-### OnPush Change Detection
-
-All components use `OnPush` strategy:
-
-```typescript
-@Component({
-  changeDetection: ChangeDetectionStrategy.OnPush
-})
-export class MyComponent { }
-```
-
-**Benefits**:
-- Reduced change detection cycles
-- Better performance
-- Works well with Signals
-
-### Signals + OnPush
-
-Best performance combination:
-
-```typescript
-@Component({
-  changeDetection: ChangeDetectionStrategy.OnPush
-})
-export class OptimizedComponent {
-  // Signals automatically trigger change detection
-  data = signal<Data[]>([]);
-  
-  // Computed signals are memoized
-  filtered = computed(() => this.data().filter(d => d.active));
-}
-```
+**規則**:
+- 所有功能模組必須使用懶載入
+- 所有元件必須使用 `OnPush` 策略
+- 最佳效能組合：Signals + OnPush
+- 懶載入優點：更小的初始套件、更快的首次載入、更好的快取
 
 ## Security Best Practices
 
-### 1. Firestore Security Rules
-
-All data access protected by server-side rules:
-
-```javascript
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /blueprints/{blueprintId} {
-      allow read: if isAuthenticated() && canRead(blueprintId);
-      allow write: if isAuthenticated() && canEdit(blueprintId);
-    }
-  }
-}
-```
-
-### 2. Route Guards
-
-Protected routes use functional guards:
-
-```typescript
-{
-  path: 'dashboard',
-  canActivate: [authGuard],
-  loadChildren: () => import('./routes/dashboard/routes')
-}
-```
-
-### 3. Input Sanitization
-
-Use Angular's built-in sanitization:
-
-```typescript
-import { DomSanitizer } from '@angular/platform-browser';
-
-// Sanitize user input before rendering
-safeHtml = this.sanitizer.sanitize(SecurityContext.HTML, userInput);
-```
-
-### 4. HTTPS Only
-
-Enforce HTTPS in production:
-
-```typescript
-if (environment.production && location.protocol !== 'https:') {
-  location.replace(`https:${location.href.substring(location.protocol.length)}`);
-}
-```
+**規則**:
+1. Firestore Security Rules：所有資料存取必須由伺服器端規則保護
+2. Route Guards：受保護的路由必須使用功能守衛
+3. Input Sanitization：必須使用 Angular 內建的清理功能清理用戶輸入
+4. HTTPS Only：生產環境必須強制使用 HTTPS
 
 ## Common Patterns
 
 ### Service Injection
 
-Modern `inject()` function:
-
-```typescript
-export class MyComponent {
-  private service = inject(MyService);
-  private router = inject(Router);
-  private auth = inject(Auth);
-}
-```
+**規則**:
+- 必須使用現代的 `inject()` 函數進行依賴注入
 
 ### Component Communication
 
-Use signals and outputs:
-
-```typescript
-// Parent
-<child-component
-  [data]="parentData()"
-  (action)="handleAction($event)" />
-
-// Child
-export class ChildComponent {
-  data = input.required<Data>();
-  action = output<Action>();
-  
-  doSomething() {
-    this.action.emit({ type: 'clicked' });
-  }
-}
-```
+**規則**:
+- 必須使用 signals 和 outputs 進行元件通訊
+- 父元件必須使用 `[data]="parentData()"` 傳遞資料
+- 子元件必須使用 `input.required<Data>()` 接收資料
+- 子元件必須使用 `output<Action>()` 發送事件
 
 ### Async Data Loading
 
-Pattern with loading and error states:
-
-```typescript
-export class DataComponent {
-  loading = signal(false);
-  error = signal<string | null>(null);
-  data = signal<Data[]>([]);
-  
-  async load() {
-    this.loading.set(true);
-    this.error.set(null);
-    
-    try {
-      const result = await this.service.getData();
-      this.data.set(result);
-    } catch (err) {
-      this.error.set(err.message);
-    } finally {
-      this.loading.set(false);
-    }
-  }
-}
-```
+**規則**:
+- 必須使用 loading 和 error 狀態的模式
+- 必須使用 `signal(false)` 管理 loading 狀態
+- 必須使用 `signal<string | null>(null)` 管理 error 狀態
+- 必須在 try-catch-finally 中處理非同步操作
 
 ## Troubleshooting
 
-### Common Issues
-
-**Issue**: Firebase not initialized  
-**Solution**: Check environment.ts has correct Firebase config
-
-**Issue**: Route not loading  
-**Solution**: Verify route path and lazy-load import
-
-**Issue**: Signals not updating UI  
-**Solution**: Ensure OnPush + signal pattern, call `.set()` or `.update()`
-
-**Issue**: HTTP interceptor not working  
-**Solution**: Verify interceptor registered in app.config.ts
+**規則**:
+- Firebase 未初始化：必須檢查 `environment.ts` 是否有正確的 Firebase 配置
+- 路由未載入：必須驗證路由路徑和懶載入匯入
+- Signals 未更新 UI：必須確保使用 OnPush + signal 模式，必須呼叫 `.set()` 或 `.update()`
+- HTTP 攔截器未工作：必須驗證攔截器是否在 `app.config.ts` 中註冊
 
 ## Related Documentation
 
-- **[Root AGENTS.md](../AGENTS.md)** - Project overview
-- **[Core Services](./core/AGENTS.md)** - Core infrastructure
-- **[Layout](./layout/AGENTS.md)** - Layout system
-- **[Routes](./routes/AGENTS.md)** - Feature modules
-- **[Shared](./shared/AGENTS.md)** - Reusable components
+**規則**:
+- 必須參考 Root AGENTS.md 獲取專案總覽
+- 必須參考 Core Services AGENTS.md 獲取核心基礎設施
+- 必須參考 Layout AGENTS.md 獲取佈局系統
+- 必須參考 Routes AGENTS.md 獲取功能模組
+- 必須參考 Shared AGENTS.md 獲取可重用元件
 
 ## Development Commands
 
-```bash
-# Development server
-yarn start              # http://localhost:4200
-
-# Build
-yarn build              # Production build
-yarn build:dev          # Development build
-
-# Testing
-yarn test               # Unit tests
-yarn test:coverage      # With coverage
-yarn e2e                # E2E tests
-
-# Linting
-yarn lint               # TypeScript + SCSS
-yarn lint:fix           # Auto-fix issues
-
-# Code generation
-ng g component my-component --standalone
-ng g service my-service
-ng g guard my-guard --functional
-```
+**規則**:
+- 開發伺服器：`yarn start`（http://localhost:4200）
+- 構建：`yarn build`（生產構建）、`yarn build:dev`（開發構建）
+- 測試：`yarn test`（單元測試）、`yarn test:coverage`（含覆蓋率）、`yarn e2e`（E2E 測試）
+- 程式碼檢查：`yarn lint`（TypeScript + SCSS）、`yarn lint:fix`（自動修復問題）
+- 程式碼生成：`ng g component my-component --standalone`、`ng g service my-service`、`ng g guard my-guard --functional`
 
 ## Best Practices
 
-1. **Use Standalone Components** - No NgModules
-2. **Use Signals** - For reactive state
-3. **Use inject()** - For dependency injection
-4. **Use OnPush** - For change detection
-5. **Use Lazy Loading** - For feature modules
-6. **Use Functional Guards** - Instead of class-based
-7. **Use Route Input Binding** - For cleaner code
-8. **Use Firebase/Firestore** - As primary backend
-9. **Use TypeScript Strict Mode** - For type safety
-10. **Write Tests** - For critical functionality
+**規則**:
+1. 必須使用 Standalone Components（不使用 NgModules）
+2. 必須使用 Signals（進行響應式狀態管理）
+3. 必須使用 `inject()`（進行依賴注入）
+4. 必須使用 OnPush（進行變更檢測）
+5. 必須使用 Lazy Loading（進行功能模組載入）
+6. 必須使用 Functional Guards（而非基於類別的）
+7. 必須使用 Route Input Binding（獲得更乾淨的程式碼）
+8. 必須使用 Firebase/Firestore（作為主要後端）
+9. 必須使用 TypeScript Strict Mode（獲得類型安全）
+10. 必須撰寫測試（針對關鍵功能）
 
 ---
 
