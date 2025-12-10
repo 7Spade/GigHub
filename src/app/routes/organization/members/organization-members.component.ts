@@ -1,6 +1,7 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
 import { ContextType, OrganizationMember, OrganizationRole } from '@core';
-import { SHARED_IMPORTS, WorkspaceContextService, OrganizationMemberRepository } from '@shared';
+import { SHARED_IMPORTS, WorkspaceContextService, OrganizationMemberRepository, createAsyncArrayState } from '@shared';
 import { HeaderContextSwitcherComponent } from '../../../layout/basic/widgets/context-switcher.component';
 import { NzMenuModule } from 'ng-zorro-antd/menu';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
@@ -34,7 +35,17 @@ import { NzEmptyModule } from 'ng-zorro-antd/empty';
       </ul>
     </nz-card>
 
-    <nz-card nzTitle="成員列表" [nzLoading]="loading()">
+    <nz-card nzTitle="成員列表" [nzLoading]="membersState.loading()">
+      @if (membersState.error()) {
+        <nz-alert
+          nzType="error"
+          nzShowIcon
+          [nzMessage]="'載入失敗'"
+          [nzDescription]="membersState.error()?.message || '無法載入成員列表'"
+          class="mb-md"
+        />
+      }
+      
       @if (displayMembers().length > 0) {
         <nz-table #table [nzData]="displayMembers()">
           <thead>
@@ -80,47 +91,41 @@ export class OrganizationMembersComponent implements OnInit {
   private readonly workspaceContext = inject(WorkspaceContextService);
   private readonly memberRepository = inject(OrganizationMemberRepository);
 
-  // State signals (Occam's Razor: simple reactive state)
-  private readonly members = signal<OrganizationMember[]>([]);
-  loading = signal(true);
+  // ✅ Modern Pattern: Use AsyncState for unified state management
+  readonly membersState = createAsyncArrayState<OrganizationMember>([]);
 
   ngOnInit(): void {
-    // Load members when component initializes (Occam's Razor: single load point)
+    // Load members when component initializes
     this.loadMembers();
   }
 
   /**
    * Load organization members from repository
-   * 從 Repository 載入組織成員（使用真實數據）
+   * 從 Repository 載入組織成員（使用 AsyncState 統一管理）
    */
-  private loadMembers(): void {
+  private async loadMembers(): Promise<void> {
     const orgId = this.currentOrgId();
     
     if (!orgId) {
-      this.loading.set(false);
       return;
     }
 
-    this.loading.set(true);
-    this.memberRepository.findByOrganization(orgId).subscribe({
-      next: (members: OrganizationMember[]) => {
-        this.members.set(members);
-        this.loading.set(false);
-        console.log('[OrganizationMembersComponent] ✅ Loaded members:', members.length);
-      },
-      error: (error: Error) => {
-        console.error('[OrganizationMembersComponent] ❌ Failed to load members:', error);
-        this.members.set([]);
-        this.loading.set(false);
-      }
-    });
+    try {
+      await this.membersState.load(
+        firstValueFrom(this.memberRepository.findByOrganization(orgId))
+      );
+      console.log('[OrganizationMembersComponent] ✅ Loaded members:', this.membersState.length());
+    } catch (error) {
+      console.error('[OrganizationMembersComponent] ❌ Failed to load members:', error);
+      // Error is automatically managed by AsyncState
+    }
   }
 
   readonly currentOrgId = computed(() =>
     this.workspaceContext.contextType() === ContextType.ORGANIZATION ? this.workspaceContext.contextId() : null
   );
 
-  displayMembers = computed(() => this.members());
+  displayMembers = computed(() => this.membersState.data() || []);
 
   isOrganizationContext(): boolean {
     return this.workspaceContext.contextType() === ContextType.ORGANIZATION;
