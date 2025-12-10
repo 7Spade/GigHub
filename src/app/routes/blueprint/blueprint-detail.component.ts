@@ -46,7 +46,7 @@ import { BlueprintService } from '@shared';
       <ng-template #breadcrumb>
         <nz-breadcrumb>
           <nz-breadcrumb-item>
-            <a [routerLink]="['/blueprint']">藍圖管理</a>
+            <a [routerLink]="['..']" [relativeTo]="route">藍圖管理</a>
           </nz-breadcrumb-item>
           <nz-breadcrumb-item>詳情</nz-breadcrumb-item>
         </nz-breadcrumb>
@@ -159,7 +159,7 @@ import { BlueprintService } from '@shared';
           nzSubTitle="找不到指定的藍圖"
           >
           <div nz-result-extra>
-            <button nz-button nzType="primary" [routerLink]="['/blueprint']">
+            <button nz-button nzType="primary" [routerLink]="['..']" [relativeTo]="route">
               返回列表
             </button>
           </div>
@@ -198,7 +198,8 @@ export class BlueprintDetailComponent implements OnInit {
       this.loadBlueprint(id);
     } else {
       this.message.error('缺少藍圖 ID');
-      this.router.navigate(['/blueprint']);
+      // Navigate back to list using relative path
+      this.router.navigate(['..'], { relativeTo: this.route });
     }
   }
 
@@ -315,11 +316,13 @@ export class BlueprintDetailComponent implements OnInit {
   /**
    * Open module page
    * 開啟模組頁面
+   * ✅ Fixed: Use relative navigation to respect workspace context
    */
   openModule(module: string): void {
     const blueprintId = this.blueprint()?.id;
     if (blueprintId) {
-      this.router.navigate(['/blueprint', blueprintId, module]);
+      // Navigate relative to current detail page
+      this.router.navigate([module], { relativeTo: this.route });
     }
   }
 
