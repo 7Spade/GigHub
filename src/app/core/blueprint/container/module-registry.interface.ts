@@ -170,6 +170,21 @@ export interface IModuleRegistry {
   getDependents(moduleId: string): readonly string[];
 
   /**
+   * Get all registered modules
+   * 
+   * @returns Array of all module instances
+   */
+  list(): readonly IBlueprintModule[];
+  
+  /**
+   * Check for missing dependencies
+   * 
+   * @param modules - Array of modules to check
+   * @returns Array of missing dependency IDs
+   */
+  checkMissingDependencies(modules: readonly IBlueprintModule[]): readonly string[];
+
+  /**
    * Clear all registered modules
    */
   clear(): void;

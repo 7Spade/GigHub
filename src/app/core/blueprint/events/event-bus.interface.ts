@@ -133,4 +133,12 @@ export interface IEventBus {
    * @returns Array of historical events
    */
   getHistory(type?: string, limit?: number): IBlueprintEvent[];
+  
+  /**
+   * Dispose of the event bus
+   * 
+   * Unsubscribes all handlers and clears history.
+   * Should be called when the blueprint is being destroyed.
+   */
+  dispose(): void;
 }

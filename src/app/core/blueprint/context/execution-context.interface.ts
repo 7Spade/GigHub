@@ -3,6 +3,18 @@ import type { IResourceProvider } from '../container/resource-provider.interface
 import type { IBlueprintConfig } from '../config/blueprint-config.interface';
 import type { TenantInfo } from './tenant-info.interface';
 import type { LoggerService } from '@core';
+import type { SharedContext } from './shared-context';
+
+/**
+ * Context Type
+ * 
+ * Defines the scope level of the execution context.
+ */
+export enum ContextType {
+  ORGANIZATION = 'organization',
+  TEAM = 'team',
+  USER = 'user'
+}
 
 /**
  * Execution Context Interface
@@ -19,10 +31,10 @@ import type { LoggerService } from '@core';
  *   context.eventBus.on('SOME_EVENT', this.handler);
  *   
  *   // Access Firestore
- *   const firestore = context.use<Firestore>('firestore');
+ *   const firestore = context.resources.get<Firestore>('firestore');
  *   
- *   // Log messages
- *   context.logger.info('[MyModule]', 'Initialized');
+ *   // Access shared context
+ *   context.sharedContext.setState('myModule.data', { value: 42 });
  * }
  * ```
  */
@@ -34,10 +46,16 @@ export interface IExecutionContext {
   blueprintId: string;
   
   /**
+   * Context Type
+   * The scope level of this execution context
+   */
+  contextType: ContextType;
+  
+  /**
    * Tenant Information
    * Multi-tenant scope and access control information
    */
-  tenant: TenantInfo;
+  tenant?: TenantInfo;
   
   /**
    * Event Bus
@@ -52,32 +70,8 @@ export interface IExecutionContext {
   resources: IResourceProvider;
   
   /**
-   * Blueprint Configuration
-   * Configuration settings for this blueprint instance
+   * Shared Context
+   * Shared state management across modules
    */
-  config: IBlueprintConfig;
-  
-  /**
-   * Logger Service
-   * Structured logging with context
-   */
-  logger: LoggerService;
-  
-  /**
-   * Get Resource
-   * 
-   * Convenience method to access resources by name.
-   * Equivalent to resources.get<T>(name)
-   * 
-   * @param resourceName - Name of the resource to retrieve
-   * @returns The requested resource
-   * @throws Error if resource not found
-   * 
-   * @example
-   * ```typescript
-   * const firestore = context.use<Firestore>('firestore');
-   * const auth = context.use<Auth>('auth');
-   * ```
-   */
-  use<T>(resourceName: string): T;
+  sharedContext: SharedContext;
 }
