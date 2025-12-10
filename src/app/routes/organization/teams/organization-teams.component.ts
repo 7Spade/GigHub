@@ -1,17 +1,31 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit, effect } from '@angular/core';
 import { ContextType, Team } from '@core';
 import { SHARED_IMPORTS, WorkspaceContextService, TeamRepository } from '@shared';
 import { HeaderContextSwitcherComponent } from '../../../layout/basic/widgets/context-switcher.component';
+import { CreateTeamModalComponent } from '../../../shared/components/create-team-modal/create-team-modal.component';
+import { EditTeamModalComponent } from '../../../shared/components/edit-team-modal/edit-team-modal.component';
 import { NzMenuModule } from 'ng-zorro-antd/menu';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
 import { NzModalService } from 'ng-zorro-antd/modal';
 import { NzMessageService } from 'ng-zorro-antd/message';
+import { NzTableModule } from 'ng-zorro-antd/table';
+import { NzTagModule } from 'ng-zorro-antd/tag';
+import { NzDescriptionsModule } from 'ng-zorro-antd/descriptions';
 
 @Component({
   selector: 'app-organization-teams',
   standalone: true,
-  imports: [SHARED_IMPORTS, NzMenuModule, NzAlertModule, NzEmptyModule, HeaderContextSwitcherComponent],
+  imports: [
+    SHARED_IMPORTS,
+    NzMenuModule,
+    NzAlertModule,
+    NzEmptyModule,
+    NzTableModule,
+    NzTagModule,
+    NzDescriptionsModule,
+    HeaderContextSwitcherComponent
+  ],
   template: `
     <page-header [title]="'團隊管理'" [content]="headerContent"></page-header>
     
@@ -47,25 +61,33 @@ import { NzMessageService } from 'ng-zorro-antd/message';
       </ng-template>
       
       @if (teams().length > 0) {
-        <nz-list [nzDataSource]="teams()" [nzRenderItem]="teamTpl" [nzItemLayout]="'horizontal'"></nz-list>
-        <ng-template #teamTpl let-team>
-          <nz-list-item [nzActions]="[editAction, deleteAction]">
-            <nz-list-item-meta
-              [nzTitle]="team.name"
-              [nzDescription]="team.description || '尚無描述'"
-            ></nz-list-item-meta>
-            <nz-tag>{{ team.id }}</nz-tag>
-            
-            <ng-template #editAction>
-              <a (click)="openEditTeamModal(team)">編輯</a>
-            </ng-template>
-            <ng-template #deleteAction>
-              <a nz-popconfirm nzPopconfirmTitle="確定刪除此團隊？" (nzOnConfirm)="deleteTeam(team)">刪除</a>
-            </ng-template>
-          </nz-list-item>
-        </ng-template>
+        <nz-table #table [nzData]="teams()" [nzShowPagination]="false">
+          <thead>
+            <tr>
+              <th nzWidth="200px">團隊名稱</th>
+              <th>描述</th>
+              <th nzWidth="200px">建立時間</th>
+              <th nzWidth="150px">操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (team of table.data; track team.id) {
+              <tr>
+                <td>
+                  <strong>{{ team.name }}</strong>
+                </td>
+                <td>{{ team.description || '尚無描述' }}</td>
+                <td>{{ formatDate(team.created_at) }}</td>
+                <td>
+                  <a (click)="openEditTeamModal(team)" class="mr-sm">編輯</a>
+                  <a nz-popconfirm nzPopconfirmTitle="確定刪除此團隊？此操作無法復原。" (nzOnConfirm)="deleteTeam(team)">刪除</a>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </nz-table>
       } @else {
-        <nz-empty nzNotFoundContent="暫無團隊"></nz-empty>
+        <nz-empty nzNotFoundContent="暫無團隊，請點擊上方按鈕建立團隊"></nz-empty>
       }
     </nz-card>
   `,
@@ -80,6 +102,9 @@ import { NzMessageService } from 'ng-zorro-antd/message';
       .border-0 {
         border: 0;
       }
+      .mr-sm {
+        margin-right: 8px;
+      }
     `
   ],
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -92,6 +117,16 @@ export class OrganizationTeamsComponent implements OnInit {
 
   private readonly teamsState = signal<Team[]>([]);
   loading = signal(false);
+
+  constructor() {
+    // Auto-reload teams when organization context changes
+    effect(() => {
+      const orgId = this.currentOrgId();
+      if (orgId) {
+        this.loadTeams(orgId);
+      }
+    });
+  }
 
   ngOnInit(): void {
     // Load teams when component initializes
@@ -134,101 +169,47 @@ export class OrganizationTeamsComponent implements OnInit {
   }
 
   openCreateTeamModal(): void {
-    this.modal.create({
+    const orgId = this.currentOrgId();
+    if (!orgId) {
+      this.message.error('無法獲取組織 ID');
+      return;
+    }
+
+    const modalRef = this.modal.create({
       nzTitle: '建立團隊',
-      nzContent: `
-        <form nz-form>
-          <nz-form-item>
-            <nz-form-label nzRequired>團隊名稱</nz-form-label>
-            <nz-form-control>
-              <input nz-input id="teamName" placeholder="請輸入團隊名稱" />
-            </nz-form-control>
-          </nz-form-item>
-          <nz-form-item>
-            <nz-form-label>描述</nz-form-label>
-            <nz-form-control>
-              <textarea nz-input id="teamDescription" placeholder="請輸入團隊描述（選填）" rows="3"></textarea>
-            </nz-form-control>
-          </nz-form-item>
-        </form>
-      `,
-      nzOnOk: async () => {
-        const name = (document.getElementById('teamName') as HTMLInputElement)?.value;
-        const description = (document.getElementById('teamDescription') as HTMLTextAreaElement)?.value;
-        
-        if (!name || name.trim() === '') {
-          this.message.error('請輸入團隊名稱');
-          return false;
-        }
+      nzContent: CreateTeamModalComponent,
+      nzData: {
+        organizationId: orgId
+      },
+      nzFooter: null,
+      nzWidth: 520
+    });
 
-        const orgId = this.currentOrgId();
-        if (!orgId) {
-          this.message.error('無法獲取組織 ID');
-          return false;
-        }
-
-        try {
-          await this.teamRepository.create({
-            organization_id: orgId,
-            name: name.trim(),
-            description: description?.trim() || null
-          });
-          this.message.success('團隊已建立');
-          this.loadTeams(orgId);
-          return true;
-        } catch (error) {
-          console.error('[OrganizationTeamsComponent] ❌ Failed to create team:', error);
-          this.message.error('建立團隊失敗');
-          return false;
-        }
+    modalRef.afterClose.subscribe((result: Team | undefined) => {
+      if (result) {
+        // Team created successfully, reload list
+        this.loadTeams(orgId);
       }
     });
   }
 
   openEditTeamModal(team: Team): void {
-    this.modal.create({
+    const modalRef = this.modal.create({
       nzTitle: '編輯團隊',
-      nzContent: `
-        <form nz-form>
-          <nz-form-item>
-            <nz-form-label nzRequired>團隊名稱</nz-form-label>
-            <nz-form-control>
-              <input nz-input id="editTeamName" value="${team.name}" />
-            </nz-form-control>
-          </nz-form-item>
-          <nz-form-item>
-            <nz-form-label>描述</nz-form-label>
-            <nz-form-control>
-              <textarea nz-input id="editTeamDescription" rows="3">${team.description || ''}</textarea>
-            </nz-form-control>
-          </nz-form-item>
-        </form>
-      `,
-      nzOnOk: async () => {
-        const name = (document.getElementById('editTeamName') as HTMLInputElement)?.value;
-        const description = (document.getElementById('editTeamDescription') as HTMLTextAreaElement)?.value;
-        
-        if (!name || name.trim() === '') {
-          this.message.error('請輸入團隊名稱');
-          return false;
-        }
+      nzContent: EditTeamModalComponent,
+      nzData: {
+        team: team
+      },
+      nzFooter: null,
+      nzWidth: 520
+    });
 
-        try {
-          await this.teamRepository.update(team.id, {
-            name: name.trim(),
-            description: description?.trim() || null
-          });
-          this.message.success('團隊已更新');
-          
-          const orgId = this.currentOrgId();
-          if (orgId) {
-            this.loadTeams(orgId);
-          }
-          return true;
-        } catch (error) {
-          console.error('[OrganizationTeamsComponent] ❌ Failed to update team:', error);
-          this.message.error('更新團隊失敗');
-          return false;
+    modalRef.afterClose.subscribe((success: boolean | undefined) => {
+      if (success) {
+        // Team updated successfully, reload list
+        const orgId = this.currentOrgId();
+        if (orgId) {
+          this.loadTeams(orgId);
         }
       }
     });
@@ -246,6 +227,20 @@ export class OrganizationTeamsComponent implements OnInit {
     } catch (error) {
       console.error('[OrganizationTeamsComponent] ❌ Failed to delete team:', error);
       this.message.error('刪除團隊失敗');
+    }
+  }
+
+  formatDate(dateStr: string | undefined): string {
+    if (!dateStr) return '-';
+    try {
+      const date = new Date(dateStr);
+      return date.toLocaleDateString('zh-TW', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+      });
+    } catch {
+      return '-';
     }
   }
 }
