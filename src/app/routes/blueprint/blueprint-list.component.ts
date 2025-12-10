@@ -1,5 +1,5 @@
 import { Component, OnInit, inject, effect, computed } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { STColumn, STData } from '@delon/abc/st';
 import { ModalHelper } from '@delon/theme';
@@ -84,6 +84,7 @@ import { BlueprintService, WorkspaceContextService } from '@shared';
 })
 export class BlueprintListComponent implements OnInit {
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   private readonly modal = inject(ModalHelper);
   private readonly message = inject(NzMessageService);
   private readonly logger = inject(LoggerService);
@@ -312,10 +313,12 @@ export class BlueprintListComponent implements OnInit {
   /**
    * View blueprint details
    * 檢視藍圖詳情
+   * ✅ Fixed: Use relative navigation to respect workspace context
    */
   view(record: STData): void {
     const blueprint = record as unknown as Blueprint;
-    this.router.navigate(['/blueprint', blueprint.id]);
+    // Navigate relative to current route (preserves /blueprints/user or /blueprints/organization)
+    this.router.navigate([blueprint.id], { relativeTo: this.route });
   }
 
   /**
