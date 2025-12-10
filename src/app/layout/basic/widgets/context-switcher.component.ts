@@ -23,7 +23,7 @@ import { NzMenuModule } from 'ng-zorro-antd/menu';
 @Component({
   selector: 'header-context-switcher',
   standalone: true,
-  imports: [CommonModule, NzMenuModule, NzIconModule],
+  imports: [NzMenuModule, NzIconModule],
   template: `
     <!-- Personal account (flat) -->
     @if (currentUser()) {

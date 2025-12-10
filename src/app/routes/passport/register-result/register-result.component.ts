@@ -1,4 +1,4 @@
-import { Component, Input, inject } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { I18nPipe } from '@delon/theme';
 import { NzButtonModule } from 'ng-zorro-antd/button';
@@ -12,5 +12,5 @@ import { NzResultModule } from 'ng-zorro-antd/result';
 })
 export class UserRegisterResultComponent {
   readonly msg = inject(NzMessageService);
-  @Input() email = '';
+  email = input<string>('');
 }

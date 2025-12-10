@@ -26,10 +26,10 @@ import { BlueprintMemberRepository } from '@shared';
             formControlName="accountId"
             placeholder="輸入 Firebase Auth UID"
             [disabled]="isEdit"
-          />
+            />
         </nz-form-control>
       </nz-form-item>
-
+    
       <nz-form-item>
         <nz-form-label [nzSpan]="6" nzRequired>系統角色</nz-form-label>
         <nz-form-control [nzSpan]="16" nzErrorTip="請選擇系統角色">
@@ -46,7 +46,7 @@ import { BlueprintMemberRepository } from '@shared';
           </nz-radio-group>
         </nz-form-control>
       </nz-form-item>
-
+    
       <nz-form-item>
         <nz-form-label [nzSpan]="6">業務角色</nz-form-label>
         <nz-form-control [nzSpan]="16">
@@ -54,16 +54,17 @@ import { BlueprintMemberRepository } from '@shared';
             formControlName="businessRole"
             nzPlaceHolder="選擇業務角色（選填）"
             nzAllowClear
-          >
-            <nz-option
-              *ngFor="let role of businessRoles"
-              [nzLabel]="role.label"
-              [nzValue]="role.value"
-            ></nz-option>
+            >
+            @for (role of businessRoles; track role) {
+              <nz-option
+                [nzLabel]="role.label"
+                [nzValue]="role.value"
+              ></nz-option>
+            }
           </nz-select>
         </nz-form-control>
       </nz-form-item>
-
+    
       <nz-form-item>
         <nz-form-label [nzSpan]="6">外部成員</nz-form-label>
         <nz-form-control [nzSpan]="16">
@@ -72,7 +73,7 @@ import { BlueprintMemberRepository } from '@shared';
           </label>
         </nz-form-control>
       </nz-form-item>
-
+    
       <nz-form-item>
         <nz-form-control [nzOffset]="6" [nzSpan]="16">
           <button
@@ -81,7 +82,7 @@ import { BlueprintMemberRepository } from '@shared';
             type="submit"
             [nzLoading]="submitting()"
             [disabled]="!form.valid"
-          >
+            >
             {{ isEdit ? '更新' : '新增' }}
           </button>
           <button
@@ -90,13 +91,13 @@ import { BlueprintMemberRepository } from '@shared';
             class="ml-sm"
             (click)="cancel()"
             [disabled]="submitting()"
-          >
+            >
             取消
           </button>
         </nz-form-control>
       </nz-form-item>
     </form>
-  `
+    `
 })
 export class MemberModalComponent implements OnInit {
   private readonly fb = inject(FormBuilder);

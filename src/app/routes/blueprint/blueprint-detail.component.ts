@@ -28,7 +28,7 @@ import { BlueprintService } from '@shared';
       [title]="blueprint()?.name || '藍圖詳情'"
       [action]="action"
       [breadcrumb]="breadcrumb"
-    >
+      >
       <ng-template #action>
         <button nz-button (click)="edit()">
           <span nz-icon nzType="edit"></span>
@@ -39,7 +39,7 @@ import { BlueprintService } from '@shared';
           刪除
         </button>
       </ng-template>
-
+    
       <ng-template #breadcrumb>
         <nz-breadcrumb>
           <nz-breadcrumb-item>
@@ -49,7 +49,7 @@ import { BlueprintService } from '@shared';
         </nz-breadcrumb>
       </ng-template>
     </page-header>
-
+    
     @if (loading()) {
       <nz-card [nzLoading]="true"></nz-card>
     } @else if (blueprint()) {
@@ -84,33 +84,35 @@ import { BlueprintService } from '@shared';
               </nz-descriptions-item>
             </nz-descriptions>
           </nz-card>
-
+    
           <!-- Enabled Modules -->
           <nz-card nzTitle="啟用模組">
             @if (blueprint()!.enabledModules.length > 0) {
               <nz-list [nzDataSource]="blueprint()!.enabledModules" nzBordered>
-                <nz-list-item *ngFor="let module of blueprint()!.enabledModules">
-                  <nz-list-item-meta
-                    [nzTitle]="getModuleName(module)"
-                    [nzDescription]="getModuleDescription(module)"
-                  >
-                    <nz-list-item-meta-avatar>
-                      <nz-avatar [nzIcon]="getModuleIcon(module)"></nz-avatar>
-                    </nz-list-item-meta-avatar>
-                  </nz-list-item-meta>
-                  <ul nz-list-item-actions>
-                    <nz-list-item-action>
-                      <a (click)="openModule(module)">開啟</a>
-                    </nz-list-item-action>
-                  </ul>
-                </nz-list-item>
+                @for (module of blueprint()!.enabledModules; track module) {
+                  <nz-list-item>
+                    <nz-list-item-meta
+                      [nzTitle]="getModuleName(module)"
+                      [nzDescription]="getModuleDescription(module)"
+                      >
+                      <nz-list-item-meta-avatar>
+                        <nz-avatar [nzIcon]="getModuleIcon(module)"></nz-avatar>
+                      </nz-list-item-meta-avatar>
+                    </nz-list-item-meta>
+                    <ul nz-list-item-actions>
+                      <nz-list-item-action>
+                        <a (click)="openModule(module)">開啟</a>
+                      </nz-list-item-action>
+                    </ul>
+                  </nz-list-item>
+                }
               </nz-list>
             } @else {
               <nz-empty nzNotFoundContent="尚未啟用任何模組"></nz-empty>
             }
           </nz-card>
         </div>
-
+    
         <!-- Quick Actions & Info -->
         <div nz-col [nzSpan]="8">
           <nz-card nzTitle="快速操作" class="mb-md">
@@ -133,7 +135,7 @@ import { BlueprintService } from '@shared';
               </button>
             </div>
           </nz-card>
-
+    
           <nz-card nzTitle="統計資訊">
             <nz-statistic
               [nzValue]="blueprint()!.enabledModules.length"
@@ -152,7 +154,7 @@ import { BlueprintService } from '@shared';
           nzStatus="404"
           nzTitle="藍圖不存在"
           nzSubTitle="找不到指定的藍圖"
-        >
+          >
           <div nz-result-extra>
             <button nz-button nzType="primary" [routerLink]="['/blueprint']">
               返回列表
@@ -161,7 +163,7 @@ import { BlueprintService } from '@shared';
         </nz-result>
       </nz-card>
     }
-  `,
+    `,
   styles: [`
     :host {
       display: block;
