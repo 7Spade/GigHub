@@ -8,6 +8,7 @@
 
 export * from './workspace-context.service';
 export * from './menu-management.service';
+export * from './breadcrumb.service';
 export * from './blueprint/blueprint.repository';
 export * from './blueprint/blueprint-member.repository';
 export * from './blueprint/blueprint.service';

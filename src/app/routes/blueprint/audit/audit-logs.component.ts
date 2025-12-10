@@ -1,8 +1,9 @@
-import { Component, OnInit, inject, signal, input } from '@angular/core';
+import { Component, OnInit, inject, input } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzSpaceModule } from 'ng-zorro-antd/space';
 import { STColumn } from '@delon/abc/st';
-import { SHARED_IMPORTS } from '@shared';
+import { SHARED_IMPORTS, createAsyncArrayState } from '@shared';
 import { AuditLog, AuditQueryOptions, AuditEntityType, AuditOperation, LoggerService } from '@core';
 import { AuditLogRepository } from '@shared';
 
@@ -17,6 +18,7 @@ import { AuditLogRepository } from '@shared';
  * - Pagination
  * 
  * Following Occam's Razor: Simple, read-only audit viewer
+ * ✅ Modernized with AsyncState pattern
  */
 @Component({
   selector: 'app-audit-logs',
@@ -62,12 +64,20 @@ import { AuditLogRepository } from '@shared';
       </div>
 
       <!-- Table -->
-      @if (loading()) {
+      @if (logsState.loading()) {
         <nz-spin nzSimple></nz-spin>
+      } @else if (logsState.error()) {
+        <nz-alert
+          nzType="error"
+          nzShowIcon
+          [nzMessage]="'載入失敗'"
+          [nzDescription]="logsState.error()?.message || '無法載入審計記錄'"
+          class="mb-md"
+        />
       } @else {
         <st
           #st
-          [data]="logs()"
+          [data]="logsState.data() || []"
           [columns]="columns"
           [page]="{ show: true, showSize: true }"
         ></st>
@@ -88,9 +98,8 @@ export class AuditLogsComponent implements OnInit {
   // Input: blueprint ID
   blueprintId = input.required<string>();
 
-  // Reactive state
-  loading = signal(false);
-  logs = signal<AuditLog[]>([]);
+  // ✅ Modern Pattern: Use AsyncState for unified state management
+  readonly logsState = createAsyncArrayState<AuditLog>([]);
 
   // Filter state
   filterEntityType: AuditEntityType | null = null;
@@ -153,28 +162,24 @@ export class AuditLogsComponent implements OnInit {
   /**
    * Load audit logs
    * 載入審計記錄
+   * ✅ Using AsyncState for automatic state management
    */
-  private loadLogs(): void {
-    this.loading.set(true);
-
+  private async loadLogs(): Promise<void> {
     const options: AuditQueryOptions = {
       ...(this.filterEntityType && { entityType: this.filterEntityType }),
       ...(this.filterOperation && { operation: this.filterOperation }),
       limit: 100
     };
 
-    this.auditRepository.queryLogs(this.blueprintId(), options).subscribe({
-      next: (data: AuditLog[]) => {
-        this.logs.set(data);
-        this.loading.set(false);
-        this.logger.info('[AuditLogsComponent]', `Loaded ${data.length} audit logs`);
-      },
-      error: (error: Error) => {
-        this.loading.set(false);
-        this.message.error('載入審計記錄失敗');
-        this.logger.error('[AuditLogsComponent]', 'Failed to load audit logs', error);
-      }
-    });
+    try {
+      await this.logsState.load(
+        firstValueFrom(this.auditRepository.queryLogs(this.blueprintId(), options))
+      );
+      this.logger.info('[AuditLogsComponent]', `Loaded ${this.logsState.length()} audit logs`);
+    } catch (error) {
+      this.message.error('載入審計記錄失敗');
+      this.logger.error('[AuditLogsComponent]', 'Failed to load audit logs', error as Error);
+    }
   }
 
   /**

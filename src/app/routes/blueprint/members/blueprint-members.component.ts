@@ -1,8 +1,9 @@
-import { Component, OnInit, inject, signal, input } from '@angular/core';
+import { Component, OnInit, inject, input } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { ModalHelper } from '@delon/theme';
 import { STColumn } from '@delon/abc/st';
-import { SHARED_IMPORTS } from '@shared';
+import { SHARED_IMPORTS, createAsyncArrayState } from '@shared';
 import { BlueprintMember, BlueprintRole, LoggerService } from '@core';
 import { BlueprintMemberRepository } from '@shared';
 
@@ -17,6 +18,7 @@ import { BlueprintMemberRepository } from '@shared';
  * - Remove member
  * 
  * Following Occam's Razor: Simple, focused member management
+ * ✅ Modernized with AsyncState pattern
  */
 @Component({
   selector: 'app-blueprint-members',
@@ -31,12 +33,20 @@ import { BlueprintMemberRepository } from '@shared';
         </button>
       </ng-template>
 
-      @if (loading()) {
+      @if (membersState.loading()) {
         <nz-spin nzSimple></nz-spin>
+      } @else if (membersState.error()) {
+        <nz-alert
+          nzType="error"
+          nzShowIcon
+          [nzMessage]="'載入失敗'"
+          [nzDescription]="membersState.error()?.message || '無法載入成員列表'"
+          class="mb-md"
+        />
       } @else {
         <st
           #st
-          [data]="members()"
+          [data]="membersState.data() || []"
           [columns]="columns"
           [page]="{ show: false }"
         ></st>
@@ -58,9 +68,8 @@ export class BlueprintMembersComponent implements OnInit {
   // Input: blueprint ID
   blueprintId = input.required<string>();
 
-  // Reactive state
-  loading = signal(false);
-  members = signal<BlueprintMember[]>([]);
+  // ✅ Modern Pattern: Use AsyncState for unified state management
+  readonly membersState = createAsyncArrayState<BlueprintMember>([]);
 
   // Table columns
   columns: STColumn[] = [
@@ -128,22 +137,18 @@ export class BlueprintMembersComponent implements OnInit {
   /**
    * Load members
    * 載入成員列表
+   * ✅ Using AsyncState for automatic state management
    */
-  private loadMembers(): void {
-    this.loading.set(true);
-
-    this.memberRepository.findByBlueprint(this.blueprintId()).subscribe({
-      next: (data: BlueprintMember[]) => {
-        this.members.set(data);
-        this.loading.set(false);
-        this.logger.info('[BlueprintMembersComponent]', `Loaded ${data.length} members`);
-      },
-      error: (error: Error) => {
-        this.loading.set(false);
-        this.message.error('載入成員失敗');
-        this.logger.error('[BlueprintMembersComponent]', 'Failed to load members', error);
-      }
-    });
+  private async loadMembers(): Promise<void> {
+    try {
+      await this.membersState.load(
+        firstValueFrom(this.memberRepository.findByBlueprint(this.blueprintId()))
+      );
+      this.logger.info('[BlueprintMembersComponent]', `Loaded ${this.membersState.length()} members`);
+    } catch (error) {
+      this.message.error('載入成員失敗');
+      this.logger.error('[BlueprintMembersComponent]', 'Failed to load members', error as Error);
+    }
   }
 
   /**
