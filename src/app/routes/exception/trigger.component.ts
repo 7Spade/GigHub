@@ -3,7 +3,14 @@ import { DA_SERVICE_TOKEN } from '@delon/auth';
 import { _HttpClient } from '@delon/theme';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzCardModule } from 'ng-zorro-antd/card';
+import { NzMessageService } from 'ng-zorro-antd/message';
 
+/**
+ * Exception Trigger Component
+ * 異常觸發元件 - 用於測試錯誤處理
+ * 
+ * ✅ Modernized: Simplified error handling
+ */
 @Component({
   selector: 'exception-trigger',
   template: `
@@ -21,21 +28,37 @@ import { NzCardModule } from 'ng-zorro-antd/card';
 export class ExceptionTriggerComponent {
   private readonly http = inject(_HttpClient);
   private readonly tokenService = inject(DA_SERVICE_TOKEN);
+  private readonly message = inject(NzMessageService);
 
   types = [401, 403, 404, 500];
 
-  go(type: number): void {
-    this.http.get(`/api/${type}`).subscribe();
+  /**
+   * Trigger error by type
+   * ✅ Using async/await for cleaner error handling
+   */
+  async go(type: number): Promise<void> {
+    try {
+      await this.http.get(`/api/${type}`).toPromise();
+    } catch (error) {
+      console.log(`Triggered ${type} error:`, error);
+      this.message.error(`觸發 ${type} 錯誤`);
+    }
   }
 
-  refresh(): void {
-    this.tokenService.set({ token: 'invalid-token' });
-    // 必须提供一个后端地址，无法通过 Mock 来模拟
-    this.http.post(`https://localhost:5001/auth`).subscribe({
-      next: res => console.warn('成功', res),
-      error: err => {
-        console.log('最后结果失败', err);
-      }
-    });
+  /**
+   * Refresh token test
+   * ✅ Using async/await with proper error handling
+   */
+  async refresh(): Promise<void> {
+    try {
+      this.tokenService.set({ token: 'invalid-token' });
+      // 必須提供一個後端地址，無法通過 Mock 來模擬
+      await this.http.post(`https://localhost:5001/auth`).toPromise();
+      console.log('Token refresh 成功');
+      this.message.success('Token 已刷新');
+    } catch (error) {
+      console.log('Token refresh 失敗:', error);
+      this.message.error('Token 刷新失敗');
+    }
   }
 }

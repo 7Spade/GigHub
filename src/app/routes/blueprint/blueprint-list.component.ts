@@ -1,10 +1,11 @@
-import { Component, OnInit, inject, signal, effect, computed } from '@angular/core';
+import { Component, OnInit, inject, effect, computed } from '@angular/core';
 import { Router } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
 import { STColumn, STData } from '@delon/abc/st';
 import { ModalHelper } from '@delon/theme';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzSpaceModule } from 'ng-zorro-antd/space';
-import { SHARED_IMPORTS } from '@shared';
+import { SHARED_IMPORTS, createAsyncArrayState } from '@shared';
 import { Blueprint, BlueprintStatus, LoggerService, FirebaseAuthService, OwnerType, ContextType } from '@core';
 import { BlueprintService, WorkspaceContextService } from '@shared';
 
@@ -17,6 +18,8 @@ import { BlueprintService, WorkspaceContextService } from '@shared';
  * - Filter by status
  * - Create new blueprint
  * - Navigate to detail
+ * 
+ * ✅ Modernized with AsyncState pattern
  */
 @Component({
   selector: 'app-blueprint-list',
@@ -52,12 +55,22 @@ import { BlueprintService, WorkspaceContextService } from '@shared';
         </button>
       </div>
 
+      @if (blueprintsState.error()) {
+        <nz-alert
+          nzType="error"
+          nzShowIcon
+          [nzMessage]="'載入失敗'"
+          [nzDescription]="blueprintsState.error()?.message || '無法載入藍圖列表'"
+          class="mb-md"
+        />
+      }
+
       <!-- Table -->
       <st
         #st
-        [data]="blueprints()"
+        [data]="filteredBlueprints()"
         [columns]="columns"
-        [loading]="loading()"
+        [loading]="blueprintsState.loading()"
         [page]="{ show: true, showSize: true }"
         (change)="onChange($event)"
       ></st>
@@ -78,15 +91,23 @@ export class BlueprintListComponent implements OnInit {
   private readonly authService = inject(FirebaseAuthService);
   private readonly workspaceContext = inject(WorkspaceContextService);
 
-  // Reactive state with Signals
-  loading = signal(false);
-  blueprints = signal<Blueprint[]>([]);
+  // ✅ Modern Pattern: Use AsyncState
+  readonly blueprintsState = createAsyncArrayState<Blueprint>([]);
+  
   filterStatus: BlueprintStatus | null = null;
   
   // ✅ Modern Pattern: Separate auth state for guards
   private readonly authenticated = this.workspaceContext.isAuthenticated;
   private readonly contextType = this.workspaceContext.contextType;
   private readonly contextId = this.workspaceContext.contextId;
+  
+  // ✅ Computed: Filtered blueprints
+  readonly filteredBlueprints = computed(() => {
+    const data = this.blueprintsState.data() || [];
+    return this.filterStatus
+      ? data.filter(b => b.status === this.filterStatus)
+      : data;
+  });
   
   // ✅ Computed: Logic separation - determine if we should load
   private readonly shouldLoadBlueprints = computed(() => {
@@ -114,8 +135,7 @@ export class BlueprintListComponent implements OnInit {
         this.loadBlueprints();
       } else {
         // Clear blueprints when conditions not met
-        this.blueprints.set([]);
-        this.loading.set(false);
+        this.blueprintsState.setData([]);
       }
     });
   }
@@ -190,17 +210,17 @@ export class BlueprintListComponent implements OnInit {
   /**
    * Load blueprints for current workspace context
    * 載入當前工作區上下文的藍圖
+   * ✅ Using AsyncState for automatic state management
    * 
    * Note: Auth is guaranteed by shouldLoadBlueprints computed signal
    */
-  private loadBlueprints(): void {
+  private async loadBlueprints(): Promise<void> {
     const user = this.authService.currentUser;
     
     // ✅ Silent guard: Effect guarantees auth, but defensive check for safety
     if (!user) {
       console.warn('[BlueprintList] Unexpected: loadBlueprints called without authenticated user');
-      this.blueprints.set([]);
-      this.loading.set(false);
+      this.blueprintsState.setData([]);
       return;
     }
 
@@ -234,25 +254,15 @@ export class BlueprintListComponent implements OnInit {
         break;
     }
 
-    this.loading.set(true);
-    
-    this.blueprintService.getByOwner(ownerType, ownerId).subscribe({
-      next: (data) => {
-        // Apply filter if set
-        const filtered = this.filterStatus
-          ? data.filter(b => b.status === this.filterStatus)
-          : data;
-        
-        this.blueprints.set(filtered);
-        this.loading.set(false);
-        this.logger.info('[BlueprintListComponent]', `Loaded ${filtered.length} blueprints for ${ownerType}:${ownerId}`);
-      },
-      error: (error) => {
-        this.loading.set(false);
-        this.message.error('載入藍圖失敗');
-        this.logger.error('[BlueprintListComponent]', 'Failed to load blueprints', error);
-      }
-    });
+    try {
+      await this.blueprintsState.load(
+        firstValueFrom(this.blueprintService.getByOwner(ownerType, ownerId))
+      );
+      this.logger.info('[BlueprintListComponent]', `Loaded ${this.blueprintsState.length()} blueprints for ${ownerType}:${ownerId}`);
+    } catch (error) {
+      this.message.error('載入藍圖失敗');
+      this.logger.error('[BlueprintListComponent]', 'Failed to load blueprints', error as Error);
+    }
   }
 
   /**

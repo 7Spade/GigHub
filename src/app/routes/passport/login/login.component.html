@@ -1,6 +1,6 @@
 <form nz-form [formGroup]="form" (ngSubmit)="submit()" role="form">
-  @if (error) {
-  <nz-alert [nzType]="'error'" [nzMessage]="error | i18n" [nzShowIcon]="true" class="mb-lg" />
+  @if (error()) {
+  <nz-alert [nzType]="'error'" [nzMessage]="error() | i18n" [nzShowIcon]="true" class="mb-lg" />
   }
   <nz-form-item>
     <nz-form-control [nzErrorTip]="'validation.email.required' | i18n">
@@ -25,7 +25,7 @@
     </nz-col>
   </nz-form-item>
   <nz-form-item>
-    <button nz-button type="submit" nzType="primary" nzSize="large" [nzLoading]="loading" nzBlock>
+    <button nz-button type="submit" nzType="primary" nzSize="large" [nzLoading]="loading()" nzBlock>
       {{ 'app.login.login' | i18n }}
     </button>
   </nz-form-item>
