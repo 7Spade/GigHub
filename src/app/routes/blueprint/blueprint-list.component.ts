@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, effect } from '@angular/core';
+import { Component, OnInit, inject, signal, effect, computed } from '@angular/core';
 import { Router } from '@angular/router';
 import { STColumn, STData } from '@delon/abc/st';
 import { ModalHelper } from '@delon/theme';
@@ -83,16 +83,40 @@ export class BlueprintListComponent implements OnInit {
   blueprints = signal<Blueprint[]>([]);
   filterStatus: BlueprintStatus | null = null;
   
+  // ✅ Modern Pattern: Separate auth state for guards
+  private readonly authenticated = this.workspaceContext.isAuthenticated;
+  private readonly contextType = this.workspaceContext.contextType;
+  private readonly contextId = this.workspaceContext.contextId;
+  
+  // ✅ Computed: Logic separation - determine if we should load
+  private readonly shouldLoadBlueprints = computed(() => {
+    const isAuth = this.authenticated();
+    const type = this.contextType();
+    const id = this.contextId();
+    
+    // Must be authenticated
+    if (!isAuth) {
+      return false;
+    }
+    
+    // For non-USER contexts, require contextId
+    if (type !== ContextType.USER && !id) {
+      return false;
+    }
+    
+    return true;
+  });
+  
   constructor() {
-    // Auto-reload blueprints when workspace context changes
+    // ✅ Effect: Only handle side effects, logic is in computed
     effect(() => {
-      const contextType = this.workspaceContext.contextType();
-      const contextId = this.workspaceContext.contextId();
-      
-      // Skip if no context is set
-      if (!contextId && contextType !== ContextType.USER) return;
-      
-      this.loadBlueprints();
+      if (this.shouldLoadBlueprints()) {
+        this.loadBlueprints();
+      } else {
+        // Clear blueprints when conditions not met
+        this.blueprints.set([]);
+        this.loading.set(false);
+      }
     });
   }
 
@@ -166,11 +190,17 @@ export class BlueprintListComponent implements OnInit {
   /**
    * Load blueprints for current workspace context
    * 載入當前工作區上下文的藍圖
+   * 
+   * Note: Auth is guaranteed by shouldLoadBlueprints computed signal
    */
   private loadBlueprints(): void {
     const user = this.authService.currentUser;
+    
+    // ✅ Silent guard: Effect guarantees auth, but defensive check for safety
     if (!user) {
-      this.message.error('請先登入');
+      console.warn('[BlueprintList] Unexpected: loadBlueprints called without authenticated user');
+      this.blueprints.set([]);
+      this.loading.set(false);
       return;
     }
 
