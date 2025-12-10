@@ -5,79 +5,79 @@ model: Claude Sonnet 4
 
 <!-- markdownlint-disable-file -->
 
-# Implementation Prompt: GigHub Blueprint Architecture Refactoring
+# 實作提示：GigHub Blueprint 架構重構 (Implementation Prompt: GigHub Blueprint Architecture Refactoring)
 
-## Context
+## 背景 (Context)
 
-This prompt guides the implementation of a complete architectural refactoring of the GigHub Blueprint module, transforming it from a monolithic service-based architecture to a clean, hexagonal architecture following DDD, CQRS, and Event-Driven patterns.
+此提示指導 GigHub Blueprint 模組的完整架構重構實作，將其從單體服務架構轉變為遵循 DDD、CQRS 和事件驅動模式的乾淨六邊形架構。
 
-## Source Documents
+## 來源文檔 (Source Documents)
 
-- **Research**: `.copilot-tracking/research/20251209-blueprint-architecture-analysis-research.md`
-- **Plan**: `.copilot-tracking/plans/20251209-blueprint-architecture-plan.instructions.md`
-- **Details**: `.copilot-tracking/details/20251209-blueprint-architecture-details.md`
-- **Architecture Spec**: `docs/GigHub_Blueprint_Architecture.md` (1910 lines)
+- **研究 (Research)**: `.copilot-tracking/research/20251209-blueprint-architecture-analysis-research.md`
+- **計畫 (Plan)**: `.copilot-tracking/plans/20251209-blueprint-architecture-plan.instructions.md`
+- **詳細資訊 (Details)**: `.copilot-tracking/details/20251209-blueprint-architecture-details.md`
+- **架構規格 (Architecture Spec)**: `docs/GigHub_Blueprint_Architecture.md` (1910 行)
 
-## Implementation Instructions
+## 實作指令 (Implementation Instructions)
 
-### Step 1: Create Changes Tracking File
+### 步驟 1：建立變更追蹤檔案 (Step 1: Create Changes Tracking File)
 
-Before starting implementation, create a changes tracking file:
+在開始實作之前，建立變更追蹤檔案：
 
 ```bash
 touch .copilot-tracking/changes/20251209-blueprint-architecture-changes.md
 ```
 
-Add header:
+添加標頭：
 ```markdown
-# Implementation Changes: Blueprint Architecture Refactoring
+# 實作變更：Blueprint 架構重構 (Implementation Changes: Blueprint Architecture Refactoring)
 
-## Implementation Start: [DATE]
+## 實作開始 (Implementation Start): [日期]
 
-### Phase 1: Foundation Refactoring
-- [ ] Task 1.1: Define repository interfaces
-- [ ] Task 1.2: Create value objects
-- [ ] Task 1.3: Implement Facade
-- [ ] Task 1.4: Setup Event Bus
-- [ ] Task 1.5: Testing
+### 階段 1：基礎重構 (Phase 1: Foundation Refactoring)
+- [ ] 任務 1.1: 定義儲存庫介面
+- [ ] 任務 1.2: 建立值物件
+- [ ] 任務 1.3: 實作 Facade
+- [ ] 任務 1.4: 設定 Event Bus
+- [ ] 任務 1.5: 測試
 
-[Update as you progress through each phase]
+[隨著各階段進展進行更新]
 ```
 
-### Step 2: Execute Implementation Phase by Phase
+### 步驟 2：逐階段執行實作 (Step 2: Execute Implementation Phase by Phase)
 
-#### Phase 1: Foundation Refactoring (Weeks 1-2)
+#### 階段 1：基礎重構 (Phase 1: Foundation Refactoring) (第 1-2 週)
 
-**Goal**: Establish architectural foundations without breaking existing functionality
+**目標 (Goal)**: 在不破壞現有功能的情況下建立架構基礎
 
-**Tasks**:
-1. Create domain layer directory structure
-2. Define repository interfaces
-3. Create value objects (BlueprintId, OwnerInfo, Slug)
-4. Define domain event interfaces
-5. Create aggregate base class
-6. Implement BlueprintFacade (delegates to existing service)
-7. Setup EventBus service
-8. Update UI components one by one to use Facade
-9. Write unit tests for value objects
-10. Write integration tests for Facade
-11. Run regression tests
+**任務 (Tasks)**:
+1. 建立領域層目錄結構
+2. 定義儲存庫介面
+3. 建立值物件 (BlueprintId, OwnerInfo, Slug)
+4. 定義領域事件介面
+5. 建立聚合基底類別
+6. 實作 BlueprintFacade (委派給現有服務)
+7. 設定 EventBus 服務
+8. 逐一更新 UI 元件以使用 Facade
+9. 為值物件編寫單元測試
+10. 為 Facade 編寫整合測試
+11. 執行回歸測試
 
-**Validation Checkpoint**:
-- [ ] All UI components use Facade
-- [ ] No regression in functionality
-- [ ] Tests pass
-- [ ] TypeScript compilation successful
+**驗證檢查點 (Validation Checkpoint)**:
+- [ ] 所有 UI 元件使用 Facade
+- [ ] 功能無退化
+- [ ] 測試通過
+- [ ] TypeScript 編譯成功
 
-**Update changes file** with completed tasks before proceeding.
+**繼續之前更新變更檔案**。
 
 ---
 
-#### Phase 2: Command/Query Separation (Weeks 3-4)
+#### 階段 2：命令/查詢分離 (Phase 2: Command/Query Separation) (第 3-4 週)
 
-**Goal**: Implement CQRS pattern with clear separation of concerns
+**目標 (Goal)**: 實作 CQRS 模式，清楚分離關注點
 
-**Tasks**:
+**任務 (Tasks)**:
 1. Create command handler structure
 2. Implement CreateBlueprintHandler
 3. Implement UpdateBlueprintHandler
