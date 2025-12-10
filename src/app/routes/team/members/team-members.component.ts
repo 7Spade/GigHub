@@ -8,6 +8,7 @@ import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzSelectModule } from 'ng-zorro-antd/select';
 import { NzSpaceModule } from 'ng-zorro-antd/space';
 import { FormsModule } from '@angular/forms';
+import { TeamMemberSelectionModalComponent } from './team-member-selection-modal.component';
 
 @Component({
   selector: 'app-team-members',
@@ -269,41 +270,31 @@ export class TeamMembersComponent implements OnInit {
     });
   }
 
+  /**
+   * Show add member dialog with proper component-based modal
+   * 顯示新增成員對話框（使用元件化 Modal）
+   * 
+   * @param teamId Team ID
+   * @param availableMembers Available organization members to select from
+   */
   private showAddMemberDialog(teamId: string, availableMembers: OrganizationMember[]): void {
-    let selectedUserId = '';
-    let selectedRole: TeamRole = TeamRole.MEMBER;
-
     const modalRef = this.modal.create({
       nzTitle: '新增團隊成員',
-      nzContent: `
-        <div>
-          <div class="mb-md">
-            <label class="d-block mb-sm"><strong>選擇成員</strong></label>
-            <select id="selectMember" class="ant-input" style="width: 100%; padding: 4px 11px; border: 1px solid #d9d9d9; border-radius: 2px;">
-              <option value="">請選擇要加入的成員</option>
-              ${availableMembers.map(m => `<option value="${m.user_id}">${m.user_id}</option>`).join('')}
-            </select>
-          </div>
-          <div class="mb-md">
-            <label class="d-block mb-sm"><strong>角色</strong></label>
-            <select id="selectRole" class="ant-input" style="width: 100%; padding: 4px 11px; border: 1px solid #d9d9d9; border-radius: 2px;">
-              <option value="${TeamRole.MEMBER}">團隊成員</option>
-              <option value="${TeamRole.LEADER}">團隊領導</option>
-            </select>
-          </div>
-        </div>
-      `,
-      nzOnOk: async () => {
-        selectedUserId = (document.getElementById('selectMember') as HTMLSelectElement)?.value || '';
-        selectedRole = (document.getElementById('selectRole') as HTMLSelectElement)?.value as TeamRole || TeamRole.MEMBER;
-
-        if (!selectedUserId) {
-          this.message.error('請選擇成員');
+      nzContent: TeamMemberSelectionModalComponent,
+      nzData: { availableMembers },
+      nzWidth: 520,
+      nzOnOk: async (componentInstance) => {
+        // Validate form
+        if (!componentInstance.isValid()) {
+          this.message.error('請填寫完整資訊');
           return false;
         }
 
+        // Get form data
+        const { userId, role } = componentInstance.getData();
+
         try {
-          await this.memberRepository.addMember(teamId, selectedUserId, selectedRole);
+          await this.memberRepository.addMember(teamId, userId, role);
           this.message.success('成員已加入團隊');
           this.loadMembers(teamId);
           return true;
