@@ -3,7 +3,7 @@ import { signal } from '@angular/core';
 import { BlueprintContainer } from './blueprint-container';
 import { IBlueprintModule } from '../modules/module.interface';
 import { ModuleStatus } from '../modules/module-status.enum';
-import { IExecutionContext } from '../context/execution-context.interface';
+import { IExecutionContext, ContextType } from '../context/execution-context.interface';
 import { IBlueprintConfig } from '../config/blueprint-config.interface';
 import { BlueprintEventType } from '../events/event-types';
 
@@ -11,7 +11,7 @@ import { BlueprintEventType } from '../events/event-types';
  * Test Module Implementation
  */
 class TestModule implements IBlueprintModule {
-  readonly status = signal<ModuleStatus>(ModuleStatus.Uninitialized);
+  readonly status = signal<ModuleStatus>(ModuleStatus.UNINITIALIZED);
   
   initCalled = false;
   startCalled = false;
@@ -28,27 +28,27 @@ class TestModule implements IBlueprintModule {
   
   async init(context: IExecutionContext): Promise<void> {
     this.initCalled = true;
-    this.status.set(ModuleStatus.Initialized);
+    this.status.set(ModuleStatus.INITIALIZED);
   }
   
   async start(): Promise<void> {
     this.startCalled = true;
-    this.status.set(ModuleStatus.Started);
+    this.status.set(ModuleStatus.STARTED);
   }
   
   async ready(): Promise<void> {
     this.readyCalled = true;
-    this.status.set(ModuleStatus.Ready);
+    this.status.set(ModuleStatus.READY);
   }
   
   async stop(): Promise<void> {
     this.stopCalled = true;
-    this.status.set(ModuleStatus.Stopped);
+    this.status.set(ModuleStatus.STOPPED);
   }
   
   async dispose(): Promise<void> {
     this.disposeCalled = true;
-    this.status.set(ModuleStatus.Disposed);
+    this.status.set(ModuleStatus.DISPOSED);
   }
 }
 
@@ -59,14 +59,14 @@ class ErrorModule extends TestModule {
   throwOnInit = false;
   throwOnStart = false;
   
-  async init(context: IExecutionContext): Promise<void> {
+  override async init(context: IExecutionContext): Promise<void> {
     if (this.throwOnInit) {
       throw new Error('Init failed');
     }
     return super.init(context);
   }
   
-  async start(): Promise<void> {
+  override async start(): Promise<void> {
     if (this.throwOnStart) {
       throw new Error('Start failed');
     }
@@ -461,7 +461,7 @@ describe('BlueprintContainer', () => {
       await container.loadModule(module2);
       await container.start();
       
-      const readyModules = container.getModulesByStatus(ModuleStatus.Ready);
+      const readyModules = container.getModulesByStatus(ModuleStatus.READY);
       
       expect(readyModules.length).toBe(2);
       expect(readyModules).toContain(module1);
@@ -512,7 +512,7 @@ describe('BlueprintContainer', () => {
         organizationId: 'org-123',
         teamId: 'team-456',
         userId: 'user-789',
-        contextType: 'organization' as const
+        contextType: ContextType.ORGANIZATION
       };
       
       container.setTenantInfo(tenantInfo);
@@ -525,7 +525,7 @@ describe('BlueprintContainer', () => {
       const tenantInfo = {
         organizationId: 'org-123',
         userId: 'user-789',
-        contextType: 'organization' as const
+        contextType: ContextType.ORGANIZATION
       };
       
       container.setTenantInfo(tenantInfo);

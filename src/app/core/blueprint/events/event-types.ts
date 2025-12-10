@@ -9,15 +9,45 @@ export enum BlueprintEventType {
   /** Blueprint container has been initialized */
   CONTAINER_INITIALIZED = 'CONTAINER_INITIALIZED',
   
+  /** Blueprint container is starting */
+  CONTAINER_STARTING = 'CONTAINER_STARTING',
+  
   /** Blueprint container has started */
   CONTAINER_STARTED = 'CONTAINER_STARTED',
+  
+  /** Blueprint container is stopping */
+  CONTAINER_STOPPING = 'CONTAINER_STOPPING',
   
   /** Blueprint container has stopped */
   CONTAINER_STOPPED = 'CONTAINER_STOPPED',
   
+  /** Blueprint container encountered an error */
+  CONTAINER_ERROR = 'CONTAINER_ERROR',
+  
   // ===== Module Lifecycle Events =====
   /** Module has been registered in the registry */
   MODULE_REGISTERED = 'MODULE_REGISTERED',
+  
+  /** Module has been initialized */
+  MODULE_INITIALIZED = 'MODULE_INITIALIZED',
+  
+  /** Module is starting */
+  MODULE_STARTING = 'MODULE_STARTING',
+  
+  /** Module has started */
+  MODULE_STARTED = 'MODULE_STARTED',
+  
+  /** Module is ready */
+  MODULE_READY = 'MODULE_READY',
+  
+  /** Module is stopping */
+  MODULE_STOPPING = 'MODULE_STOPPING',
+  
+  /** Module has stopped */
+  MODULE_STOPPED = 'MODULE_STOPPED',
+  
+  /** Module has been disposed */
+  MODULE_DISPOSED = 'MODULE_DISPOSED',
   
   /** Module has been loaded and initialized */
   MODULE_LOADED = 'MODULE_LOADED',

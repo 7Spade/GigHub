@@ -12,7 +12,7 @@ import { ResourceProvider } from './resource-provider';
  * Test Module Implementation
  */
 class TestModule implements IBlueprintModule {
-  readonly status = signal<ModuleStatus>(ModuleStatus.Uninitialized);
+  readonly status = signal<ModuleStatus>(ModuleStatus.UNINITIALIZED);
   
   initCalled = false;
   startCalled = false;
@@ -29,27 +29,27 @@ class TestModule implements IBlueprintModule {
   
   async init(context: IExecutionContext): Promise<void> {
     this.initCalled = true;
-    this.status.set(ModuleStatus.Initialized);
+    this.status.set(ModuleStatus.INITIALIZED);
   }
   
   async start(): Promise<void> {
     this.startCalled = true;
-    this.status.set(ModuleStatus.Started);
+    this.status.set(ModuleStatus.STARTED);
   }
   
   async ready(): Promise<void> {
     this.readyCalled = true;
-    this.status.set(ModuleStatus.Ready);
+    this.status.set(ModuleStatus.READY);
   }
   
   async stop(): Promise<void> {
     this.stopCalled = true;
-    this.status.set(ModuleStatus.Stopped);
+    this.status.set(ModuleStatus.STOPPED);
   }
   
   async dispose(): Promise<void> {
     this.disposeCalled = true;
-    this.status.set(ModuleStatus.Disposed);
+    this.status.set(ModuleStatus.DISPOSED);
   }
 }
 
@@ -63,35 +63,35 @@ class ErrorModule extends TestModule {
   throwOnStop = false;
   throwOnDispose = false;
   
-  async init(context: IExecutionContext): Promise<void> {
+  override async init(context: IExecutionContext): Promise<void> {
     if (this.throwOnInit) {
       throw new Error('Init failed');
     }
     return super.init(context);
   }
   
-  async start(): Promise<void> {
+  override async start(): Promise<void> {
     if (this.throwOnStart) {
       throw new Error('Start failed');
     }
     return super.start();
   }
   
-  async ready(): Promise<void> {
+  override async ready(): Promise<void> {
     if (this.throwOnReady) {
       throw new Error('Ready failed');
     }
     return super.ready();
   }
   
-  async stop(): Promise<void> {
+  override async stop(): Promise<void> {
     if (this.throwOnStop) {
       throw new Error('Stop failed');
     }
     return super.stop();
   }
   
-  async dispose(): Promise<void> {
+  override async dispose(): Promise<void> {
     if (this.throwOnDispose) {
       throw new Error('Dispose failed');
     }
@@ -123,11 +123,11 @@ describe('LifecycleManager', () => {
     
     context = {
       blueprintId: 'test-blueprint',
-      contextType: ContextType.Organization,
+      contextType: ContextType.ORGANIZATION,
       tenant: {
         organizationId: 'org-123',
         userId: 'user-123',
-        contextType: 'organization'
+        contextType: ContextType.ORGANIZATION
       },
       eventBus,
       resources: TestBed.inject(ResourceProvider),
@@ -155,7 +155,7 @@ describe('LifecycleManager', () => {
       
       expect(module.initCalled).toBe(true);
       expect(lifecycleManager.moduleCount()).toBe(1);
-      expect(lifecycleManager.getState('test-module')).toBe(ModuleStatus.Initialized);
+      expect(lifecycleManager.getState('test-module')).toBe(ModuleStatus.INITIALIZED);
     });
     
     it('should throw error if module is already initialized', async () => {
@@ -194,7 +194,7 @@ describe('LifecycleManager', () => {
       await lifecycleManager.start('test-module');
       
       expect(module.startCalled).toBe(true);
-      expect(lifecycleManager.getState('test-module')).toBe(ModuleStatus.Started);
+      expect(lifecycleManager.getState('test-module')).toBe(ModuleStatus.STARTED);
     });
     
     it('should mark module as ready', async () => {
@@ -202,7 +202,7 @@ describe('LifecycleManager', () => {
       await lifecycleManager.ready('test-module');
       
       expect(module.readyCalled).toBe(true);
-      expect(lifecycleManager.getState('test-module')).toBe(ModuleStatus.Ready);
+      expect(lifecycleManager.getState('test-module')).toBe(ModuleStatus.READY);
     });
     
     it('should complete full lifecycle: init → start → ready → stop → dispose', async () => {
@@ -217,7 +217,7 @@ describe('LifecycleManager', () => {
       // Stop
       await lifecycleManager.stop('test-module');
       expect(module.stopCalled).toBe(true);
-      expect(lifecycleManager.getState('test-module')).toBe(ModuleStatus.Stopped);
+      expect(lifecycleManager.getState('test-module')).toBe(ModuleStatus.STOPPED);
       
       // Dispose
       await lifecycleManager.dispose('test-module');
@@ -256,13 +256,13 @@ describe('LifecycleManager', () => {
       const module = new TestModule('test-module', 'Test Module', '1.0.0');
       
       await lifecycleManager.initialize(module, context);
-      expect(lifecycleManager.getState('test-module')).toBe(ModuleStatus.Initialized);
+      expect(lifecycleManager.getState('test-module')).toBe(ModuleStatus.INITIALIZED);
       
       await lifecycleManager.start('test-module');
-      expect(lifecycleManager.getState('test-module')).toBe(ModuleStatus.Started);
+      expect(lifecycleManager.getState('test-module')).toBe(ModuleStatus.STARTED);
       
       await lifecycleManager.ready('test-module');
-      expect(lifecycleManager.getState('test-module')).toBe(ModuleStatus.Ready);
+      expect(lifecycleManager.getState('test-module')).toBe(ModuleStatus.READY);
     });
     
     it('should return modules by state', async () => {
@@ -280,10 +280,10 @@ describe('LifecycleManager', () => {
       await lifecycleManager.start('module-2');
       await lifecycleManager.ready('module-2');
       
-      const readyModules = lifecycleManager.getModulesByState(ModuleStatus.Ready);
+      const readyModules = lifecycleManager.getModulesByState(ModuleStatus.READY);
       expect(readyModules).toEqual(['module-1', 'module-2']);
       
-      const initializedModules = lifecycleManager.getModulesByState(ModuleStatus.Initialized);
+      const initializedModules = lifecycleManager.getModulesByState(ModuleStatus.INITIALIZED);
       expect(initializedModules).toEqual(['module-3']);
     });
     
@@ -383,7 +383,7 @@ describe('LifecycleManager', () => {
         // Expected error
       }
       
-      expect(lifecycleManager.getState('error-module')).toBe(ModuleStatus.Error);
+      expect(lifecycleManager.getState('error-module')).toBe(ModuleStatus.ERROR);
     });
     
     it('should attempt rollback on error (up to 3 times)', async () => {
@@ -400,7 +400,7 @@ describe('LifecycleManager', () => {
       }
       
       // Should still be in error state after attempts
-      expect(lifecycleManager.getState('error-module')).toBe(ModuleStatus.Error);
+      expect(lifecycleManager.getState('error-module')).toBe(ModuleStatus.ERROR);
     });
   });
   
@@ -436,8 +436,8 @@ describe('LifecycleManager', () => {
       await lifecycleManager.start('module-1');
       await lifecycleManager.ready('module-1');
       
-      expect(lifecycleManager.getState('module-1')).toBe(ModuleStatus.Ready);
-      expect(lifecycleManager.getState('module-2')).toBe(ModuleStatus.Initialized);
+      expect(lifecycleManager.getState('module-1')).toBe(ModuleStatus.READY);
+      expect(lifecycleManager.getState('module-2')).toBe(ModuleStatus.INITIALIZED);
     });
     
     it('should dispose modules independently', async () => {
@@ -454,7 +454,7 @@ describe('LifecycleManager', () => {
       
       expect(lifecycleManager.moduleCount()).toBe(1);
       expect(() => lifecycleManager.getState('module-1')).toThrow();
-      expect(lifecycleManager.getState('module-2')).toBe(ModuleStatus.Initialized);
+      expect(lifecycleManager.getState('module-2')).toBe(ModuleStatus.INITIALIZED);
     });
   });
   

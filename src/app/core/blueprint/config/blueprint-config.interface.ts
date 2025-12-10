@@ -24,6 +24,9 @@ export interface ModuleConfig {
  * Defines which modules are active and how they're configured.
  */
 export interface IBlueprintConfig {
+  /** Blueprint ID (unique identifier) */
+  blueprintId: string;
+  
   /** Blueprint name */
   name: string;
   
@@ -37,18 +40,12 @@ export interface IBlueprintConfig {
   modules: ModuleConfig[];
   
   /** Global configuration settings */
-  config: {
-    /** Feature flags for conditional functionality */
-    featureFlags: Record<string, boolean>;
-    
-    /** Theme settings (optional) */
-    theme?: {
-      primaryColor: string;
-      layout: string;
-    };
-    
-    /** Additional custom configuration */
-    [key: string]: any;
+  featureFlags: Record<string, boolean>;
+  
+  /** Theme settings (optional) */
+  theme?: {
+    primaryColor: string;
+    layout: string;
   };
   
   /** Permission configuration */

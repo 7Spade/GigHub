@@ -133,13 +133,15 @@ export interface ILifecycleManager {
  * error → previous stable state (on recovery)
  */
 export const LIFECYCLE_TRANSITIONS: Record<ModuleStatus, ModuleStatus[]> = {
-  [ModuleStatus.Uninitialized]: [ModuleStatus.Initialized, ModuleStatus.Error],
-  [ModuleStatus.Initialized]: [ModuleStatus.Starting, ModuleStatus.Error],
-  [ModuleStatus.Starting]: [ModuleStatus.Started, ModuleStatus.Error],
-  [ModuleStatus.Started]: [ModuleStatus.Ready, ModuleStatus.Error],
-  [ModuleStatus.Ready]: [ModuleStatus.Stopping, ModuleStatus.Error],
-  [ModuleStatus.Stopping]: [ModuleStatus.Stopped, ModuleStatus.Error],
-  [ModuleStatus.Stopped]: [ModuleStatus.Disposed, ModuleStatus.Starting, ModuleStatus.Error],
-  [ModuleStatus.Error]: [ModuleStatus.Initialized, ModuleStatus.Stopped],
-  [ModuleStatus.Disposed]: []
+  [ModuleStatus.UNINITIALIZED]: [ModuleStatus.INITIALIZED, ModuleStatus.ERROR],
+  [ModuleStatus.INITIALIZED]: [ModuleStatus.STARTING, ModuleStatus.ERROR],
+  [ModuleStatus.STARTING]: [ModuleStatus.STARTED, ModuleStatus.ERROR],
+  [ModuleStatus.STARTED]: [ModuleStatus.READY, ModuleStatus.ERROR],
+  [ModuleStatus.READY]: [ModuleStatus.STOPPING, ModuleStatus.ERROR],
+  [ModuleStatus.STOPPING]: [ModuleStatus.STOPPED, ModuleStatus.ERROR],
+  [ModuleStatus.STOPPED]: [ModuleStatus.DISPOSED, ModuleStatus.STARTING, ModuleStatus.ERROR],
+  [ModuleStatus.ERROR]: [ModuleStatus.INITIALIZED, ModuleStatus.STOPPED],
+  [ModuleStatus.DISPOSED]: [],
+  [ModuleStatus.INITIALIZING]: [ModuleStatus.INITIALIZED, ModuleStatus.ERROR],
+  [ModuleStatus.RUNNING]: [ModuleStatus.STOPPING, ModuleStatus.ERROR]
 };
