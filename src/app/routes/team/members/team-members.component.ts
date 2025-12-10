@@ -1,13 +1,23 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
 import { ContextType, TeamMember, TeamRole } from '@core';
-import { SHARED_IMPORTS, WorkspaceContextService, TeamMemberRepository } from '@shared';
+import { SHARED_IMPORTS, WorkspaceContextService, TeamMemberRepository, createAsyncArrayState } from '@shared';
 import { HeaderContextSwitcherComponent } from '../../../layout/basic/widgets/context-switcher.component';
 import { NzMenuModule } from 'ng-zorro-antd/menu';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
-import { NzModalService } from 'ng-zorro-antd/modal';
+import { ModalHelper } from '@delon/theme';
 import { NzMessageService } from 'ng-zorro-antd/message';
 
+/**
+ * Team Members Component
+ * 團隊成員元件 - 管理團隊成員
+ *
+ * ✅ Modernized with:
+ * - AsyncState for state management
+ * - TeamMemberModalComponent (no DOM manipulation)
+ * - Unified loading/error handling
+ */
 @Component({
   selector: 'app-team-members',
   standalone: true,
@@ -36,7 +46,7 @@ import { NzMessageService } from 'ng-zorro-antd/message';
       </ul>
     </nz-card>
 
-    <nz-card nzTitle="成員列表" [nzExtra]="extraTemplate" [nzLoading]="loading()">
+    <nz-card nzTitle="成員列表" [nzExtra]="extraTemplate" [nzLoading]="membersState.loading()">
       <ng-template #extraTemplate>
         @if (isTeamContext()) {
           <button nz-button nzType="primary" nzSize="small" (click)="openAddMemberModal()">
@@ -45,6 +55,16 @@ import { NzMessageService } from 'ng-zorro-antd/message';
           </button>
         }
       </ng-template>
+      
+      @if (membersState.error()) {
+        <nz-alert
+          nzType="error"
+          nzShowIcon
+          [nzMessage]="'載入失敗'"
+          [nzDescription]="membersState.error()?.message || '無法載入成員列表'"
+          class="mb-md"
+        />
+      }
       
       @if (displayMembers().length > 0) {
         <nz-table #table [nzData]="displayMembers()">
@@ -96,115 +116,101 @@ import { NzMessageService } from 'ng-zorro-antd/message';
 export class TeamMembersComponent implements OnInit {
   private readonly workspaceContext = inject(WorkspaceContextService);
   private readonly memberRepository = inject(TeamMemberRepository);
-  private readonly modal = inject(NzModalService);
+  private readonly modal = inject(ModalHelper);
   private readonly message = inject(NzMessageService);
 
-  private readonly members = signal<TeamMember[]>([]);
-  loading = signal(false);
-  
-  // Add TeamRole to template
+  // Expose TeamRole for template
   readonly TeamRole = TeamRole;
 
+  // ✅ Modern Pattern: Use AsyncState
+  readonly membersState = createAsyncArrayState<TeamMember>([]);
+
   ngOnInit(): void {
-    // Load members when component initializes
     const teamId = this.currentTeamId();
     if (teamId) {
       this.loadMembers(teamId);
     }
   }
 
-  private loadMembers(teamId: string): void {
-    this.loading.set(true);
-    this.memberRepository.findByTeam(teamId).subscribe({
-      next: (members: TeamMember[]) => {
-        this.members.set(members);
-        this.loading.set(false);
-        console.log('[TeamMembersComponent] ✅ Loaded members:', members.length);
-      },
-      error: (error: Error) => {
-        console.error('[TeamMembersComponent] ❌ Failed to load members:', error);
-        this.members.set([]);
-        this.loading.set(false);
-      }
-    });
+  /**
+   * Load members
+   * ✅ Using AsyncState for automatic state management
+   */
+  private async loadMembers(teamId: string): Promise<void> {
+    try {
+      await this.membersState.load(
+        firstValueFrom(this.memberRepository.findByTeam(teamId))
+      );
+      console.log('[TeamMembersComponent] ✅ Loaded members:', this.membersState.length());
+    } catch (error) {
+      console.error('[TeamMembersComponent] ❌ Failed to load members:', error);
+    }
   }
 
   readonly currentTeamId = computed(() =>
     this.workspaceContext.contextType() === ContextType.TEAM ? this.workspaceContext.contextId() : null
   );
 
-  displayMembers = computed(() => {
-    const teamId = this.currentTeamId();
-    if (!teamId) {
-      return [];
-    }
-    return this.members();
-  });
+  readonly displayMembers = computed(() => this.membersState.data() || []);
 
   isTeamContext(): boolean {
     return this.workspaceContext.contextType() === ContextType.TEAM;
   }
 
-  openAddMemberModal(): void {
-    this.modal.create({
-      nzTitle: '添加團隊成員',
-      nzContent: `
-        <form nz-form>
-          <nz-form-item>
-            <nz-form-label nzRequired>用戶 ID/Email</nz-form-label>
-            <nz-form-control>
-              <input nz-input id="userId" placeholder="請輸入用戶 ID 或 Email" />
-            </nz-form-control>
-          </nz-form-item>
-          <nz-form-item>
-            <nz-form-label>角色</nz-form-label>
-            <nz-form-control>
-              <nz-select id="role" nzPlaceHolder="選擇角色" style="width: 100%">
-                <nz-option nzValue="${TeamRole.MEMBER}" nzLabel="成員"></nz-option>
-                <nz-option nzValue="${TeamRole.LEADER}" nzLabel="領導"></nz-option>
-              </nz-select>
-            </nz-form-control>
-          </nz-form-item>
-        </form>
-      `,
-      nzOnOk: async () => {
-        const userId = (document.getElementById('userId') as HTMLInputElement)?.value;
-        const role = (document.getElementById('role') as HTMLSelectElement)?.value || TeamRole.MEMBER;
-        
-        if (!userId || userId.trim() === '') {
-          this.message.error('請輸入用戶 ID');
-          return false;
+  /**
+   * Open add member modal
+   * ✅ Using Modal Component (no DOM manipulation)
+   */
+  async openAddMemberModal(): Promise<void> {
+    const { TeamMemberModalComponent } = await import('./team-member-modal.component');
+    
+    this.modal
+      .createStatic(TeamMemberModalComponent, {}, { size: 'md' })
+      .subscribe(async (component) => {
+        if (component && component.isValid()) {
+          const data = component.getData();
+          await this.addMember(data);
         }
-
-        const teamId = this.currentTeamId();
-        if (!teamId) {
-          this.message.error('無法獲取團隊 ID');
-          return false;
-        }
-
-        try {
-          await this.memberRepository.addMember(teamId, userId.trim(), role as TeamRole);
-          this.message.success('成員已添加');
-          this.loadMembers(teamId);
-          return true;
-        } catch (error) {
-          console.error('[TeamMembersComponent] ❌ Failed to add member:', error);
-          this.message.error('添加成員失敗');
-          return false;
-        }
-      }
-    });
+      });
   }
 
-  async removeMember(member: TeamMember): Promise<void> {
+  /**
+   * Add member to team
+   */
+  private async addMember(data: { userId: string; role: TeamRole }): Promise<void> {
+    const teamId = this.currentTeamId();
+    if (!teamId) {
+      this.message.error('無法獲取團隊 ID');
+      return;
+    }
+
     try {
-      await this.memberRepository.removeMember(member.id);
+      await this.memberRepository.addMember(teamId, {
+        user_id: data.userId,
+        role: data.role
+      });
+      this.message.success('成員已添加');
+      await this.loadMembers(teamId);
+    } catch (error) {
+      console.error('[TeamMembersComponent] ❌ Failed to add member:', error);
+      this.message.error('添加成員失敗');
+    }
+  }
+
+  /**
+   * Remove member from team
+   */
+  async removeMember(member: TeamMember): Promise<void> {
+    const teamId = this.currentTeamId();
+    if (!teamId) {
+      this.message.error('無法獲取團隊 ID');
+      return;
+    }
+
+    try {
+      await this.memberRepository.removeMember(teamId, member.id);
       this.message.success('成員已移除');
-      
-      const teamId = this.currentTeamId();
-      if (teamId) {
-        this.loadMembers(teamId);
-      }
+      await this.loadMembers(teamId);
     } catch (error) {
       console.error('[TeamMembersComponent] ❌ Failed to remove member:', error);
       this.message.error('移除成員失敗');
@@ -214,7 +220,9 @@ export class TeamMembersComponent implements OnInit {
   roleLabel(role: TeamRole): string {
     switch (role) {
       case TeamRole.LEADER:
-        return '領導';
+        return '組長';
+      case TeamRole.ADMIN:
+        return '管理員';
       case TeamRole.MEMBER:
       default:
         return '成員';
@@ -224,7 +232,9 @@ export class TeamMembersComponent implements OnInit {
   roleColor(role: TeamRole): string {
     switch (role) {
       case TeamRole.LEADER:
-        return 'purple';
+        return 'gold';
+      case TeamRole.ADMIN:
+        return 'blue';
       case TeamRole.MEMBER:
       default:
         return 'default';

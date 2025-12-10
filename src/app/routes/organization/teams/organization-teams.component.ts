@@ -1,13 +1,23 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit } from '@angular/core';
+import { firstValueFrom } from 'rxjs';
 import { ContextType, Team } from '@core';
-import { SHARED_IMPORTS, WorkspaceContextService, TeamRepository } from '@shared';
+import { SHARED_IMPORTS, WorkspaceContextService, TeamRepository, createAsyncArrayState } from '@shared';
 import { HeaderContextSwitcherComponent } from '../../../layout/basic/widgets/context-switcher.component';
 import { NzMenuModule } from 'ng-zorro-antd/menu';
-import { NzAlertModule } from 'ng-zorro-antd/alert';
+import { NzAlertModule} from 'ng-zorro-antd/alert';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
-import { NzModalService } from 'ng-zorro-antd/modal';
+import { ModalHelper } from '@delon/theme';
 import { NzMessageService } from 'ng-zorro-antd/message';
 
+/**
+ * Organization Teams Component
+ * 組織團隊元件 - 管理組織內的團隊
+ *
+ * ✅ Modernized with:
+ * - AsyncState for state management
+ * - TeamModalComponent (no DOM manipulation)
+ * - Unified loading/error handling
+ */
 @Component({
   selector: 'app-organization-teams',
   standalone: true,
@@ -36,7 +46,7 @@ import { NzMessageService } from 'ng-zorro-antd/message';
       </ul>
     </nz-card>
 
-    <nz-card nzTitle="團隊列表" [nzExtra]="extraTemplate" [nzLoading]="loading()">
+    <nz-card nzTitle="團隊列表" [nzExtra]="extraTemplate" [nzLoading]="teamsState.loading()">
       <ng-template #extraTemplate>
         @if (isOrganizationContext()) {
           <button nz-button nzType="primary" nzSize="small" (click)="openCreateTeamModal()">
@@ -45,6 +55,16 @@ import { NzMessageService } from 'ng-zorro-antd/message';
           </button>
         }
       </ng-template>
+      
+      @if (teamsState.error()) {
+        <nz-alert
+          nzType="error"
+          nzShowIcon
+          [nzMessage]="'載入失敗'"
+          [nzDescription]="teamsState.error()?.message || '無法載入團隊列表'"
+          class="mb-md"
+        />
+      }
       
       @if (teams().length > 0) {
         <nz-list [nzDataSource]="teams()" [nzRenderItem]="teamTpl" [nzItemLayout]="'horizontal'"></nz-list>
@@ -87,34 +107,32 @@ import { NzMessageService } from 'ng-zorro-antd/message';
 export class OrganizationTeamsComponent implements OnInit {
   private readonly workspaceContext = inject(WorkspaceContextService);
   private readonly teamRepository = inject(TeamRepository);
-  private readonly modal = inject(NzModalService);
+  private readonly modal = inject(ModalHelper);
   private readonly message = inject(NzMessageService);
 
-  private readonly teamsState = signal<Team[]>([]);
-  loading = signal(false);
+  // ✅ Modern Pattern: Use AsyncState
+  readonly teamsState = createAsyncArrayState<Team>([]);
 
   ngOnInit(): void {
-    // Load teams when component initializes
     const orgId = this.currentOrgId();
     if (orgId) {
       this.loadTeams(orgId);
     }
   }
 
-  private loadTeams(organizationId: string): void {
-    this.loading.set(true);
-    this.teamRepository.findByOrganization(organizationId).subscribe({
-      next: (teams: Team[]) => {
-        this.teamsState.set(teams);
-        this.loading.set(false);
-        console.log('[OrganizationTeamsComponent] ✅ Loaded teams:', teams.length);
-      },
-      error: (error: Error) => {
-        console.error('[OrganizationTeamsComponent] ❌ Failed to load teams:', error);
-        this.teamsState.set([]);
-        this.loading.set(false);
-      }
-    });
+  /**
+   * Load teams
+   * ✅ Using AsyncState for automatic state management
+   */
+  private async loadTeams(organizationId: string): Promise<void> {
+    try {
+      await this.teamsState.load(
+        firstValueFrom(this.teamRepository.findByOrganization(organizationId))
+      );
+      console.log('[OrganizationTeamsComponent] ✅ Loaded teams:', this.teamsState.length());
+    } catch (error) {
+      console.error('[OrganizationTeamsComponent] ❌ Failed to load teams:', error);
+    }
   }
 
   readonly currentOrgId = computed(() =>
@@ -126,114 +144,95 @@ export class OrganizationTeamsComponent implements OnInit {
     if (!orgId) {
       return [];
     }
-    return this.teamsState();
+    return this.teamsState.data() || [];
   });
 
   isOrganizationContext(): boolean {
     return this.workspaceContext.contextType() === ContextType.ORGANIZATION;
   }
 
-  openCreateTeamModal(): void {
-    this.modal.create({
-      nzTitle: '建立團隊',
-      nzContent: `
-        <form nz-form>
-          <nz-form-item>
-            <nz-form-label nzRequired>團隊名稱</nz-form-label>
-            <nz-form-control>
-              <input nz-input id="teamName" placeholder="請輸入團隊名稱" />
-            </nz-form-control>
-          </nz-form-item>
-          <nz-form-item>
-            <nz-form-label>描述</nz-form-label>
-            <nz-form-control>
-              <textarea nz-input id="teamDescription" placeholder="請輸入團隊描述（選填）" rows="3"></textarea>
-            </nz-form-control>
-          </nz-form-item>
-        </form>
-      `,
-      nzOnOk: async () => {
-        const name = (document.getElementById('teamName') as HTMLInputElement)?.value;
-        const description = (document.getElementById('teamDescription') as HTMLTextAreaElement)?.value;
-        
-        if (!name || name.trim() === '') {
-          this.message.error('請輸入團隊名稱');
-          return false;
+  /**
+   * Open create team modal
+   * ✅ Using Modal Component (no DOM manipulation)
+   */
+  async openCreateTeamModal(): Promise<void> {
+    const { TeamModalComponent } = await import('./team-modal.component');
+    
+    this.modal
+      .createStatic(TeamModalComponent, {}, { size: 'md' })
+      .subscribe(async (component) => {
+        if (component && component.isValid()) {
+          const data = component.getData();
+          await this.createTeam(data);
         }
-
-        const orgId = this.currentOrgId();
-        if (!orgId) {
-          this.message.error('無法獲取組織 ID');
-          return false;
-        }
-
-        try {
-          await this.teamRepository.create({
-            organization_id: orgId,
-            name: name.trim(),
-            description: description?.trim() || null
-          });
-          this.message.success('團隊已建立');
-          this.loadTeams(orgId);
-          return true;
-        } catch (error) {
-          console.error('[OrganizationTeamsComponent] ❌ Failed to create team:', error);
-          this.message.error('建立團隊失敗');
-          return false;
-        }
-      }
-    });
+      });
   }
 
-  openEditTeamModal(team: Team): void {
-    this.modal.create({
-      nzTitle: '編輯團隊',
-      nzContent: `
-        <form nz-form>
-          <nz-form-item>
-            <nz-form-label nzRequired>團隊名稱</nz-form-label>
-            <nz-form-control>
-              <input nz-input id="editTeamName" value="${team.name}" />
-            </nz-form-control>
-          </nz-form-item>
-          <nz-form-item>
-            <nz-form-label>描述</nz-form-label>
-            <nz-form-control>
-              <textarea nz-input id="editTeamDescription" rows="3">${team.description || ''}</textarea>
-            </nz-form-control>
-          </nz-form-item>
-        </form>
-      `,
-      nzOnOk: async () => {
-        const name = (document.getElementById('editTeamName') as HTMLInputElement)?.value;
-        const description = (document.getElementById('editTeamDescription') as HTMLTextAreaElement)?.value;
-        
-        if (!name || name.trim() === '') {
-          this.message.error('請輸入團隊名稱');
-          return false;
+  /**
+   * Open edit team modal
+   * ✅ Using Modal Component (no DOM manipulation)
+   */
+  async openEditTeamModal(team: Team): Promise<void> {
+    const { TeamModalComponent } = await import('./team-modal.component');
+    
+    this.modal
+      .createStatic(TeamModalComponent, { team }, { size: 'md' })
+      .subscribe(async (component) => {
+        if (component && component.isValid()) {
+          const data = component.getData();
+          await this.updateTeam(team.id, data);
         }
-
-        try {
-          await this.teamRepository.update(team.id, {
-            name: name.trim(),
-            description: description?.trim() || null
-          });
-          this.message.success('團隊已更新');
-          
-          const orgId = this.currentOrgId();
-          if (orgId) {
-            this.loadTeams(orgId);
-          }
-          return true;
-        } catch (error) {
-          console.error('[OrganizationTeamsComponent] ❌ Failed to update team:', error);
-          this.message.error('更新團隊失敗');
-          return false;
-        }
-      }
-    });
+      });
   }
 
+  /**
+   * Create team
+   */
+  private async createTeam(data: { name: string; description: string | null }): Promise<void> {
+    const orgId = this.currentOrgId();
+    if (!orgId) {
+      this.message.error('無法獲取組織 ID');
+      return;
+    }
+
+    try {
+      await this.teamRepository.create({
+        organization_id: orgId,
+        name: data.name,
+        description: data.description
+      });
+      this.message.success('團隊已建立');
+      await this.loadTeams(orgId);
+    } catch (error) {
+      console.error('[OrganizationTeamsComponent] ❌ Failed to create team:', error);
+      this.message.error('建立團隊失敗');
+    }
+  }
+
+  /**
+   * Update team
+   */
+  private async updateTeam(id: string, data: { name: string; description: string | null }): Promise<void> {
+    try {
+      await this.teamRepository.update(id, {
+        name: data.name,
+        description: data.description
+      });
+      this.message.success('團隊已更新');
+      
+      const orgId = this.currentOrgId();
+      if (orgId) {
+        await this.loadTeams(orgId);
+      }
+    } catch (error) {
+      console.error('[OrganizationTeamsComponent] ❌ Failed to update team:', error);
+      this.message.error('更新團隊失敗');
+    }
+  }
+
+  /**
+   * Delete team
+   */
   async deleteTeam(team: Team): Promise<void> {
     try {
       await this.teamRepository.delete(team.id);
@@ -241,7 +240,7 @@ export class OrganizationTeamsComponent implements OnInit {
       
       const orgId = this.currentOrgId();
       if (orgId) {
-        this.loadTeams(orgId);
+        await this.loadTeams(orgId);
       }
     } catch (error) {
       console.error('[OrganizationTeamsComponent] ❌ Failed to delete team:', error);
