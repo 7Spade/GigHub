@@ -1,11 +1,11 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit, effect } from '@angular/core';
 import { Router } from '@angular/router';
+import { combineLatest } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { ContextType, Team } from '@core';
-import { SHARED_IMPORTS, WorkspaceContextService, TeamRepository } from '@shared';
-import { HeaderContextSwitcherComponent } from '../../../layout/basic/widgets/context-switcher.component';
+import { SHARED_IMPORTS, WorkspaceContextService, TeamRepository, TeamMemberRepository, BreadcrumbService } from '@shared';
 import { CreateTeamModalComponent } from '../../../shared/components/create-team-modal/create-team-modal.component';
 import { EditTeamModalComponent } from '../../../shared/components/edit-team-modal/edit-team-modal.component';
-import { NzMenuModule } from 'ng-zorro-antd/menu';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
 import { NzModalService } from 'ng-zorro-antd/modal';
@@ -13,19 +13,19 @@ import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzTableModule } from 'ng-zorro-antd/table';
 import { NzTagModule } from 'ng-zorro-antd/tag';
 import { NzDescriptionsModule } from 'ng-zorro-antd/descriptions';
+import { NzSpaceModule } from 'ng-zorro-antd/space';
 
 @Component({
   selector: 'app-organization-teams',
   standalone: true,
   imports: [
     SHARED_IMPORTS,
-    NzMenuModule,
     NzAlertModule,
     NzEmptyModule,
     NzTableModule,
     NzTagModule,
     NzDescriptionsModule,
-    HeaderContextSwitcherComponent
+    NzSpaceModule
   ],
   template: `
     <page-header [title]="'團隊管理'" [content]="headerContent"></page-header>
@@ -38,26 +38,35 @@ import { NzDescriptionsModule } from 'ng-zorro-antd/descriptions';
       <nz-alert
         nzType="info"
         nzShowIcon
-        nzMessage="請切換到組織上下文"
-        nzDescription="使用下方切換器切換到目標組織後即可查看團隊列表。"
+        nzMessage="請先選擇組織"
+        nzDescription="請從側邊欄選擇一個組織以查看團隊列表。"
         class="mb-md"
       />
     }
 
-    <nz-card class="mb-md" nzTitle="工作區切換器">
-      <div class="text-grey mb-sm">切換到目標組織後，會依據組織載入對應團隊。</div>
-      <ul nz-menu nzMode="inline" class="bg-transparent border-0">
-        <header-context-switcher />
-      </ul>
-    </nz-card>
-
     <nz-card nzTitle="團隊列表" [nzExtra]="extraTemplate" [nzLoading]="loading()">
       <ng-template #extraTemplate>
         @if (isOrganizationContext()) {
-          <button nz-button nzType="primary" nzSize="small" (click)="openCreateTeamModal()">
-            <span nz-icon nzType="plus"></span>
-            建立團隊
-          </button>
+          <nz-space>
+            <button 
+              *nzSpaceItem 
+              nz-button 
+              nzType="primary" 
+              (click)="openCreateTeamModal()"
+            >
+              <span nz-icon nzType="plus"></span>
+              建立團隊
+            </button>
+            <button 
+              *nzSpaceItem 
+              nz-button 
+              nzType="default"
+              (click)="refreshTeams()"
+            >
+              <span nz-icon nzType="reload"></span>
+              重新整理
+            </button>
+          </nz-space>
         }
       </ng-template>
       
@@ -65,10 +74,10 @@ import { NzDescriptionsModule } from 'ng-zorro-antd/descriptions';
         <nz-table #table [nzData]="teams()" [nzShowPagination]="false">
           <thead>
             <tr>
-              <th nzWidth="200px">團隊名稱</th>
+              <th nzWidth="250px">團隊名稱</th>
               <th>描述</th>
-              <th nzWidth="200px">建立時間</th>
-              <th nzWidth="220px">操作</th>
+              <th nzWidth="180px">建立時間</th>
+              <th nzWidth="260px">操作</th>
             </tr>
           </thead>
           <tbody>
@@ -76,13 +85,49 @@ import { NzDescriptionsModule } from 'ng-zorro-antd/descriptions';
               <tr>
                 <td>
                   <strong>{{ team.name }}</strong>
+                  <nz-tag class="ml-sm" nzColor="blue">
+                    <span nz-icon nzType="user"></span>
+                    {{ getMemberCount(team.id) }} 名成員
+                  </nz-tag>
                 </td>
                 <td>{{ team.description || '尚無描述' }}</td>
                 <td>{{ formatDate(team.created_at) }}</td>
                 <td>
-                  <a (click)="manageMembers(team)" class="mr-sm">管理成員</a>
-                  <a (click)="openEditTeamModal(team)" class="mr-sm">編輯</a>
-                  <a nz-popconfirm nzPopconfirmTitle="確定刪除此團隊？此操作無法復原。" (nzOnConfirm)="deleteTeam(team)">刪除</a>
+                  <nz-space>
+                    <button 
+                      *nzSpaceItem 
+                      nz-button 
+                      nzType="link" 
+                      nzSize="small" 
+                      (click)="manageMembers(team)"
+                    >
+                      <span nz-icon nzType="user"></span>
+                      管理成員
+                    </button>
+                    <button 
+                      *nzSpaceItem 
+                      nz-button 
+                      nzType="link" 
+                      nzSize="small" 
+                      (click)="openEditTeamModal(team)"
+                    >
+                      <span nz-icon nzType="edit"></span>
+                      編輯
+                    </button>
+                    <button 
+                      *nzSpaceItem 
+                      nz-button 
+                      nzType="link" 
+                      nzSize="small" 
+                      nzDanger
+                      nz-popconfirm 
+                      nzPopconfirmTitle="確定刪除此團隊？此操作無法復原。" 
+                      (nzOnConfirm)="deleteTeam(team)"
+                    >
+                      <span nz-icon nzType="delete"></span>
+                      刪除
+                    </button>
+                  </nz-space>
                 </td>
               </tr>
             }
@@ -114,11 +159,14 @@ import { NzDescriptionsModule } from 'ng-zorro-antd/descriptions';
 export class OrganizationTeamsComponent implements OnInit {
   private readonly workspaceContext = inject(WorkspaceContextService);
   private readonly teamRepository = inject(TeamRepository);
+  private readonly teamMemberRepository = inject(TeamMemberRepository);
+  private readonly breadcrumbService = inject(BreadcrumbService);
   private readonly modal = inject(NzModalService);
   private readonly message = inject(NzMessageService);
   private readonly router = inject(Router);
 
   private readonly teamsState = signal<Team[]>([]);
+  private readonly memberCountsState = signal<Map<string, number>>(new Map());
   loading = signal(false);
 
   constructor() {
@@ -132,10 +180,27 @@ export class OrganizationTeamsComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // Load teams when component initializes
+    // Set breadcrumbs
+    const orgName = this.workspaceContext.contextLabel();
     const orgId = this.currentOrgId();
+    
     if (orgId) {
-      this.loadTeams(orgId);
+      this.breadcrumbService.setBreadcrumbs([
+        { label: '首頁', url: '/', icon: 'home' },
+        { label: orgName, url: null, icon: 'team' },
+        { label: '團隊管理', url: null }
+      ]);
+    } else {
+      this.breadcrumbService.setBreadcrumbs([
+        { label: '首頁', url: '/', icon: 'home' },
+        { label: '團隊管理', url: null }
+      ]);
+    }
+    
+    // Load teams when component initializes
+    const orgId2 = this.currentOrgId();
+    if (orgId2) {
+      this.loadTeams(orgId2);
     }
   }
 
@@ -146,6 +211,9 @@ export class OrganizationTeamsComponent implements OnInit {
         this.teamsState.set(teams);
         this.loading.set(false);
         console.log('[OrganizationTeamsComponent] ✅ Loaded teams:', teams.length);
+        
+        // Load member counts for all teams
+        this.loadMemberCounts(teams);
       },
       error: (error: Error) => {
         console.error('[OrganizationTeamsComponent] ❌ Failed to load teams:', error);
@@ -153,6 +221,45 @@ export class OrganizationTeamsComponent implements OnInit {
         this.loading.set(false);
       }
     });
+  }
+
+  private loadMemberCounts(teams: Team[]): void {
+    if (teams.length === 0) {
+      this.memberCountsState.set(new Map());
+      return;
+    }
+
+    // Load member counts for all teams in parallel
+    const memberCountObservables = teams.map(team =>
+      this.teamMemberRepository.findByTeam(team.id).pipe(
+        map(members => ({ teamId: team.id, count: members.length }))
+      )
+    );
+
+    combineLatest(memberCountObservables).subscribe({
+      next: (counts) => {
+        const map = new Map<string, number>();
+        counts.forEach(({ teamId, count }) => map.set(teamId, count));
+        this.memberCountsState.set(map);
+        console.log('[OrganizationTeamsComponent] ✅ Loaded member counts:', map.size);
+      },
+      error: (error) => {
+        console.error('[OrganizationTeamsComponent] ❌ Failed to load member counts:', error);
+        this.memberCountsState.set(new Map());
+      }
+    });
+  }
+
+  getMemberCount(teamId: string): number {
+    return this.memberCountsState().get(teamId) || 0;
+  }
+
+  refreshTeams(): void {
+    const orgId = this.currentOrgId();
+    if (orgId) {
+      this.message.info('正在重新整理...');
+      this.loadTeams(orgId);
+    }
   }
 
   readonly currentOrgId = computed(() =>

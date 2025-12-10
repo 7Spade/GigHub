@@ -1,19 +1,18 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit, effect } from '@angular/core';
 import { ContextType, TeamMember, TeamRole, OrganizationMember } from '@core';
-import { SHARED_IMPORTS, WorkspaceContextService, TeamMemberRepository, OrganizationMemberRepository } from '@shared';
-import { HeaderContextSwitcherComponent } from '../../../layout/basic/widgets/context-switcher.component';
-import { NzMenuModule } from 'ng-zorro-antd/menu';
+import { SHARED_IMPORTS, WorkspaceContextService, TeamMemberRepository, OrganizationMemberRepository, BreadcrumbService } from '@shared';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
 import { NzModalService } from 'ng-zorro-antd/modal';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzSelectModule } from 'ng-zorro-antd/select';
+import { NzSpaceModule } from 'ng-zorro-antd/space';
 import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-team-members',
   standalone: true,
-  imports: [SHARED_IMPORTS, NzMenuModule, NzAlertModule, NzEmptyModule, NzSelectModule, FormsModule, HeaderContextSwitcherComponent],
+  imports: [SHARED_IMPORTS, NzAlertModule, NzEmptyModule, NzSelectModule, NzSpaceModule, FormsModule],
   template: `
     <page-header [title]="'團隊成員'" [content]="headerContent"></page-header>
     
@@ -25,26 +24,35 @@ import { FormsModule } from '@angular/forms';
       <nz-alert
         nzType="info"
         nzShowIcon
-        nzMessage="請切換到團隊上下文"
-        nzDescription="使用下方切換器切換到目標團隊後即可管理成員。"
+        nzMessage="請先選擇團隊"
+        nzDescription="請從側邊欄選擇一個團隊以管理成員。"
         class="mb-md"
       />
     }
 
-    <nz-card class="mb-md" nzTitle="工作區切換器">
-      <div class="text-grey mb-sm">切換到目標團隊後，即可同步顯示成員列表。</div>
-      <ul nz-menu nzMode="inline" class="bg-transparent border-0">
-        <header-context-switcher />
-      </ul>
-    </nz-card>
-
     <nz-card nzTitle="成員列表" [nzExtra]="extraTemplate" [nzLoading]="loading()">
       <ng-template #extraTemplate>
         @if (isTeamContext()) {
-          <button nz-button nzType="primary" nzSize="small" (click)="openAddMemberModal()">
-            <span nz-icon nzType="user-add"></span>
-            新增成員
-          </button>
+          <nz-space>
+            <button 
+              *nzSpaceItem 
+              nz-button 
+              nzType="primary" 
+              (click)="openAddMemberModal()"
+            >
+              <span nz-icon nzType="user-add"></span>
+              新增成員
+            </button>
+            <button 
+              *nzSpaceItem 
+              nz-button 
+              nzType="default"
+              (click)="refreshMembers()"
+            >
+              <span nz-icon nzType="reload"></span>
+              重新整理
+            </button>
+          </nz-space>
         }
       </ng-template>
       
@@ -55,7 +63,7 @@ import { FormsModule } from '@angular/forms';
               <th nzWidth="200px">成員 ID</th>
               <th nzWidth="140px">角色</th>
               <th nzWidth="200px">加入時間</th>
-              <th nzWidth="120px">操作</th>
+              <th nzWidth="200px">操作</th>
             </tr>
           </thead>
           <tbody>
@@ -67,8 +75,31 @@ import { FormsModule } from '@angular/forms';
                 </td>
                 <td>{{ member.joined_at || '-' }}</td>
                 <td>
-                  <a (click)="changeRole(member)" class="mr-sm">變更角色</a>
-                  <a nz-popconfirm nzPopconfirmTitle="確定移除此成員？" (nzOnConfirm)="removeMember(member)">移除</a>
+                  <nz-space>
+                    <button 
+                      *nzSpaceItem 
+                      nz-button 
+                      nzType="link" 
+                      nzSize="small" 
+                      (click)="changeRole(member)"
+                    >
+                      <span nz-icon nzType="swap"></span>
+                      變更角色
+                    </button>
+                    <button 
+                      *nzSpaceItem 
+                      nz-button 
+                      nzType="link" 
+                      nzSize="small" 
+                      nzDanger
+                      nz-popconfirm 
+                      nzPopconfirmTitle="確定移除此成員？" 
+                      (nzOnConfirm)="removeMember(member)"
+                    >
+                      <span nz-icon nzType="user-delete"></span>
+                      移除
+                    </button>
+                  </nz-space>
                 </td>
               </tr>
             }
@@ -101,6 +132,7 @@ export class TeamMembersComponent implements OnInit {
   private readonly workspaceContext = inject(WorkspaceContextService);
   private readonly memberRepository = inject(TeamMemberRepository);
   private readonly orgMemberRepository = inject(OrganizationMemberRepository);
+  private readonly breadcrumbService = inject(BreadcrumbService);
   private readonly modal = inject(NzModalService);
   private readonly message = inject(NzMessageService);
 
@@ -110,12 +142,52 @@ export class TeamMembersComponent implements OnInit {
   // Add TeamRole to template
   readonly TeamRole = TeamRole;
 
+  constructor() {
+    // Auto-reload members when team context changes
+    effect(() => {
+      const teamId = this.currentTeamId();
+      if (teamId) {
+        this.loadMembers(teamId);
+      }
+    });
+  }
+
   ngOnInit(): void {
-    // Load members when component initializes
+    // Set breadcrumbs
+    const teamName = this.workspaceContext.contextLabel();
+    const orgName = this.getOrganizationName();
     const teamId = this.currentTeamId();
+    
     if (teamId) {
-      this.loadMembers(teamId);
+      this.breadcrumbService.setBreadcrumbs([
+        { label: '首頁', url: '/', icon: 'home' },
+        { label: orgName, url: null, icon: 'team' },
+        { label: teamName, url: null, icon: 'usergroup-add' },
+        { label: '成員管理', url: null }
+      ]);
+    } else {
+      this.breadcrumbService.setBreadcrumbs([
+        { label: '首頁', url: '/', icon: 'home' },
+        { label: '成員管理', url: null }
+      ]);
     }
+    
+    // Load members when component initializes
+    const teamId2 = this.currentTeamId();
+    if (teamId2) {
+      this.loadMembers(teamId2);
+    }
+  }
+  
+  private getOrganizationName(): string {
+    const teams = this.workspaceContext.teams();
+    const currentTeam = teams.find(t => t.id === this.currentTeamId());
+    if (currentTeam) {
+      const orgs = this.workspaceContext.organizations();
+      const org = orgs.find(o => o.id === currentTeam.organization_id);
+      return org?.name || '組織';
+    }
+    return '組織';
   }
 
   private loadMembers(teamId: string): void {
@@ -148,6 +220,14 @@ export class TeamMembersComponent implements OnInit {
 
   isTeamContext(): boolean {
     return this.workspaceContext.contextType() === ContextType.TEAM;
+  }
+
+  refreshMembers(): void {
+    const teamId = this.currentTeamId();
+    if (teamId) {
+      this.message.info('正在重新整理...');
+      this.loadMembers(teamId);
+    }
   }
 
   openAddMemberModal(): void {
