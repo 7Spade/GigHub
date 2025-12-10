@@ -186,7 +186,27 @@ service cloud.firestore {
         allow write: if canManageSettings(blueprintId);
       }
       
-      // Audit logs subcollection (read-only for users)
+      // Modules subcollection (Blueprint V2)
+      match /modules/{moduleId} {
+        allow read: if canReadBlueprint(blueprintId);
+        allow create, update: if canManageSettings(blueprintId)
+          && request.resource.data.moduleType is string
+          && request.resource.data.name is string
+          && request.resource.data.version is string;
+        allow delete: if canManageSettings(blueprintId);
+      }
+      
+      // Audit logs subcollection (read-only for users, write via service)
+      match /audit-logs/{logId} {
+        allow read: if canReadBlueprint(blueprintId);
+        allow create: if canEditBlueprint(blueprintId)
+          && request.resource.data.eventType is string
+          && request.resource.data.category is string
+          && request.resource.data.actorId is string;
+        allow update, delete: if false; // Immutable
+      }
+      
+      // Legacy audit logs path (deprecated, use audit-logs)
       match /auditLogs/{logId} {
         allow read: if canReadBlueprint(blueprintId);
         allow create: if false; // Only via Cloud Functions
