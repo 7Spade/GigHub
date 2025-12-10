@@ -245,6 +245,38 @@ export class ModuleRegistry implements IModuleRegistry {
   }
 
   /**
+   * Get all registered modules
+   * 
+   * @returns Array of all module instances
+   */
+  list(): readonly IBlueprintModule[] {
+    return Object.freeze(
+      Array.from(this.modules.values()).map(metadata => metadata.instance)
+    );
+  }
+
+  /**
+   * Check for missing dependencies
+   * 
+   * @param modules - Array of modules to check
+   * @returns Array of missing dependency IDs
+   */
+  checkMissingDependencies(modules: readonly IBlueprintModule[]): readonly string[] {
+    const registeredIds = new Set(this.getAllModuleIds());
+    const missing = new Set<string>();
+
+    for (const module of modules) {
+      for (const depId of module.dependencies) {
+        if (!registeredIds.has(depId)) {
+          missing.add(depId);
+        }
+      }
+    }
+
+    return Object.freeze(Array.from(missing));
+  }
+
+  /**
    * Clear all registered modules
    */
   clear(): void {

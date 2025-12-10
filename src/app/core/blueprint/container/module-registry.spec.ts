@@ -13,7 +13,7 @@ import { IExecutionContext } from '../context/execution-context.interface';
 
 // Mock module implementation
 class MockModule implements IBlueprintModule {
-  readonly status = signal(ModuleStatus.Created);
+  readonly status = signal(ModuleStatus.UNINITIALIZED);
   readonly exports = {};
 
   constructor(
@@ -24,23 +24,23 @@ class MockModule implements IBlueprintModule {
   ) {}
 
   async init(context: IExecutionContext): Promise<void> {
-    this.status.set(ModuleStatus.Initializing);
+    this.status.set(ModuleStatus.INITIALIZING);
   }
 
   async start(): Promise<void> {
-    this.status.set(ModuleStatus.Starting);
+    this.status.set(ModuleStatus.STARTING);
   }
 
   async ready(): Promise<void> {
-    this.status.set(ModuleStatus.Ready);
+    this.status.set(ModuleStatus.READY);
   }
 
   async stop(): Promise<void> {
-    this.status.set(ModuleStatus.Stopping);
+    this.status.set(ModuleStatus.STOPPING);
   }
 
   async dispose(): Promise<void> {
-    this.status.set(ModuleStatus.Disposed);
+    this.status.set(ModuleStatus.DISPOSED);
   }
 }
 

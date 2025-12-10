@@ -228,12 +228,12 @@ describe('LifecycleManager', () => {
     it('should emit lifecycle events', async () => {
       const events: string[] = [];
       
-      eventBus.on('MODULE_STARTING', (e) => events.push(e.type));
-      eventBus.on('MODULE_STARTED', (e) => events.push(e.type));
-      eventBus.on('MODULE_READY', (e) => events.push(e.type));
-      eventBus.on('MODULE_STOPPING', (e) => events.push(e.type));
-      eventBus.on('MODULE_STOPPED', (e) => events.push(e.type));
-      eventBus.on('MODULE_DISPOSED', (e) => events.push(e.type));
+      eventBus.on('MODULE_STARTING', (e) => { events.push(e.type); });
+      eventBus.on('MODULE_STARTED', (e) => { events.push(e.type); });
+      eventBus.on('MODULE_READY', (e) => { events.push(e.type); });
+      eventBus.on('MODULE_STOPPING', (e) => { events.push(e.type); });
+      eventBus.on('MODULE_STOPPED', (e) => { events.push(e.type); });
+      eventBus.on('MODULE_DISPOSED', (e) => { events.push(e.type); });
       
       await lifecycleManager.start('test-module');
       await lifecycleManager.ready('test-module');
@@ -311,7 +311,7 @@ describe('LifecycleManager', () => {
       module.throwOnInit = true;
       
       const events: string[] = [];
-      eventBus.on('MODULE_ERROR', (e) => events.push(e.type));
+      eventBus.on('MODULE_ERROR', (e) => { events.push(e.type); });
       
       await expectAsync(
         lifecycleManager.initialize(module, context)
@@ -327,7 +327,7 @@ describe('LifecycleManager', () => {
       await lifecycleManager.initialize(module, context);
       
       const events: string[] = [];
-      eventBus.on('MODULE_ERROR', (e) => events.push(e.type));
+      eventBus.on('MODULE_ERROR', (e) => { events.push(e.type); });
       
       await expectAsync(
         lifecycleManager.start('error-module')
@@ -344,7 +344,7 @@ describe('LifecycleManager', () => {
       await lifecycleManager.start('error-module');
       
       const events: string[] = [];
-      eventBus.on('MODULE_ERROR', (e) => events.push(e.type));
+      eventBus.on('MODULE_ERROR', (e) => { events.push(e.type); });
       
       await expectAsync(
         lifecycleManager.ready('error-module')
@@ -362,7 +362,7 @@ describe('LifecycleManager', () => {
       await lifecycleManager.ready('error-module');
       
       const events: string[] = [];
-      eventBus.on('MODULE_ERROR', (e) => events.push(e.type));
+      eventBus.on('MODULE_ERROR', (e) => { events.push(e.type); });
       
       await expectAsync(
         lifecycleManager.stop('error-module')

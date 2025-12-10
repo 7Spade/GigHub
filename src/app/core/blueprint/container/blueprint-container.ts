@@ -92,14 +92,14 @@ export class BlueprintContainer implements IBlueprintContainer {
       // Initialize core components
       this.moduleRegistry = new ModuleRegistry();
       this.lifecycleManager = new LifecycleManager();
-      this.eventBus = new EventBus(this.id);
-      this.resourceProvider = new ResourceProvider(this.injector);
+      this.eventBus = new EventBus();
+      this.resourceProvider = new ResourceProvider();
       this.sharedContext = new SharedContext();
 
       // Setup execution context
       this.executionContext = {
         blueprintId: this.id,
-        contextType: ContextType.Organization,
+        contextType: ContextType.ORGANIZATION,
         tenant: this.tenantInfo,
         eventBus: this.eventBus,
         resources: this.resourceProvider,
@@ -194,7 +194,7 @@ export class BlueprintContainer implements IBlueprintContainer {
       }, 'container');
 
       // Get all running modules (in reverse order)
-      const readyModules = this.lifecycleManager.getModulesByState(ModuleStatus.Ready);
+      const readyModules = this.lifecycleManager.getModulesByState(ModuleStatus.READY);
       
       // Stop modules in reverse order
       for (const moduleId of readyModules.reverse()) {
@@ -319,7 +319,7 @@ export class BlueprintContainer implements IBlueprintContainer {
 
       // Stop if running
       const status = this.lifecycleManager.getState(moduleId);
-      if (status === ModuleStatus.Ready) {
+      if (status === ModuleStatus.READY) {
         await this.lifecycleManager.stop(moduleId);
       }
 
@@ -372,7 +372,7 @@ export class BlueprintContainer implements IBlueprintContainer {
    * 獲取所有模組
    */
   getAllModules(): IBlueprintModule[] {
-    return this.moduleRegistry.list();
+    return Array.from(this.moduleRegistry.list());
   }
 
   /**
