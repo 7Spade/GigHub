@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal, computed } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NZ_MODAL_DATA, NzModalRef } from 'ng-zorro-antd/modal';
 import { SHARED_IMPORTS, AccountRepository } from '@shared';
@@ -49,7 +49,6 @@ export interface TeamMemberModalData {
             formControlName="userId" 
             nzPlaceHolder="搜尋或選擇成員"
             nzShowSearch
-            [nzOptions]="memberOptions()"
             [nzLoading]="loading()"
             nzAllowClear
           >
@@ -61,7 +60,7 @@ export interface TeamMemberModalData {
               <div class="member-option">
                 <nz-avatar 
                   [nzSize]="32" 
-                  [nzSrc]="member.account?.avatar_url || null"
+                  [nzSrc]="member.account?.avatar_url || undefined"
                   [nzText]="getMemberInitials(member)"
                   [style.background-color]="getAvatarColor(member.user_id)"
                 ></nz-avatar>
@@ -200,12 +199,6 @@ export class TeamMemberModalComponent implements OnInit {
   
   // Computed signals
   membersWithAccounts = this._membersWithAccounts.asReadonly();
-  memberOptions = computed(() => 
-    this.membersWithAccounts().map(member => ({
-      label: this.getMemberLabel(member),
-      value: member.user_id
-    }))
-  );
   
   form: FormGroup = this.fb.group({
     userId: ['', [Validators.required]],
