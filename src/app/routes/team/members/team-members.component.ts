@@ -259,7 +259,7 @@ export class TeamMembersComponent implements OnInit {
           return;
         }
 
-        this.showAddMemberDialog(teamId, availableMembers);
+        this.showAddMemberModal(teamId, availableMembers);
       },
       error: (error: Error) => {
         this.loading.set(false);
@@ -269,63 +269,73 @@ export class TeamMembersComponent implements OnInit {
     });
   }
 
-  private showAddMemberDialog(teamId: string, availableMembers: OrganizationMember[]): void {
-    let selectedUserId = '';
-    let selectedRole: TeamRole = TeamRole.MEMBER;
+  private showAddMemberModal(teamId: string, availableMembers: OrganizationMember[]): void {
+    // Import modal component dynamically
+    import('./team-member-modal.component').then(({ TeamMemberModalComponent }) => {
+      const modalRef = this.modal.create({
+        nzTitle: '新增團隊成員',
+        nzContent: TeamMemberModalComponent,
+        nzData: { availableMembers },
+        nzWidth: 600,
+        nzFooter: null,
+        nzMaskClosable: false
+      });
 
-    const modalRef = this.modal.create({
-      nzTitle: '新增團隊成員',
-      nzContent: `
-        <div>
-          <div class="mb-md">
-            <label class="d-block mb-sm"><strong>選擇成員</strong></label>
-            <select id="selectMember" class="ant-input" style="width: 100%; padding: 4px 11px; border: 1px solid #d9d9d9; border-radius: 2px;">
-              <option value="">請選擇要加入的成員</option>
-              ${availableMembers.map(m => `<option value="${m.user_id}">${m.user_id}</option>`).join('')}
-            </select>
-          </div>
-          <div class="mb-md">
-            <label class="d-block mb-sm"><strong>角色</strong></label>
-            <select id="selectRole" class="ant-input" style="width: 100%; padding: 4px 11px; border: 1px solid #d9d9d9; border-radius: 2px;">
-              <option value="${TeamRole.MEMBER}">團隊成員</option>
-              <option value="${TeamRole.LEADER}">團隊領導</option>
-            </select>
-          </div>
-        </div>
-      `,
-      nzOnOk: async () => {
-        selectedUserId = (document.getElementById('selectMember') as HTMLSelectElement)?.value || '';
-        selectedRole = (document.getElementById('selectRole') as HTMLSelectElement)?.value as TeamRole || TeamRole.MEMBER;
-
-        if (!selectedUserId) {
-          this.message.error('請選擇成員');
-          return false;
+      // Handle modal result
+      modalRef.afterClose.subscribe(async (result) => {
+        if (result) {
+          try {
+            await this.memberRepository.addMember(teamId, result.userId, result.role);
+            this.message.success('成員已加入團隊');
+            this.loadMembers(teamId);
+          } catch (error) {
+            console.error('[TeamMembersComponent] ❌ Failed to add member:', error);
+            this.message.error('新增成員失敗');
+          }
         }
-
-        try {
-          await this.memberRepository.addMember(teamId, selectedUserId, selectedRole);
-          this.message.success('成員已加入團隊');
-          this.loadMembers(teamId);
-          return true;
-        } catch (error) {
-          console.error('[TeamMembersComponent] ❌ Failed to add member:', error);
-          this.message.error('新增成員失敗');
-          return false;
-        }
-      }
+      });
     });
   }
 
   changeRole(member: TeamMember): void {
-    const newRole = member.role === TeamRole.LEADER ? TeamRole.MEMBER : TeamRole.LEADER;
-    const roleLabel = newRole === TeamRole.LEADER ? '團隊領導' : '團隊成員';
+    const teamId = this.currentTeamId();
+    if (!teamId) return;
 
-    this.modal.confirm({
+    // Create a simple role change modal
+    const currentRole = member.role;
+    const availableRoles = Object.values(TeamRole).filter(role => role !== currentRole);
+    
+    const modalRef = this.modal.create({
       nzTitle: '變更成員角色',
-      nzContent: `確定將此成員角色變更為「${roleLabel}」？`,
+      nzContent: `
+        <div>
+          <p>當前角色：<strong>${this.roleLabel(currentRole)}</strong></p>
+          <div class="mb-md">
+            <label class="d-block mb-sm"><strong>選擇新角色</strong></label>
+            <nz-radio-group id="roleSelector" style="display: flex; flex-direction: column; gap: 12px;">
+              ${availableRoles.map(role => `
+                <label nz-radio nzValue="${role}" style="display: flex; align-items: center; padding: 8px; border: 1px solid #d9d9d9; border-radius: 4px;">
+                  <input type="radio" name="role" value="${role}" />
+                  <span style="margin-left: 8px;">
+                    <strong>${this.roleLabel(role)}</strong>
+                    <span style="display: block; font-size: 12px; color: rgba(0,0,0,0.45);">
+                      ${role === TeamRole.LEADER ? '可管理團隊成員和設定' : '可檢視和執行團隊任務'}
+                    </span>
+                  </span>
+                </label>
+              `).join('')}
+            </nz-radio-group>
+          </div>
+        </div>
+      `,
       nzOnOk: async () => {
-        const teamId = this.currentTeamId();
-        if (!teamId) return;
+        const selectedInput = document.querySelector('input[name="role"]:checked') as HTMLInputElement;
+        const newRole = selectedInput?.value as TeamRole;
+
+        if (!newRole) {
+          this.message.error('請選擇角色');
+          return false;
+        }
 
         try {
           // Remove and re-add with new role (simple approach)
@@ -333,9 +343,11 @@ export class TeamMembersComponent implements OnInit {
           await this.memberRepository.addMember(teamId, member.user_id, newRole);
           this.message.success('角色已變更');
           this.loadMembers(teamId);
+          return true;
         } catch (error) {
           console.error('[TeamMembersComponent] ❌ Failed to change role:', error);
           this.message.error('變更角色失敗');
+          return false;
         }
       }
     });
