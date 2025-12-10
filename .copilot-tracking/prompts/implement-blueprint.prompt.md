@@ -5,40 +5,40 @@ model: Claude Sonnet 4
 
 <!-- markdownlint-disable-file -->
 
-# Implementation Prompt: Blueprint Module Implementation
+# 實作提示：Blueprint 模組實作 (Implementation Prompt: Blueprint Module Implementation)
 
-## Implementation Instructions
+## 實作指令 (Implementation Instructions)
 
-### Step 1: Create Changes Tracking File
+### 步驟 1：建立變更追蹤檔案 (Step 1: Create Changes Tracking File)
 
-You WILL create `20251209-blueprint-implementation-changes.md` in #file:../changes/ if it does not exist.
+您**必須**在 #file:../changes/ 中建立 `20251209-blueprint-implementation-changes.md`（如果不存在）。
 
-### Step 2: Execute Implementation
+### 步驟 2：執行實作 (Step 2: Execute Implementation)
 
-You WILL follow #file:../../.github/instructions/task-implementation.instructions.md
-You WILL systematically implement #file:../plans/20251209-blueprint-implementation-plan.instructions.md task-by-task
-You WILL follow ALL project standards and conventions
+您**必須**遵循 #file:../../.github/instructions/task-implementation.instructions.md
+您**必須**系統性地實作 #file:../plans/20251209-blueprint-implementation-plan.instructions.md 逐任務進行
+您**必須**遵循所有專案標準和慣例
 
-**CRITICAL**: If ${input:phaseStop:true} is true, you WILL stop after each Phase for user review.
-**CRITICAL**: If ${input:taskStop:false} is true, you WILL stop after each Task for user review.
+**關鍵 (CRITICAL)**: 如果 ${input:phaseStop:true} 為 true，您**必須**在每個階段後停止以供使用者審查。
+**關鍵 (CRITICAL)**: 如果 ${input:taskStop:false} 為 true，您**必須**在每個任務後停止以供使用者審查。
 
-### Step 3: Cleanup
+### 步驟 3：清理 (Step 3: Cleanup)
 
-When ALL Phases are checked off (`[x]`) and completed you WILL do the following:
+當所有階段都已勾選 (`[x]`) 並完成時，您**必須**執行以下操作：
 
-1. You WILL provide a markdown style link and a summary of all changes from #file:../changes/20251209-blueprint-implementation-changes.md to the user:
+1. 您**必須**提供 markdown 樣式連結和來自 #file:../changes/20251209-blueprint-implementation-changes.md 的所有變更摘要給使用者：
 
-   - You WILL keep the overall summary brief
-   - You WILL add spacing around any lists
-   - You MUST wrap any reference to a file in a markdown style link
+   - 您**必須**保持整體摘要簡潔
+   - 您**必須**在任何清單周圍添加間距
+   - 您**必須**將任何檔案參照包裝在 markdown 樣式連結中
 
-2. You WILL provide markdown style links to .copilot-tracking/plans/20251209-blueprint-implementation-plan.instructions.md, .copilot-tracking/details/20251209-blueprint-implementation-details.md, and .copilot-tracking/research/20251209-blueprint-implementation-research.md documents. You WILL recommend cleaning these files up as well.
-3. **MANDATORY**: You WILL attempt to delete .copilot-tracking/prompts/implement-blueprint.prompt.md
+2. 您**必須**提供 .copilot-tracking/plans/20251209-blueprint-implementation-plan.instructions.md、.copilot-tracking/details/20251209-blueprint-implementation-details.md 和 .copilot-tracking/research/20251209-blueprint-implementation-research.md 文檔的 markdown 樣式連結。您**必須**建議也清理這些檔案。
+3. **強制 (MANDATORY)**: 您**必須**嘗試刪除 .copilot-tracking/prompts/implement-blueprint.prompt.md
 
-## Success Criteria
+## 成功標準 (Success Criteria)
 
-- [ ] Changes tracking file created
-- [ ] All plan items implemented with working code
-- [ ] All detailed specifications satisfied
-- [ ] Project conventions followed
-- [ ] Changes file updated continuously
+- [ ] 變更追蹤檔案已建立
+- [ ] 所有計畫項目已實作且程式碼正常運作
+- [ ] 所有詳細規格已滿足
+- [ ] 已遵循專案慣例
+- [ ] 變更檔案持續更新
