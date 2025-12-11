@@ -23,6 +23,15 @@ The Blueprint module is the **Container Layer** core of GigHub - it provides the
 - `members/blueprint-members.component.ts` - 成員管理
 - `members/member-modal.component.ts` - 新增/編輯成員
 - `audit/audit-logs.component.ts` - 稽核日誌檢視器
+- `container/` - 容器儀表板元件
+- `components/` - 共享頁面子元件
+
+**重要變更**:
+- ⚠️ **Models 已移至** `@core/models` - 使用 `import { BlueprintModel } from '@core/models'`
+- ⚠️ **Repositories 已移至** `@core/blueprint/repositories` - 使用 `import { BlueprintRepository } from '@core/blueprint/repositories'`
+- ⚠️ **Services 已移至** `@core/blueprint/services` - 使用 `import { BlueprintService } from '@core/blueprint/services'`
+- ⚠️ **Module Implementations 已移至** `@core/blueprint/modules/implementations` - logs 和 tasks 模組現在是核心實作
+- ⚠️ **Module Manager 已移至** `@features/module-manager` - 獨立功能模組
 
 ## Data Models
 

@@ -33,9 +33,17 @@ Welcome to the GigHub construction site progress tracking management system. Thi
 ### Directory Structure
 
 **規則**:
-- `src/app/core/` - 核心服務、守衛、攔截器
-- `src/app/routes/` - 功能模組（懶載入）
-- `src/app/shared/` - 共享元件與工具
+- `src/app/core/` - 核心服務、守衛、攔截器、models、repositories、stores、blueprint 系統
+  - `core/models/` - 核心資料模型（audit-log、blueprint、blueprint-config、blueprint-module）
+  - `core/repositories/` - 統一資料存取層（account、audit-log、organization、team、log、task、storage）
+  - `core/stores/` - 集中狀態管理（log.store、task.store）
+  - `core/blueprint/` - Blueprint 核心系統（container、events、config、context、modules）
+    - `core/blueprint/repositories/` - Blueprint 專屬 repositories（blueprint、blueprint-member、blueprint-module、audit-log）
+    - `core/blueprint/services/` - Blueprint 服務層（blueprint.service、validation.service、dependency-validator.service）
+    - `core/blueprint/modules/implementations/` - Blueprint 模組實作（logs、tasks）
+- `src/app/features/` - 可重用功能模組（module-manager）
+- `src/app/routes/` - 頁面路由元件（懶載入）
+- `src/app/shared/` - 共享 UI 元件、指令、管道與工具（不含業務邏輯）
 - `src/app/layout/` - 應用程式佈局元件
 
 ## Working with This Project
@@ -43,10 +51,12 @@ Welcome to the GigHub construction site progress tracking management system. Thi
 ### Common Tasks
 
 **規則**:
-1. 新增功能模組時，必須在 `src/app/routes/[module-name]/` 下建立，包含模組級 `AGENTS.md`，並在 `src/app/routes/routes.ts` 註冊，遵循懶載入模式
+1. 新增功能模組時，可重用功能放在 `src/app/features/[module-name]/`，頁面路由放在 `src/app/routes/[module-name]/`，包含模組級 `AGENTS.md`，並在路由檔案中註冊，遵循懶載入模式
 2. 建立元件時，必須使用 standalone components（不使用 NgModules），從 `SHARED_IMPORTS` 匯入通用模組，使用 Signals 進行狀態管理，應用 `OnPush` 變更檢測
-3. 新增服務時，全域服務放在 `src/app/core/services/`，共享工具放在 `src/app/shared/services/`，使用 `providedIn: 'root'` 作為單例，使用 `inject()` 函數進行依賴注入
-4. 資料庫操作時，必須使用 Firestore via @angular/fire，使用 repository 模式進行資料存取，實作 Firestore Security Rules，遵循命名：`[entity].repository.ts`，放在 `src/app/core/infra/repositories/`
+3. 新增服務時，全域服務放在 `src/app/core/services/`，Blueprint 相關服務放在 `src/app/core/blueprint/services/`，共享 UI 工具放在 `src/app/shared/services/`（僅 UI 相關），使用 `providedIn: 'root'` 作為單例，使用 `inject()` 函數進行依賴注入
+4. 資料庫操作時，必須使用 Firestore via @angular/fire，使用 repository 模式進行資料存取，實作 Firestore Security Rules，遵循命名：`[entity].repository.ts`，一般 repositories 放在 `src/app/core/repositories/`，Blueprint 專屬 repositories 放在 `src/app/core/blueprint/repositories/`
+5. 資料模型時，所有 models 必須放在 `src/app/core/models/`，使用 `@core/models` 匯入
+6. 狀態管理時，Stores 必須放在 `src/app/core/stores/`，使用 Signals 實作，使用 `@core/stores` 匯入
 
 ### Code Standards
 
@@ -57,6 +67,9 @@ Welcome to the GigHub construction site progress tracking management system. Thi
 - 禁止使用 `any` 類型，使用 `unknown` 配合類型守衛
 - 物件類型優先使用 `interface` 而非 `type` 別名
 - 公開 API 必須使用 JSDoc
+- Models 必須放在 `@core/models`
+- Repositories 必須放在 `@core/repositories` 或 `@core/blueprint/repositories`
+- Stores 必須放在 `@core/stores`
 
 #### Angular Patterns
 

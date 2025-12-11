@@ -15,10 +15,19 @@ The Core module contains essential services, guards, interceptors, and infrastru
 ## Module Structure
 
 **規則**:
-- `src/app/core/services/` - 全域單例服務（firebase-auth、logger、permission、validation、supabase）
-- `src/app/core/guards/` - 路由守衛（auth、permission、module-enabled）
+- `src/app/core/models/` - 核心資料模型（audit-log.model、blueprint.model、blueprint-config.model、blueprint-module.model）
+- `src/app/core/repositories/` - 統一資料存取層（account、audit-log、organization、organization-member、team、team-member、log、task、storage）
+- `src/app/core/stores/` - 集中狀態管理（log.store、task.store）
+- `src/app/core/services/` - 全域單例服務（firebase-auth、logger、supabase）
+- `src/app/core/blueprint/` - Blueprint 核心系統
+  - `blueprint/repositories/` - Blueprint 專屬 repositories（blueprint、blueprint-member、blueprint-module、audit-log）
+  - `blueprint/services/` - Blueprint 服務層（blueprint.service、validation.service、dependency-validator.service）
+  - `blueprint/modules/implementations/` - Blueprint 模組實作（logs、tasks）
+  - `blueprint/container/` - Blueprint 容器（lifecycle-manager、module-registry、resource-provider）
+  - `blueprint/events/` - 事件系統（event-bus）
+  - `blueprint/config/` - 配置管理
+  - `blueprint/context/` - 執行上下文
 - `src/app/core/errors/` - 自訂錯誤類別（blueprint-error、permission-denied-error、validation-error、module-not-found-error）
-- `src/app/core/infra/repositories/` - 資料存取 repositories（blueprint、account、task 等）
 - `src/app/core/startup/` - 應用程式初始化（startup.service.ts）
 - `src/app/core/i18n/` - 國際化（i18n.service.ts）
 - `src/app/core/index.ts` - 公開 API 匯出

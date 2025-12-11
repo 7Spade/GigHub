@@ -17,10 +17,15 @@ The App module is the **entry point** of the GigHub application, responsible for
 - `src/app/AGENTS.md` - 本文件
 - `src/app/app.component.ts` - 根元件
 - `src/app/app.config.ts` - 應用程式配置（standalone）
-- `src/app/core/` - 核心服務
+- `src/app/core/` - 核心服務、models、repositories、stores、blueprint 系統
+  - `core/models/` - 核心資料模型
+  - `core/repositories/` - 統一資料存取層
+  - `core/stores/` - 集中狀態管理
+  - `core/blueprint/` - Blueprint 核心系統（含 repositories、services、modules/implementations）
+- `src/app/features/` - 可重用功能模組（如 module-manager）
 - `src/app/layout/` - 佈局元件
-- `src/app/routes/` - 功能模組
-- `src/app/shared/` - 共享元件
+- `src/app/routes/` - 頁面路由元件
+- `src/app/shared/` - 共享 UI 元件（僅 UI，無業務邏輯）
 
 ## Application Configuration
 
