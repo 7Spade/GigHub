@@ -1,4 +1,5 @@
-import { Injectable, inject } from '@angular/core';
+import { DestroyRef, Injectable, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Auth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, User, authState } from '@angular/fire/auth';
 import { Router } from '@angular/router';
 import { AccountRepository } from '@core/repositories';
@@ -23,6 +24,7 @@ export class FirebaseAuthService {
   private readonly settingsService = inject(SettingsService);
   private readonly router = inject(Router);
   private readonly accountRepository = inject(AccountRepository);
+  private readonly destroyRef = inject(DestroyRef);
 
   /**
    * Get the current Firebase user as an Observable
@@ -47,7 +49,9 @@ export class FirebaseAuthService {
 
   constructor() {
     // Sync Firebase auth state with Delon services
-    this.user$.subscribe(user => {
+    this.user$
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(user => {
       if (user) {
         // User is signed in, update token service and settings
         this.syncUserToServices(user);
@@ -56,7 +60,7 @@ export class FirebaseAuthService {
         this.tokenService.clear();
         this.settingsService.setUser({});
       }
-    });
+      });
   }
 
   /**

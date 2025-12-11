@@ -80,6 +80,10 @@ export class HeaderSearchComponent implements AfterViewInit, OnDestroy {
 
   ngAfterViewInit(): void {
     this.qIpt = this.el.querySelector('.ant-input') as HTMLInputElement;
+    
+    // Note: No need for takeUntilDestroyed here because:
+    // 1. We're using BehaviorSubject which is manually completed in ngOnDestroy
+    // 2. The subscription is properly cleaned up via complete() and unsubscribe()
     this.search$
       .pipe(
         debounceTime(500),

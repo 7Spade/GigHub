@@ -1,4 +1,5 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, NavigationError, RouteConfigLoadStart, Router, RouterOutlet } from '@angular/router';
 import { TitleService, VERSION as VERSION_ALAIN, stepPreloader } from '@delon/theme';
 import { environment } from '@env/environment';
@@ -18,6 +19,8 @@ export class AppComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly titleSrv = inject(TitleService);
   private readonly modalSrv = inject(NzModalService);
+  private readonly destroyRef = inject(DestroyRef);
+
   ngAlainVersion = VERSION_ALAIN.full;
   ngZorroVersion = VERSION_ZORRO.full;
 
@@ -25,7 +28,9 @@ export class AppComponent implements OnInit {
 
   ngOnInit(): void {
     let configLoad = false;
-    this.router.events.subscribe(ev => {
+    this.router.events
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(ev => {
       if (ev instanceof RouteConfigLoadStart) {
         configLoad = true;
       }
@@ -44,6 +49,6 @@ export class AppComponent implements OnInit {
         this.titleSrv.setTitle();
         this.modalSrv.closeAll();
       }
-    });
+      });
   }
 }

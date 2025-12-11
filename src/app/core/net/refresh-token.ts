@@ -68,6 +68,10 @@ export function tryRefreshToken(injector: Injector, ev: HttpResponseBase, req: H
 
 function buildAuthRefresh(injector: Injector): void {
   const tokenSrv = injector.get(DA_SERVICE_TOKEN);
+  
+  // Note: This subscription is intentionally not cleaned up as it's managed
+  // by the application lifecycle through provideAppInitializer.
+  // The subscription will be automatically disposed when the application closes.
   tokenSrv.refresh
     .pipe(
       filter(() => !refreshToking),

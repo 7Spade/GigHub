@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, Input, booleanAttribute, inject, DOCUMENT } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, Input, booleanAttribute, inject, DOCUMENT } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { I18NService } from '@core';
 import { ALAIN_I18N_TOKEN, I18nPipe, SettingsService } from '@delon/theme';
 import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
@@ -38,6 +39,8 @@ export class HeaderI18nComponent {
   private readonly settings = inject(SettingsService);
   private readonly i18n = inject<I18NService>(ALAIN_I18N_TOKEN);
   private readonly doc = inject(DOCUMENT);
+  private readonly destroyRef = inject(DestroyRef);
+
   /** Whether to display language text */
   @Input({ transform: booleanAttribute }) showLangText = true;
 
@@ -55,10 +58,13 @@ export class HeaderI18nComponent {
     spinEl.innerHTML = `<span class="ant-spin-dot ant-spin-dot-spin"><i></i><i></i><i></i><i></i></span>`;
     this.doc.body.appendChild(spinEl);
 
-    this.i18n.loadLangData(lang).subscribe(res => {
-      this.i18n.use(lang, res);
-      this.settings.setLayout('lang', lang);
-      setTimeout(() => this.doc.location.reload());
-    });
+    this.i18n
+      .loadLangData(lang)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(res => {
+        this.i18n.use(lang, res);
+        this.settings.setLayout('lang', lang);
+        setTimeout(() => this.doc.location.reload());
+      });
   }
 }

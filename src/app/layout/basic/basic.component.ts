@@ -1,4 +1,5 @@
-import { Component, inject, effect } from '@angular/core';
+import { Component, DestroyRef, effect, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink, RouterOutlet } from '@angular/router';
 import { ContextType } from '@core';
 import { SettingsService, User, ModalHelper } from '@delon/theme';
@@ -161,6 +162,7 @@ export class LayoutBasicComponent {
   private readonly workspaceContext = inject(WorkspaceContextService);
   private readonly menuManagement = inject(MenuManagementService);
   private readonly modal = inject(ModalHelper);
+  private readonly destroyRef = inject(DestroyRef);
 
   options: LayoutDefaultOptions = {
     logoExpanded: `./assets/logo-full.svg`,
@@ -207,11 +209,14 @@ export class LayoutBasicComponent {
    * Open create organization modal
    */
   openCreateOrganization(): void {
-    this.modal.create(CreateOrganizationComponent, {}, { size: 'md' }).subscribe(result => {
-      if (result) {
-        console.log('Organization created:', result);
-      }
-    });
+    this.modal
+      .create(CreateOrganizationComponent, {}, { size: 'md' })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(result => {
+        if (result) {
+          console.log('Organization created:', result);
+        }
+      });
   }
 
   /**
@@ -224,10 +229,13 @@ export class LayoutBasicComponent {
       return;
     }
 
-    this.modal.create(CreateTeamComponent, { organizationId: currentOrgId }, { size: 'md' }).subscribe(result => {
-      if (result) {
-        console.log('Team created:', result);
-      }
-    });
+    this.modal
+      .create(CreateTeamComponent, { organizationId: currentOrgId }, { size: 'md' })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(result => {
+        if (result) {
+          console.log('Team created:', result);
+        }
+      });
   }
 }
