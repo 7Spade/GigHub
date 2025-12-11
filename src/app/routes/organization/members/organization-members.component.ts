@@ -1,19 +1,17 @@
 import { ChangeDetectionStrategy, Component, computed, inject, OnInit } from '@angular/core';
-import { firstValueFrom } from 'rxjs';
 import { ContextType, OrganizationMember, OrganizationRole } from '@core';
 import { SHARED_IMPORTS, WorkspaceContextService, OrganizationMemberRepository, createAsyncArrayState } from '@shared';
-import { HeaderContextSwitcherComponent } from '../../../layout/basic/widgets/context-switcher.component';
-import { NzMenuModule } from 'ng-zorro-antd/menu';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-organization-members',
   standalone: true,
-  imports: [SHARED_IMPORTS, NzMenuModule, NzAlertModule, NzEmptyModule, HeaderContextSwitcherComponent],
+  imports: [SHARED_IMPORTS, NzAlertModule, NzEmptyModule],
   template: `
     <page-header [title]="'組織成員'" [content]="headerContent"></page-header>
-    
+
     <ng-template #headerContent>
       <div>管理當前組織的成員與角色。</div>
     </ng-template>
@@ -23,17 +21,10 @@ import { NzEmptyModule } from 'ng-zorro-antd/empty';
         nzType="info"
         nzShowIcon
         nzMessage="請切換到組織上下文"
-        nzDescription="使用下方切換器切換到目標組織後即可管理成員。"
+        nzDescription="請從側邊欄切換到目標組織後即可管理成員。"
         class="mb-md"
       />
     }
-
-    <nz-card class="mb-md" nzTitle="工作區切換器">
-      <div class="text-grey mb-sm">支援直接在頁面切換到對應的組織。</div>
-      <ul nz-menu nzMode="inline" class="bg-transparent border-0">
-        <header-context-switcher />
-      </ul>
-    </nz-card>
 
     <nz-card nzTitle="成員列表" [nzLoading]="membersState.loading()">
       @if (membersState.error()) {
@@ -45,7 +36,7 @@ import { NzEmptyModule } from 'ng-zorro-antd/empty';
           class="mb-md"
         />
       }
-      
+
       @if (displayMembers().length > 0) {
         <nz-table #table [nzData]="displayMembers()">
           <thead>
@@ -105,15 +96,13 @@ export class OrganizationMembersComponent implements OnInit {
    */
   private async loadMembers(): Promise<void> {
     const orgId = this.currentOrgId();
-    
+
     if (!orgId) {
       return;
     }
 
     try {
-      await this.membersState.load(
-        firstValueFrom(this.memberRepository.findByOrganization(orgId))
-      );
+      await this.membersState.load(firstValueFrom(this.memberRepository.findByOrganization(orgId)));
       console.log('[OrganizationMembersComponent] ✅ Loaded members:', this.membersState.length());
     } catch (error) {
       console.error('[OrganizationMembersComponent] ❌ Failed to load members:', error);
