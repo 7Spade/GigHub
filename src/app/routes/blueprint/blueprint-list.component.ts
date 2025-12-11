@@ -1,4 +1,5 @@
-import { Component, OnInit, inject, effect, computed } from '@angular/core';
+import { Component, DestroyRef, OnInit, computed, effect, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Blueprint, BlueprintStatus, LoggerService, FirebaseAuthService, OwnerType, ContextType } from '@core';
 import { STColumn, STData } from '@delon/abc/st';
@@ -142,6 +143,7 @@ export class BlueprintListComponent implements OnInit {
   private readonly blueprintService: BlueprintService = inject(BlueprintService);
   private readonly authService = inject(FirebaseAuthService);
   private readonly workspaceContext = inject(WorkspaceContextService);
+  private readonly destroyRef = inject(DestroyRef);
 
   // ✅ Modern Pattern: Use AsyncState
   readonly blueprintsState = createAsyncArrayState<Blueprint>([]);
@@ -388,11 +390,14 @@ export class BlueprintListComponent implements OnInit {
    */
   async create(): Promise<void> {
     const { BlueprintModalComponent } = await import('./blueprint-modal.component');
-    this.modal.createStatic(BlueprintModalComponent, {}, { size: 'md' }).subscribe(result => {
-      if (result) {
-        this.refresh();
-      }
-    });
+    this.modal
+      .createStatic(BlueprintModalComponent, {}, { size: 'md' })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(result => {
+        if (result) {
+          this.refresh();
+        }
+      });
   }
 
   /**
@@ -422,11 +427,14 @@ export class BlueprintListComponent implements OnInit {
   async edit(record: STData): Promise<void> {
     const blueprint = record as unknown as Blueprint;
     const { BlueprintModalComponent } = await import('./blueprint-modal.component');
-    this.modal.createStatic(BlueprintModalComponent, { blueprint }, { size: 'md' }).subscribe(result => {
-      if (result) {
-        this.refresh();
-      }
-    });
+    this.modal
+      .createStatic(BlueprintModalComponent, { blueprint }, { size: 'md' })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(result => {
+        if (result) {
+          this.refresh();
+        }
+      });
   }
 
   /**

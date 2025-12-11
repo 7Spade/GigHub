@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit, effect } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, effect, inject, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ContextType, TeamMember, TeamRole, OrganizationMember } from '@core';
@@ -144,6 +145,7 @@ export class TeamMembersComponent implements OnInit {
   private readonly message = inject(NzMessageService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
 
   private readonly members = signal<TeamMember[]>([]);
   loading = signal(false);
@@ -157,7 +159,9 @@ export class TeamMembersComponent implements OnInit {
   constructor() {
     // Monitor query parameters
     effect(() => {
-      this.route.queryParams.subscribe(params => {
+      this.route.queryParams
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(params => {
         const teamId = params['teamId'];
         if (teamId) {
           this.queryParamTeamId.set(teamId);
@@ -199,7 +203,10 @@ export class TeamMembersComponent implements OnInit {
 
   private loadMembers(teamId: string): void {
     this.loading.set(true);
-    this.memberRepository.findByTeam(teamId).subscribe({
+    this.memberRepository
+      .findByTeam(teamId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
       next: (members: TeamMember[]) => {
         this.members.set(members);
         this.loading.set(false);
@@ -259,7 +266,10 @@ export class TeamMembersComponent implements OnInit {
 
     // Load organization members
     this.loading.set(true);
-    this.orgMemberRepository.findByOrganization(currentTeam.organization_id).subscribe({
+    this.orgMemberRepository
+      .findByOrganization(currentTeam.organization_id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
       next: (orgMembers: OrganizationMember[]) => {
         this.loading.set(false);
 
@@ -295,7 +305,9 @@ export class TeamMembersComponent implements OnInit {
       });
 
       // Handle modal result
-      modalRef.afterClose.subscribe(async result => {
+      modalRef.afterClose
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(async result => {
         if (result) {
           try {
             await this.memberRepository.addMember(teamId, result.userId, result.role);
