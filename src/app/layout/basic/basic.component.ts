@@ -30,7 +30,7 @@ import { CreateTeamComponent } from '../../shared/components/create-team/create-
   template: `
     <layout-default [options]="options" [asideUser]="asideUserTpl" [content]="contentTpl" [customError]="null">
       <layout-default-header-item direction="left">
-        <a layout-default-header-item-trigger href="//github.com/ng-alain/ng-alain" target="_blank">
+        <a layout-default-header-item-trigger href="//github.com/7Spade/GigHub" target="_blank">
           <i nz-icon nzType="github"></i>
         </a>
       </layout-default-header-item>
