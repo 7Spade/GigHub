@@ -5,3 +5,4 @@
 
 export * from './logs/logs.module';
 export * from './tasks/tasks.module';
+export * from './quality/quality.module';
