@@ -12,6 +12,11 @@ export const routes: Routes = [
     data: { title: '藍圖詳情' }
   },
   {
+    path: ':id/designer',
+    loadComponent: () => import('./blueprint-designer.component').then(m => m.BlueprintDesignerComponent),
+    data: { title: '藍圖設計器' }
+  },
+  {
     path: ':id/container',
     children: [
       {
