@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit, effect } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit, effect, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ContextType, TeamMember, TeamRole, OrganizationMember } from '@core';
@@ -144,6 +145,7 @@ export class TeamMembersComponent implements OnInit {
   private readonly message = inject(NzMessageService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
 
   private readonly members = signal<TeamMember[]>([]);
   loading = signal(false);
@@ -157,16 +159,18 @@ export class TeamMembersComponent implements OnInit {
   constructor() {
     // Monitor query parameters
     effect(() => {
-      this.route.queryParams.subscribe(params => {
-        const teamId = params['teamId'];
-        if (teamId) {
-          this.queryParamTeamId.set(teamId);
-          // Switch to team context if needed
-          if (this.workspaceContext.contextType() !== ContextType.TEAM || this.workspaceContext.contextId() !== teamId) {
-            this.workspaceContext.switchToTeam(teamId);
+      this.route.queryParams
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(params => {
+          const teamId = params['teamId'];
+          if (teamId) {
+            this.queryParamTeamId.set(teamId);
+            // Switch to team context if needed
+            if (this.workspaceContext.contextType() !== ContextType.TEAM || this.workspaceContext.contextId() !== teamId) {
+              this.workspaceContext.switchToTeam(teamId);
+            }
           }
-        }
-      });
+        });
     });
 
     // Auto-reload members when team context changes
@@ -199,17 +203,20 @@ export class TeamMembersComponent implements OnInit {
 
   private loadMembers(teamId: string): void {
     this.loading.set(true);
-    this.memberRepository.findByTeam(teamId).subscribe({
-      next: (members: TeamMember[]) => {
-        this.members.set(members);
-        this.loading.set(false);
-      },
-      error: (error: Error) => {
-        console.error('[TeamMembersComponent] ❌ Failed to load members:', error);
-        this.members.set([]);
-        this.loading.set(false);
-      }
-    });
+    this.memberRepository
+      .findByTeam(teamId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (members: TeamMember[]) => {
+          this.members.set(members);
+          this.loading.set(false);
+        },
+        error: (error: Error) => {
+          console.error('[TeamMembersComponent] ❌ Failed to load members:', error);
+          this.members.set([]);
+          this.loading.set(false);
+        }
+      });
   }
 
   readonly currentTeamId = computed(() =>
@@ -259,23 +266,26 @@ export class TeamMembersComponent implements OnInit {
 
     // Load organization members
     this.loading.set(true);
-    this.orgMemberRepository.findByOrganization(currentTeam.organization_id).subscribe({
-      next: (orgMembers: OrganizationMember[]) => {
-        this.loading.set(false);
+    this.orgMemberRepository
+      .findByOrganization(currentTeam.organization_id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (orgMembers: OrganizationMember[]) => {
+          this.loading.set(false);
 
-        // Filter out members already in team
-        const currentMemberIds = this.members().map(m => m.user_id);
-        const availableMembers = orgMembers.filter(om => !currentMemberIds.includes(om.user_id));
+          // Filter out members already in team
+          const currentMemberIds = this.members().map(m => m.user_id);
+          const availableMembers = orgMembers.filter(om => !currentMemberIds.includes(om.user_id));
 
-        if (availableMembers.length === 0) {
-          this.message.warning('所有組織成員都已加入此團隊');
-          return;
-        }
+          if (availableMembers.length === 0) {
+            this.message.warning('所有組織成員都已加入此團隊');
+            return;
+          }
 
-        this.showAddMemberModal(teamId, availableMembers);
-      },
-      error: (error: Error) => {
-        this.loading.set(false);
+          this.showAddMemberModal(teamId, availableMembers);
+        },
+        error: (error: Error) => {
+          this.loading.set(false);
         console.error('[TeamMembersComponent] ❌ Failed to load org members:', error);
         this.message.error('載入組織成員失敗');
       }
