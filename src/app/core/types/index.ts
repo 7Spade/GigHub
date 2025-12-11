@@ -20,3 +20,5 @@ export * from './permission/permission-level.enum';
 export * from './permission/permission.types';
 export * from './permission/role.enum';
 export * from './storage';
+export * from './task';
+export * from './log';
