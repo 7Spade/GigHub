@@ -41,6 +41,12 @@ export const routes: Routes = [
         path: 'blueprints/organization',
         loadChildren: () => import('./blueprint/routes').then(m => m.routes),
         data: { title: '組織藍圖' }
+      },
+      // Monitoring module - lazy loaded
+      {
+        path: 'monitoring',
+        loadChildren: () => import('./monitoring/routes').then(m => m.routes),
+        data: { title: '系統監控' }
       }
     ]
   },
