@@ -76,10 +76,8 @@
 - **Supabase** → 統計/非敏感資料
 - **@delon/auth** → Token 管理、路由守衛
 
-**舊版參考**:
-- [FIREBASE_AUTH_IMPLEMENTATION_SUMMARY.md](authentication/FIREBASE_AUTH_IMPLEMENTATION_SUMMARY.md) (EN)
-- [FIREBASE_AUTH_INTEGRATION.md](authentication/FIREBASE_AUTH_INTEGRATION.md) (EN)
-- [SUPABASE_SIMPLIFICATION.md](authentication/SUPABASE_SIMPLIFICATION.md) (EN)
+**已封存文檔** (歷史參考):
+- 參見 [`archive/auth/`](./archive/auth/) - 認證相關完成分析與修復文檔
 
 ---
 
@@ -97,11 +95,8 @@
 - [程式碼範例](./ui-theme/azure-dragon-theme-examples.md) (EN)
 - [實時預覽](./ui-theme/demo.html)
 
-**舊版參考**:
-- [README](./ui-theme/README.md) (EN)
-- [AZURE_DRAGON_INTEGRATION.md](ui-theme/AZURE_DRAGON_INTEGRATION.md) (EN)
-- [AZURE_DRAGON_IMPLEMENTATION_SUMMARY.md](ui-theme/AZURE_DRAGON_IMPLEMENTATION_SUMMARY.md) (EN)
-- [AZURE_DRAGON_VISUAL_REFERENCE.md](ui-theme/AZURE_DRAGON_VISUAL_REFERENCE.md) (EN)
+**已封存文檔** (歷史參考):
+- 參見 [`ui-theme/archive/`](./ui-theme/archive/) - Azure Dragon 實作歷史文檔
 
 ---
 
@@ -118,13 +113,10 @@
 - **上下文切換**: USER → ORGANIZATION → TEAM → BOT
 - **權限模型**: RBAC + RLS 政策
 
-**舊版參考** (待遷移):
-- [Account-SAAS_IMPLEMENTATION.md](./Account-SAAS_IMPLEMENTATION.md) (EN)
-- [System-CONTEXT_SWITCHER_UI.md](./System-CONTEXT_SWITCHER_UI.md) (EN)
-- [BLUEPRINT_CONTAINER_DESIGN.md](./BLUEPRINT_CONTAINER_DESIGN.md) (EN)
-- [BLUEPRINT_CONCEPT_EXPLAINED.md](./BLUEPRINT_CONCEPT_EXPLAINED.md) (EN)
-- [System-SIDEBAR_FEATURES_DESIGN.md](./System-SIDEBAR_FEATURES_DESIGN.md) (繁中)
-- [Blueprint-DESIGN_SUMMARY.md](./Blueprint-DESIGN_SUMMARY.md) (繁中)
+**已封存文檔** (歷史參考):
+- 參見 [`archive/account/`](./archive/account/) - SaaS 實作文檔
+- 參見 [`archive/system/`](./archive/system/) - 系統功能設計文檔
+- 參見 [`archive/blueprint-v2/`](./archive/blueprint-v2/) - Blueprint 架構設計文檔
 
 ---
 
@@ -133,6 +125,30 @@
 **已整合到其他資料夾**:
 - SHARED_IMPORTS_GUIDE.md → [`development/shared-modules-guide.md`](./development/shared-modules-guide.md) ✅
 - SHARED_MODULES_OPTIMIZATION.md → 已整合 ✅
+
+---
+
+### 📦 文檔封存庫 (Documentation Archive) - [`archive/`](./archive/)
+
+**已完成的專案文檔** (46 個文檔已封存)
+
+完成並封存的文檔包含：
+- ✅ **Blueprint V2.0** (17 docs) - 完成總結、架構設計、UI 設計
+- ✅ **System** (8 docs) - 建置修復、上下文管理、設計分析
+- ✅ **Authentication** (11 docs) - 認證分析、Firestore 修復、Data 層整合
+- ✅ **Team Management** (2 docs) - CRUD 重構文檔
+- ✅ **Account & SaaS** (1 doc) - SaaS 多租戶實作
+- ✅ **Analysis** (3 docs) - Blueprint Designer 分析
+- ✅ **Reports** (5 docs) - 狀態報告與驗證
+- ✅ **Fixes** (3 docs) - 修復實施總結
+
+**如何查閱**:
+→ [📦 封存庫索引](./archive/README.md) - 完整封存文檔清單  
+→ [Blueprint V2 完成文檔](./archive/blueprint-v2/)  
+→ [系統功能完成文檔](./archive/system/)  
+→ [認證完成分析](./archive/auth/)
+
+---
 
 ## 📖 技術棧 (Tech Stack)
 
@@ -201,6 +217,25 @@ yarn analyze:view
 
 ## 📝 變更記錄 (Changelog)
 
+### v1.2.0 (2025-12-11) - 文檔封存
+
+**🗂️ 文檔整理**:
+- ✅ 建立 `archive/` 封存庫結構
+- ✅ 封存 46 個已完成的專案文檔
+- ✅ 分類整理：blueprint-v2, system, auth, team, account, analysis, reports, fixes
+- ✅ 建立封存庫索引 (`archive/README.md`)
+- ✅ 更新主文檔索引以參照封存庫
+
+**📦 封存內容**:
+- Blueprint V2.0 完成文檔 (17 docs)
+- 系統功能完成文檔 (8 docs)
+- 認證相關完成分析 (11 docs)
+- 團隊管理重構文檔 (2 docs)
+- 帳戶與 SaaS 實作 (1 doc)
+- 分析報告 (3 docs)
+- 狀態報告 (5 docs)
+- 修復總結 (3 docs)
+
 ### v1.1.0 (2025-12-10) - PR #18 & #19 現代化分析
 
 **✨ 新增**:
@@ -259,5 +294,5 @@ yarn analyze:view
 
 **維護者**: GitHub Copilot  
 **專案**: GigHub - 工地施工進度追蹤管理系統  
-**文件版本**: 1.0.0  
-**最後更新**: 2025-01-09
+**文件版本**: 1.2.0  
+**最後更新**: 2025-12-11
