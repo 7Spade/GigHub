@@ -3,6 +3,7 @@ import { Component, OnInit, inject, signal, computed, ChangeDetectionStrategy, E
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Blueprint, LoggerService, ModuleType } from '@core';
+import { DependencyValidatorService, DependencyValidationResult } from '@core/blueprint/services';
 import { SHARED_IMPORTS, BlueprintService } from '@shared';
 import { NzDrawerModule } from 'ng-zorro-antd/drawer';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
@@ -11,7 +12,6 @@ import { NzMessageService } from 'ng-zorro-antd/message';
 
 import { ConnectionLayerComponent, ValidationAlertsComponent } from './components';
 import { ModuleConnection, CreateConnectionDto } from './models';
-import { DependencyValidatorService, DependencyValidationResult } from './services';
 
 /**
  * Canvas Module Interface

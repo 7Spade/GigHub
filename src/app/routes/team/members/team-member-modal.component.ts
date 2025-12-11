@@ -1,7 +1,10 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { TeamRole, OrganizationMember, Account } from '@core';
-import { SHARED_IMPORTS, AccountRepository } from '@shared';
+import { AuditLogRepository } from '@core/blueprint/repositories';
+import { AccountRepository } from '@core/repositories';
+import { AuditLogRepository } from '@core/blueprint/repositories';
+import { SHARED_IMPORTS } from '@shared';
 import { NZ_MODAL_DATA, NzModalRef } from 'ng-zorro-antd/modal';
 import { forkJoin, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';

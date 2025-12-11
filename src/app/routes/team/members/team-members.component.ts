@@ -2,7 +2,10 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit, e
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ContextType, TeamMember, TeamRole, OrganizationMember } from '@core';
-import { SHARED_IMPORTS, WorkspaceContextService, TeamMemberRepository, OrganizationMemberRepository } from '@shared';
+import { AuditLogRepository } from '@core/blueprint/repositories';
+import { AccountRepository } from '@core/repositories';
+import { AuditLogRepository } from '@core/blueprint/repositories';
+import { SHARED_IMPORTS, WorkspaceContextService } from '@shared';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
 import { NzMessageService } from 'ng-zorro-antd/message';

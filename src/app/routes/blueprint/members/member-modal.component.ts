@@ -1,7 +1,10 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { BlueprintMember, BlueprintRole, BusinessRole, LoggerService, FirebaseAuthService } from '@core';
-import { SHARED_IMPORTS, BlueprintMemberRepository } from '@shared';
+import { AuditLogRepository } from '@core/blueprint/repositories';
+import { AccountRepository } from '@core/repositories';
+import { AuditLogRepository } from '@core/blueprint/repositories';
+import { SHARED_IMPORTS } from '@shared';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NZ_MODAL_DATA, NzModalRef } from 'ng-zorro-antd/modal';
 

@@ -26,7 +26,7 @@ import {
   CollectionReference,
   QueryConstraint
 } from '@angular/fire/firestore';
-import { LoggerService } from '@core/services/logger.service';
+import { LoggerService } from '@core/services/logger/logger.service';
 import { Observable, from, map, catchError, of } from 'rxjs';
 
 export enum LogLevel {

@@ -26,7 +26,7 @@ import {
   QueryConstraint,
   QueryDocumentSnapshot
 } from '@angular/fire/firestore';
-import { LoggerService } from '@core/services/logger.service';
+import { LoggerService } from '@core/services/logger/logger.service';
 import {
   AuditLogDocument,
   CreateAuditLogData,

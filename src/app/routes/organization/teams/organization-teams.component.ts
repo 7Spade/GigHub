@@ -1,7 +1,10 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit, effect } from '@angular/core';
 import { Router } from '@angular/router';
 import { ContextType, Team } from '@core';
-import { SHARED_IMPORTS, WorkspaceContextService, TeamRepository, TeamMemberRepository } from '@shared';
+import { AuditLogRepository } from '@core/blueprint/repositories';
+import { AccountRepository } from '@core/repositories';
+import { AuditLogRepository } from '@core/blueprint/repositories';
+import { SHARED_IMPORTS, WorkspaceContextService } from '@shared';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
 import { NzDescriptionsModule } from 'ng-zorro-antd/descriptions';
 import { NzDrawerService } from 'ng-zorro-antd/drawer';

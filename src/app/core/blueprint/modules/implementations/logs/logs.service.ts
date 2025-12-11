@@ -5,7 +5,7 @@
 
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { LoggerService } from '@core/services/logger.service';
+import { LoggerService } from '@core/services/logger/logger.service';
 
 import { LogsRepository, LogDocument, CreateLogData, LogLevel, LogCategory, LogQueryOptions } from './logs.repository';
 

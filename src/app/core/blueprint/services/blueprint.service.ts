@@ -1,11 +1,10 @@
 import { Injectable, inject } from '@angular/core';
 import { Blueprint, BlueprintQueryOptions, CreateBlueprintRequest, OwnerType, UpdateBlueprintRequest, LoggerService } from '@core';
+import { BlueprintMemberRepository, BlueprintRepository } from '@core/blueprint/repositories';
 import { Observable } from 'rxjs';
 
-import { BlueprintMemberRepository } from './blueprint-member.repository';
-import { BlueprintRepository } from './blueprint.repository';
-import { BlueprintCreateSchema, BlueprintUpdateSchema } from '../validation/blueprint-validation-schemas';
-import { ValidationService } from '../validation/validation.service';
+import { BlueprintCreateSchema, BlueprintUpdateSchema } from './blueprint-validation-schemas';
+import { ValidationService } from './validation.service';
 
 @Injectable({
   providedIn: 'root'

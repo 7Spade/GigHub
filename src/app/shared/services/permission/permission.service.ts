@@ -1,9 +1,8 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { LoggerService, Permission, PermissionLevel, SystemRole, BlueprintRole } from '@core';
+import { BlueprintMemberRepository } from '@core/blueprint/repositories';
 import { FirebaseAuthService } from '@core/services/firebase-auth.service';
 import { Observable, from, map, of } from 'rxjs';
-
-import { BlueprintMemberRepository } from '../blueprint/blueprint-member.repository';
 
 /**
  * Permission Service
@@ -31,7 +30,7 @@ export class PermissionService {
    * 檢查當前使用者是否可讀取藍圖
    */
   canReadBlueprint(blueprintId: string): Observable<boolean> {
-    const user = this.authService.currentUser();
+    const user = this.authService.currentUser;
     if (!user) {
       return of(false);
     }
@@ -61,7 +60,7 @@ export class PermissionService {
    * 檢查當前使用者是否可編輯藍圖
    */
   canEditBlueprint(blueprintId: string): Observable<boolean> {
-    const user = this.authService.currentUser();
+    const user = this.authService.currentUser;
     if (!user) {
       return of(false);
     }
@@ -88,7 +87,7 @@ export class PermissionService {
    * 檢查當前使用者是否可刪除藍圖
    */
   canDeleteBlueprint(blueprintId: string): Observable<boolean> {
-    const user = this.authService.currentUser();
+    const user = this.authService.currentUser;
     if (!user) {
       return of(false);
     }
@@ -115,7 +114,7 @@ export class PermissionService {
    * 檢查當前使用者是否可管理成員
    */
   canManageMembers(blueprintId: string): Observable<boolean> {
-    const user = this.authService.currentUser();
+    const user = this.authService.currentUser;
     if (!user) {
       return of(false);
     }
@@ -156,7 +155,7 @@ export class PermissionService {
     canManageMembers: boolean;
     canManageSettings: boolean;
   }> {
-    const user = this.authService.currentUser();
+    const user = this.authService.currentUser;
     if (!user) {
       return of({
         canRead: false,
