@@ -9,9 +9,17 @@
  */
 
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
-import { STColumn, STData } from '@delon/abc/st';
-import { SHARED_IMPORTS } from '@shared';
+import { STColumn, STData, STModule } from '@delon/abc/st';
+import { PageHeaderModule } from '@delon/abc/page-header';
+import { NzCardModule } from 'ng-zorro-antd/card';
+import { NzGridModule } from 'ng-zorro-antd/grid';
+import { NzStatisticModule } from 'ng-zorro-antd/statistic';
+import { NzButtonModule } from 'ng-zorro-antd/button';
+import { NzIconModule } from 'ng-zorro-antd/icon';
+import { NzSpinModule } from 'ng-zorro-antd/spin';
+import { NzAlertModule } from 'ng-zorro-antd/alert';
 
 import { TaskStatus, TaskPriority, CreateTaskData } from './tasks.repository';
 import { TasksService } from './tasks.service';
@@ -19,7 +27,18 @@ import { TasksService } from './tasks.service';
 @Component({
   selector: 'app-tasks',
   standalone: true,
-  imports: [SHARED_IMPORTS],
+  imports: [
+    CommonModule,
+    STModule,
+    PageHeaderModule,
+    NzCardModule,
+    NzGridModule,
+    NzStatisticModule,
+    NzButtonModule,
+    NzIconModule,
+    NzSpinModule,
+    NzAlertModule
+  ],
   template: `
     <page-header [title]="'任務管理'" [subtitle]="blueprintName()">
       <ng-content></ng-content>

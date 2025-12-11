@@ -4,8 +4,17 @@
  */
 
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
+import { CommonModule, DatePipe } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
-import { SHARED_IMPORTS } from '@shared';
+import { NzPageHeaderModule } from 'ng-zorro-antd/page-header';
+import { NzCardModule } from 'ng-zorro-antd/card';
+import { NzGridModule } from 'ng-zorro-antd/grid';
+import { NzStatisticModule } from 'ng-zorro-antd/statistic';
+import { NzButtonModule } from 'ng-zorro-antd/button';
+import { NzIconModule } from 'ng-zorro-antd/icon';
+import { NzSpinModule } from 'ng-zorro-antd/spin';
+import { NzListModule } from 'ng-zorro-antd/list';
+import { NzBadgeModule } from 'ng-zorro-antd/badge';
 
 import { LogLevel, LogCategory } from './logs.repository';
 import { LogsService } from './logs.service';
@@ -13,7 +22,19 @@ import { LogsService } from './logs.service';
 @Component({
   selector: 'app-logs',
   standalone: true,
-  imports: [SHARED_IMPORTS],
+  imports: [
+    CommonModule,
+    DatePipe,
+    NzPageHeaderModule,
+    NzCardModule,
+    NzGridModule,
+    NzStatisticModule,
+    NzButtonModule,
+    NzIconModule,
+    NzSpinModule,
+    NzListModule,
+    NzBadgeModule
+  ],
   template: `
     <nz-page-header nzTitle="日誌管理" nzSubtitle="系統日誌記錄與查詢">
       <nz-page-header-extra>
