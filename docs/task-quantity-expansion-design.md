@@ -325,30 +325,102 @@ CREATE INDEX idx_task_progress_task_id ON task_progress(task_id);
 
 ## 🔄 工作流設計 (Workflow Design)
 
-### Event-Driven Flow
+### Blueprint Event Bus Integration
+
+本設計遵循 Container Layer 規範 (setc.md)，**所有模組間通訊統一使用 Blueprint Event Bus**。
+
+#### Event Bus 位置
+- 實作: `src/app/core/blueprint/events/event-bus.ts`
+- 介面: `src/app/core/blueprint/events/event-bus.interface.ts`
+- 事件類型: `src/app/core/blueprint/events/event-types.ts`
+
+#### 新增事件類型
+
+```typescript
+// 擴展 BlueprintEventType (src/app/core/blueprint/events/event-types.ts)
+export enum BlueprintEventType {
+  // ... existing events
+
+  // Task Quantity Events
+  TASK_QUANTITY_UPDATED = 'TASK_QUANTITY_UPDATED',
+  TASK_QUANTITY_REACHED = 'TASK_QUANTITY_REACHED',
+  TASK_AUTO_COMPLETED = 'TASK_AUTO_COMPLETED',
+  TASK_SENT_TO_QC = 'TASK_SENT_TO_QC',
+
+  // Log-Task Events
+  LOG_TASK_ADDED = 'LOG_TASK_ADDED',
+  LOG_SUBMITTED = 'LOG_SUBMITTED',
+
+  // QC Events
+  QC_CREATED = 'QC_CREATED',
+  QC_ASSIGNED = 'QC_ASSIGNED',
+  QC_INSPECTION_STARTED = 'QC_INSPECTION_STARTED',
+  QC_PASSED = 'QC_PASSED',
+  QC_REJECTED = 'QC_REJECTED',
+  QC_CANCELLED = 'QC_CANCELLED'
+}
+```
+
+### Event-Driven Workflow Flow
 
 ```typescript
 /**
- * Workflow Events
+ * 使用 Blueprint Event Bus 的工作流程
  */
-export enum WorkflowEvent {
-  TASK_QUANTITY_UPDATED = 'task.quantity.updated',
-  TASK_QUANTITY_REACHED = 'task.quantity.reached',
-  TASK_AUTO_COMPLETED = 'task.auto.completed',
-  TASK_SENT_TO_QC = 'task.sent.to.qc',
-  QC_PASSED = 'qc.passed',
-  QC_REJECTED = 'qc.rejected'
-}
 
-/**
- * Workflow Actions
- */
-1. Log Submit → Calculate Task Progress → Update Task.completedQuantity
-2. If completedQuantity >= totalQuantity → Emit TASK_QUANTITY_REACHED
-3. If autoCompleteOnQuantityReached → Update Task.status = COMPLETED
-4. If autoSendToQC → Create QualityControl Record → Update Task.status = PENDING_QC
-5. Inspector Review → Update QC Status → Emit QC_PASSED/QC_REJECTED
+// 1. Log Submit → Emit Event
+eventBus.emit('LOG_TASK_ADDED', {
+  logId: '...',
+  taskId: '...',
+  quantityCompleted: 20
+}, 'log-module');
+
+// 2. Task Module 監聽並更新數量
+eventBus.on('LOG_TASK_ADDED', async (event) => {
+  await taskService.updateQuantity(event.payload.taskId, event.payload.quantityCompleted);
+  
+  // Check if quantity reached
+  const task = await taskService.getTask(event.payload.taskId);
+  if (task.completedQuantity >= task.totalQuantity) {
+    eventBus.emit('TASK_QUANTITY_REACHED', {
+      taskId: task.id,
+      autoCompleteEnabled: task.autoCompleteOnQuantityReached
+    }, 'task-module');
+  }
+});
+
+// 3. Workflow Service 監聽並執行自動化
+eventBus.on('TASK_QUANTITY_REACHED', async (event) => {
+  if (event.payload.autoCompleteEnabled) {
+    await taskService.completeTask(event.payload.taskId);
+    eventBus.emit('TASK_AUTO_COMPLETED', {
+      taskId: event.payload.taskId
+    }, 'workflow-service');
+    
+    if (event.payload.autoSendToQCEnabled) {
+      const qc = await qcService.createQC(event.payload.taskId);
+      eventBus.emit('TASK_SENT_TO_QC', {
+        taskId: event.payload.taskId,
+        qcId: qc.id
+      }, 'workflow-service');
+    }
+  }
+});
+
+// 4. QC Module 監聽並處理
+eventBus.on('QC_PASSED', async (event) => {
+  await taskService.updateStatus(event.payload.taskId, 'qc_passed');
+});
 ```
+
+### 模組解耦規則 (Module Decoupling Rules)
+
+遵循 Container Layer 規範：
+
+1. ✅ **NO direct module imports** - 禁止直接匯入其他模組
+2. ✅ **ALL communication via Event Bus** - 所有通訊透過 Event Bus
+3. ✅ **Publish/Subscribe pattern** - 發布/訂閱模式
+4. ✅ **Zero coupling** - 零耦合設計
 
 ## 🎨 UI/UX 設計 (UI/UX Design)
 
