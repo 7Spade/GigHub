@@ -73,6 +73,13 @@ export class EventBus implements IEventBus {
   private readonly subscriptions = new Map<string, Set<Subscription>>();
 
   /**
+   * Handler to Subscription mapping
+   * Enables precise handler removal via off() method
+   * Maps: event type -> (handler -> subscription)
+   */
+  private readonly handlerMap = new Map<string, Map<EventHandler<any>, Subscription>>();
+
+  /**
    * Event emission count signal
    * Reactive counter for monitoring event activity
    */
@@ -142,13 +149,24 @@ export class EventBus implements IEventBus {
       }
     });
 
-    // Track subscription
+    // Track subscription (legacy tracking)
     this.trackSubscription(type, subscription);
+
+    // Store handler-to-subscription mapping for precise removal
+    if (!this.handlerMap.has(type)) {
+      this.handlerMap.set(type, new Map());
+    }
+    this.handlerMap.get(type)!.set(handler, subscription);
 
     // Return unsubscribe function
     return () => {
       subscription.unsubscribe();
       this.untrackSubscription(type, subscription);
+      // Remove from handler map
+      this.handlerMap.get(type)?.delete(handler);
+      if (this.handlerMap.get(type)?.size === 0) {
+        this.handlerMap.delete(type);
+      }
     };
   }
 
@@ -156,20 +174,29 @@ export class EventBus implements IEventBus {
    * Unsubscribe from an event
    *
    * Removes a previously registered event handler.
-   * Note: This requires the exact handler reference.
+   * This method now uses the handler map for precise subscription removal.
    *
    * @param type - Event type
    * @param handler - Handler function to remove
    */
   off<T>(type: string, handler: EventHandler<T>): void {
-    // Get all subscriptions for this event type
-    const subs = this.subscriptions.get(type);
-    if (!subs) return;
+    const handlers = this.handlerMap.get(type);
+    if (!handlers) return;
 
-    // Unsubscribe all (Note: In practice, we can't match handlers to subscriptions
-    // without storing additional metadata. This is a simplified implementation.)
-    subs.forEach(sub => sub.unsubscribe());
-    this.subscriptions.delete(type);
+    const subscription = handlers.get(handler);
+    if (subscription) {
+      // Unsubscribe the specific handler
+      subscription.unsubscribe();
+      
+      // Remove from handler map
+      handlers.delete(handler);
+      if (handlers.size === 0) {
+        this.handlerMap.delete(type);
+      }
+
+      // Also remove from legacy subscription tracking
+      this.untrackSubscription(type, subscription);
+    }
   }
 
   /**
@@ -261,7 +288,13 @@ export class EventBus implements IEventBus {
    * Should be called when the blueprint is being destroyed.
    */
   dispose(): void {
-    // Unsubscribe all
+    // Unsubscribe all via handler map (more reliable)
+    this.handlerMap.forEach(handlers => {
+      handlers.forEach(subscription => subscription.unsubscribe());
+    });
+    this.handlerMap.clear();
+
+    // Unsubscribe all via legacy tracking (backup)
     this.subscriptions.forEach(subs => {
       subs.forEach(sub => sub.unsubscribe());
     });

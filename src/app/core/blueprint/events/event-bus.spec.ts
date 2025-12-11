@@ -228,7 +228,7 @@ describe('EventBus', () => {
   });
 
   describe('Unsubscribe', () => {
-    it('should remove all handlers for event type with off()', done => {
+    it('should remove specific handler with off()', done => {
       let handler1Called = 0;
       let handler2Called = 0;
 
@@ -248,17 +248,79 @@ describe('EventBus', () => {
         expect(handler1Called).toBe(1);
         expect(handler2Called).toBe(1);
 
-        // Unsubscribe all
+        // Unsubscribe only handler1
         eventBus.off('TEST_EVENT', handler1);
 
         eventBus.emit('TEST_EVENT', {}, 'module');
 
         setTimeout(() => {
-          // Should not have increased
+          // handler1 should not have increased
+          expect(handler1Called).toBe(1);
+          // handler2 should still be called
+          expect(handler2Called).toBe(2);
+          done();
+        }, 50);
+      }, 50);
+    });
+
+    it('should remove all handlers individually with off()', done => {
+      let handler1Called = 0;
+      let handler2Called = 0;
+
+      const handler1 = () => {
+        handler1Called++;
+      };
+      const handler2 = () => {
+        handler2Called++;
+      };
+
+      eventBus.on('TEST_EVENT', handler1);
+      eventBus.on('TEST_EVENT', handler2);
+
+      eventBus.emit('TEST_EVENT', {}, 'module');
+
+      setTimeout(() => {
+        expect(handler1Called).toBe(1);
+        expect(handler2Called).toBe(1);
+
+        // Unsubscribe both handlers
+        eventBus.off('TEST_EVENT', handler1);
+        eventBus.off('TEST_EVENT', handler2);
+
+        eventBus.emit('TEST_EVENT', {}, 'module');
+
+        setTimeout(() => {
+          // Neither should have increased
           expect(handler1Called).toBe(1);
           expect(handler2Called).toBe(1);
           done();
         }, 50);
+      }, 50);
+    });
+
+    it('should not affect other handlers when removing one', done => {
+      let handlerACount = 0;
+      let handlerBCount = 0;
+
+      const handlerA = () => {
+        handlerACount++;
+      };
+      const handlerB = () => {
+        handlerBCount++;
+      };
+
+      eventBus.on('EVENT_A', handlerA);
+      eventBus.on('EVENT_B', handlerB);
+
+      eventBus.off('EVENT_A', handlerA);
+
+      eventBus.emit('EVENT_A', {}, 'module');
+      eventBus.emit('EVENT_B', {}, 'module');
+
+      setTimeout(() => {
+        expect(handlerACount).toBe(0); // Should not be called
+        expect(handlerBCount).toBe(1); // Should be called
+        done();
       }, 50);
     });
   });
