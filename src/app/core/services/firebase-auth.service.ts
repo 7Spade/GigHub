@@ -3,7 +3,7 @@ import { Auth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signO
 import { Router } from '@angular/router';
 import { DA_SERVICE_TOKEN, ITokenService } from '@delon/auth';
 import { SettingsService } from '@delon/theme';
-import { AccountRepository } from '@shared';
+import { AccountRepository } from '@core/repositories';
 import { Observable, map } from 'rxjs';
 
 /**

@@ -13,9 +13,7 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Organization, FirebaseAuthService } from '@core';
-import { AuditLogRepository } from '@core/blueprint/repositories';
-import { AccountRepository } from '@core/repositories';
-import { AuditLogRepository } from '@core/blueprint/repositories';
+import { OrganizationRepository } from '@core/repositories';
 import { WorkspaceContextService } from '@shared';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzFormModule } from 'ng-zorro-antd/form';

@@ -1,9 +1,10 @@
 import { Component, OnInit, inject, effect, computed } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Blueprint, BlueprintStatus, LoggerService, FirebaseAuthService, OwnerType, ContextType } from '@core';
+import { BlueprintService } from '@core/blueprint/services';
 import { STColumn, STData } from '@delon/abc/st';
 import { ModalHelper } from '@delon/theme';
-import { SHARED_IMPORTS, createAsyncArrayState, BlueprintService, WorkspaceContextService } from '@shared';
+import { SHARED_IMPORTS, createAsyncArrayState, WorkspaceContextService } from '@shared';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzSpaceModule } from 'ng-zorro-antd/space';
