@@ -3,9 +3,11 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { CdkDragDrop, DragDropModule, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzDrawerModule } from 'ng-zorro-antd/drawer';
+import { NzEmptyModule } from 'ng-zorro-antd/empty';
+import { NzFormModule } from 'ng-zorro-antd/form';
 import { FormsModule } from '@angular/forms';
 import { SHARED_IMPORTS } from '@shared';
-import { Blueprint, LoggerService } from '@core';
+import { Blueprint, LoggerService, ModuleType } from '@core';
 import { BlueprintService } from '@shared';
 
 /**
@@ -50,7 +52,7 @@ interface ModuleCategory {
 @Component({
   selector: 'app-blueprint-designer',
   standalone: true,
-  imports: [SHARED_IMPORTS, DragDropModule, NzDrawerModule, FormsModule],
+  imports: [SHARED_IMPORTS, DragDropModule, NzDrawerModule, NzEmptyModule, NzFormModule, FormsModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <page-header
@@ -165,13 +167,14 @@ interface ModuleCategory {
       >
         @if (selectedModule(); as module) {
           <div class="property-panel">
-            <nz-form nzLayout="vertical">
+            <form nz-form nzLayout="vertical">
               <nz-form-item>
                 <nz-form-label nzRequired>模組名稱</nz-form-label>
                 <nz-form-control>
                   <input
                     nz-input
                     [(ngModel)]="module.name"
+                    name="moduleName"
                     placeholder="輸入模組名稱"
                   />
                 </nz-form-control>
@@ -180,7 +183,7 @@ interface ModuleCategory {
               <nz-form-item>
                 <nz-form-label>啟用狀態</nz-form-label>
                 <nz-form-control>
-                  <nz-switch [(ngModel)]="module.enabled"></nz-switch>
+                  <nz-switch [(ngModel)]="module.enabled" name="moduleEnabled"></nz-switch>
                 </nz-form-control>
               </nz-form-item>
 
@@ -191,6 +194,7 @@ interface ModuleCategory {
                     nz-input
                     [nzAutosize]="{ minRows: 5, maxRows: 10 }"
                     [(ngModel)]="moduleConfigJson"
+                    name="moduleConfig"
                     placeholder="JSON 格式"
                   ></textarea>
                 </nz-form-control>
@@ -200,11 +204,12 @@ interface ModuleCategory {
                 nz-button
                 nzType="primary"
                 nzBlock
+                type="button"
                 (click)="updateModuleConfig()"
               >
                 更新設定
               </button>
-            </nz-form>
+            </form>
           </div>
         }
       </nz-drawer>
@@ -346,10 +351,10 @@ export class BlueprintDesignerComponent implements OnInit {
     }
   ]);
 
-  async ngOnInit(): Promise<void> {
+  ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
-      await this.loadBlueprint(id);
+      this.loadBlueprint(id);
     }
   }
 
@@ -357,28 +362,35 @@ export class BlueprintDesignerComponent implements OnInit {
    * Load blueprint data
    * 載入藍圖資料
    */
-  async loadBlueprint(id: string): Promise<void> {
-    try {
-      const blueprint = await this.blueprintService.getById(id);
-      this.blueprint.set(blueprint);
-      
-      // Convert enabled modules to canvas modules with initial positions
-      const modules: CanvasModule[] = blueprint.enabledModules.map((type, index) => ({
-        id: `module-${Date.now()}-${index}`,
-        type,
-        name: this.getModuleName(type),
-        position: { x: 50 + (index % 3) * 220, y: 50 + Math.floor(index / 3) * 150 },
-        enabled: true,
-        config: {},
-        dependencies: []
-      }));
-      
-      this.canvasModules.set(modules);
-      this.logger.info('[BlueprintDesigner] Loaded blueprint', { id, modulesCount: modules.length });
-    } catch (error) {
-      this.logger.error('[BlueprintDesigner] Failed to load blueprint', error);
-      this.message.error('載入藍圖失敗');
-    }
+  loadBlueprint(id: string): void {
+    this.blueprintService.getById(id).subscribe({
+      next: (blueprint) => {
+        if (!blueprint) {
+          this.message.error('藍圖不存在');
+          return;
+        }
+        
+        this.blueprint.set(blueprint);
+        
+        // Convert enabled modules to canvas modules with initial positions
+        const modules: CanvasModule[] = blueprint.enabledModules.map((type: ModuleType, index: number) => ({
+          id: `module-${Date.now()}-${index}`,
+          type,
+          name: this.getModuleName(type),
+          position: { x: 50 + (index % 3) * 220, y: 50 + Math.floor(index / 3) * 150 },
+          enabled: true,
+          config: {},
+          dependencies: []
+        }));
+        
+        this.canvasModules.set(modules);
+        this.logger.info('[BlueprintDesigner]', 'Loaded blueprint', { id, modulesCount: modules.length });
+      },
+      error: (error) => {
+        this.logger.error('[BlueprintDesigner]', 'Failed to load blueprint', error instanceof Error ? error : new Error(String(error)));
+        this.message.error('載入藍圖失敗');
+      }
+    });
   }
 
   /**
@@ -386,7 +398,7 @@ export class BlueprintDesignerComponent implements OnInit {
    * 處理拖曳開始事件
    */
   onDragStart(module: any): void {
-    this.logger.debug('[BlueprintDesigner] Drag started', { module });
+    this.logger.debug('[BlueprintDesigner]', 'Drag started', { module });
   }
 
   /**
@@ -417,7 +429,7 @@ export class BlueprintDesignerComponent implements OnInit {
       
       this.canvasModules.update(modules => [...modules, newModule]);
       this.message.success(`已新增 ${newModule.name}`);
-      this.logger.info('[BlueprintDesigner] Module added', { module: newModule });
+      this.logger.info('[BlueprintDesigner]', 'Module added', { module: newModule });
     }
   }
 
@@ -428,7 +440,7 @@ export class BlueprintDesignerComponent implements OnInit {
   selectModule(module: CanvasModule): void {
     this.selectedModule.set(module);
     this.moduleConfigJson.set(JSON.stringify(module.config, null, 2));
-    this.logger.debug('[BlueprintDesigner] Module selected', { module });
+    this.logger.debug('[BlueprintDesigner]', 'Module selected', { module });
   }
 
   /**
@@ -441,7 +453,7 @@ export class BlueprintDesignerComponent implements OnInit {
       this.selectedModule.set(null);
     }
     this.message.success('已移除模組');
-    this.logger.info('[BlueprintDesigner] Module removed', { id });
+    this.logger.info('[BlueprintDesigner]', 'Module removed', { id });
   }
 
   /**
@@ -463,10 +475,10 @@ export class BlueprintDesignerComponent implements OnInit {
       if (module) {
         module.config = config;
         this.message.success('設定已更新');
-        this.logger.info('[BlueprintDesigner] Module config updated', { module });
+        this.logger.info('[BlueprintDesigner]', 'Module config updated', { module });
       }
     } catch (error) {
-      this.logger.error('[BlueprintDesigner] Invalid JSON config', error);
+      this.logger.error('[BlueprintDesigner]', 'Invalid JSON config', error instanceof Error ? error : new Error(String(error)));
       this.message.error('JSON 格式錯誤');
     }
   }
@@ -482,21 +494,21 @@ export class BlueprintDesignerComponent implements OnInit {
       if (!blueprint) return;
 
       // Convert canvas modules to enabled modules
-      const enabledModules = this.canvasModules()
+      const enabledModules: ModuleType[] = this.canvasModules()
         .filter(m => m.enabled)
-        .map(m => m.type);
+        .map(m => m.type as ModuleType);
 
       await this.blueprintService.update(blueprint.id, {
         enabledModules
       });
 
       this.message.success('儲存成功');
-      this.logger.info('[BlueprintDesigner] Blueprint saved', { 
+      this.logger.info('[BlueprintDesigner]', 'Blueprint saved', { 
         blueprintId: blueprint.id, 
         modulesCount: enabledModules.length 
       });
     } catch (error) {
-      this.logger.error('[BlueprintDesigner] Failed to save', error);
+      this.logger.error('[BlueprintDesigner]', 'Failed to save', error instanceof Error ? error : new Error(String(error)));
       this.message.error('儲存失敗');
     } finally {
       this.saving.set(false);
