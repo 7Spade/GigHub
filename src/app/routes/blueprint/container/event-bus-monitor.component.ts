@@ -1,17 +1,20 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
 import { DatePipe } from '@angular/common';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
+import { LoggerService } from '@core';
 import { STColumn, STData } from '@delon/abc/st';
 import { SHARED_IMPORTS } from '@shared';
-import { LoggerService } from '@core';
+import { NzDescriptionsModule } from 'ng-zorro-antd/descriptions';
+import { NzDividerModule } from 'ng-zorro-antd/divider';
+import { NzStatisticModule } from 'ng-zorro-antd/statistic';
 
 /**
  * Event Bus Monitor Component
- * 
+ *
  * Real-time monitoring of the Blueprint Container Event Bus.
  * Displays event stream, filtering, and statistics.
- * 
+ *
  * Features:
  * - Live event stream display
  * - Event filtering by type
@@ -19,20 +22,16 @@ import { LoggerService } from '@core';
  * - Event history with pagination
  * - Event details modal
  * - Performance metrics
- * 
+ *
  * @version 1.0.0
  * @since Angular 20.3.0
  */
 @Component({
   selector: 'app-event-bus-monitor',
   standalone: true,
-  imports: [SHARED_IMPORTS, DatePipe, FormsModule],
+  imports: [SHARED_IMPORTS, DatePipe, FormsModule, NzStatisticModule, NzDescriptionsModule, NzDividerModule],
   template: `
-    <page-header
-      [title]="'事件總線監控'"
-      [breadcrumb]="breadcrumb"
-      [action]="action"
-    >
+    <page-header [title]="'事件總線監控'" [breadcrumb]="breadcrumb" [action]="action">
       <ng-template #breadcrumb>
         <nz-breadcrumb>
           <nz-breadcrumb-item>
@@ -47,7 +46,7 @@ import { LoggerService } from '@core';
           <nz-breadcrumb-item>事件總線監控</nz-breadcrumb-item>
         </nz-breadcrumb>
       </ng-template>
-      
+
       <ng-template #action>
         <button nz-button nzType="primary" (click)="refreshEvents()">
           <span nz-icon nzType="reload"></span>
@@ -65,11 +64,7 @@ import { LoggerService } from '@core';
       <div nz-row [nzGutter]="16" class="mb-md">
         <div nz-col [nzSpan]="6">
           <nz-card>
-            <nz-statistic
-              [nzValue]="stats().totalEvents"
-              nzTitle="總事件數"
-              [nzValueStyle]="{ color: '#1890ff' }"
-            >
+            <nz-statistic [nzValue]="stats().totalEvents" nzTitle="總事件數" [nzValueStyle]="{ color: '#1890ff' }">
               <ng-template #nzPrefix>
                 <span nz-icon nzType="thunderbolt"></span>
               </ng-template>
@@ -78,12 +73,7 @@ import { LoggerService } from '@core';
         </div>
         <div nz-col [nzSpan]="6">
           <nz-card>
-            <nz-statistic
-              [nzValue]="stats().eventsPerSecond"
-              nzTitle="每秒事件數"
-              [nzValueStyle]="{ color: '#52c41a' }"
-              [nzPrecision]="2"
-            >
+            <nz-statistic [nzValue]="formattedEventsPerSecond()" nzTitle="每秒事件數" [nzValueStyle]="{ color: '#52c41a' }">
               <ng-template #nzPrefix>
                 <span nz-icon nzType="line-chart"></span>
               </ng-template>
@@ -92,11 +82,7 @@ import { LoggerService } from '@core';
         </div>
         <div nz-col [nzSpan]="6">
           <nz-card>
-            <nz-statistic
-              [nzValue]="stats().subscriberCount"
-              nzTitle="訂閱者數量"
-              [nzValueStyle]="{ color: '#722ed1' }"
-            >
+            <nz-statistic [nzValue]="stats().subscriberCount" nzTitle="訂閱者數量" [nzValueStyle]="{ color: '#722ed1' }">
               <ng-template #nzPrefix>
                 <span nz-icon nzType="team"></span>
               </ng-template>
@@ -106,11 +92,10 @@ import { LoggerService } from '@core';
         <div nz-col [nzSpan]="6">
           <nz-card>
             <nz-statistic
-              [nzValue]="stats().avgProcessingTime"
+              [nzValue]="formattedAvgProcessingTime()"
               nzTitle="平均處理時間"
               nzSuffix="ms"
               [nzValueStyle]="{ color: '#fa8c16' }"
-              [nzPrecision]="2"
             >
               <ng-template #nzPrefix>
                 <span nz-icon nzType="clock-circle"></span>
@@ -125,12 +110,7 @@ import { LoggerService } from '@core';
         <div nz-row [nzGutter]="16">
           <div nz-col [nzSpan]="8">
             <nz-input-group nzSearch [nzAddOnAfter]="suffixButton">
-              <input
-                nz-input
-                placeholder="搜尋事件"
-                [(ngModel)]="searchText"
-                (ngModelChange)="onSearchChange()"
-              />
+              <input nz-input placeholder="搜尋事件" [(ngModel)]="searchText" (ngModelChange)="onSearchChange()" />
             </nz-input-group>
             <ng-template #suffixButton>
               <button nz-button nzType="primary" nzSearch (click)="onSearchChange()">
@@ -152,12 +132,7 @@ import { LoggerService } from '@core';
             </nz-select>
           </div>
           <div nz-col [nzSpan]="8">
-            <nz-select
-              nzPlaceHolder="選擇時間範圍"
-              [(ngModel)]="selectedTimeRange"
-              (ngModelChange)="onFilterChange()"
-              style="width: 100%"
-            >
+            <nz-select nzPlaceHolder="選擇時間範圍" [(ngModel)]="selectedTimeRange" (ngModelChange)="onFilterChange()" style="width: 100%">
               <nz-option nzLabel="最近1分鐘" nzValue="1m"></nz-option>
               <nz-option nzLabel="最近5分鐘" nzValue="5m"></nz-option>
               <nz-option nzLabel="最近15分鐘" nzValue="15m"></nz-option>
@@ -171,20 +146,9 @@ import { LoggerService } from '@core';
       <!-- Event Stream Table -->
       <nz-card nzTitle="事件流">
         @if (loading()) {
-          <nz-alert
-            nzType="info"
-            nzMessage="正在載入事件..."
-            nzShowIcon
-            class="mb-md"
-          />
+          <nz-alert nzType="info" nzMessage="正在載入事件..." nzShowIcon class="mb-md" />
         } @else if (error()) {
-          <nz-alert
-            nzType="error"
-            [nzMessage]="'載入失敗'"
-            [nzDescription]="error()"
-            nzShowIcon
-            class="mb-md"
-          />
+          <nz-alert nzType="error" [nzMessage]="'載入失敗'" [nzDescription]="error()" nzShowIcon class="mb-md" />
         } @else {
           <st
             #st
@@ -198,13 +162,7 @@ import { LoggerService } from '@core';
     </div>
 
     <!-- Event Detail Modal -->
-    <nz-modal
-      [(nzVisible)]="showDetailModal"
-      nzTitle="事件詳情"
-      [nzFooter]="null"
-      nzWidth="700px"
-      (nzOnCancel)="closeDetailModal()"
-    >
+    <nz-modal [(nzVisible)]="showDetailModal" nzTitle="事件詳情" [nzFooter]="null" nzWidth="700px" (nzOnCancel)="closeDetailModal()">
       @if (selectedEvent()) {
         <div class="event-detail">
           <nz-descriptions nzBordered [nzColumn]="1">
@@ -222,47 +180,47 @@ import { LoggerService } from '@core';
             <nz-descriptions-item nzTitle="時間戳記">
               {{ selectedEvent()!.timestamp | date: 'yyyy-MM-dd HH:mm:ss.SSS' }}
             </nz-descriptions-item>
-            <nz-descriptions-item nzTitle="處理時間">
-              {{ selectedEvent()!.processingTime }} ms
-            </nz-descriptions-item>
+            <nz-descriptions-item nzTitle="處理時間"> {{ selectedEvent()!.processingTime }} ms </nz-descriptions-item>
             <nz-descriptions-item nzTitle="訂閱者數量">
               {{ selectedEvent()!.subscriberCount }}
             </nz-descriptions-item>
           </nz-descriptions>
-          
+
           <nz-divider></nz-divider>
-          
+
           <h4>事件數據 (Payload)</h4>
           <pre class="event-payload">{{ selectedEvent()!.payload | json }}</pre>
         </div>
       }
     </nz-modal>
   `,
-  styles: [`
-    :host {
-      display: block;
-    }
+  styles: [
+    `
+      :host {
+        display: block;
+      }
 
-    .event-monitor-container {
-      padding: 0;
-    }
+      .event-monitor-container {
+        padding: 0;
+      }
 
-    .mb-md {
-      margin-bottom: 16px;
-    }
+      .mb-md {
+        margin-bottom: 16px;
+      }
 
-    .event-detail {
-      padding: 16px 0;
-    }
+      .event-detail {
+        padding: 16px 0;
+      }
 
-    .event-payload {
-      background: #f5f5f5;
-      padding: 12px;
-      border-radius: 4px;
-      max-height: 300px;
-      overflow: auto;
-    }
-  `]
+      .event-payload {
+        background: #f5f5f5;
+        padding: 12px;
+        border-radius: 4px;
+        max-height: 300px;
+        overflow: auto;
+      }
+    `
+  ]
 })
 export class EventBusMonitorComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
@@ -291,6 +249,10 @@ export class EventBusMonitorComponent implements OnInit {
     avgProcessingTime: 0
   });
 
+  // Formatted statistics with precision
+  formattedEventsPerSecond = computed(() => this.stats().eventsPerSecond.toFixed(2));
+  formattedAvgProcessingTime = computed(() => this.stats().avgProcessingTime.toFixed(2));
+
   // Event types for filter
   eventTypes = signal<string[]>([
     'MODULE_LOADED',
@@ -310,10 +272,11 @@ export class EventBusMonitorComponent implements OnInit {
     // Search filter
     if (this.searchText) {
       const search = this.searchText.toLowerCase();
-      filtered = filtered.filter(event =>
-        event.type.toLowerCase().includes(search) ||
-        event.source.toLowerCase().includes(search) ||
-        JSON.stringify(event.payload).toLowerCase().includes(search)
+      filtered = filtered.filter(
+        event =>
+          event.type.toLowerCase().includes(search) ||
+          event.source.toLowerCase().includes(search) ||
+          JSON.stringify(event.payload).toLowerCase().includes(search)
       );
     }
 
@@ -332,9 +295,7 @@ export class EventBusMonitorComponent implements OnInit {
         '1h': 60 * 60 * 1000
       };
       const rangeMs = ranges[this.selectedTimeRange];
-      filtered = filtered.filter(event =>
-        event.timestamp >= now - rangeMs
-      );
+      filtered = filtered.filter(event => event.timestamp >= now - rangeMs);
     }
 
     return filtered;
@@ -505,14 +466,14 @@ export class EventBusMonitorComponent implements OnInit {
    */
   getEventTypeColor(type: string): string {
     const colorMap: Record<string, string> = {
-      'MODULE_LOADED': 'blue',
-      'MODULE_STARTED': 'green',
-      'MODULE_STOPPED': 'orange',
-      'STATE_CHANGED': 'purple',
-      'RESOURCE_ALLOCATED': 'cyan',
-      'RESOURCE_RELEASED': 'geekblue',
-      'ERROR_OCCURRED': 'red',
-      'TASK_COMPLETED': 'lime'
+      MODULE_LOADED: 'blue',
+      MODULE_STARTED: 'green',
+      MODULE_STOPPED: 'orange',
+      STATE_CHANGED: 'purple',
+      RESOURCE_ALLOCATED: 'cyan',
+      RESOURCE_RELEASED: 'geekblue',
+      ERROR_OCCURRED: 'red',
+      TASK_COMPLETED: 'lime'
     };
     return colorMap[type] || 'default';
   }
