@@ -2,7 +2,7 @@ import { Component, OnInit, inject, input } from '@angular/core';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { ModalHelper } from '@delon/theme';
 import { STColumn } from '@delon/abc/st';
-import { SHARED_IMPORTS } from '@shared';
+import { SHARED_IMPORTS, OPTIONAL_ZORRO_MODULES } from '@shared';
 import { Task, TaskStatus, LoggerService } from '@core';
 import { TaskStore } from '@shared/services/task/task.store';
 
@@ -17,7 +17,7 @@ import { TaskStore } from '@shared/services/task/task.store';
 @Component({
   selector: 'app-task-list',
   standalone: true,
-  imports: [SHARED_IMPORTS],
+  imports: [SHARED_IMPORTS, OPTIONAL_ZORRO_MODULES.space],
   template: `
     <nz-card nzTitle="任務管理" [nzExtra]="extra">
       <ng-template #extra>

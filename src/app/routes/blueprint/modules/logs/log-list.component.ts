@@ -2,7 +2,7 @@ import { Component, OnInit, inject, input } from '@angular/core';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { ModalHelper } from '@delon/theme';
 import { STColumn } from '@delon/abc/st';
-import { SHARED_IMPORTS } from '@shared';
+import { SHARED_IMPORTS, OPTIONAL_ZORRO_MODULES } from '@shared';
 import { Log, LoggerService } from '@core';
 import { LogStore } from '@shared/services/log/log.store';
 
@@ -16,7 +16,7 @@ import { LogStore } from '@shared/services/log/log.store';
 @Component({
   selector: 'app-log-list',
   standalone: true,
-  imports: [SHARED_IMPORTS],
+  imports: [SHARED_IMPORTS, OPTIONAL_ZORRO_MODULES.space],
   template: `
     <nz-card nzTitle="施工日誌" [nzExtra]="extra">
       <ng-template #extra>
