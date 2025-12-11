@@ -12,6 +12,11 @@ export const routes: Routes = [
     data: { title: '藍圖詳情' }
   },
   {
+    path: ':id/container',
+    loadComponent: () => import('./container/container-dashboard.component').then(m => m.ContainerDashboardComponent),
+    data: { title: '容器儀表板' }
+  },
+  {
     path: ':id/members',
     loadComponent: () => import('./members/blueprint-members.component').then(m => m.BlueprintMembersComponent),
     data: { title: '成員管理' }

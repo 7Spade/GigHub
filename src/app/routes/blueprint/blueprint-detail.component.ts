@@ -120,6 +120,10 @@ import { BlueprintService } from '@shared';
         <div nz-col [nzSpan]="8">
           <nz-card nzTitle="快速操作" class="mb-md">
             <div class="action-list">
+              <button nz-button nzBlock class="mb-sm" (click)="openContainer()">
+                <span nz-icon nzType="dashboard"></span>
+                容器儀表板
+              </button>
               <button nz-button nzBlock class="mb-sm">
                 <span nz-icon nzType="team"></span>
                 成員管理
@@ -323,6 +327,17 @@ export class BlueprintDetailComponent implements OnInit {
     if (blueprintId) {
       // Navigate relative to current detail page
       this.router.navigate([module], { relativeTo: this.route });
+    }
+  }
+
+  /**
+   * Open container dashboard
+   * 開啟容器儀表板
+   */
+  openContainer(): void {
+    const blueprintId = this.blueprint()?.id;
+    if (blueprintId) {
+      this.router.navigate(['container'], { relativeTo: this.route });
     }
   }
 
