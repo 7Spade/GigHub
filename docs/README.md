@@ -23,14 +23,29 @@
 
 ---
 
-### ⭐ 現代化最佳實踐 (Modernization Best Practices) - **NEW!**
+### 🎯 專案規劃與剩餘工作 (Project Planning) - **LATEST!**
 
 | 文檔 | 描述 | 語言 | 狀態 |
 |------|------|------|------|
-| [📊 現代化總結](./MODERNIZATION_SUMMARY_ZH.md) | PR #18 & #19 分析總結（必讀） | 繁中 | ✅ |
+| [📊 剩餘工作完整分析](./GIGHUB_REMAINING_WORK_COMPREHENSIVE_ANALYSIS.md) | 完整陳列所有待完成工作 | 繁中 | ✅ 最新 |
+| [🔧 Copilot 優化指南](./COPILOT_AND_ANGULAR_OPTIMIZATION_GUIDE.md) | Copilot 與 Angular 優化建議 | 繁中 | ✅ |
+
+**核心內容**:
+- ✅ **完整工作清單** - P0/P1/P2 優先級分類
+- ✅ **詳細工作量估算** - 每個任務的具體時間
+- ✅ **實施順序建議** - MVP、完整產品、企業級產品路線圖
+- ✅ **關鍵缺口分析** - Quality Module、測試、文檔等
+
+**當前完成度**: 65-70% (核心架構 100%, 業務模組 67%, UI 元件 36-100%)
+
+---
+
+### ⭐ 現代化最佳實踐 (Modernization Best Practices)
+
+| 文檔 | 描述 | 語言 | 狀態 |
+|------|------|------|------|
 | [✅ 開發檢查清單](./COMPONENT_DEVELOPMENT_CHECKLIST.md) | 新元件開發步驟檢查清單 | 繁中/英 | ✅ |
 | [🔧 最佳實踐指南](./EXTRACTED_BEST_PRACTICES.md) | 7 個核心模式完整實現 | 繁中/英 | ✅ |
-| [📖 完整分析報告](./PR_MODERNIZATION_ANALYSIS.md) | 深入技術分析（20k+字元） | 繁中/英 | ✅ |
 
 **核心價值**:
 - ✅ **95% 現代化程度** - 完全符合 Angular 20.3 最佳實踐
@@ -39,28 +54,12 @@
 - ✅ **7 個核心模式** - AsyncState、Modal、Drawer、Signal 服務、Computed、Effect、新控制流
 
 **快速開始**:
-1. 📖 閱讀 [現代化總結](./MODERNIZATION_SUMMARY_ZH.md) (10 分鐘)
-2. ✅ 使用 [開發檢查清單](./COMPONENT_DEVELOPMENT_CHECKLIST.md) 開發新元件
-3. 🔧 參考 [最佳實踐指南](./EXTRACTED_BEST_PRACTICES.md) 獲取實現細節
+1. ✅ 使用 [開發檢查清單](./COMPONENT_DEVELOPMENT_CHECKLIST.md) 開發新元件
+2. 🔧 參考 [最佳實踐指南](./EXTRACTED_BEST_PRACTICES.md) 獲取實現細節
 
----
-
-### 🎯 實作文檔 (Implementation Docs)
-
-| 文檔 | 描述 | 語言 | 狀態 |
-|------|------|------|------|
-| [🗺️ 現代化路線圖](./MODERNIZATION_ROADMAP.md) | PR #18 完整實施計畫 | 繁中 | ✅ |
-| [👥 團隊管理技術文檔](./TEAM_MANAGEMENT_TECHNICAL_DOC.md) | 團隊管理功能技術說明 | 繁中 | ✅ |
-| [🧪 團隊管理測試指南](./TEAM_MANAGEMENT_TESTING_GUIDE.md) | 測試策略與檢查清單 | 繁中 | ✅ |
-| [✨ UX 現代化提案](./UX_MODERNIZATION_PROPOSAL.md) | PR #19 UX 改進提案 | 繁中 | ✅ |
-| [⚡ UX 快速實施指南](./UX_QUICK_IMPLEMENTATION_GUIDE.md) | UX 功能實施步驟 | 繁中 | ✅ |
-| [🎨 UX 視覺模型](./UX_VISUAL_MOCKUPS.md) | UI/UX 設計參考 | 繁中 | ✅ |
-
-**涵蓋內容**:
-- 📋 Phase-by-phase 實施計畫
-- 🔧 AsyncState、Modal、Drawer 模式實作
-- 🎨 Breadcrumb、Team Detail Drawer 等 UX 元件
-- ✅ 完整的測試策略與驗收標準
+**已封存文檔** (歷史參考):
+- 參見 [`archive/modernization/`](./archive/modernization/) - PR #18 & #19 現代化分析文檔
+- 參見 [`archive/pr-analysis/`](./archive/pr-analysis/) - PR 技術分析文檔
 
 ---
 
@@ -114,25 +113,42 @@
 - **權限模型**: RBAC + RLS 政策
 
 **已封存文檔** (歷史參考):
+- 參見 [`archive/design/`](./archive/design/) - Blueprint UI 設計文檔 (2 個文檔)
 - 參見 [`archive/account/`](./archive/account/) - SaaS 實作文檔
 - 參見 [`archive/system/`](./archive/system/) - 系統功能設計文檔
 - 參見 [`archive/blueprint-v2/`](./archive/blueprint-v2/) - Blueprint 架構設計文檔
+- 參見 [`archive/implementation/`](./archive/implementation/) - Blueprint UI 實作總結
+- 參見 [`archive/team-management/`](./archive/team-management/) - 團隊管理技術文檔
+- 參見 [`archive/ux-proposals/`](./archive/ux-proposals/) - UX 現代化提案
 
 ---
 
-### 📁 舊版架構文檔 (Legacy Architecture Docs) - [`architecture/`](./architecture/)
+### 🏗️ 架構文檔 (Architecture Docs) - [`architecture/`](./architecture/)
 
-**已整合到其他資料夾**:
-- SHARED_IMPORTS_GUIDE.md → [`development/shared-modules-guide.md`](./development/shared-modules-guide.md) ✅
-- SHARED_MODULES_OPTIMIZATION.md → 已整合 ✅
+| 文檔 | 描述 | 語言 | 狀態 |
+|------|------|------|------|
+| [共享模組指南](./architecture/SHARED_IMPORTS_GUIDE.md) | SHARED_IMPORTS 詳細指南 | 繁中/英 | ✅ |
+| [共享模組優化](./architecture/SHARED_MODULES_OPTIMIZATION.md) | 模組優化策略 | 繁中/英 | ✅ |
+
+**已封存文檔** (歷史參考):
+- 參見 [`archive/architecture/`](./archive/architecture/) - Blueprint V2.0 完整架構文檔 (8 個文檔)
+  - Blueprint V2.0 規範、實作計畫、結構樹
+  - API 參考、架構圖、遷移指南、使用範例
 
 ---
 
 ### 📦 文檔封存庫 (Documentation Archive) - [`archive/`](./archive/)
 
-**已完成的專案文檔** (46 個文檔已封存)
+**已完成的專案文檔** (67 個文檔已封存，最新更新: 2025-12-11)
 
 完成並封存的文檔包含：
+- ✅ **Architecture** (8 docs) - Blueprint V2.0 完整架構文檔 🆕
+- ✅ **Design** (2 docs) - Blueprint UI 設計文檔 🆕
+- ✅ **Implementation** (1 doc) - Blueprint UI 實作總結 🆕
+- ✅ **Modernization** (2 docs) - PR #18 現代化分析 🆕
+- ✅ **PR Analysis** (2 docs) - PR 技術分析文檔 🆕
+- ✅ **Team Management** (2 docs) - 團隊管理技術文檔 🆕
+- ✅ **UX Proposals** (3 docs) - UX 現代化提案 🆕
 - ✅ **Blueprint V2.0** (17 docs) - 完成總結、架構設計、UI 設計
 - ✅ **System** (8 docs) - 建置修復、上下文管理、設計分析
 - ✅ **Authentication** (11 docs) - 認證分析、Firestore 修復、Data 層整合
@@ -143,10 +159,12 @@
 - ✅ **Fixes** (3 docs) - 修復實施總結
 
 **如何查閱**:
-→ [📦 封存庫索引](./archive/README.md) - 完整封存文檔清單  
-→ [Blueprint V2 完成文檔](./archive/blueprint-v2/)  
-→ [系統功能完成文檔](./archive/system/)  
-→ [認證完成分析](./archive/auth/)
+→ [📦 封存庫索引](./archive/README.md) - 完整封存文檔清單 (v2.0.0)  
+→ [Blueprint V2 架構文檔](./archive/architecture/) 🆕  
+→ [Blueprint V2 設計文檔](./archive/design/) 🆕  
+→ [現代化分析文檔](./archive/modernization/) 🆕  
+→ [團隊管理技術文檔](./archive/team-management/) 🆕  
+→ [UX 提案文檔](./archive/ux-proposals/) 🆕
 
 ---
 
@@ -217,24 +235,44 @@ yarn analyze:view
 
 ## 📝 變更記錄 (Changelog)
 
-### v1.2.0 (2025-12-11) - 文檔封存
+### v1.3.0 (2025-12-11) - 剩餘工作完整分析 & 文檔封存擴充
+
+**📊 新增文檔**:
+- ✅ `GIGHUB_REMAINING_WORK_COMPREHENSIVE_ANALYSIS.md` - 完整剩餘工作清單 (18KB)
+  - P0/P1/P2 優先級分類
+  - 詳細工作量估算 (6-35 天)
+  - 實施順序建議 (MVP/完整/企業級)
+  - 關鍵缺口分析 (Quality Module, 測試, 文檔)
+
+**🗂️ 文檔封存擴充** (v2.0.0):
+- ✅ 新增 21 個文檔到封存庫
+- ✅ 建立 7 個新封存分類目錄
+- ✅ 更新封存庫索引 (`archive/README.md` v2.0.0)
+
+**📦 新封存內容**:
+- Architecture (8 docs) - Blueprint V2.0 完整架構文檔
+- Design (2 docs) - Blueprint UI 設計文檔
+- Implementation (1 doc) - Blueprint UI 實作總結
+- Modernization (2 docs) - PR #18 現代化分析
+- PR Analysis (2 docs) - PR 技術分析文檔
+- Team Management (2 docs) - 團隊管理技術文檔
+- UX Proposals (3 docs) - UX 現代化提案
+
+**🔄 主文檔更新**:
+- ✅ 新增「專案規劃與剩餘工作」章節
+- ✅ 重組現代化最佳實踐章節
+- ✅ 新增架構文檔章節
+- ✅ 更新所有封存文檔參照連結
+- ✅ 更新統計數字 (46 → 67 個封存文檔)
+
+### v1.2.0 (2025-12-11) - 文檔封存 (初版)
 
 **🗂️ 文檔整理**:
 - ✅ 建立 `archive/` 封存庫結構
 - ✅ 封存 46 個已完成的專案文檔
 - ✅ 分類整理：blueprint-v2, system, auth, team, account, analysis, reports, fixes
-- ✅ 建立封存庫索引 (`archive/README.md`)
+- ✅ 建立封存庫索引 (`archive/README.md` v1.0.0)
 - ✅ 更新主文檔索引以參照封存庫
-
-**📦 封存內容**:
-- Blueprint V2.0 完成文檔 (17 docs)
-- 系統功能完成文檔 (8 docs)
-- 認證相關完成分析 (11 docs)
-- 團隊管理重構文檔 (2 docs)
-- 帳戶與 SaaS 實作 (1 doc)
-- 分析報告 (3 docs)
-- 狀態報告 (5 docs)
-- 修復總結 (3 docs)
 
 ### v1.1.0 (2025-12-10) - PR #18 & #19 現代化分析
 
