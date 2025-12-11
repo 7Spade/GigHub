@@ -15,12 +15,20 @@ The Shared module contains reusable components, services, pipes, directives, and
 ## Module Structure
 
 **規則**:
-- `src/app/shared/components/` - 可重用的 UI 元件（page-header、result、exception、widgets）
-- `src/app/shared/services/` - 共享服務（validation、blueprint、utils）
-- `src/app/shared/pipes/` - 自訂管道（safe、time-ago、file-size）
-- `src/app/shared/directives/` - 自訂指令（permission、auto-focus）
-- `src/app/shared/utils/` - 工具函數（date、string、array）
+- `src/app/shared/components/` - 可重用的 UI 元件（breadcrumb、create-organization、create-team、team-detail-drawer 等）
+- `src/app/shared/services/` - 共享 UI 相關服務（breadcrumb、menu-management、workspace-context、permission - 僅 UI 相關）
+- `src/app/shared/cell-widget/` - ST 表格 cell widgets
+- `src/app/shared/st-widget/` - ST 表格自訂 widgets
+- `src/app/shared/json-schema/` - JSON Schema 相關元件
+- `src/app/shared/utils/` - 工具函數（date、string、array、format）
 - `src/app/shared/index.ts` - 公開 API 和 SHARED_IMPORTS
+
+**重要變更**:
+- ⚠️ **Models 已移至** `@core/models` - 不再存在於 shared
+- ⚠️ **Repositories 已移至** `@core/repositories` 和 `@core/blueprint/repositories` - 不再存在於 shared/services
+- ⚠️ **Stores 已移至** `@core/stores` - 不再存在於 shared/services
+- ⚠️ **Blueprint Services 已移至** `@core/blueprint/services` - 不再存在於 shared/services
+- ✅ **僅保留 UI 相關服務** - breadcrumb.service、menu-management.service、workspace-context.service、permission.service（UI 權限判斷）
 
 ## SHARED_IMPORTS
 

@@ -9,16 +9,16 @@
  */
 
 import { Injectable, inject, signal, computed } from '@angular/core';
-import { AuditLogEventType, AuditLogCategory } from '@shared/models/audit-log.model';
+import { AuditLogEventType, AuditLogCategory } from '@core/models/audit-log.model';
 import {
   BlueprintModuleDocument,
   ModuleStatus,
   CreateModuleData,
   UpdateModuleData,
   BatchResult
-} from '@shared/models/blueprint-module.model';
-import { AuditLogRepository } from '@shared/services/blueprint/audit-log.repository';
-import { BlueprintModuleRepository } from '@shared/services/blueprint/blueprint-module.repository';
+} from '@core/models/blueprint-module.model';
+import { AuditLogRepository } from '@core/blueprint/repositories/audit-log.repository';
+import { BlueprintModuleRepository } from '@core/blueprint/repositories/blueprint-module.repository';
 import { firstValueFrom } from 'rxjs';
 
 /**
