@@ -3,7 +3,7 @@
  * Angular 20 UI with Signals and new control flow syntax.
  */
 
-import { Component, inject, signal, computed, OnInit } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { NzPageHeaderModule } from 'ng-zorro-antd/page-header';

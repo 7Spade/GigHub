@@ -8,10 +8,10 @@
  * @date 2025-12-10
  */
 
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
-import { STColumn, STData, STModule } from '@delon/abc/st';
+import { STColumn, STModule } from '@delon/abc/st';
 import { PageHeaderModule } from '@delon/abc/page-header';
 import { NzCardModule } from 'ng-zorro-antd/card';
 import { NzGridModule } from 'ng-zorro-antd/grid';
