@@ -25,7 +25,6 @@ import {
   withComponentInputBinding,
   withInMemoryScrolling,
   withHashLocation,
-  withPreloading,
   RouterFeatures,
   withViewTransitions
 } from '@angular/router';
@@ -132,9 +131,7 @@ const ngZorroConfig: NzConfig = {
 const routerFeatures: RouterFeatures[] = [
   withComponentInputBinding(),
   withViewTransitions(),
-  withInMemoryScrolling({ scrollPositionRestoration: 'top' }),
-  // Enable preloading for better UX - preload all lazy routes after initial load
-  withPreloading()
+  withInMemoryScrolling({ scrollPositionRestoration: 'top' })
 ];
 if (environment.useHash) routerFeatures.push(withHashLocation());
 
