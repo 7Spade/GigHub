@@ -179,7 +179,7 @@ import { BlueprintService } from '@shared';
   `]
 })
 export class BlueprintDetailComponent implements OnInit {
-  private readonly route = inject(ActivatedRoute);
+  protected readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly message = inject(NzMessageService);
   private readonly logger = inject(LoggerService);
