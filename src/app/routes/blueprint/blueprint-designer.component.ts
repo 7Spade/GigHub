@@ -106,7 +106,8 @@ interface ConnectionCreationState {
       </ng-template>
     </page-header>
 
-    <div class="designer-container">
+    <!-- ✅ FIX: Wrap with cdkDropListGroup to enable drag from palette to canvas -->
+    <div class="designer-container" cdkDropListGroup>
       <!-- Validation Alerts (Top) - Task 2.3 -->
       <div class="validation-section">
         <app-validation-alerts [validationResult]="validationResult()" />
@@ -115,7 +116,8 @@ interface ConnectionCreationState {
       <!-- Module Palette (Left Panel) -->
       <div class="module-palette">
         <nz-card nzTitle="模組選擇器" [nzBordered]="false">
-          <div class="module-categories">
+          <!-- ✅ FIX: Add cdkDropList to enable dragging from palette -->
+          <div class="module-categories" cdkDropList id="module-palette-list" [cdkDropListData]="[]">
             <!-- 📌 使用 @for 新語法 -->
             @for (category of moduleCategories(); track category.name) {
               <div class="category">
@@ -290,6 +292,11 @@ interface ConnectionCreationState {
 
       .category {
         margin-bottom: 16px;
+      }
+
+      .module-categories {
+        /* Allow items to be dragged from this list without visual drop zone */
+        min-height: auto;
       }
 
       .category h4 {
@@ -559,6 +566,8 @@ export class BlueprintDesignerComponent implements OnInit {
   /**
    * Handle drop event on canvas
    * 處理放置事件
+   * 
+   * ✅ FIX: Enhanced to properly handle drops from palette to canvas
    */
   onDrop(event: CdkDragDrop<CanvasModule[]>): void {
     if (event.previousContainer === event.container) {
@@ -566,17 +575,34 @@ export class BlueprintDesignerComponent implements OnInit {
       const modules = [...this.canvasModules()];
       moveItemInArray(modules, event.previousIndex, event.currentIndex);
       this.canvasModules.set(modules);
+      this.logger.debug('[BlueprintDesigner]', 'Module reordered', { 
+        fromIndex: event.previousIndex, 
+        toIndex: event.currentIndex 
+      });
     } else {
-      // Add new module from palette
+      // Add new module from palette to canvas
       const moduleData = event.item.data;
+      
+      // Calculate position relative to canvas container
+      let x = 50; // Default position
+      let y = 50;
+      
+      if (this.canvasElement && event.dropPoint) {
+        const canvas = this.canvasElement.nativeElement;
+        const rect = canvas.getBoundingClientRect();
+        x = event.dropPoint.x - rect.left + canvas.scrollLeft;
+        y = event.dropPoint.y - rect.top + canvas.scrollTop;
+        
+        // Adjust for drag offset to center the module at drop point
+        x = Math.max(0, x - 100); // Center horizontally (module width 200px / 2)
+        y = Math.max(0, y - 30);  // Center vertically
+      }
+      
       const newModule: CanvasModule = {
         id: `module-${Date.now()}`,
         type: moduleData.type,
         name: moduleData.name,
-        position: {
-          x: event.dropPoint.x - event.distance.x,
-          y: event.dropPoint.y - event.distance.y
-        },
+        position: { x, y },
         enabled: true,
         config: {},
         dependencies: []
@@ -584,7 +610,13 @@ export class BlueprintDesignerComponent implements OnInit {
 
       this.canvasModules.update(modules => [...modules, newModule]);
       this.message.success(`已新增 ${newModule.name}`);
-      this.logger.info('[BlueprintDesigner]', 'Module added', { module: newModule });
+      this.logger.info('[BlueprintDesigner]', 'Module added from palette', { 
+        module: newModule,
+        position: { x, y }
+      });
+      
+      // ✅ Task 2: Run validation after adding module
+      this.runValidation();
     }
   }
 
