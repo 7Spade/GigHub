@@ -13,8 +13,18 @@ export const routes: Routes = [
   },
   {
     path: ':id/container',
-    loadComponent: () => import('./container/container-dashboard.component').then(m => m.ContainerDashboardComponent),
-    data: { title: '容器儀表板' }
+    children: [
+      {
+        path: '',
+        loadComponent: () => import('./container/container-dashboard.component').then(m => m.ContainerDashboardComponent),
+        data: { title: '容器儀表板' }
+      },
+      {
+        path: 'event-bus',
+        loadComponent: () => import('./container/event-bus-monitor.component').then(m => m.EventBusMonitorComponent),
+        data: { title: '事件總線監控' }
+      }
+    ]
   },
   {
     path: ':id/members',
