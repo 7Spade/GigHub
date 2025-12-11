@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, input, output, computed, ChangeDetectionStrategy } from '@angular/core';
 
-import { ModuleConnection } from '../models';
+import { ModuleConnection } from '@core/blueprint/models';
 
 /**
  * Canvas Module Position Interface

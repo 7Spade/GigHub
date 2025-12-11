@@ -10,8 +10,9 @@ import { NzEmptyModule } from 'ng-zorro-antd/empty';
 import { NzFormModule } from 'ng-zorro-antd/form';
 import { NzMessageService } from 'ng-zorro-antd/message';
 
+import { ModuleConnection } from '@core/blueprint/models';
+
 import { ConnectionLayerComponent, ValidationAlertsComponent } from './components';
-import { ModuleConnection } from './models';
 
 /**
  * Canvas Module Interface
