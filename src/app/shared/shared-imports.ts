@@ -1,13 +1,13 @@
 /**
  * 共享導入配置
- * 
+ *
  * 此檔案整合了 Angular、ng-zorro-antd 和 @delon 的常用模組，
  * 供 Standalone Components 使用。
- * 
+ *
  * 使用方式：
  * ```typescript
  * import { SHARED_IMPORTS } from '@shared';
- * 
+ *
  * @Component({
  *   selector: 'app-example',
  *   standalone: true,
@@ -15,11 +15,11 @@
  * })
  * export class ExampleComponent {}
  * ```
- * 
+ *
  * 對於特殊需求，可以額外導入可選模組：
  * ```typescript
  * import { SHARED_IMPORTS, OPTIONAL_ZORRO_MODULES, OPTIONAL_DELON_MODULES } from '@shared';
- * 
+ *
  * @Component({
  *   imports: [
  *     SHARED_IMPORTS,
@@ -49,18 +49,18 @@ export { OPTIONAL_ZORRO_MODULES } from './shared-zorro.module';
 const CORE_ANGULAR_MODULES = [
   /** CommonModule - 提供 *ngIf, *ngFor 等常用指令 */
   CommonModule,
-  
+
   /** 表單模組 */
   FormsModule,
   ReactiveFormsModule,
-  
+
   /** 路由模組 */
   RouterLink,
   RouterOutlet,
-  
+
   /** 常用指令 */
   NgTemplateOutlet,
-  
+
   /** 常用管道 */
   I18nPipe,
   JsonPipe,
@@ -74,11 +74,7 @@ const CORE_ANGULAR_MODULES = [
  * - Angular 核心模組 (表單、路由、管道)
  * - ng-zorro-antd 常用模組
  * - @delon 常用模組
- * 
+ *
  * 適用於 80% 以上的元件
  */
-export const SHARED_IMPORTS = [
-  ...CORE_ANGULAR_MODULES,
-  ...SHARED_DELON_MODULES,
-  ...SHARED_ZORRO_MODULES
-];
+export const SHARED_IMPORTS = [...CORE_ANGULAR_MODULES, ...SHARED_DELON_MODULES, ...SHARED_ZORRO_MODULES];

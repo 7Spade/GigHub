@@ -1,6 +1,6 @@
-import { ModuleType } from '../module/module.types';
-import { BusinessRole, SystemRole } from './role.enum';
 import { PermissionLevel } from './permission-level.enum';
+import { BusinessRole, SystemRole } from './role.enum';
+import { ModuleType } from '../module/module.types';
 
 /**
  * Permission subject type

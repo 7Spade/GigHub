@@ -1,27 +1,21 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-  signal,
-  OnInit,
-  effect
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { NZ_DRAWER_DATA, NzDrawerRef } from 'ng-zorro-antd/drawer';
-import { NzMessageService } from 'ng-zorro-antd/message';
-import { NzModalService } from 'ng-zorro-antd/modal';
 import { Team, TeamMember, TeamRole, OrganizationMember } from '@core';
 import { SHARED_IMPORTS, TeamMemberRepository, OrganizationMemberRepository, TeamRepository, WorkspaceContextService } from '@shared';
+import { NzAlertModule } from 'ng-zorro-antd/alert';
 import { NzDescriptionsModule } from 'ng-zorro-antd/descriptions';
-import { NzTagModule } from 'ng-zorro-antd/tag';
+import { NzDividerModule } from 'ng-zorro-antd/divider';
+import { NZ_DRAWER_DATA, NzDrawerRef } from 'ng-zorro-antd/drawer';
+import { NzEmptyModule } from 'ng-zorro-antd/empty';
+import { NzListModule } from 'ng-zorro-antd/list';
+import { NzMessageService } from 'ng-zorro-antd/message';
+import { NzModalService } from 'ng-zorro-antd/modal';
 import { NzSelectModule } from 'ng-zorro-antd/select';
 import { NzSpaceModule } from 'ng-zorro-antd/space';
-import { NzDividerModule } from 'ng-zorro-antd/divider';
-import { NzListModule } from 'ng-zorro-antd/list';
-import { NzEmptyModule } from 'ng-zorro-antd/empty';
-import { NzAlertModule } from 'ng-zorro-antd/alert';
+import { NzTagModule } from 'ng-zorro-antd/tag';
+import { firstValueFrom } from 'rxjs';
+
 import { EditTeamModalComponent } from '../edit-team-modal/edit-team-modal.component';
 
 interface DrawerData {
@@ -70,7 +64,7 @@ export class TeamDetailDrawerComponent implements OnInit {
   });
   readonly loading = signal(false);
   readonly addingMember = signal(false);
-  
+
   // Add member form
   selectedUserId = signal<string | null>(null);
   selectedRole = signal<TeamRole>(TeamRole.MEMBER);
@@ -83,7 +77,7 @@ export class TeamDetailDrawerComponent implements OnInit {
   private async loadMembers(): Promise<void> {
     try {
       this.loading.set(true);
-      const members = await this.teamMemberRepository.findByTeam(this.team().id).toPromise();
+      const members = await firstValueFrom(this.teamMemberRepository.findByTeam(this.team().id));
       this.membersState.set(members || []);
     } catch (error) {
       console.error('Error loading team members:', error);
@@ -95,7 +89,7 @@ export class TeamDetailDrawerComponent implements OnInit {
 
   private async loadOrganizationMembers(): Promise<void> {
     try {
-      const orgMembers = await this.orgMemberRepository.findByOrganization(this.organizationId).toPromise();
+      const orgMembers = await firstValueFrom(this.orgMemberRepository.findByOrganization(this.organizationId));
       this.orgMembersState.set(orgMembers || []);
     } catch (error) {
       console.error('Error loading organization members:', error);
@@ -114,11 +108,11 @@ export class TeamDetailDrawerComponent implements OnInit {
       this.addingMember.set(true);
       await this.teamMemberRepository.addMember(this.team().id, userId, this.selectedRole());
       this.message.success('成員已加入團隊');
-      
+
       // Reset form
       this.selectedUserId.set(null);
       this.selectedRole.set(TeamRole.MEMBER);
-      
+
       // Reload members
       await this.loadMembers();
       await this.loadOrganizationMembers();
@@ -132,7 +126,7 @@ export class TeamDetailDrawerComponent implements OnInit {
 
   async changeRole(member: TeamMember): Promise<void> {
     const newRole = member.role === TeamRole.LEADER ? TeamRole.MEMBER : TeamRole.LEADER;
-    
+
     this.modal.confirm({
       nzTitle: '確認變更角色',
       nzContent: `是否將 ${member.user_id} 的角色從 ${this.roleLabel(member.role)} 變更為 ${this.roleLabel(newRole)}？`,
@@ -178,11 +172,11 @@ export class TeamDetailDrawerComponent implements OnInit {
       nzWidth: 600
     });
 
-    modalRef.afterClose.subscribe(async (result) => {
+    modalRef.afterClose.subscribe(async result => {
       if (result) {
         // Reload team data
         try {
-          const updatedTeam = await this.teamRepository.findById(this.team().id).toPromise();
+          const updatedTeam = await firstValueFrom(this.teamRepository.findById(this.team().id));
           if (updatedTeam) {
             this.team.set(updatedTeam);
           }

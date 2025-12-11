@@ -1,18 +1,16 @@
 import { Component, OnInit, inject, signal, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { NZ_MODAL_DATA, NzModalRef } from 'ng-zorro-antd/modal';
-import { NzMessageService } from 'ng-zorro-antd/message';
+import { Blueprint, CreateBlueprintRequest, LoggerService, ModuleType, OwnerType, ContextType, FirebaseAuthService } from '@core';
+import { SHARED_IMPORTS, WorkspaceContextService, BlueprintService } from '@shared';
 import { NzFormModule } from 'ng-zorro-antd/form';
-import { SHARED_IMPORTS, WorkspaceContextService } from '@shared';
-import { Blueprint, CreateBlueprintRequest, LoggerService, ModuleType, OwnerType, ContextType } from '@core';
-import { BlueprintService } from '@shared';
-import { FirebaseAuthService } from '@core';
+import { NzMessageService } from 'ng-zorro-antd/message';
+import { NZ_MODAL_DATA, NzModalRef } from 'ng-zorro-antd/modal';
 
 /**
  * Blueprint Create/Edit Modal Component
  * 藍圖建立/編輯模態元件
- * 
+ *
  * ✅ Modernized with:
  * - Signals for reactive state
  * - takeUntilDestroyed for subscription management
@@ -27,26 +25,18 @@ import { FirebaseAuthService } from '@core';
       <nz-form-item>
         <nz-form-label [nzSpan]="6" nzRequired>名稱</nz-form-label>
         <nz-form-control [nzSpan]="16" nzErrorTip="請輸入藍圖名稱（至少 3 個字元）">
-          <input
-            nz-input
-            formControlName="name"
-            placeholder="輸入藍圖名稱"
-          />
+          <input nz-input formControlName="name" placeholder="輸入藍圖名稱" />
         </nz-form-control>
       </nz-form-item>
 
       <nz-form-item>
         <nz-form-label [nzSpan]="6" nzRequired>Slug</nz-form-label>
-        <nz-form-control 
-          [nzSpan]="16" 
+        <nz-form-control
+          [nzSpan]="16"
           nzErrorTip="請輸入 slug（小寫字母、數字和連字符）"
           nzExtra="URL 友善的識別碼（小寫字母、數字和連字符）"
         >
-          <input
-            nz-input
-            formControlName="slug"
-            placeholder="my-blueprint"
-          />
+          <input nz-input formControlName="slug" placeholder="my-blueprint" />
         </nz-form-control>
       </nz-form-item>
 
@@ -64,13 +54,8 @@ import { FirebaseAuthService } from '@core';
 
       <nz-form-item>
         <nz-form-label [nzSpan]="6">可見性</nz-form-label>
-        <nz-form-control 
-          [nzSpan]="16"
-          nzExtra="公開藍圖可被其他使用者檢視"
-        >
-          <label nz-checkbox formControlName="isPublic">
-            公開藍圖
-          </label>
+        <nz-form-control [nzSpan]="16" nzExtra="公開藍圖可被其他使用者檢視">
+          <label nz-checkbox formControlName="isPublic"> 公開藍圖 </label>
         </nz-form-control>
       </nz-form-item>
 
@@ -83,24 +68,10 @@ import { FirebaseAuthService } from '@core';
 
       <nz-form-item>
         <nz-form-control [nzOffset]="6" [nzSpan]="16">
-          <button
-            nz-button
-            nzType="primary"
-            type="submit"
-            [nzLoading]="submitting()"
-            [disabled]="!form.valid"
-          >
+          <button nz-button nzType="primary" type="submit" [nzLoading]="submitting()" [disabled]="!form.valid">
             {{ isEdit ? '更新' : '建立' }}
           </button>
-          <button
-            nz-button
-            type="button"
-            class="ml-sm"
-            (click)="cancel()"
-            [disabled]="submitting()"
-          >
-            取消
-          </button>
+          <button nz-button type="button" class="ml-sm" (click)="cancel()" [disabled]="submitting()"> 取消 </button>
         </nz-form-control>
       </nz-form-item>
     </form>
@@ -153,8 +124,9 @@ export class BlueprintModalComponent implements OnInit {
       this.populateForm(this.data.blueprint);
     } else {
       // ✅ Auto-generate slug from name with proper cleanup
-      this.form.get('name')?.valueChanges
-        .pipe(takeUntilDestroyed(this.destroyRef))
+      this.form
+        .get('name')
+        ?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe(name => {
           if (name && !this.isEdit) {
             const slug = this.generateSlug(name);
@@ -174,9 +146,7 @@ export class BlueprintModalComponent implements OnInit {
       slug: blueprint.slug,
       description: blueprint.description,
       isPublic: blueprint.isPublic,
-      enabledModules: this.availableModules.filter(m =>
-        blueprint.enabledModules.includes(m.value)
-      )
+      enabledModules: this.availableModules.filter(m => blueprint.enabledModules.includes(m.value))
     });
   }
 
@@ -216,9 +186,7 @@ export class BlueprintModalComponent implements OnInit {
 
     try {
       const formValue = this.form.value;
-      const enabledModules = formValue.enabledModules
-        .filter((m: any) => m.checked)
-        .map((m: any) => m.value);
+      const enabledModules = formValue.enabledModules.filter((m: any) => m.checked).map((m: any) => m.value);
 
       if (this.isEdit) {
         // Update existing blueprint
@@ -234,11 +202,11 @@ export class BlueprintModalComponent implements OnInit {
         // Create new blueprint - use current workspace context (Occam's Razor: single source of truth)
         const contextType = this.workspaceContext.contextType();
         const contextId = this.workspaceContext.contextId();
-        
+
         // Determine owner based on current context
         let ownerId: string;
         let ownerType: OwnerType;
-        
+
         if (contextType === ContextType.ORGANIZATION && contextId) {
           // Creating under organization context
           ownerId = contextId;
@@ -252,7 +220,7 @@ export class BlueprintModalComponent implements OnInit {
           ownerId = (user as any).uid;
           ownerType = OwnerType.USER;
         }
-        
+
         const request: CreateBlueprintRequest = {
           name: formValue.name!,
           slug: formValue.slug!,
@@ -264,7 +232,9 @@ export class BlueprintModalComponent implements OnInit {
         };
 
         const blueprint = await this.blueprintService.create(request);
-        this.message.success(`藍圖已在${ownerType === OwnerType.ORGANIZATION ? '組織' : ownerType === OwnerType.TEAM ? '團隊' : '個人'}視角建立`);
+        this.message.success(
+          `藍圖已在${ownerType === OwnerType.ORGANIZATION ? '組織' : ownerType === OwnerType.TEAM ? '團隊' : '個人'}視角建立`
+        );
         this.modal.close(blueprint);
         return;
       }

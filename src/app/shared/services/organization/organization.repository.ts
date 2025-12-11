@@ -16,8 +16,9 @@ import {
   Timestamp,
   QueryConstraint
 } from '@angular/fire/firestore';
-import { Observable, from, map, catchError, of } from 'rxjs';
 import { Organization, LoggerService, OrganizationRole } from '@core';
+import { Observable, from, map, catchError, of } from 'rxjs';
+
 import { OrganizationMemberRepository } from './organization-member.repository';
 
 @Injectable({
@@ -61,10 +62,7 @@ export class OrganizationRepository {
   findByCreator(creatorId: string): Observable<Organization[]> {
     // Note: Removed orderBy to avoid requiring a composite Firestore index
     // Sorting can be done in-memory if needed
-    const q = query(
-      this.getCollectionRef(),
-      where('created_by', '==', creatorId)
-    );
+    const q = query(this.getCollectionRef(), where('created_by', '==', creatorId));
 
     return from(getDocs(q)).pipe(
       map(snapshot => {
@@ -99,26 +97,22 @@ export class OrganizationRepository {
       // 1. 建立文件 (Create document)
       const docRef = await addDoc(this.getCollectionRef(), docData);
       console.log('[OrganizationRepository] ✅ Document created with ID:', docRef.id);
-      
+
       // 2. 讀取剛建立的文件以確認持久化成功 (Read back to confirm persistence)
       const snapshot = await getDoc(docRef);
       if (snapshot.exists()) {
         console.log('[OrganizationRepository] ✅ Document verified in Firestore:', snapshot.id);
         const createdOrg = this.toOrganization(snapshot.data(), snapshot.id);
-        
+
         // 3. 自動添加建立者為擁有者 (Occam's Razor: automatic owner assignment)
         try {
-          await this.memberRepository.addMember(
-            createdOrg.id,
-            createdOrg.created_by,
-            OrganizationRole.OWNER
-          );
+          await this.memberRepository.addMember(createdOrg.id, createdOrg.created_by, OrganizationRole.OWNER);
           console.log('[OrganizationRepository] ✅ Creator added as OWNER:', createdOrg.created_by);
         } catch (memberError) {
           // 不要因為成員添加失敗而讓整個組織建立失敗 (Don't fail org creation if member add fails)
           this.logger.error('[OrganizationRepository]', 'Failed to add creator as owner', memberError as Error);
         }
-        
+
         return createdOrg;
       } else {
         console.error('[OrganizationRepository] ❌ Document not found after creation!');

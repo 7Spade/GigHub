@@ -1,16 +1,17 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
-import { Observable, from, map, of } from 'rxjs';
 import { LoggerService, Permission, PermissionLevel, SystemRole, BlueprintRole } from '@core';
 import { FirebaseAuthService } from '@core/services/firebase-auth.service';
+import { Observable, from, map, of } from 'rxjs';
+
 import { BlueprintMemberRepository } from '../blueprint/blueprint-member.repository';
 
 /**
  * Permission Service
  * 權限服務 - 客戶端權限檢查
- * 
+ *
  * Provides client-side permission checking for UI elements.
  * Note: Database-level security is enforced by Firestore Security Rules.
- * 
+ *
  * Following Occam's Razor: Simple, focused permission checks.
  */
 @Injectable({
@@ -46,10 +47,10 @@ export class PermissionService {
       map(members => {
         const member = members.find(m => m.accountId === user.uid);
         const canRead = !!member; // Any member can read
-        
+
         // Cache result
         this.cachePermissions(blueprintId, { canRead });
-        
+
         return canRead;
       })
     );
@@ -73,12 +74,10 @@ export class PermissionService {
     return this.memberRepository.findByBlueprint(blueprintId).pipe(
       map(members => {
         const member = members.find(m => m.accountId === user.uid);
-        const canEdit = member && 
-          (member.role === BlueprintRole.MAINTAINER || 
-           member.role === BlueprintRole.CONTRIBUTOR);
-        
+        const canEdit = member && (member.role === BlueprintRole.MAINTAINER || member.role === BlueprintRole.CONTRIBUTOR);
+
         this.cachePermissions(blueprintId, { canEdit });
-        
+
         return !!canEdit;
       })
     );
@@ -103,9 +102,9 @@ export class PermissionService {
       map(members => {
         const member = members.find(m => m.accountId === user.uid);
         const canDelete = member && member.role === BlueprintRole.MAINTAINER;
-        
+
         this.cachePermissions(blueprintId, { canDelete });
-        
+
         return !!canDelete;
       })
     );
@@ -130,9 +129,9 @@ export class PermissionService {
       map(members => {
         const member = members.find(m => m.accountId === user.uid);
         const canManageMembers = member && member.role === BlueprintRole.MAINTAINER;
-        
+
         this.cachePermissions(blueprintId, { canManageMembers });
-        
+
         return !!canManageMembers;
       })
     );
@@ -178,7 +177,7 @@ export class PermissionService {
     return this.memberRepository.findByBlueprint(blueprintId).pipe(
       map(members => {
         const member = members.find(m => m.accountId === user.uid);
-        
+
         if (!member) {
           const permissions = {
             canRead: false,
@@ -193,8 +192,7 @@ export class PermissionService {
 
         const permissions = {
           canRead: true,
-          canEdit: member.role === BlueprintRole.MAINTAINER || 
-                   member.role === BlueprintRole.CONTRIBUTOR,
+          canEdit: member.role === BlueprintRole.MAINTAINER || member.role === BlueprintRole.CONTRIBUTOR,
           canDelete: member.role === BlueprintRole.MAINTAINER,
           canManageMembers: member.role === BlueprintRole.MAINTAINER,
           canManageSettings: member.role === BlueprintRole.MAINTAINER
@@ -202,7 +200,7 @@ export class PermissionService {
 
         this.cachePermissions(blueprintId, permissions);
         this.logger.debug('[PermissionService]', `Permissions for ${blueprintId}:`, permissions);
-        
+
         return permissions;
       })
     );

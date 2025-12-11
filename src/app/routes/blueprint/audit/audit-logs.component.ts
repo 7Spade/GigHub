@@ -1,22 +1,21 @@
 import { Component, OnInit, inject, input } from '@angular/core';
-import { firstValueFrom } from 'rxjs';
+import { AuditLog, AuditQueryOptions, AuditEntityType, AuditOperation, LoggerService } from '@core';
+import { STColumn } from '@delon/abc/st';
+import { SHARED_IMPORTS, createAsyncArrayState, AuditLogRepository } from '@shared';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzSpaceModule } from 'ng-zorro-antd/space';
-import { STColumn } from '@delon/abc/st';
-import { SHARED_IMPORTS, createAsyncArrayState } from '@shared';
-import { AuditLog, AuditQueryOptions, AuditEntityType, AuditOperation, LoggerService } from '@core';
-import { AuditLogRepository } from '@shared';
+import { firstValueFrom } from 'rxjs';
 
 /**
  * Audit Logs Component
  * 審計記錄元件 - 顯示藍圖審計記錄
- * 
+ *
  * Features:
  * - Display audit logs
  * - Filter by entity type, operation, user
  * - Date range filter
  * - Pagination
- * 
+ *
  * Following Occam's Razor: Simple, read-only audit viewer
  * ✅ Modernized with AsyncState pattern
  */
@@ -75,20 +74,17 @@ import { AuditLogRepository } from '@shared';
           class="mb-md"
         />
       } @else {
-        <st
-          #st
-          [data]="logsState.data() || []"
-          [columns]="columns"
-          [page]="{ show: true, showSize: true }"
-        ></st>
+        <st #st [data]="logsState.data() || []" [columns]="columns" [page]="{ show: true, showSize: true }"></st>
       }
     </nz-card>
   `,
-  styles: [`
-    :host {
-      display: block;
-    }
-  `]
+  styles: [
+    `
+      :host {
+        display: block;
+      }
+    `
+  ]
 })
 export class AuditLogsComponent implements OnInit {
   private readonly message = inject(NzMessageService);
@@ -172,9 +168,7 @@ export class AuditLogsComponent implements OnInit {
     };
 
     try {
-      await this.logsState.load(
-        firstValueFrom(this.auditRepository.queryLogs(this.blueprintId(), options))
-      );
+      await this.logsState.load(firstValueFrom(this.auditRepository.queryLogs(this.blueprintId(), options)));
       this.logger.info('[AuditLogsComponent]', `Loaded ${this.logsState.length()} audit logs`);
     } catch (error) {
       this.message.error('載入審計記錄失敗');
@@ -220,7 +214,7 @@ export class AuditLogsComponent implements OnInit {
    */
   viewDetails(record: any): void {
     const log = record as AuditLog;
-    
+
     // Show details in modal or drawer
     // For simplicity, show in message (can be enhanced later)
     const details = JSON.stringify(log.changes || {}, null, 2);

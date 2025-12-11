@@ -1,36 +1,37 @@
 /**
  * Blueprint Container Implementation
  * 藍圖容器實作
- * 
+ *
  * 整合所有核心元件的主要容器類別。
- * 
+ *
  * @packageDocumentation
  * @module BlueprintCore
  */
 
 import { Injectable, Injector, signal, inject } from '@angular/core';
+
 import { IBlueprintContainer } from './blueprint-container.interface';
-import { IBlueprintModule } from '../modules/module.interface';
-import { IBlueprintConfig } from '../config/blueprint-config.interface';
-import { ModuleStatus } from '../modules/module-status.enum';
-import { IModuleRegistry } from './module-registry.interface';
-import { ILifecycleManager } from './lifecycle-manager.interface';
-import { IEventBus } from '../events/event-bus.interface';
-import { IResourceProvider } from './resource-provider.interface';
-import { IExecutionContext, ContextType } from '../context/execution-context.interface';
-import { TenantInfo } from '../context/tenant-info.interface';
-import { BlueprintEventType } from '../events/event-types';
 import { ModuleRegistry } from './module-registry';
 import { LifecycleManager } from './lifecycle-manager';
-import { EventBus } from '../events/event-bus';
+import { ILifecycleManager } from './lifecycle-manager.interface';
+import { IModuleRegistry } from './module-registry.interface';
 import { ResourceProvider } from './resource-provider';
+import { IResourceProvider } from './resource-provider.interface';
+import { IBlueprintConfig } from '../config/blueprint-config.interface';
+import { IExecutionContext, ContextType } from '../context/execution-context.interface';
 import { SharedContext } from '../context/shared-context';
+import { TenantInfo } from '../context/tenant-info.interface';
+import { EventBus } from '../events/event-bus';
+import { IEventBus } from '../events/event-bus.interface';
+import { BlueprintEventType } from '../events/event-types';
+import { ModuleStatus } from '../modules/module-status.enum';
+import { IBlueprintModule } from '../modules/module.interface';
 
 /**
  * 藍圖容器
- * 
+ *
  * 整合模組註冊、生命週期管理、事件總線、資源提供者和共享上下文。
- * 
+ *
  * @example
  * ```typescript
  * const config: IBlueprintConfig = {
@@ -42,7 +43,7 @@ import { SharedContext } from '../context/shared-context';
  *   theme: {},
  *   permissions: {}
  * };
- * 
+ *
  * const container = new BlueprintContainer(config);
  * await container.initialize();
  * await container.loadModule(tasksModule);
@@ -52,10 +53,10 @@ import { SharedContext } from '../context/shared-context';
 @Injectable({ providedIn: 'root' })
 export class BlueprintContainer implements IBlueprintContainer {
   private injector = inject(Injector);
-  
+
   readonly id: string;
   readonly config: IBlueprintConfig;
-  
+
   // Reactive state
   readonly status = signal<'uninitialized' | 'initializing' | 'ready' | 'running' | 'stopping' | 'stopped' | 'error'>('uninitialized');
   readonly moduleCount = signal(0);
@@ -66,10 +67,10 @@ export class BlueprintContainer implements IBlueprintContainer {
   private eventBus!: IEventBus;
   private resourceProvider!: IResourceProvider;
   private sharedContext!: SharedContext;
-  
+
   // Execution context
   private executionContext!: IExecutionContext;
-  
+
   // Tenant info
   private tenantInfo?: TenantInfo;
 
@@ -92,14 +93,14 @@ export class BlueprintContainer implements IBlueprintContainer {
       // Initialize core components
       this.moduleRegistry = new ModuleRegistry();
       this.lifecycleManager = new LifecycleManager();
-      this.eventBus = new EventBus(this.id);
-      this.resourceProvider = new ResourceProvider(this.injector);
+      this.eventBus = new EventBus();
+      this.resourceProvider = new ResourceProvider();
       this.sharedContext = new SharedContext();
 
       // Setup execution context
       this.executionContext = {
         blueprintId: this.id,
-        contextType: ContextType.Organization,
+        contextType: ContextType.ORGANIZATION,
         tenant: this.tenantInfo,
         eventBus: this.eventBus,
         resources: this.resourceProvider,
@@ -112,18 +113,26 @@ export class BlueprintContainer implements IBlueprintContainer {
       }
 
       // Emit container initialized event
-      this.eventBus.emit(BlueprintEventType.CONTAINER_INITIALIZED, {
-        containerId: this.id,
-        config: this.config
-      }, 'container');
+      this.eventBus.emit(
+        BlueprintEventType.CONTAINER_INITIALIZED,
+        {
+          containerId: this.id,
+          config: this.config
+        },
+        'container'
+      );
 
       this.status.set('ready');
     } catch (error) {
       this.status.set('error');
-      this.eventBus?.emit(BlueprintEventType.CONTAINER_ERROR, {
-        containerId: this.id,
-        error: error instanceof Error ? error.message : String(error)
-      }, 'container');
+      this.eventBus?.emit(
+        BlueprintEventType.CONTAINER_ERROR,
+        {
+          containerId: this.id,
+          error: error instanceof Error ? error.message : String(error)
+        },
+        'container'
+      );
       throw error;
     }
   }
@@ -138,14 +147,18 @@ export class BlueprintContainer implements IBlueprintContainer {
 
     try {
       this.status.set('running');
-      
-      this.eventBus.emit(BlueprintEventType.CONTAINER_STARTING, {
-        containerId: this.id
-      }, 'container');
+
+      this.eventBus.emit(
+        BlueprintEventType.CONTAINER_STARTING,
+        {
+          containerId: this.id
+        },
+        'container'
+      );
 
       // Get all registered modules
       const modules = this.moduleRegistry.list();
-      
+
       // Resolve dependencies and get load order
       const moduleIds = modules.map(m => m.id);
       const resolution = this.moduleRegistry.resolveDependencies(moduleIds);
@@ -163,17 +176,24 @@ export class BlueprintContainer implements IBlueprintContainer {
         }
       }
 
-      this.eventBus.emit(BlueprintEventType.CONTAINER_STARTED, {
-        containerId: this.id,
-        modulesStarted: resolution.loadOrder.length
-      }, 'container');
-
+      this.eventBus.emit(
+        BlueprintEventType.CONTAINER_STARTED,
+        {
+          containerId: this.id,
+          modulesStarted: resolution.loadOrder.length
+        },
+        'container'
+      );
     } catch (error) {
       this.status.set('error');
-      this.eventBus.emit(BlueprintEventType.CONTAINER_ERROR, {
-        containerId: this.id,
-        error: error instanceof Error ? error.message : String(error)
-      }, 'container');
+      this.eventBus.emit(
+        BlueprintEventType.CONTAINER_ERROR,
+        {
+          containerId: this.id,
+          error: error instanceof Error ? error.message : String(error)
+        },
+        'container'
+      );
       throw error;
     }
   }
@@ -188,32 +208,43 @@ export class BlueprintContainer implements IBlueprintContainer {
 
     try {
       this.status.set('stopping');
-      
-      this.eventBus.emit(BlueprintEventType.CONTAINER_STOPPING, {
-        containerId: this.id
-      }, 'container');
+
+      this.eventBus.emit(
+        BlueprintEventType.CONTAINER_STOPPING,
+        {
+          containerId: this.id
+        },
+        'container'
+      );
 
       // Get all running modules (in reverse order)
-      const readyModules = this.lifecycleManager.getModulesByState(ModuleStatus.Ready);
-      
+      const readyModules = this.lifecycleManager.getModulesByState(ModuleStatus.READY);
+
       // Stop modules in reverse order
       for (const moduleId of readyModules.reverse()) {
         await this.lifecycleManager.stop(moduleId);
       }
 
       this.status.set('stopped');
-      
-      this.eventBus.emit(BlueprintEventType.CONTAINER_STOPPED, {
-        containerId: this.id,
-        modulesStopped: readyModules.length
-      }, 'container');
 
+      this.eventBus.emit(
+        BlueprintEventType.CONTAINER_STOPPED,
+        {
+          containerId: this.id,
+          modulesStopped: readyModules.length
+        },
+        'container'
+      );
     } catch (error) {
       this.status.set('error');
-      this.eventBus.emit(BlueprintEventType.CONTAINER_ERROR, {
-        containerId: this.id,
-        error: error instanceof Error ? error.message : String(error)
-      }, 'container');
+      this.eventBus.emit(
+        BlueprintEventType.CONTAINER_ERROR,
+        {
+          containerId: this.id,
+          error: error instanceof Error ? error.message : String(error)
+        },
+        'container'
+      );
       throw error;
     }
   }
@@ -242,7 +273,6 @@ export class BlueprintContainer implements IBlueprintContainer {
 
       this.status.set('uninitialized');
       this.moduleCount.set(0);
-
     } catch (error) {
       this.status.set('error');
       throw error;
@@ -279,24 +309,31 @@ export class BlueprintContainer implements IBlueprintContainer {
       this.moduleCount.set(this.moduleRegistry.list().length);
 
       // Emit event
-      this.eventBus.emit(BlueprintEventType.MODULE_LOADED, {
-        moduleId: module.id,
-        moduleName: module.name,
-        version: module.version
-      }, module.id);
+      this.eventBus.emit(
+        BlueprintEventType.MODULE_LOADED,
+        {
+          moduleId: module.id,
+          moduleName: module.name,
+          version: module.version
+        },
+        module.id
+      );
 
       // Auto-start if container is running
       if (this.status() === 'running') {
         await this.lifecycleManager.start(module.id);
         await this.lifecycleManager.ready(module.id);
       }
-
     } catch (error) {
-      this.eventBus.emit(BlueprintEventType.MODULE_ERROR, {
-        moduleId: module.id,
-        moduleName: module.name,
-        error: error instanceof Error ? error.message : String(error)
-      }, module.id);
+      this.eventBus.emit(
+        BlueprintEventType.MODULE_ERROR,
+        {
+          moduleId: module.id,
+          moduleName: module.name,
+          error: error instanceof Error ? error.message : String(error)
+        },
+        module.id
+      );
       throw error;
     }
   }
@@ -319,7 +356,7 @@ export class BlueprintContainer implements IBlueprintContainer {
 
       // Stop if running
       const status = this.lifecycleManager.getState(moduleId);
-      if (status === ModuleStatus.Ready) {
+      if (status === ModuleStatus.READY) {
         await this.lifecycleManager.stop(moduleId);
       }
 
@@ -333,16 +370,23 @@ export class BlueprintContainer implements IBlueprintContainer {
       this.moduleCount.set(this.moduleRegistry.list().length);
 
       // Emit event
-      this.eventBus.emit(BlueprintEventType.MODULE_UNLOADED, {
-        moduleId,
-        moduleName: module.name
-      }, moduleId);
-
+      this.eventBus.emit(
+        BlueprintEventType.MODULE_UNLOADED,
+        {
+          moduleId,
+          moduleName: module.name
+        },
+        moduleId
+      );
     } catch (error) {
-      this.eventBus.emit(BlueprintEventType.MODULE_ERROR, {
-        moduleId,
-        error: error instanceof Error ? error.message : String(error)
-      }, moduleId);
+      this.eventBus.emit(
+        BlueprintEventType.MODULE_ERROR,
+        {
+          moduleId,
+          error: error instanceof Error ? error.message : String(error)
+        },
+        moduleId
+      );
       throw error;
     }
   }
@@ -372,7 +416,7 @@ export class BlueprintContainer implements IBlueprintContainer {
    * 獲取所有模組
    */
   getAllModules(): IBlueprintModule[] {
-    return this.moduleRegistry.list();
+    return Array.from(this.moduleRegistry.list());
   }
 
   /**
@@ -380,9 +424,7 @@ export class BlueprintContainer implements IBlueprintContainer {
    */
   getModulesByStatus(status: ModuleStatus): IBlueprintModule[] {
     const moduleIds = this.lifecycleManager.getModulesByState(status);
-    return moduleIds
-      .map(id => this.moduleRegistry.get(id))
-      .filter((m): m is IBlueprintModule => m !== undefined);
+    return moduleIds.map(id => this.moduleRegistry.get(id)).filter((m): m is IBlueprintModule => m !== undefined);
   }
 
   /**
@@ -401,7 +443,7 @@ export class BlueprintContainer implements IBlueprintContainer {
 
   /**
    * 設定租戶資訊
-   * 
+   *
    * @param tenantInfo - 租戶資訊
    */
   setTenantInfo(tenantInfo: TenantInfo): void {
@@ -413,7 +455,7 @@ export class BlueprintContainer implements IBlueprintContainer {
 
   /**
    * 獲取執行上下文
-   * 
+   *
    * @returns 執行上下文
    */
   getExecutionContext(): IExecutionContext {

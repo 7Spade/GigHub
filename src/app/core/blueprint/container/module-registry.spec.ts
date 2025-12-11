@@ -1,19 +1,20 @@
 /**
  * Module Registry Unit Tests
- * 
+ *
  * Comprehensive test suite for the Module Registry service.
  */
 
-import { TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
+
 import { ModuleRegistry } from './module-registry';
-import { IBlueprintModule } from '../modules/module.interface';
-import { ModuleStatus } from '../modules/module-status.enum';
 import { IExecutionContext } from '../context/execution-context.interface';
+import { ModuleStatus } from '../modules/module-status.enum';
+import { IBlueprintModule } from '../modules/module.interface';
 
 // Mock module implementation
 class MockModule implements IBlueprintModule {
-  readonly status = signal(ModuleStatus.Created);
+  readonly status = signal(ModuleStatus.UNINITIALIZED);
   readonly exports = {};
 
   constructor(
@@ -24,23 +25,23 @@ class MockModule implements IBlueprintModule {
   ) {}
 
   async init(context: IExecutionContext): Promise<void> {
-    this.status.set(ModuleStatus.Initializing);
+    this.status.set(ModuleStatus.INITIALIZING);
   }
 
   async start(): Promise<void> {
-    this.status.set(ModuleStatus.Starting);
+    this.status.set(ModuleStatus.STARTING);
   }
 
   async ready(): Promise<void> {
-    this.status.set(ModuleStatus.Ready);
+    this.status.set(ModuleStatus.READY);
   }
 
   async stop(): Promise<void> {
-    this.status.set(ModuleStatus.Stopping);
+    this.status.set(ModuleStatus.STOPPING);
   }
 
   async dispose(): Promise<void> {
-    this.status.set(ModuleStatus.Disposed);
+    this.status.set(ModuleStatus.DISPOSED);
   }
 }
 
@@ -78,7 +79,7 @@ describe('ModuleRegistry', () => {
   describe('Module Registration', () => {
     it('should register a module successfully', () => {
       const module = new MockModule('test-module', 'Test Module', '1.0.0');
-      
+
       registry.register(module);
 
       expect(registry.size).toBe(1);
@@ -92,9 +93,7 @@ describe('ModuleRegistry', () => {
 
       registry.register(module1);
 
-      expect(() => registry.register(module2)).toThrow(
-        'Module with ID "test-module" is already registered'
-      );
+      expect(() => registry.register(module2)).toThrow('Module with ID "test-module" is already registered');
     });
 
     it('should register multiple modules', () => {
@@ -326,7 +325,7 @@ describe('ModuleRegistry', () => {
       const resolution = registry.resolveDependencies(['module-a']);
 
       expect(resolution.hasCircularDependency).toBe(false);
-      
+
       // module-d should come before module-b and module-c
       const dIndex = resolution.loadOrder.indexOf('module-d');
       const bIndex = resolution.loadOrder.indexOf('module-b');
@@ -465,7 +464,7 @@ describe('ModuleRegistry', () => {
       const retrievalStart = Date.now();
       const module = registry.get('module-500');
       const retrievalTime = Date.now() - retrievalStart;
-      
+
       expect(module).toBeDefined();
       expect(retrievalTime).toBeLessThan(10); // Should be nearly instant
     });

@@ -1,8 +1,8 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FirebaseAuthService } from '@core';
-import { WorkspaceContextService } from '@shared';
 import { I18nPipe, SettingsService, User } from '@delon/theme';
+import { WorkspaceContextService } from '@shared';
 import { NzAvatarModule } from 'ng-zorro-antd/avatar';
 import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
 import { NzIconModule } from 'ng-zorro-antd/icon';
@@ -49,11 +49,11 @@ export class HeaderUserComponent {
   private readonly router = inject(Router);
   private readonly firebaseAuth = inject(FirebaseAuthService);
   private readonly workspaceContext = inject(WorkspaceContextService);
-  
+
   // Use workspace context for label and icon (these change based on context)
   readonly contextLabel = this.workspaceContext.contextLabel;
   readonly contextIcon = this.workspaceContext.contextIcon;
-  
+
   // Avatar comes from SettingsService (single source of truth, updated by WorkspaceContextService)
   // This follows ng-alain patterns and Occam's Razor (simplest solution)
   get user(): User {

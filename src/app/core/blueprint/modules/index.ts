@@ -1,6 +1,6 @@
 /**
  * Blueprint Modules
- * 
+ *
  * Core interfaces and types for the blueprint module system.
  */
 

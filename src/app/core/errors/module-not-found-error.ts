@@ -6,13 +6,7 @@ import { BlueprintError } from './blueprint-error';
  */
 export class ModuleNotFoundError extends BlueprintError {
   constructor(moduleType: string) {
-    super(
-      `Module ${moduleType} not found or not enabled`,
-      'MODULE_NOT_FOUND',
-      'medium',
-      true,
-      { moduleType }
-    );
+    super(`Module ${moduleType} not found or not enabled`, 'MODULE_NOT_FOUND', 'medium', true, { moduleType });
     Object.setPrototypeOf(this, ModuleNotFoundError.prototype);
   }
 }

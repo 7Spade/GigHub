@@ -89,7 +89,7 @@ export class MenuManagementService {
     }
 
     const menu = this.getBaseMenu(contextType, config);
-    
+
     if (!menu || menu.length === 0) {
       console.warn('[MenuManagementService] No menu found for context:', contextType);
       return;

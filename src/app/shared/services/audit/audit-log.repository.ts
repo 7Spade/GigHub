@@ -1,17 +1,7 @@
 import { Injectable, inject } from '@angular/core';
-import {
-  Firestore,
-  addDoc,
-  collection,
-  getDocs,
-  orderBy,
-  query,
-  where,
-  Timestamp,
-  QueryConstraint
-} from '@angular/fire/firestore';
-import { Observable, from, map } from 'rxjs';
+import { Firestore, addDoc, collection, getDocs, orderBy, query, where, Timestamp, QueryConstraint } from '@angular/fire/firestore';
 import { AuditLog, AuditQueryOptions } from '@core';
+import { Observable, from, map } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -49,8 +39,6 @@ export class AuditLogRepository {
 
     const q = query(this.getAuditCollection(blueprintId), ...constraints);
 
-    return from(getDocs(q)).pipe(
-      map(snapshot => snapshot.docs.map(docSnap => this.toAuditLog(docSnap.data(), docSnap.id)))
-    );
+    return from(getDocs(q)).pipe(map(snapshot => snapshot.docs.map(docSnap => this.toAuditLog(docSnap.data(), docSnap.id))));
   }
 }

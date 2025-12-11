@@ -4,11 +4,12 @@ import { _HttpClient } from '@delon/theme';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzCardModule } from 'ng-zorro-antd/card';
 import { NzMessageService } from 'ng-zorro-antd/message';
+import { firstValueFrom } from 'rxjs';
 
 /**
  * Exception Trigger Component
  * 異常觸發元件 - 用於測試錯誤處理
- * 
+ *
  * ✅ Modernized: Simplified error handling
  */
 @Component({
@@ -34,11 +35,11 @@ export class ExceptionTriggerComponent {
 
   /**
    * Trigger error by type
-   * ✅ Using async/await for cleaner error handling
+   * ✅ Using async/await with firstValueFrom for modern RxJS
    */
   async go(type: number): Promise<void> {
     try {
-      await this.http.get(`/api/${type}`).toPromise();
+      await firstValueFrom(this.http.get(`/api/${type}`));
     } catch (error) {
       console.log(`Triggered ${type} error:`, error);
       this.message.error(`觸發 ${type} 錯誤`);
@@ -47,13 +48,13 @@ export class ExceptionTriggerComponent {
 
   /**
    * Refresh token test
-   * ✅ Using async/await with proper error handling
+   * ✅ Using async/await with firstValueFrom for modern RxJS
    */
   async refresh(): Promise<void> {
     try {
       this.tokenService.set({ token: 'invalid-token' });
       // 必須提供一個後端地址，無法通過 Mock 來模擬
-      await this.http.post(`https://localhost:5001/auth`).toPromise();
+      await firstValueFrom(this.http.post(`https://localhost:5001/auth`));
       console.log('Token refresh 成功');
       this.message.success('Token 已刷新');
     } catch (error) {
