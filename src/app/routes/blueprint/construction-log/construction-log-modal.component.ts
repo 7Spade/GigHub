@@ -133,12 +133,12 @@ interface ModalData {
       }
 
       <!-- Existing Photos (Edit/View mode) -->
-      @if (modalData.log?.photos && modalData.log.photos.length > 0) {
+      @if (modalData.log?.photos && (modalData.log?.photos?.length ?? 0) > 0) {
         <nz-form-item>
           <nz-form-label [nzSpan]="6">現有照片</nz-form-label>
           <nz-form-control [nzSpan]="14">
             <nz-row [nzGutter]="[8, 8]">
-              @for (photo of modalData.log.photos; track photo.id) {
+              @for (photo of modalData.log?.photos; track photo.id) {
                 <nz-col [nzSpan]="8">
                   <div class="photo-item">
                     <img [src]="photo.publicUrl" [alt]="photo.caption || '照片'" style="width: 100%; height: 100px; object-fit: cover;" />

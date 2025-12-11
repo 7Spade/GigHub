@@ -326,8 +326,8 @@ export class TasksRepository {
 
       snapshot.docs.forEach(doc => {
         const data = doc.data();
-        if (data.status && data.status in counts) {
-          counts[data.status as TaskStatus]++;
+        if (data['status'] && data['status'] in counts) {
+          counts[data['status'] as TaskStatus]++;
         }
       });
 

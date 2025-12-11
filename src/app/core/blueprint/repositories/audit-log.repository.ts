@@ -39,6 +39,9 @@ import {
 } from '@core/models/audit-log.model';
 import { Observable, from, map, catchError, of } from 'rxjs';
 
+// Re-export types for external consumers
+export type { CreateAuditLogData } from '@core/models/audit-log.model';
+
 /**
  * Pagination result for audit logs
  */

@@ -113,6 +113,7 @@ export class TasksService {
 
       // Log audit event
       await this.logAuditEvent(blueprintId, {
+        blueprintId,
         eventType: AuditEventType.MODULE_CONFIGURED,
         category: AuditCategory.MODULE,
         severity: AuditSeverity.INFO,
@@ -145,6 +146,7 @@ export class TasksService {
 
       // Log audit event
       await this.logAuditEvent(blueprintId, {
+        blueprintId,
         eventType: AuditEventType.MODULE_CONFIGURED,
         category: AuditCategory.MODULE,
         severity: AuditSeverity.INFO,
@@ -176,6 +178,7 @@ export class TasksService {
 
       // Log audit event
       await this.logAuditEvent(blueprintId, {
+        blueprintId,
         eventType: AuditEventType.MODULE_CONFIGURED,
         category: AuditCategory.MODULE,
         severity: AuditSeverity.MEDIUM,
