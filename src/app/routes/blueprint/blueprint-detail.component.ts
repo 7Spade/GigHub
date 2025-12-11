@@ -15,6 +15,7 @@ import { Blueprint, LoggerService } from '@core';
 import { BlueprintService } from '@shared';
 import { BlueprintMembersComponent } from './members/blueprint-members.component';
 import { TaskListComponent } from './modules/tasks/task-list.component';
+import { LogListComponent } from './modules/logs/log-list.component';
 
 /**
  * Blueprint Detail Component
@@ -30,7 +31,7 @@ import { TaskListComponent } from './modules/tasks/task-list.component';
 @Component({
   selector: 'app-blueprint-detail',
   standalone: true,
-  imports: [SHARED_IMPORTS, NzStatisticModule, NzResultModule, NzDescriptionsModule, NzEmptyModule, NzSpaceModule, NzTabsModule, NzTagModule, DatePipe, BlueprintMembersComponent, TaskListComponent],
+  imports: [SHARED_IMPORTS, NzStatisticModule, NzResultModule, NzDescriptionsModule, NzEmptyModule, NzSpaceModule, NzTabsModule, NzTagModule, DatePipe, BlueprintMembersComponent, TaskListComponent, LogListComponent],
   template: `
     <page-header
       [title]="blueprint()?.name || '藍圖詳情'"
@@ -282,7 +283,7 @@ import { TaskListComponent } from './modules/tasks/task-list.component';
           <!-- Logs Tab -->
           <nz-tab nzTitle="日誌">
             <ng-template nz-tab>
-              <nz-empty nzNotFoundContent="日誌模組尚未實作" />
+              <app-log-list [blueprintId]="blueprint()!.id" />
             </ng-template>
           </nz-tab>
 
