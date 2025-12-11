@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, input } from '@angular/core';
+import { Component, ChangeDetectionStrategy, OnInit, inject, input } from '@angular/core';
 import { AuditQueryOptions, AuditEntityType, AuditOperation, LoggerService } from '@core';
 import { AuditLogRepository } from '@core/blueprint/repositories';
 import { AuditLogDocument } from '@core/models/audit-log.model';
@@ -21,6 +21,7 @@ import { NzSpaceModule } from 'ng-zorro-antd/space';
  * ✅ Modernized with AsyncState pattern
  */
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-audit-logs',
   standalone: true,
   imports: [SHARED_IMPORTS, NzSpaceModule],

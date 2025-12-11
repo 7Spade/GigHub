@@ -1,4 +1,4 @@
-import { Component, inject, input } from '@angular/core';
+import { Component, inject, input, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { I18nPipe } from '@delon/theme';
 import { NzButtonModule } from 'ng-zorro-antd/button';
@@ -7,6 +7,7 @@ import { NzResultModule } from 'ng-zorro-antd/result';
 
 @Component({
   selector: 'passport-register-result',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './register-result.component.html',
   imports: [RouterLink, I18nPipe, NzButtonModule, NzResultModule]
 })

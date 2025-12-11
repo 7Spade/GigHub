@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
 import { DA_SERVICE_TOKEN } from '@delon/auth';
 import { _HttpClient } from '@delon/theme';
 import { NzButtonModule } from 'ng-zorro-antd/button';
@@ -13,6 +13,7 @@ import { firstValueFrom } from 'rxjs';
  * ✅ Modernized: Simplified error handling
  */
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'exception-trigger',
   template: `
     <div class="pt-lg">

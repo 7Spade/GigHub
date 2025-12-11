@@ -12,7 +12,10 @@ export const routes: Routes = [
     canActivateChild: [authSimpleCanActivateChild],
     data: {},
     children: [
-      { path: '', redirectTo: 'dashboard/user', pathMatch: 'full' },
+      // Redirect to user blueprints as default dashboard
+      { path: '', redirectTo: 'blueprints/user', pathMatch: 'full' },
+      { path: 'dashboard', redirectTo: 'blueprints/user', pathMatch: 'full' },
+      { path: 'dashboard/user', redirectTo: 'blueprints/user', pathMatch: 'full' },
       {
         path: 'user',
         loadChildren: () => import('./user/routes').then(m => m.routes),
@@ -38,11 +41,19 @@ export const routes: Routes = [
         path: 'blueprints/organization',
         loadChildren: () => import('./blueprint/routes').then(m => m.routes),
         data: { title: '組織藍圖' }
+      },
+      // Monitoring module - lazy loaded
+      {
+        path: 'monitoring',
+        loadChildren: () => import('./monitoring/routes').then(m => m.routes),
+        data: { title: '系統監控' }
       }
     ]
   },
-  // passport
+  // passport - lazy loaded
   { path: '', loadChildren: () => import('./passport/routes').then(m => m.routes) },
+  // exception - lazy loaded
   { path: 'exception', loadChildren: () => import('./exception/routes').then(m => m.routes) },
+  // 404 fallback
   { path: '**', redirectTo: 'exception/404' }
 ];

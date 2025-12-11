@@ -9,7 +9,10 @@ export * from './i18n/i18n.service';
 export * from './net/index';
 export * from './services/supabase.service';
 export * from './services/firebase-auth.service';
+export * from './services/firebase-analytics.service';
 export * from './services/logger/logger.service';
+export * from './services/performance-monitoring.service';
+export * from './services/error-tracking.service';
 export * from './startup/startup.service';
 export * from './start-page.guard';
 
