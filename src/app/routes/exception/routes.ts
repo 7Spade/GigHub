@@ -1,11 +1,23 @@
 import { Routes } from '@angular/router';
 
-import { ExceptionComponent } from './exception.component';
-import { ExceptionTriggerComponent } from './trigger.component';
-
 export const routes: Routes = [
-  { path: '403', component: ExceptionComponent, data: { type: 403 } },
-  { path: '404', component: ExceptionComponent, data: { type: 404 } },
-  { path: '500', component: ExceptionComponent, data: { type: 500 } },
-  { path: 'trigger', component: ExceptionTriggerComponent }
+  { 
+    path: '403', 
+    loadComponent: () => import('./exception.component').then(m => m.ExceptionComponent),
+    data: { type: 403 } 
+  },
+  { 
+    path: '404', 
+    loadComponent: () => import('./exception.component').then(m => m.ExceptionComponent),
+    data: { type: 404 } 
+  },
+  { 
+    path: '500', 
+    loadComponent: () => import('./exception.component').then(m => m.ExceptionComponent),
+    data: { type: 500 } 
+  },
+  { 
+    path: 'trigger', 
+    loadComponent: () => import('./trigger.component').then(m => m.ExceptionTriggerComponent)
+  }
 ];

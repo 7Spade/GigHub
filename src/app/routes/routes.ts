@@ -12,7 +12,10 @@ export const routes: Routes = [
     canActivateChild: [authSimpleCanActivateChild],
     data: {},
     children: [
-      { path: '', redirectTo: 'dashboard/user', pathMatch: 'full' },
+      // Redirect to user blueprints as default dashboard
+      { path: '', redirectTo: 'blueprints/user', pathMatch: 'full' },
+      { path: 'dashboard', redirectTo: 'blueprints/user', pathMatch: 'full' },
+      { path: 'dashboard/user', redirectTo: 'blueprints/user', pathMatch: 'full' },
       {
         path: 'user',
         loadChildren: () => import('./user/routes').then(m => m.routes),
@@ -41,8 +44,10 @@ export const routes: Routes = [
       }
     ]
   },
-  // passport
+  // passport - lazy loaded
   { path: '', loadChildren: () => import('./passport/routes').then(m => m.routes) },
+  // exception - lazy loaded
   { path: 'exception', loadChildren: () => import('./exception/routes').then(m => m.routes) },
+  // 404 fallback
   { path: '**', redirectTo: 'exception/404' }
 ];
