@@ -1,18 +1,19 @@
 import { Injectable, inject, signal, computed, ErrorHandler } from '@angular/core';
 import { Router } from '@angular/router';
-import { LoggerService } from './logger/logger.service';
+
 import { FirebaseAnalyticsService } from './firebase-analytics.service';
+import { LoggerService } from './logger/logger.service';
 
 /**
  * Error Tracking Service
  * 錯誤追蹤服務
- * 
+ *
  * Features:
  * - Global error handling
  * - Error categorization and tracking
  * - Integration with Firebase Analytics
  * - Error rate monitoring
- * 
+ *
  * @version 1.0.0
  * @since Angular 20.3.0
  */
@@ -60,12 +61,10 @@ export class ErrorTrackingService {
 
   // ✅ Computed error metrics
   readonly totalErrors = computed(() => this._errors().length);
-  readonly criticalErrors = computed(() => 
-    this._errors().filter(e => e.severity === ErrorSeverity.CRITICAL).length
-  );
+  readonly criticalErrors = computed(() => this._errors().filter(e => e.severity === ErrorSeverity.CRITICAL).length);
   readonly recentErrors = computed(() => {
     const now = Date.now();
-    const oneHourAgo = now - (60 * 60 * 1000);
+    const oneHourAgo = now - 60 * 60 * 1000;
     return this._errors().filter(e => e.timestamp > oneHourAgo);
   });
   readonly errorRate = computed(() => {
@@ -107,11 +106,7 @@ export class ErrorTrackingService {
     });
 
     // Log to console
-    this.logger.error(
-      `[ErrorTracking][${type}][${severity}]`,
-      errorLog.message,
-      typeof error === 'string' ? new Error(error) : error
-    );
+    this.logger.error(`[ErrorTracking][${type}][${severity}]`, errorLog.message, typeof error === 'string' ? new Error(error) : error);
 
     // Send to Firebase Analytics
     if (this.analytics) {
@@ -144,11 +139,7 @@ export class ErrorTrackingService {
   private notifyCriticalError(error: ErrorLog): void {
     // In a real application, this would send notifications
     // For now, just log it
-    this.logger.error(
-      '[ErrorTracking][CRITICAL]',
-      'Critical error detected',
-      new Error(error.message)
-    );
+    this.logger.error('[ErrorTracking][CRITICAL]', 'Critical error detected', new Error(error.message));
   }
 
   /**
@@ -191,16 +182,22 @@ export class ErrorTrackingService {
     bySeverity: Record<string, number>;
   } {
     const errors = this._errors();
-    
-    const byType = errors.reduce((acc, error) => {
-      acc[error.type] = (acc[error.type] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
 
-    const bySeverity = errors.reduce((acc, error) => {
-      acc[error.severity] = (acc[error.severity] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
+    const byType = errors.reduce(
+      (acc, error) => {
+        acc[error.type] = (acc[error.type] || 0) + 1;
+        return acc;
+      },
+      {} as Record<string, number>
+    );
+
+    const bySeverity = errors.reduce(
+      (acc, error) => {
+        acc[error.severity] = (acc[error.severity] || 0) + 1;
+        return acc;
+      },
+      {} as Record<string, number>
+    );
 
     return {
       total: this.totalErrors(),
@@ -224,7 +221,7 @@ export class GlobalErrorHandler implements ErrorHandler {
   handleError(error: Error): void {
     // Determine severity based on error type
     let severity = ErrorSeverity.MEDIUM;
-    
+
     if (error.message.includes('ChunkLoadError') || error.message.includes('Failed to fetch')) {
       severity = ErrorSeverity.HIGH;
     } else if (error.name === 'TypeError' || error.name === 'ReferenceError') {
@@ -241,5 +238,3 @@ export class GlobalErrorHandler implements ErrorHandler {
     throw error;
   }
 }
-
-

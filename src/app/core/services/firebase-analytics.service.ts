@@ -1,13 +1,14 @@
 import { Injectable, inject } from '@angular/core';
 import { Analytics, logEvent, setUserId, setUserProperties } from '@angular/fire/analytics';
+
 import { LoggerService } from './logger/logger.service';
 
 /**
  * Firebase Analytics Service
  * Firebase 分析服務
- * 
+ *
  * Wrapper service for Firebase Analytics integration
- * 
+ *
  * @version 1.0.0
  * @since Angular 20.3.0
  */

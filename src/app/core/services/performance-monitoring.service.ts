@@ -2,18 +2,19 @@ import { Injectable, inject, signal, computed } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, NavigationEnd, NavigationStart, NavigationError } from '@angular/router';
 import { filter } from 'rxjs/operators';
+
 import { LoggerService } from './logger/logger.service';
 
 /**
  * Performance Monitoring Service
  * 效能監控服務
- * 
+ *
  * Features:
  * - Track route navigation performance
  * - Monitor component render times
  * - Collect performance metrics
  * - Integration with Firebase Analytics
- * 
+ *
  * @version 1.0.0
  * @since Angular 20.3.0
  */
@@ -53,19 +54,17 @@ export class PerformanceMonitoringService {
   readonly averageNavigationTime = computed(() => {
     const navMetrics = this._navigationMetrics();
     if (navMetrics.length === 0) return 0;
-    
+
     const sum = navMetrics.reduce((acc, m) => acc + m.duration, 0);
     return Math.round(sum / navMetrics.length);
   });
 
   readonly totalMetricsCount = computed(() => this._metrics().length);
   readonly totalNavigations = computed(() => this._navigationMetrics().length);
-  readonly failedNavigations = computed(() => 
-    this._navigationMetrics().filter(m => !m.success).length
-  );
+  readonly failedNavigations = computed(() => this._navigationMetrics().filter(m => !m.success).length);
 
-  private navigationStartTime: number = 0;
-  private currentRoute: string = '';
+  private navigationStartTime = 0;
+  private currentRoute = '';
 
   constructor() {
     this.initializeRouteTracking();
@@ -83,7 +82,7 @@ export class PerformanceMonitoringService {
         filter((event): event is NavigationStart => event instanceof NavigationStart),
         takeUntilDestroyed()
       )
-      .subscribe((event) => {
+      .subscribe(event => {
         this.navigationStartTime = performance.now();
         this.currentRoute = event.url;
       });
@@ -94,9 +93,9 @@ export class PerformanceMonitoringService {
         filter((event): event is NavigationEnd => event instanceof NavigationEnd),
         takeUntilDestroyed()
       )
-      .subscribe((event) => {
+      .subscribe(event => {
         const duration = performance.now() - this.navigationStartTime;
-        
+
         this.addNavigationMetric({
           from: this.currentRoute,
           to: event.urlAfterRedirects,
@@ -114,9 +113,9 @@ export class PerformanceMonitoringService {
         filter((event): event is NavigationError => event instanceof NavigationError),
         takeUntilDestroyed()
       )
-      .subscribe((event) => {
+      .subscribe(event => {
         const duration = performance.now() - this.navigationStartTime;
-        
+
         this.addNavigationMetric({
           from: this.currentRoute,
           to: event.url,
@@ -125,7 +124,11 @@ export class PerformanceMonitoringService {
           success: false
         });
 
-        this.logger.error('[PerformanceMonitoring]', `Navigation to ${event.url} failed after ${duration.toFixed(2)}ms`, event.error as Error);
+        this.logger.error(
+          '[PerformanceMonitoring]',
+          `Navigation to ${event.url} failed after ${duration.toFixed(2)}ms`,
+          event.error as Error
+        );
       });
   }
 
@@ -137,7 +140,7 @@ export class PerformanceMonitoringService {
     if ('PerformanceObserver' in window) {
       try {
         // Observe First Contentful Paint (FCP)
-        const fcpObserver = new PerformanceObserver((list) => {
+        const fcpObserver = new PerformanceObserver(list => {
           for (const entry of list.getEntries()) {
             this.addMetric({
               name: 'FCP',
@@ -150,7 +153,7 @@ export class PerformanceMonitoringService {
         fcpObserver.observe({ entryTypes: ['paint'] });
 
         // Observe Largest Contentful Paint (LCP)
-        const lcpObserver = new PerformanceObserver((list) => {
+        const lcpObserver = new PerformanceObserver(list => {
           const entries = list.getEntries();
           const lastEntry = entries[entries.length - 1];
           this.addMetric({
@@ -163,7 +166,7 @@ export class PerformanceMonitoringService {
         lcpObserver.observe({ entryTypes: ['largest-contentful-paint'] });
 
         // Observe First Input Delay (FID)
-        const fidObserver = new PerformanceObserver((list) => {
+        const fidObserver = new PerformanceObserver(list => {
           for (const entry of list.getEntries()) {
             const fidEntry = entry as PerformanceEventTiming;
             const fid = fidEntry.processingStart - fidEntry.startTime;
@@ -234,7 +237,7 @@ export class PerformanceMonitoringService {
       try {
         performance.measure(name, startMark, endMark);
         const measure = performance.getEntriesByName(name)[0];
-        
+
         this.addMetric({
           name,
           value: measure.duration,

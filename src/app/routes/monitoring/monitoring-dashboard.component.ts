@@ -1,6 +1,6 @@
 import { Component, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
-import { PerformanceMonitoringService } from '@core/services/performance-monitoring.service';
 import { ErrorTrackingService } from '@core/services/error-tracking.service';
+import { PerformanceMonitoringService } from '@core/services/performance-monitoring.service';
 import { SHARED_IMPORTS } from '@shared';
 
 /**
@@ -30,14 +30,16 @@ import { SHARED_IMPORTS } from '@shared';
       <p>錯誤追蹤資訊</p>
     </nz-card>
   `,
-  styles: [`
-    :host {
-      display: block;
-    }
-    .mb-md {
-      margin-bottom: 16px;
-    }
-  `]
+  styles: [
+    `
+      :host {
+        display: block;
+      }
+      .mb-md {
+        margin-bottom: 16px;
+      }
+    `
+  ]
 })
 export class MonitoringDashboardComponent implements OnInit {
   readonly performanceMonitoring = inject(PerformanceMonitoringService);

@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+
 import { LayoutPassportComponent } from '../../layout';
 
 export const routes: Routes = [
@@ -30,8 +31,8 @@ export const routes: Routes = [
     ]
   },
   // 单页不包裹Layout
-  { 
-    path: 'passport/callback/:type', 
+  {
+    path: 'passport/callback/:type',
     loadComponent: () => import('./callback.component').then(m => m.CallbackComponent)
   }
 ];

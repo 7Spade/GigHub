@@ -105,22 +105,17 @@ import { firstValueFrom, Subject, debounceTime } from 'rxjs';
       <!-- Filter Section -->
       <div class="mb-md" style="display: flex; gap: 8px; flex-wrap: wrap;">
         <nz-input-group [nzPrefix]="searchPrefix" style="width: 250px;">
-          <input 
-            nz-input 
-            placeholder="搜尋藍圖..." 
-            [value]="searchText()" 
-            (input)="onSearchChange($any($event.target).value)" 
-          />
+          <input nz-input placeholder="搜尋藍圖..." [value]="searchText()" (input)="onSearchChange($any($event.target).value)" />
         </nz-input-group>
         <ng-template #searchPrefix>
           <span nz-icon nzType="search"></span>
         </ng-template>
 
-        <nz-select 
-          [ngModel]="filterStatus()" 
-          (ngModelChange)="onStatusFilterChange($event)" 
-          nzPlaceHolder="篩選狀態" 
-          nzAllowClear 
+        <nz-select
+          [ngModel]="filterStatus()"
+          (ngModelChange)="onStatusFilterChange($event)"
+          nzPlaceHolder="篩選狀態"
+          nzAllowClear
           style="width: 150px"
         >
           <nz-option nzLabel="全部" [nzValue]="null"></nz-option>
@@ -165,7 +160,7 @@ export class BlueprintListComponent implements OnInit {
   // ✅ Signal-based reactive state
   readonly filterStatus = signal<BlueprintStatus | null>(null);
   readonly searchText = signal('');
-  
+
   // ✅ Debounced search subject
   private searchSubject = new Subject<string>();
 
@@ -241,14 +236,9 @@ export class BlueprintListComponent implements OnInit {
     });
 
     // ✅ Debounced search: 300ms delay for better performance
-    this.searchSubject
-      .pipe(
-        debounceTime(300),
-        takeUntilDestroyed()
-      )
-      .subscribe((text: string) => {
-        this.searchText.set(text);
-      });
+    this.searchSubject.pipe(debounceTime(300), takeUntilDestroyed()).subscribe((text: string) => {
+      this.searchText.set(text);
+    });
   }
 
   // Table columns configuration
