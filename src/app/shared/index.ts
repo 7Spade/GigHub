@@ -4,7 +4,6 @@
 export * from './services/index';
 
 // Utils
-export * from './utils/yuan';
 export * from './utils/index';
 
 // Module
