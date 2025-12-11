@@ -1,40 +1,45 @@
+import { DatePipe } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { DatePipe } from '@angular/common';
-import { firstValueFrom } from 'rxjs';
-import { NzMessageService } from 'ng-zorro-antd/message';
-import { NzStatisticModule } from 'ng-zorro-antd/statistic';
-import { NzResultModule } from 'ng-zorro-antd/result';
+import { Blueprint, LoggerService } from '@core';
+import { SHARED_IMPORTS, createAsyncState, BlueprintService } from '@shared';
 import { NzDescriptionsModule } from 'ng-zorro-antd/descriptions';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
+import { NzMessageService } from 'ng-zorro-antd/message';
+import { NzResultModule } from 'ng-zorro-antd/result';
 import { NzSpaceModule } from 'ng-zorro-antd/space';
+import { NzStatisticModule } from 'ng-zorro-antd/statistic';
 import { NzTabsModule } from 'ng-zorro-antd/tabs';
 import { NzTagModule } from 'ng-zorro-antd/tag';
-import { SHARED_IMPORTS, createAsyncState } from '@shared';
-import { Blueprint, LoggerService } from '@core';
-import { BlueprintService } from '@shared';
+import { firstValueFrom } from 'rxjs';
 
 /**
  * Blueprint Detail Component
  * 藍圖詳情元件 - 顯示單一藍圖的完整資訊
- * 
+ *
  * Features:
  * - Display blueprint information
  * - Show enabled modules
  * - Navigate to module pages
- * 
+ *
  * ✅ Modernized with AsyncState pattern
  */
 @Component({
   selector: 'app-blueprint-detail',
   standalone: true,
-  imports: [SHARED_IMPORTS, NzStatisticModule, NzResultModule, NzDescriptionsModule, NzEmptyModule, NzSpaceModule, NzTabsModule, NzTagModule, DatePipe],
+  imports: [
+    SHARED_IMPORTS,
+    NzStatisticModule,
+    NzResultModule,
+    NzDescriptionsModule,
+    NzEmptyModule,
+    NzSpaceModule,
+    NzTabsModule,
+    NzTagModule,
+    DatePipe
+  ],
   template: `
-    <page-header
-      [title]="blueprint()?.name || '藍圖詳情'"
-      [action]="action"
-      [breadcrumb]="breadcrumb"
-      >
+    <page-header [title]="blueprint()?.name || '藍圖詳情'" [action]="action" [breadcrumb]="breadcrumb">
       <ng-template #action>
         <nz-space>
           <button *nzSpaceItem nz-button (click)="refresh()">
@@ -55,7 +60,7 @@ import { BlueprintService } from '@shared';
           </button>
         </nz-space>
       </ng-template>
-    
+
       <ng-template #breadcrumb>
         <nz-breadcrumb>
           <nz-breadcrumb-item>
@@ -65,7 +70,7 @@ import { BlueprintService } from '@shared';
         </nz-breadcrumb>
       </ng-template>
     </page-header>
-    
+
     @if (loading()) {
       <nz-card [nzLoading]="true" style="min-height: 400px;"></nz-card>
     } @else if (blueprint()) {
@@ -77,10 +82,7 @@ import { BlueprintService } from '@shared';
             {{ blueprint()!.ownerType === 'user' ? '個人' : blueprint()!.ownerType === 'organization' ? '組織' : '團隊' }}
           </nz-descriptions-item>
           <nz-descriptions-item nzTitle="狀態">
-            <nz-badge
-              [nzStatus]="getStatusBadge(blueprint()!.status)"
-              [nzText]="getStatusText(blueprint()!.status)"
-            />
+            <nz-badge [nzStatus]="getStatusBadge(blueprint()!.status)" [nzText]="getStatusText(blueprint()!.status)" />
           </nz-descriptions-item>
           <nz-descriptions-item nzTitle="建立時間">
             {{ blueprint()!.createdAt | date: 'yyyy-MM-dd HH:mm' }}
@@ -106,31 +108,19 @@ import { BlueprintService } from '@shared';
                   <nz-card nzTitle="專案統計" class="mb-md">
                     <nz-row [nzGutter]="16">
                       <nz-col [nzSpan]="8">
-                        <nz-statistic
-                          [nzValue]="blueprint()!.enabledModules.length"
-                          nzTitle="啟用模組"
-                          [nzPrefix]="moduleIconTpl"
-                        />
+                        <nz-statistic [nzValue]="blueprint()!.enabledModules.length" nzTitle="啟用模組" [nzPrefix]="moduleIconTpl" />
                         <ng-template #moduleIconTpl>
                           <span nz-icon nzType="appstore" style="color: #1890ff;"></span>
                         </ng-template>
                       </nz-col>
                       <nz-col [nzSpan]="8">
-                        <nz-statistic
-                          [nzValue]="0"
-                          nzTitle="總任務"
-                          [nzPrefix]="taskIconTpl"
-                        />
+                        <nz-statistic [nzValue]="0" nzTitle="總任務" [nzPrefix]="taskIconTpl" />
                         <ng-template #taskIconTpl>
                           <span nz-icon nzType="check-square" style="color: #52c41a;"></span>
                         </ng-template>
                       </nz-col>
                       <nz-col [nzSpan]="8">
-                        <nz-statistic
-                          [nzValue]="0"
-                          nzTitle="日誌數"
-                          [nzPrefix]="logIconTpl"
-                        />
+                        <nz-statistic [nzValue]="0" nzTitle="日誌數" [nzPrefix]="logIconTpl" />
                         <ng-template #logIconTpl>
                           <span nz-icon nzType="file-text" style="color: #faad14;"></span>
                         </ng-template>
@@ -242,7 +232,7 @@ import { BlueprintService } from '@shared';
                       前往完整管理頁面
                     </button>
                   </ng-template>
-                  
+
                   <nz-alert
                     nzType="info"
                     nzShowIcon
@@ -250,7 +240,7 @@ import { BlueprintService } from '@shared';
                     nzDescription="藍圖成員包含參與此藍圖的組織成員和組織團隊。點擊上方按鈕可前往完整的成員管理頁面進行新增、編輯等操作。"
                     class="mb-md"
                   />
-                  
+
                   <p class="text-grey">
                     <span nz-icon nzType="team"></span>
                     此藍圖的成員來自組織成員和團隊，擁有不同的權限和角色。
@@ -279,39 +269,35 @@ import { BlueprintService } from '@shared';
       </nz-card>
     } @else {
       <nz-card>
-        <nz-result
-          nzStatus="404"
-          nzTitle="藍圖不存在"
-          nzSubTitle="找不到指定的藍圖"
-          >
+        <nz-result nzStatus="404" nzTitle="藍圖不存在" nzSubTitle="找不到指定的藍圖">
           <div nz-result-extra>
-            <button nz-button nzType="primary" [routerLink]="['..']" [relativeTo]="route">
-              返回列表
-            </button>
+            <button nz-button nzType="primary" [routerLink]="['..']" [relativeTo]="route"> 返回列表 </button>
           </div>
         </nz-result>
       </nz-card>
     }
-    `,
-  styles: [`
-    :host {
-      display: block;
-    }
-    
-    .module-card {
-      cursor: pointer;
-      transition: all 0.3s;
-    }
-    
-    .module-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    }
-    
-    .text-grey {
-      color: rgba(0, 0, 0, 0.45);
-    }
-  `]
+  `,
+  styles: [
+    `
+      :host {
+        display: block;
+      }
+
+      .module-card {
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+
+      .module-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
+
+      .text-grey {
+        color: rgba(0, 0, 0, 0.45);
+      }
+    `
+  ]
 })
 export class BlueprintDetailComponent implements OnInit {
   protected readonly route = inject(ActivatedRoute);
@@ -322,11 +308,11 @@ export class BlueprintDetailComponent implements OnInit {
 
   // ✅ Modern Pattern: Use AsyncState
   readonly blueprintState = createAsyncState<Blueprint | null>(null);
-  
+
   // Convenience accessor
   readonly blueprint = this.blueprintState.data;
   readonly loading = this.blueprintState.loading;
-  
+
   // Tab state
   activeTabIndex = 0;
 
@@ -349,7 +335,7 @@ export class BlueprintDetailComponent implements OnInit {
   private async loadBlueprint(id: string): Promise<void> {
     try {
       const data = await firstValueFrom(this.blueprintService.getById(id));
-      
+
       if (data) {
         this.blueprintState.setData(data);
         this.logger.info('[BlueprintDetailComponent]', `Loaded blueprint: ${data.name}`);
@@ -490,7 +476,7 @@ export class BlueprintDetailComponent implements OnInit {
   delete(): void {
     this.message.info('刪除功能待實作');
   }
-  
+
   /**
    * Refresh blueprint data
    * 重新整理藍圖資料
@@ -501,7 +487,7 @@ export class BlueprintDetailComponent implements OnInit {
       this.loadBlueprint(id);
     }
   }
-  
+
   /**
    * Export blueprint data
    * 匯出藍圖資料
@@ -509,7 +495,7 @@ export class BlueprintDetailComponent implements OnInit {
   exportData(): void {
     this.message.info('匯出功能待實作');
   }
-  
+
   /**
    * Navigate to members page
    * 導航到成員管理頁面
@@ -517,7 +503,7 @@ export class BlueprintDetailComponent implements OnInit {
   navigateToMembers(): void {
     this.router.navigate(['members'], { relativeTo: this.route });
   }
-  
+
   /**
    * Configure modules
    * 配置模組
@@ -525,7 +511,7 @@ export class BlueprintDetailComponent implements OnInit {
   configureModules(): void {
     this.message.info('模組配置功能待實作');
   }
-  
+
   /**
    * View audit logs
    * 查看審計記錄
@@ -533,7 +519,7 @@ export class BlueprintDetailComponent implements OnInit {
   viewAuditLogs(): void {
     this.router.navigate(['audit'], { relativeTo: this.route });
   }
-  
+
   /**
    * Handle tab change
    * 處理 Tab 切換

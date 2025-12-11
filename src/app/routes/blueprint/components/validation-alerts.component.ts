@@ -1,13 +1,14 @@
-import { Component, ChangeDetectionStrategy, input } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, ChangeDetectionStrategy, input } from '@angular/core';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
-import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzButtonModule } from 'ng-zorro-antd/button';
+import { NzIconModule } from 'ng-zorro-antd/icon';
+
 import { DependencyValidationResult, ValidationError, ValidationWarning } from '../services/dependency-validator.service';
 
 /**
  * 驗證警示元件
- * 
+ *
  * 顯示藍圖配置的驗證錯誤與警告
  */
 @Component({
@@ -37,9 +38,7 @@ import { DependencyValidationResult, ValidationError, ValidationWarning } from '
                   <span class="error-icon" nz-icon nzType="close-circle" nzTheme="fill"></span>
                   <span class="error-message">{{ error.message }}</span>
                   @if (error.cyclePath && error.cyclePath.length > 0) {
-                    <div class="cycle-path">
-                      循環路徑: {{ error.cyclePath.join(' → ') }} → {{ error.cyclePath[0] }}
-                    </div>
+                    <div class="cycle-path"> 循環路徑: {{ error.cyclePath.join(' → ') }} → {{ error.cyclePath[0] }} </div>
                   }
                 </li>
               }
@@ -87,61 +86,63 @@ import { DependencyValidationResult, ValidationError, ValidationWarning } from '
       }
     </div>
   `,
-  styles: [`
-    .validation-alerts {
-      margin-bottom: 16px;
-    }
+  styles: [
+    `
+      .validation-alerts {
+        margin-bottom: 16px;
+      }
 
-    .validation-alert {
-      margin-bottom: 12px;
-    }
+      .validation-alert {
+        margin-bottom: 12px;
+      }
 
-    .error-list,
-    .warning-list {
-      margin: 8px 0 0 0;
-      padding-left: 0;
-      list-style: none;
-    }
+      .error-list,
+      .warning-list {
+        margin: 8px 0 0 0;
+        padding-left: 0;
+        list-style: none;
+      }
 
-    .error-list li,
-    .warning-list li {
-      margin-bottom: 8px;
-      display: flex;
-      align-items: flex-start;
-      gap: 8px;
-    }
+      .error-list li,
+      .warning-list li {
+        margin-bottom: 8px;
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+      }
 
-    .error-icon {
-      color: #ff4d4f;
-      font-size: 14px;
-      flex-shrink: 0;
-      margin-top: 2px;
-    }
+      .error-icon {
+        color: #ff4d4f;
+        font-size: 14px;
+        flex-shrink: 0;
+        margin-top: 2px;
+      }
 
-    .warning-icon {
-      color: #faad14;
-      font-size: 14px;
-      flex-shrink: 0;
-      margin-top: 2px;
-    }
+      .warning-icon {
+        color: #faad14;
+        font-size: 14px;
+        flex-shrink: 0;
+        margin-top: 2px;
+      }
 
-    .error-message,
-    .warning-message {
-      flex: 1;
-      line-height: 1.5;
-    }
+      .error-message,
+      .warning-message {
+        flex: 1;
+        line-height: 1.5;
+      }
 
-    .cycle-path {
-      margin-top: 4px;
-      padding: 8px 12px;
-      background: rgba(255, 77, 79, 0.1);
-      border-left: 3px solid #ff4d4f;
-      border-radius: 2px;
-      font-family: 'Courier New', monospace;
-      font-size: 12px;
-      color: #ff4d4f;
-    }
-  `]
+      .cycle-path {
+        margin-top: 4px;
+        padding: 8px 12px;
+        background: rgba(255, 77, 79, 0.1);
+        border-left: 3px solid #ff4d4f;
+        border-radius: 2px;
+        font-family: 'Courier New', monospace;
+        font-size: 12px;
+        color: #ff4d4f;
+      }
+    `
+  ]
 })
 export class ValidationAlertsComponent {
   /** 驗證結果 */

@@ -6,8 +6,9 @@
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { SHARED_IMPORTS } from '@shared';
-import { LogsService } from './logs.service';
+
 import { LogLevel, LogCategory } from './logs.repository';
+import { LogsService } from './logs.service';
 
 @Component({
   selector: 'app-logs',
@@ -48,14 +49,11 @@ import { LogLevel, LogCategory } from './logs.repository';
           <nz-list-item *ngFor="let log of logs(); trackBy: trackByFn">
             <nz-list-item-meta>
               <nz-list-item-meta-title>
-                <nz-badge 
-                  [nzStatus]="getLevelStatus(log.level)" 
-                  [nzText]="log.level">
-                </nz-badge>
+                <nz-badge [nzStatus]="getLevelStatus(log.level)" [nzText]="log.level"> </nz-badge>
                 {{ log.message }}
               </nz-list-item-meta-title>
               <nz-list-item-meta-description>
-                分類: {{ log.category }} | 時間: {{ log.timestamp | date:'yyyy-MM-dd HH:mm:ss' }}
+                分類: {{ log.category }} | 時間: {{ log.timestamp | date: 'yyyy-MM-dd HH:mm:ss' }}
               </nz-list-item-meta-description>
             </nz-list-item-meta>
           </nz-list-item>

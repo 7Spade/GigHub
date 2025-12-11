@@ -1,17 +1,17 @@
 import { Component, inject, input, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { SHARED_IMPORTS } from '@shared';
 import { Team } from '@core';
+import { SHARED_IMPORTS } from '@shared';
 
 /**
  * Team Modal Component
  * 團隊 Modal 元件 - 用於建立/編輯團隊
- * 
+ *
  * Features:
  * - Create new team
  * - Edit existing team
  * - Form validation
- * 
+ *
  * ✅ Modern Angular pattern with Reactive Forms
  */
 @Component({
@@ -26,37 +26,34 @@ import { Team } from '@core';
           <input nz-input formControlName="name" placeholder="請輸入團隊名稱" />
         </nz-form-control>
       </nz-form-item>
-      
+
       <nz-form-item>
         <nz-form-label [nzSpan]="6">描述</nz-form-label>
         <nz-form-control [nzSpan]="18">
-          <textarea 
-            nz-input 
-            formControlName="description" 
-            placeholder="請輸入團隊描述（選填）" 
-            rows="3"
-          ></textarea>
+          <textarea nz-input formControlName="description" placeholder="請輸入團隊描述（選填）" rows="3"></textarea>
         </nz-form-control>
       </nz-form-item>
     </form>
   `,
-  styles: [`
-    :host {
-      display: block;
-    }
-  `]
+  styles: [
+    `
+      :host {
+        display: block;
+      }
+    `
+  ]
 })
 export class TeamModalComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
-  
+
   // Input: team for edit mode (optional)
   team = input<Team | null>(null);
-  
+
   form: FormGroup = this.fb.group({
     name: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
     description: ['', [Validators.maxLength(200)]]
   });
-  
+
   ngOnInit(): void {
     // If editing, populate form
     const team = this.team();
@@ -67,7 +64,7 @@ export class TeamModalComponent implements OnInit {
       });
     }
   }
-  
+
   /**
    * Get form data
    * ModalHelper will call this method
@@ -76,13 +73,13 @@ export class TeamModalComponent implements OnInit {
     if (!this.form.valid) {
       throw new Error('Form is invalid');
     }
-    
+
     return {
       name: this.form.value.name.trim(),
       description: this.form.value.description?.trim() || null
     };
   }
-  
+
   /**
    * Check if form is valid
    */

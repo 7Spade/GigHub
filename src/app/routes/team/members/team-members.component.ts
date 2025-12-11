@@ -1,13 +1,13 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit, effect } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { ContextType, TeamMember, TeamRole, OrganizationMember } from '@core';
 import { SHARED_IMPORTS, WorkspaceContextService, TeamMemberRepository, OrganizationMemberRepository } from '@shared';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
-import { NzModalService } from 'ng-zorro-antd/modal';
 import { NzMessageService } from 'ng-zorro-antd/message';
+import { NzModalService } from 'ng-zorro-antd/modal';
 import { NzSelectModule } from 'ng-zorro-antd/select';
 import { NzSpaceModule } from 'ng-zorro-antd/space';
-import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-team-members',
@@ -15,11 +15,11 @@ import { FormsModule } from '@angular/forms';
   imports: [SHARED_IMPORTS, NzAlertModule, NzEmptyModule, NzSelectModule, NzSpaceModule, FormsModule],
   template: `
     <page-header [title]="'團隊成員'" [content]="headerContent" [breadcrumb]="breadcrumb"></page-header>
-    
+
     <ng-template #headerContent>
       <div>檢視並管理目前團隊的成員。</div>
     </ng-template>
-    
+
     <ng-template #breadcrumb>
       <nz-breadcrumb>
         <nz-breadcrumb-item>
@@ -43,41 +43,25 @@ import { FormsModule } from '@angular/forms';
     </ng-template>
 
     @if (!isTeamContext()) {
-      <nz-alert
-        nzType="info"
-        nzShowIcon
-        nzMessage="請先選擇團隊"
-        nzDescription="請從側邊欄選擇一個團隊以管理成員。"
-        class="mb-md"
-      />
+      <nz-alert nzType="info" nzShowIcon nzMessage="請先選擇團隊" nzDescription="請從側邊欄選擇一個團隊以管理成員。" class="mb-md" />
     }
 
     <nz-card nzTitle="成員列表" [nzExtra]="extraTemplate" [nzLoading]="loading()">
       <ng-template #extraTemplate>
         @if (isTeamContext()) {
           <nz-space>
-            <button 
-              *nzSpaceItem 
-              nz-button 
-              nzType="primary" 
-              (click)="openAddMemberModal()"
-            >
+            <button *nzSpaceItem nz-button nzType="primary" (click)="openAddMemberModal()">
               <span nz-icon nzType="user-add"></span>
               新增成員
             </button>
-            <button 
-              *nzSpaceItem 
-              nz-button 
-              nzType="default"
-              (click)="refreshMembers()"
-            >
+            <button *nzSpaceItem nz-button nzType="default" (click)="refreshMembers()">
               <span nz-icon nzType="reload"></span>
               重新整理
             </button>
           </nz-space>
         }
       </ng-template>
-      
+
       @if (displayMembers().length > 0) {
         <nz-table #table [nzData]="displayMembers()">
           <thead>
@@ -98,24 +82,18 @@ import { FormsModule } from '@angular/forms';
                 <td>{{ member.joined_at || '-' }}</td>
                 <td>
                   <nz-space>
-                    <button 
-                      *nzSpaceItem 
-                      nz-button 
-                      nzType="link" 
-                      nzSize="small" 
-                      (click)="changeRole(member)"
-                    >
+                    <button *nzSpaceItem nz-button nzType="link" nzSize="small" (click)="changeRole(member)">
                       <span nz-icon nzType="swap"></span>
                       變更角色
                     </button>
-                    <button 
-                      *nzSpaceItem 
-                      nz-button 
-                      nzType="link" 
-                      nzSize="small" 
+                    <button
+                      *nzSpaceItem
+                      nz-button
+                      nzType="link"
+                      nzSize="small"
                       nzDanger
-                      nz-popconfirm 
-                      nzPopconfirmTitle="確定移除此成員？" 
+                      nz-popconfirm
+                      nzPopconfirmTitle="確定移除此成員？"
                       (nzOnConfirm)="removeMember(member)"
                     >
                       <span nz-icon nzType="user-delete"></span>
@@ -159,7 +137,7 @@ export class TeamMembersComponent implements OnInit {
 
   private readonly members = signal<TeamMember[]>([]);
   loading = signal(false);
-  
+
   // Add TeamRole to template
   readonly TeamRole = TeamRole;
 
@@ -180,7 +158,7 @@ export class TeamMembersComponent implements OnInit {
       this.loadMembers(teamId);
     }
   }
-  
+
   getOrganizationName(): string {
     const teams = this.workspaceContext.teams();
     const currentTeam = teams.find(t => t.id === this.currentTeamId());
@@ -251,7 +229,7 @@ export class TeamMembersComponent implements OnInit {
     this.orgMemberRepository.findByOrganization(currentTeam.organization_id).subscribe({
       next: (orgMembers: OrganizationMember[]) => {
         this.loading.set(false);
-        
+
         // Filter out members already in team
         const currentMemberIds = this.members().map(m => m.user_id);
         const availableMembers = orgMembers.filter(om => !currentMemberIds.includes(om.user_id));
@@ -284,7 +262,7 @@ export class TeamMembersComponent implements OnInit {
       });
 
       // Handle modal result
-      modalRef.afterClose.subscribe(async (result) => {
+      modalRef.afterClose.subscribe(async result => {
         if (result) {
           try {
             await this.memberRepository.addMember(teamId, result.userId, result.role);
@@ -306,7 +284,7 @@ export class TeamMembersComponent implements OnInit {
     // Create a simple role change modal
     const currentRole = member.role;
     const availableRoles = Object.values(TeamRole).filter(role => role !== currentRole);
-    
+
     const modalRef = this.modal.create({
       nzTitle: '變更成員角色',
       nzContent: `
@@ -315,7 +293,9 @@ export class TeamMembersComponent implements OnInit {
           <div class="mb-md">
             <label class="d-block mb-sm"><strong>選擇新角色</strong></label>
             <nz-radio-group id="roleSelector" style="display: flex; flex-direction: column; gap: 12px;">
-              ${availableRoles.map(role => `
+              ${availableRoles
+                .map(
+                  role => `
                 <label nz-radio nzValue="${role}" style="display: flex; align-items: center; padding: 8px; border: 1px solid #d9d9d9; border-radius: 4px;">
                   <input type="radio" name="role" value="${role}" />
                   <span style="margin-left: 8px;">
@@ -325,7 +305,9 @@ export class TeamMembersComponent implements OnInit {
                     </span>
                   </span>
                 </label>
-              `).join('')}
+              `
+                )
+                .join('')}
             </nz-radio-group>
           </div>
         </div>
@@ -359,7 +341,7 @@ export class TeamMembersComponent implements OnInit {
     try {
       await this.memberRepository.removeMember(member.id);
       this.message.success('成員已移除');
-      
+
       const teamId = this.currentTeamId();
       if (teamId) {
         this.loadMembers(teamId);

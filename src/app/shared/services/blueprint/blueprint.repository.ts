@@ -17,8 +17,8 @@ import {
   DocumentReference,
   QueryConstraint
 } from '@angular/fire/firestore';
-import { Observable, catchError, from, map, of } from 'rxjs';
 import { Blueprint, BlueprintQueryOptions, BlueprintStatus, CreateBlueprintRequest, OwnerType, LoggerService } from '@core';
+import { Observable, catchError, from, map, of } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -52,11 +52,7 @@ export class BlueprintRepository {
       createdBy: data.createdBy,
       createdAt: data.createdAt instanceof Timestamp ? data.createdAt.toDate() : data.createdAt,
       updatedAt: data.updatedAt instanceof Timestamp ? data.updatedAt.toDate() : data.updatedAt,
-      deletedAt: data.deletedAt
-        ? data.deletedAt instanceof Timestamp
-          ? data.deletedAt.toDate()
-          : data.deletedAt
-        : null
+      deletedAt: data.deletedAt ? (data.deletedAt instanceof Timestamp ? data.deletedAt.toDate() : data.deletedAt) : null
     };
   }
 
@@ -161,7 +157,7 @@ export class BlueprintRepository {
       // 1. 建立文件 (Create document)
       const docRef = await addDoc(this.getCollectionRef(), docData);
       console.log('[BlueprintRepository] ✅ Document created with ID:', docRef.id);
-      
+
       // 2. 讀取剛建立的文件以確認持久化成功 (Read back to confirm persistence)
       const snapshot = await getDoc(docRef);
       if (snapshot.exists()) {

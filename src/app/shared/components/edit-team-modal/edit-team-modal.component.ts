@@ -1,15 +1,15 @@
 /**
  * Edit Team Modal Component - Modern Angular 20 Implementation
- * 
+ *
  * 編輯團隊模態元件 - 現代化 Angular 20 實作
- * 
+ *
  * Modern Angular 20 Patterns:
  * - Standalone Component
  * - Signals for state management
  * - input() function for inputs
  * - Reactive Forms with proper validation
  * - OnPush change detection
- * 
+ *
  * @module shared/components
  */
 
@@ -33,12 +33,7 @@ import { NzModalRef, NZ_MODAL_DATA } from 'ng-zorro-antd/modal';
         <nz-form-item>
           <nz-form-label [nzRequired]="true">團隊名稱</nz-form-label>
           <nz-form-control [nzErrorTip]="nameErrorTip">
-            <input 
-              nz-input 
-              formControlName="name" 
-              placeholder="請輸入團隊名稱（2-50個字符）" 
-              [disabled]="loading()" 
-            />
+            <input nz-input formControlName="name" placeholder="請輸入團隊名稱（2-50個字符）" [disabled]="loading()" />
           </nz-form-control>
         </nz-form-item>
 
@@ -57,17 +52,8 @@ import { NzModalRef, NZ_MODAL_DATA } from 'ng-zorro-antd/modal';
       </form>
 
       <div class="modal-footer">
-        <button nz-button type="button" (click)="cancel()" [disabled]="loading()">
-          取消
-        </button>
-        <button 
-          nz-button 
-          type="button" 
-          nzType="primary" 
-          (click)="submit()" 
-          [nzLoading]="loading()" 
-          [disabled]="form.invalid"
-        >
+        <button nz-button type="button" (click)="cancel()" [disabled]="loading()"> 取消 </button>
+        <button nz-button type="button" nzType="primary" (click)="submit()" [nzLoading]="loading()" [disabled]="form.invalid">
           儲存變更
         </button>
       </div>
@@ -96,12 +82,12 @@ export class EditTeamModalComponent implements OnInit {
   private readonly teamRepository = inject(TeamRepository);
   private readonly modal = inject(NzModalRef);
   private readonly message = inject(NzMessageService);
-  
+
   // Inject modal data using NZ_MODAL_DATA token
   private readonly modalData = inject<{ team: Team }>(NZ_MODAL_DATA);
 
   loading = signal(false);
-  
+
   form: FormGroup = this.fb.group({
     name: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
     description: ['', [Validators.maxLength(500)]]
@@ -145,7 +131,7 @@ export class EditTeamModalComponent implements OnInit {
     }
 
     const teamData = this.modalData.team;
-    
+
     this.loading.set(true);
     try {
       await this.teamRepository.update(teamData.id, {

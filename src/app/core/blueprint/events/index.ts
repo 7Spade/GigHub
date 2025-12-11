@@ -1,6 +1,6 @@
 /**
  * Blueprint Events
- * 
+ *
  * Event system interfaces and types for module communication.
  */
 

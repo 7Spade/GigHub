@@ -1,9 +1,9 @@
 /**
  * Tasks Module Metadata
- * 
+ *
  * Configuration and metadata for the Tasks module.
  * Defines module identity, dependencies, and default configuration.
- * 
+ *
  * @module TasksModuleMetadata
  * @author GigHub Development Team
  * @date 2025-12-10
@@ -17,53 +17,53 @@ import { ModuleConfiguration } from '@shared/models/blueprint-module.model';
 export const TASKS_MODULE_METADATA = {
   /** Unique module identifier */
   id: 'tasks',
-  
+
   /** Module type identifier */
   moduleType: 'tasks',
-  
+
   /** Display name */
   name: '任務管理',
-  
+
   /** English name */
   nameEn: 'Task Management',
-  
+
   /** Module version */
   version: '1.0.0',
-  
+
   /** Module description */
   description: '工地任務管理模組，支援任務建立、分配、追蹤與狀態管理',
-  
+
   /** English description */
   descriptionEn: 'Construction site task management module with task creation, assignment, tracking, and status management',
-  
+
   /** Module dependencies */
   dependencies: [] as string[],
-  
+
   /** Default load order */
   defaultOrder: 100,
-  
+
   /** Module icon (ng-zorro-antd icon name) */
   icon: 'check-circle',
-  
+
   /** Module color theme */
   color: '#1890ff',
-  
+
   /** Module category */
   category: 'business',
-  
+
   /** Tags for filtering */
   tags: ['任務', 'task', 'management', 'construction'],
-  
+
   /** Author */
   author: 'GigHub Development Team',
-  
+
   /** License */
   license: 'Proprietary'
 } as const;
 
 /**
  * Default Module Configuration
- * 
+ *
  * Default settings when the module is first enabled.
  */
 export const TASKS_MODULE_DEFAULT_CONFIG: ModuleConfiguration = {
@@ -79,7 +79,7 @@ export const TASKS_MODULE_DEFAULT_CONFIG: ModuleConfiguration = {
     enableTaskAttachments: true,
     enableTaskNotifications: true
   },
-  
+
   settings: {
     defaultTaskPriority: 'medium',
     defaultTaskStatus: 'pending',
@@ -92,27 +92,19 @@ export const TASKS_MODULE_DEFAULT_CONFIG: ModuleConfiguration = {
     enableTaskArchiving: true,
     archiveAfterDays: 90
   },
-  
+
   ui: {
     icon: 'check-circle',
     color: '#1890ff',
     position: 1,
     visibility: 'visible'
   },
-  
+
   permissions: {
     requiredRoles: ['contributor', 'maintainer'],
-    allowedActions: [
-      'task.create',
-      'task.read',
-      'task.update',
-      'task.delete',
-      'task.assign',
-      'task.comment',
-      'task.attach'
-    ]
+    allowedActions: ['task.create', 'task.read', 'task.update', 'task.delete', 'task.assign', 'task.comment', 'task.attach']
   },
-  
+
   limits: {
     maxItems: 1000,
     maxStorage: 104857600, // 100MB
@@ -122,7 +114,7 @@ export const TASKS_MODULE_DEFAULT_CONFIG: ModuleConfiguration = {
 
 /**
  * Module Permissions
- * 
+ *
  * Defines permission actions for the Tasks module.
  */
 export const TASKS_MODULE_PERMISSIONS = {
@@ -138,7 +130,7 @@ export const TASKS_MODULE_PERMISSIONS = {
 
 /**
  * Module Events
- * 
+ *
  * Events emitted by the Tasks module.
  */
 export const TASKS_MODULE_EVENTS = {

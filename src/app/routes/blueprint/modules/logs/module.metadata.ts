@@ -1,8 +1,8 @@
 /**
  * Logs Module Metadata
- * 
+ *
  * Configuration, features, permissions and event definitions for the Logs module.
- * 
+ *
  * @author GigHub Development Team
  * @date 2025-12-11
  */
@@ -25,7 +25,7 @@ export const LOGS_MODULE_METADATA: ModuleMetadata = {
   category: 'monitoring',
   tags: ['logs', 'monitoring', 'debugging', 'audit'],
   dependencies: ['context', 'logger', 'audit'],
-  
+
   features: [
     {
       id: 'log-recording',
@@ -60,7 +60,7 @@ export const LOGS_MODULE_METADATA: ModuleMetadata = {
       enabled: false
     }
   ] as ModuleFeature[],
-  
+
   permissions: [
     {
       id: 'logs:view',

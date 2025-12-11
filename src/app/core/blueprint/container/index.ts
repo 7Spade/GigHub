@@ -1,6 +1,6 @@
 /**
  * Blueprint Container
- * 
+ *
  * Container system interfaces for module lifecycle management.
  */
 

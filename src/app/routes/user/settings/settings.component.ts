@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
-import { NzMessageService } from 'ng-zorro-antd/message';
 import { SHARED_IMPORTS } from '@shared';
+import { NzMessageService } from 'ng-zorro-antd/message';
 
 @Component({
   selector: 'app-user-settings',
@@ -9,7 +9,7 @@ import { SHARED_IMPORTS } from '@shared';
   imports: [SHARED_IMPORTS],
   template: `
     <page-header [title]="'個人設定'" [content]="headerContent"></page-header>
-    
+
     <ng-template #headerContent>
       <div>管理通知與偏好設定。</div>
     </ng-template>
@@ -44,9 +44,7 @@ import { SHARED_IMPORTS } from '@shared';
 
         <nz-form-item>
           <nz-form-control>
-            <button nz-button nzType="primary" [nzLoading]="saving()" [disabled]="form.invalid">
-              儲存設定
-            </button>
+            <button nz-button nzType="primary" [nzLoading]="saving()" [disabled]="form.invalid"> 儲存設定 </button>
           </nz-form-control>
         </nz-form-item>
       </form>

@@ -20,13 +20,7 @@ export class ValidationError extends BlueprintError {
     message: string,
     public errors: ValidationErrorDetail[]
   ) {
-    super(
-      `Validation failed for ${field}: ${message}`,
-      'VALIDATION_ERROR',
-      'low',
-      true,
-      { field, errors }
-    );
+    super(`Validation failed for ${field}: ${message}`, 'VALIDATION_ERROR', 'low', true, { field, errors });
     Object.setPrototypeOf(this, ValidationError.prototype);
   }
 }

@@ -1,16 +1,16 @@
-import { Component, OnInit, inject, signal, computed, ChangeDetectionStrategy, ElementRef, ViewChild } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
 import { CdkDragDrop, DragDropModule, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
-import { NzMessageService } from 'ng-zorro-antd/message';
+import { Component, OnInit, inject, signal, computed, ChangeDetectionStrategy, ElementRef, ViewChild } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Blueprint, LoggerService, ModuleType } from '@core';
+import { SHARED_IMPORTS, BlueprintService } from '@shared';
 import { NzDrawerModule } from 'ng-zorro-antd/drawer';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
 import { NzFormModule } from 'ng-zorro-antd/form';
-import { FormsModule } from '@angular/forms';
-import { SHARED_IMPORTS } from '@shared';
-import { Blueprint, LoggerService, ModuleType } from '@core';
-import { BlueprintService } from '@shared';
-import { ModuleConnection, CreateConnectionDto } from './models';
+import { NzMessageService } from 'ng-zorro-antd/message';
+
 import { ConnectionLayerComponent, ValidationAlertsComponent } from './components';
+import { ModuleConnection, CreateConnectionDto } from './models';
 import { DependencyValidatorService, DependencyValidationResult } from './services';
 
 /**
@@ -58,7 +58,7 @@ interface ConnectionCreationState {
 /**
  * Blueprint Designer Component
  * 藍圖設計器 - 視覺化拖放式模組配置介面
- * 
+ *
  * Features:
  * - Drag-and-drop module configuration
  * - Visual module dependencies (NEW: Task 1)
@@ -67,7 +67,7 @@ interface ConnectionCreationState {
  * - Dependency validation (NEW: Task 2)
  * - Real-time property editing
  * - Canvas-based layout
- * 
+ *
  * ✅ Modern Angular 20 with Signals and new control flow
  * ✅ Task 1.1: Connection data structures implemented
  * ✅ Task 1.2: SVG connection line rendering
@@ -76,13 +76,19 @@ interface ConnectionCreationState {
 @Component({
   selector: 'app-blueprint-designer',
   standalone: true,
-  imports: [SHARED_IMPORTS, DragDropModule, NzDrawerModule, NzEmptyModule, NzFormModule, FormsModule, ConnectionLayerComponent, ValidationAlertsComponent],
+  imports: [
+    SHARED_IMPORTS,
+    DragDropModule,
+    NzDrawerModule,
+    NzEmptyModule,
+    NzFormModule,
+    FormsModule,
+    ConnectionLayerComponent,
+    ValidationAlertsComponent
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <page-header
-      [title]="'藍圖設計器: ' + (blueprint()?.name || '')"
-      [action]="headerActions"
-    >
+    <page-header [title]="'藍圖設計器: ' + (blueprint()?.name || '')" [action]="headerActions">
       <ng-template #headerActions>
         <button nz-button (click)="preview()">
           <span nz-icon nzType="eye"></span>
@@ -113,15 +119,10 @@ interface ConnectionCreationState {
             @for (category of moduleCategories(); track category.name) {
               <div class="category">
                 <h4>{{ category.name }}</h4>
-                
+
                 <!-- 📌 巢狀 @for -->
                 @for (module of category.modules; track module.type) {
-                  <div
-                    class="module-card"
-                    cdkDrag
-                    [cdkDragData]="module"
-                    (cdkDragStarted)="onDragStart(module)"
-                  >
+                  <div class="module-card" cdkDrag [cdkDragData]="module" (cdkDragStarted)="onDragStart(module)">
                     <span nz-icon [nzType]="module.icon"></span>
                     <span>{{ module.name }}</span>
                   </div>
@@ -135,8 +136,8 @@ interface ConnectionCreationState {
       <!-- Canvas Area (Center) -->
       <div class="canvas-area">
         <nz-card nzTitle="畫布區域" [nzBordered]="false" class="canvas-card">
-          <div 
-            class="canvas" 
+          <div
+            class="canvas"
             #canvas
             cdkDropList
             id="canvas-drop-list"
@@ -153,21 +154,19 @@ interface ConnectionCreationState {
               (connectionClick)="selectConnection($event)"
               (connectionContextMenu)="onConnectionContextMenu($event)"
             />
-            
+
             <!-- 📌 Connection Preview (Task 1.3) -->
-            @if (connectionCreationState().active && connectionCreationState().sourcePosition && connectionCreationState().currentPosition) {
-              <svg class="connection-preview" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 100;">
-                <path
-                  [attr.d]="getPreviewPath()"
-                  stroke="#1890ff"
-                  stroke-width="2"
-                  stroke-dasharray="5,5"
-                  fill="none"
-                  opacity="0.6"
-                />
+            @if (
+              connectionCreationState().active && connectionCreationState().sourcePosition && connectionCreationState().currentPosition
+            ) {
+              <svg
+                class="connection-preview"
+                style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 100;"
+              >
+                <path [attr.d]="getPreviewPath()" stroke="#1890ff" stroke-width="2" stroke-dasharray="5,5" fill="none" opacity="0.6" />
               </svg>
             }
-            
+
             <!-- Render modules on canvas -->
             @for (module of canvasModules(); track module.id) {
               <div
@@ -179,7 +178,7 @@ interface ConnectionCreationState {
                 cdkDrag
               >
                 <!-- 📌 Input Port (Left side) - Task 1.3 -->
-                <div 
+                <div
                   class="connection-port input-port"
                   [class.active]="isPortActive('input', module.id)"
                   (mouseenter)="onPortHover('input', module.id, $event)"
@@ -189,22 +188,17 @@ interface ConnectionCreationState {
                 >
                   <span nz-icon nzType="arrow-left" nzTheme="outline"></span>
                 </div>
-                
+
                 <div class="module-header">
                   <span nz-icon [nzType]="getModuleIcon(module.type)"></span>
                   <span>{{ module.name }}</span>
-                  <button
-                    nz-button
-                    nzType="text"
-                    nzSize="small"
-                    (click)="removeModule(module.id); $event.stopPropagation()"
-                  >
+                  <button nz-button nzType="text" nzSize="small" (click)="removeModule(module.id); $event.stopPropagation()">
                     <span nz-icon nzType="close"></span>
                   </button>
                 </div>
-                
+
                 <!-- 📌 Output Port (Right side) - Task 1.3 -->
-                <div 
+                <div
                   class="connection-port output-port"
                   [class.active]="isPortActive('output', module.id)"
                   (mouseenter)="onPortHover('output', module.id, $event)"
@@ -214,22 +208,17 @@ interface ConnectionCreationState {
                 >
                   <span nz-icon nzType="arrow-right" nzTheme="outline"></span>
                 </div>
-                
+
                 <!-- 📌 使用 @if 顯示依賴關係 -->
                 @if (module.dependencies.length > 0) {
-                  <div class="module-dependencies">
-                    依賴: {{ module.dependencies.join(', ') }}
-                  </div>
+                  <div class="module-dependencies"> 依賴: {{ module.dependencies.join(', ') }} </div>
                 }
               </div>
             }
 
             <!-- Empty state -->
             @if (canvasModules().length === 0) {
-              <nz-empty
-                [nzNotFoundContent]="'拖放模組到此處開始設計'"
-                class="canvas-empty"
-              ></nz-empty>
+              <nz-empty [nzNotFoundContent]="'拖放模組到此處開始設計'" class="canvas-empty"></nz-empty>
             }
           </div>
         </nz-card>
@@ -249,12 +238,7 @@ interface ConnectionCreationState {
               <nz-form-item>
                 <nz-form-label nzRequired>模組名稱</nz-form-label>
                 <nz-form-control>
-                  <input
-                    nz-input
-                    [(ngModel)]="module.name"
-                    name="moduleName"
-                    placeholder="輸入模組名稱"
-                  />
+                  <input nz-input [(ngModel)]="module.name" name="moduleName" placeholder="輸入模組名稱" />
                 </nz-form-control>
               </nz-form-item>
 
@@ -278,184 +262,178 @@ interface ConnectionCreationState {
                 </nz-form-control>
               </nz-form-item>
 
-              <button
-                nz-button
-                nzType="primary"
-                nzBlock
-                type="button"
-                (click)="updateModuleConfig()"
-              >
-                更新設定
-              </button>
+              <button nz-button nzType="primary" nzBlock type="button" (click)="updateModuleConfig()"> 更新設定 </button>
             </form>
           </div>
         }
       </nz-drawer>
     </div>
   `,
-  styles: [`
-    .validation-section {
-      margin-bottom: 16px;
-    }
+  styles: [
+    `
+      .validation-section {
+        margin-bottom: 16px;
+      }
 
-    .designer-container {
-      display: flex;
-      height: calc(100vh - 180px);
-      gap: 16px;
-    }
+      .designer-container {
+        display: flex;
+        height: calc(100vh - 180px);
+        gap: 16px;
+      }
 
-    .module-palette {
-      width: 250px;
-      flex-shrink: 0;
-      overflow-y: auto;
-    }
+      .module-palette {
+        width: 250px;
+        flex-shrink: 0;
+        overflow-y: auto;
+      }
 
-    .category {
-      margin-bottom: 16px;
-    }
+      .category {
+        margin-bottom: 16px;
+      }
 
-    .category h4 {
-      margin: 0 0 8px 0;
-      font-size: 14px;
-      font-weight: 500;
-      color: rgba(0, 0, 0, 0.85);
-    }
+      .category h4 {
+        margin: 0 0 8px 0;
+        font-size: 14px;
+        font-weight: 500;
+        color: rgba(0, 0, 0, 0.85);
+      }
 
-    .module-card {
-      padding: 12px;
-      margin-bottom: 8px;
-      background: #fafafa;
-      border: 1px solid #d9d9d9;
-      border-radius: 4px;
-      cursor: move;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      transition: all 0.3s;
-    }
+      .module-card {
+        padding: 12px;
+        margin-bottom: 8px;
+        background: #fafafa;
+        border: 1px solid #d9d9d9;
+        border-radius: 4px;
+        cursor: move;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s;
+      }
 
-    .module-card:hover {
-      background: #e6f4ff;
-      border-color: #1890ff;
-    }
+      .module-card:hover {
+        background: #e6f4ff;
+        border-color: #1890ff;
+      }
 
-    .canvas-area {
-      flex: 1;
-      overflow: auto;
-    }
+      .canvas-area {
+        flex: 1;
+        overflow: auto;
+      }
 
-    .canvas-card {
-      height: 100%;
-    }
+      .canvas-card {
+        height: 100%;
+      }
 
-    .canvas {
-      position: relative;
-      min-height: 600px;
-      background: #fafafa;
-      border: 2px dashed #d9d9d9;
-      border-radius: 4px;
-      padding: 16px;
-    }
+      .canvas {
+        position: relative;
+        min-height: 600px;
+        background: #fafafa;
+        border: 2px dashed #d9d9d9;
+        border-radius: 4px;
+        padding: 16px;
+      }
 
-    .canvas-module {
-      position: absolute;
-      width: 200px;
-      padding: 16px;
-      background: white;
-      border: 2px solid #d9d9d9;
-      border-radius: 8px;
-      cursor: move;
-      transition: all 0.3s;
-    }
+      .canvas-module {
+        position: absolute;
+        width: 200px;
+        padding: 16px;
+        background: white;
+        border: 2px solid #d9d9d9;
+        border-radius: 8px;
+        cursor: move;
+        transition: all 0.3s;
+      }
 
-    .canvas-module:hover,
-    .canvas-module.selected {
-      border-color: #1890ff;
-      box-shadow: 0 4px 12px rgba(24, 144, 255, 0.2);
-    }
+      .canvas-module:hover,
+      .canvas-module.selected {
+        border-color: #1890ff;
+        box-shadow: 0 4px 12px rgba(24, 144, 255, 0.2);
+      }
 
-    .module-header {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-weight: 500;
-    }
+      .module-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 500;
+      }
 
-    .module-header button {
-      margin-left: auto;
-    }
+      .module-header button {
+        margin-left: auto;
+      }
 
-    .module-dependencies {
-      margin-top: 8px;
-      font-size: 12px;
-      color: #8c8c8c;
-    }
+      .module-dependencies {
+        margin-top: 8px;
+        font-size: 12px;
+        color: #8c8c8c;
+      }
 
-    .canvas-empty {
-      margin-top: 200px;
-    }
+      .canvas-empty {
+        margin-top: 200px;
+      }
 
-    .property-panel {
-      padding: 16px;
-    }
+      .property-panel {
+        padding: 16px;
+      }
 
-    /* ✅ Task 1.3: Connection Ports Styling */
-    .connection-port {
-      position: absolute;
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      background: #fff;
-      border: 2px solid #1890ff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: crosshair;
-      transition: all 0.3s;
-      z-index: 10;
-    }
+      /* ✅ Task 1.3: Connection Ports Styling */
+      .connection-port {
+        position: absolute;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: #fff;
+        border: 2px solid #1890ff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: crosshair;
+        transition: all 0.3s;
+        z-index: 10;
+      }
 
-    .connection-port:hover {
-      background: #e6f4ff;
-      border-color: #40a9ff;
-      transform: scale(1.2);
-      box-shadow: 0 2px 8px rgba(24, 144, 255, 0.4);
-    }
+      .connection-port:hover {
+        background: #e6f4ff;
+        border-color: #40a9ff;
+        transform: scale(1.2);
+        box-shadow: 0 2px 8px rgba(24, 144, 255, 0.4);
+      }
 
-    .connection-port.active {
-      background: #1890ff;
-      border-color: #0050b3;
-      box-shadow: 0 0 0 4px rgba(24, 144, 255, 0.2);
-    }
+      .connection-port.active {
+        background: #1890ff;
+        border-color: #0050b3;
+        box-shadow: 0 0 0 4px rgba(24, 144, 255, 0.2);
+      }
 
-    .connection-port.active [nz-icon] {
-      color: white;
-    }
+      .connection-port.active [nz-icon] {
+        color: white;
+      }
 
-    .input-port {
-      left: -12px;
-      top: 50%;
-      transform: translateY(-50%);
-    }
+      .input-port {
+        left: -12px;
+        top: 50%;
+        transform: translateY(-50%);
+      }
 
-    .output-port {
-      right: -12px;
-      top: 50%;
-      transform: translateY(-50%);
-    }
+      .output-port {
+        right: -12px;
+        top: 50%;
+        transform: translateY(-50%);
+      }
 
-    .connection-port [nz-icon] {
-      font-size: 12px;
-      color: #1890ff;
-    }
+      .connection-port [nz-icon] {
+        font-size: 12px;
+        color: #1890ff;
+      }
 
-    /* Connection preview line */
-    .connection-preview {
-      position: absolute;
-      pointer-events: none;
-      z-index: 5;
-    }
-  `]
+      /* Connection preview line */
+      .connection-preview {
+        position: absolute;
+        pointer-events: none;
+        z-index: 5;
+      }
+    `
+  ]
 })
 export class BlueprintDesignerComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
@@ -517,7 +495,7 @@ export class BlueprintDesignerComponent implements OnInit {
       id: module.id,
       position: {
         x: module.position.x + 100, // Center of module (200px width / 2)
-        y: module.position.y + 30   // Approximate center height
+        y: module.position.y + 30 // Approximate center height
       },
       width: 200,
       height: 60
@@ -537,14 +515,14 @@ export class BlueprintDesignerComponent implements OnInit {
    */
   loadBlueprint(id: string): void {
     this.blueprintService.getById(id).subscribe({
-      next: (blueprint) => {
+      next: blueprint => {
         if (!blueprint) {
           this.message.error('藍圖不存在');
           return;
         }
-        
+
         this.blueprint.set(blueprint);
-        
+
         // Convert enabled modules to canvas modules with initial positions
         const modules: CanvasModule[] = blueprint.enabledModules.map((type: ModuleType, index: number) => ({
           id: `module-${Date.now()}-${index}`,
@@ -555,14 +533,14 @@ export class BlueprintDesignerComponent implements OnInit {
           config: {},
           dependencies: []
         }));
-        
+
         this.canvasModules.set(modules);
         this.logger.info('[BlueprintDesigner]', 'Loaded blueprint', { id, modulesCount: modules.length });
-        
+
         // ✅ Task 2: Run validation after loading
         this.runValidation();
       },
-      error: (error) => {
+      error: error => {
         this.logger.error('[BlueprintDesigner]', 'Failed to load blueprint', error instanceof Error ? error : new Error(String(error)));
         this.message.error('載入藍圖失敗');
       }
@@ -602,7 +580,7 @@ export class BlueprintDesignerComponent implements OnInit {
         config: {},
         dependencies: []
       };
-      
+
       this.canvasModules.update(modules => [...modules, newModule]);
       this.message.success(`已新增 ${newModule.name}`);
       this.logger.info('[BlueprintDesigner]', 'Module added', { module: newModule });
@@ -662,7 +640,7 @@ export class BlueprintDesignerComponent implements OnInit {
   /**
    * Save blueprint configuration
    * 儲存藍圖配置
-   * 
+   *
    * ✅ Task 2: Validate before saving
    */
   async save(): Promise<void> {
@@ -674,7 +652,7 @@ export class BlueprintDesignerComponent implements OnInit {
       // ✅ Task 2: Run validation before saving
       this.runValidation();
       const validation = this.validationResult();
-      
+
       if (validation && !validation.isValid) {
         this.message.error(`儲存失敗: 發現 ${validation.errors.length} 個配置錯誤,請先修正`);
         this.saving.set(false);
@@ -691,10 +669,10 @@ export class BlueprintDesignerComponent implements OnInit {
       });
 
       this.message.success('儲存成功');
-      this.logger.info('[BlueprintDesigner]', 'Blueprint saved', { 
-        blueprintId: blueprint.id, 
+      this.logger.info('[BlueprintDesigner]', 'Blueprint saved', {
+        blueprintId: blueprint.id,
         modulesCount: enabledModules.length,
-        connectionsCount: this.connections().length 
+        connectionsCount: this.connections().length
       });
     } catch (error) {
       this.logger.error('[BlueprintDesigner]', 'Failed to save', error instanceof Error ? error : new Error(String(error)));
@@ -764,7 +742,7 @@ export class BlueprintDesignerComponent implements OnInit {
   isPortActive(portType: 'input' | 'output', moduleId: string): boolean {
     const state = this.connectionCreationState();
     if (!state.active) return false;
-    
+
     // Highlight valid target ports during connection creation
     if (state.sourceModuleId) {
       // If dragging from output, highlight input ports (except source module)
@@ -772,7 +750,7 @@ export class BlueprintDesignerComponent implements OnInit {
         return true;
       }
     }
-    
+
     return false;
   }
 
@@ -816,7 +794,7 @@ export class BlueprintDesignerComponent implements OnInit {
     // Calculate port position
     const portPosition = {
       x: module.position.x + 200 + 12, // Right edge + port offset
-      y: module.position.y + 30        // Approximate center
+      y: module.position.y + 30 // Approximate center
     };
 
     this.isDraggingConnection = true;
@@ -829,10 +807,10 @@ export class BlueprintDesignerComponent implements OnInit {
 
     // Add global mouse up listener
     document.addEventListener('mouseup', this.onGlobalMouseUp);
-    
-    this.logger.info('[BlueprintDesigner]', 'Connection creation started', { 
-      sourceModuleId: moduleId, 
-      portType 
+
+    this.logger.info('[BlueprintDesigner]', 'Connection creation started', {
+      sourceModuleId: moduleId,
+      portType
     });
   }
 
@@ -846,7 +824,7 @@ export class BlueprintDesignerComponent implements OnInit {
 
     const canvas = this.canvasElement.nativeElement;
     const rect = canvas.getBoundingClientRect();
-    
+
     const currentPosition = {
       x: event.clientX - rect.left + canvas.scrollLeft,
       y: event.clientY - rect.top + canvas.scrollTop
@@ -877,7 +855,7 @@ export class BlueprintDesignerComponent implements OnInit {
     // Check if mouse up is over a valid input port
     if (this.hoveredPortType === 'input' && this.hoveredPortModuleId) {
       const targetModuleId = this.hoveredPortModuleId;
-      
+
       // Validate connection
       if (this.validateConnection(state.sourceModuleId!, targetModuleId)) {
         this.createConnection(state.sourceModuleId!, targetModuleId);
@@ -902,9 +880,7 @@ export class BlueprintDesignerComponent implements OnInit {
     }
 
     // Check for duplicate connection
-    const existingConnection = this.connections().find(
-      conn => conn.source.moduleId === sourceId && conn.target.moduleId === targetId
-    );
+    const existingConnection = this.connections().find(conn => conn.source.moduleId === sourceId && conn.target.moduleId === targetId);
 
     if (existingConnection) {
       this.message.warning('此連接已存在');
@@ -946,13 +922,13 @@ export class BlueprintDesignerComponent implements OnInit {
     };
 
     this.connections.update(conns => [...conns, newConnection]);
-    
+
     // ✅ Task 2: Re-run validation after creation
     this.runValidation();
-    
+
     this.message.success(`已建立連接: ${sourceModule.name} → ${targetModule.name}`);
-    
-    this.logger.info('[BlueprintDesigner]', 'Connection created', { 
+
+    this.logger.info('[BlueprintDesigner]', 'Connection created', {
       connection: newConnection,
       source: sourceModule.name,
       target: targetModule.name
@@ -990,7 +966,7 @@ export class BlueprintDesignerComponent implements OnInit {
    */
   onConnectionContextMenu(event: { connectionId: string; event: MouseEvent }): void {
     event.event.preventDefault();
-    
+
     // Simple implementation: show confirm to delete
     if (confirm('是否刪除此連接?')) {
       this.deleteConnection(event.connectionId);
@@ -1003,14 +979,14 @@ export class BlueprintDesignerComponent implements OnInit {
    */
   private deleteConnection(connectionId: string): void {
     this.connections.update(conns => conns.filter(c => c.id !== connectionId));
-    
+
     if (this.selectedConnectionId() === connectionId) {
       this.selectedConnectionId.set(null);
     }
-    
+
     // ✅ Task 2: Re-run validation after deletion
     this.runValidation();
-    
+
     this.message.success('已刪除連接');
     this.logger.info('[BlueprintDesigner]', 'Connection deleted', { connectionId });
   }
@@ -1018,16 +994,16 @@ export class BlueprintDesignerComponent implements OnInit {
   /**
    * Run dependency validation
    * 執行依賴驗證
-   * 
+   *
    * ✅ Task 2.1-2.2: DFS cycle detection + missing module check
    */
   private runValidation(): void {
     const moduleIds = this.canvasModules().map(m => m.id);
     const connections = this.connections();
-    
+
     const result = this.validatorService.validate(moduleIds, connections);
     this.validationResult.set(result);
-    
+
     this.logger.debug('[BlueprintDesigner]', 'Validation completed', {
       isValid: result.isValid,
       errorsCount: result.errors.length,
@@ -1045,16 +1021,16 @@ export class BlueprintDesignerComponent implements OnInit {
 
     const start = state.sourcePosition;
     const end = state.currentPosition;
-    
+
     // Simple cubic Bezier curve for preview
     const dx = end.x - start.x;
     const controlPointOffset = Math.abs(dx) * 0.5;
-    
+
     const cp1x = start.x + controlPointOffset;
     const cp1y = start.y;
     const cp2x = end.x - controlPointOffset;
     const cp2y = end.y;
-    
+
     return `M ${start.x},${start.y} C ${cp1x},${cp1y} ${cp2x},${cp2y} ${end.x},${end.y}`;
   }
 }

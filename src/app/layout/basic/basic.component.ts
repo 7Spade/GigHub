@@ -1,11 +1,11 @@
 import { Component, inject, effect } from '@angular/core';
 import { RouterLink, RouterOutlet } from '@angular/router';
+import { ContextType } from '@core';
 import { SettingsService, User, ModalHelper } from '@delon/theme';
 import { LayoutDefaultModule, LayoutDefaultOptions } from '@delon/theme/layout-default';
 import { SettingDrawerModule } from '@delon/theme/setting-drawer';
 import { ThemeBtnComponent } from '@delon/theme/theme-btn';
 import { environment } from '@env/environment';
-import { ContextType } from '@core';
 import { WorkspaceContextService, MenuManagementService } from '@shared';
 import { NzAvatarModule } from 'ng-zorro-antd/avatar';
 import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
@@ -181,12 +181,12 @@ export class LayoutBasicComponent {
     let isFirstEmission = true;
     effect(() => {
       const contextType = this.workspaceContext.contextType();
-      
+
       if (isFirstEmission) {
         isFirstEmission = false;
         return;
       }
-      
+
       console.log('[LayoutBasicComponent] Context changed:', contextType);
       this.menuManagement.updateMenu(contextType);
     });
@@ -207,13 +207,11 @@ export class LayoutBasicComponent {
    * Open create organization modal
    */
   openCreateOrganization(): void {
-    this.modal
-      .create(CreateOrganizationComponent, {}, { size: 'md' })
-      .subscribe(result => {
-        if (result) {
-          console.log('Organization created:', result);
-        }
-      });
+    this.modal.create(CreateOrganizationComponent, {}, { size: 'md' }).subscribe(result => {
+      if (result) {
+        console.log('Organization created:', result);
+      }
+    });
   }
 
   /**
@@ -226,12 +224,10 @@ export class LayoutBasicComponent {
       return;
     }
 
-    this.modal
-      .create(CreateTeamComponent, { organizationId: currentOrgId }, { size: 'md' })
-      .subscribe(result => {
-        if (result) {
-          console.log('Team created:', result);
-        }
-      });
+    this.modal.create(CreateTeamComponent, { organizationId: currentOrgId }, { size: 'md' }).subscribe(result => {
+      if (result) {
+        console.log('Team created:', result);
+      }
+    });
   }
 }

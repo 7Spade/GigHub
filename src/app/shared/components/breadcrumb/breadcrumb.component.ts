@@ -1,20 +1,21 @@
 /**
  * Breadcrumb Component
- * 
+ *
  * 麵包屑導航元件
- * 
+ *
  * Displays breadcrumb navigation trail using ng-zorro-antd breadcrumb component.
  * Automatically updates when breadcrumb service state changes.
- * 
+ *
  * @module shared/components
  */
 
+import { CommonModule } from '@angular/common';
 import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { BreadcrumbService } from '../../services/breadcrumb.service';
 import { NzBreadCrumbModule } from 'ng-zorro-antd/breadcrumb';
 import { NzIconModule } from 'ng-zorro-antd/icon';
-import { CommonModule } from '@angular/common';
+
+import { BreadcrumbService } from '../../services/breadcrumb.service';
 
 @Component({
   selector: 'app-breadcrumb',
@@ -43,21 +44,23 @@ import { CommonModule } from '@angular/common';
       </nz-breadcrumb>
     }
   `,
-  styles: [`
-    :host {
-      display: block;
-      margin-bottom: 16px;
-    }
-    
-    .breadcrumb-container {
-      padding: 12px 0;
-      font-size: 14px;
-    }
-    
-    .mr-xs {
-      margin-right: 4px;
-    }
-  `],
+  styles: [
+    `
+      :host {
+        display: block;
+        margin-bottom: 16px;
+      }
+
+      .breadcrumb-container {
+        padding: 12px 0;
+        font-size: 14px;
+      }
+
+      .mr-xs {
+        margin-right: 4px;
+      }
+    `
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class BreadcrumbComponent {
