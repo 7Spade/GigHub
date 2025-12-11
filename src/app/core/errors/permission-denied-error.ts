@@ -6,13 +6,7 @@ import { BlueprintError } from './blueprint-error';
  */
 export class PermissionDeniedError extends BlueprintError {
   constructor(resource: string, action: string) {
-    super(
-      `Permission denied: Cannot ${action} ${resource}`,
-      'PERMISSION_DENIED',
-      'high',
-      false,
-      { resource, action }
-    );
+    super(`Permission denied: Cannot ${action} ${resource}`, 'PERMISSION_DENIED', 'high', false, { resource, action });
     Object.setPrototypeOf(this, PermissionDeniedError.prototype);
   }
 }

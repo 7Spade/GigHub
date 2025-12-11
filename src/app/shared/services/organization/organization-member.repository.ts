@@ -11,8 +11,8 @@ import {
   CollectionReference,
   Timestamp
 } from '@angular/fire/firestore';
-import { Observable, from, map, catchError, of } from 'rxjs';
 import { OrganizationMember, OrganizationRole, LoggerService } from '@core';
+import { Observable, from, map, catchError, of } from 'rxjs';
 
 /**
  * Organization Member Repository
@@ -47,25 +47,20 @@ export class OrganizationMemberRepository {
    * 查找組織的所有成員
    */
   findByOrganization(organizationId: string): Observable<OrganizationMember[]> {
-    const q = query(
-      this.getCollectionRef(),
-      where('organization_id', '==', organizationId)
-    );
+    const q = query(this.getCollectionRef(), where('organization_id', '==', organizationId));
 
     return from(getDocs(q)).pipe(
       map(snapshot => {
-        const members = snapshot.docs.map(docSnap => 
-          this.toOrganizationMember(docSnap.data(), docSnap.id)
-        );
-        
+        const members = snapshot.docs.map(docSnap => this.toOrganizationMember(docSnap.data(), docSnap.id));
+
         // Sort by role (OWNER > ADMIN > MEMBER) then by joined date
         return members.sort((a, b) => {
           const roleOrder = { owner: 0, admin: 1, member: 2 };
           const roleA = roleOrder[a.role] ?? 999;
           const roleB = roleOrder[b.role] ?? 999;
-          
+
           if (roleA !== roleB) return roleA - roleB;
-          
+
           // Same role, sort by joined date (newest first)
           const dateA = a.joined_at ? new Date(a.joined_at).getTime() : 0;
           const dateB = b.joined_at ? new Date(b.joined_at).getTime() : 0;
@@ -83,11 +78,7 @@ export class OrganizationMemberRepository {
    * Add a member to an organization
    * 添加成員到組織
    */
-  async addMember(
-    organizationId: string,
-    userId: string,
-    role: OrganizationRole = OrganizationRole.MEMBER
-  ): Promise<OrganizationMember> {
+  async addMember(organizationId: string, userId: string, role: OrganizationRole = OrganizationRole.MEMBER): Promise<OrganizationMember> {
     const now = Timestamp.now();
     const docData = {
       organization_id: organizationId,
@@ -99,7 +90,7 @@ export class OrganizationMemberRepository {
     try {
       const docRef = await addDoc(this.getCollectionRef(), docData);
       this.logger.info('[OrganizationMemberRepository]', `Member added: ${userId} to org ${organizationId} as ${role}`);
-      
+
       return this.toOrganizationMember(docData, docRef.id);
     } catch (error: any) {
       this.logger.error('[OrganizationMemberRepository]', 'addMember failed', error as Error);

@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+
 import { ConsoleTransport } from './console-transport';
 import { LogTransport } from './log-transport.interface';
 
@@ -63,9 +64,7 @@ export class LoggerService {
   error(source: string, message: string, error?: Error, context?: Record<string, unknown>): void {
     this.log(LogLevel.ERROR, source, message, {
       ...context,
-      error: error
-        ? { name: error.name, message: error.message, stack: error.stack }
-        : undefined
+      error: error ? { name: error.name, message: error.message, stack: error.stack } : undefined
     });
   }
 

@@ -4,10 +4,11 @@
  */
 
 import { TestBed } from '@angular/core/testing';
-import { LogsModule } from './logs.module';
-import { LogsService } from './logs.service';
-import { LogsRepository } from './logs.repository';
 import { ModuleStatus } from '@core/blueprint/interfaces';
+
+import { LogsModule } from './logs.module';
+import { LogsRepository } from './logs.repository';
+import { LogsService } from './logs.service';
 
 describe('LogsModule', () => {
   let module: LogsModule;
@@ -15,11 +16,7 @@ describe('LogsModule', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [
-        LogsModule,
-        LogsService,
-        { provide: LogsRepository, useValue: {} }
-      ]
+      providers: [LogsModule, LogsService, { provide: LogsRepository, useValue: {} }]
     });
 
     module = TestBed.inject(LogsModule);
@@ -44,19 +41,19 @@ describe('LogsModule', () => {
 
   it('should transition through full lifecycle', async () => {
     const context = { blueprintId: 'test-123' };
-    
+
     await module.init(context);
     expect(module.getStatus()).toBe(ModuleStatus.INITIALIZED);
-    
+
     await module.start();
     expect(module.getStatus()).toBe(ModuleStatus.STARTED);
-    
+
     await module.ready();
     expect(module.getStatus()).toBe(ModuleStatus.RUNNING);
-    
+
     await module.stop();
     expect(module.getStatus()).toBe(ModuleStatus.STOPPED);
-    
+
     await module.dispose();
     expect(module.getStatus()).toBe(ModuleStatus.DISPOSED);
   });

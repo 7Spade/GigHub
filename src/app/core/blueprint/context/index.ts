@@ -1,6 +1,6 @@
 /**
  * Blueprint Context
- * 
+ *
  * Context interfaces and shared state management for blueprint execution environment.
  */
 

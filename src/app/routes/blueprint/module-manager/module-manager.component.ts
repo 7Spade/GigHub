@@ -1,44 +1,32 @@
 /**
  * Module Manager Component
- * 
+ *
  * Main interface for managing Blueprint modules.
  * Provides module list, search, filtering, and bulk operations.
- * 
+ *
  * @author GigHub Development Team
  * @date 2025-12-11
  */
 
-import {
-  Component,
-  OnInit,
-  inject,
-  signal,
-  computed,
-  DestroyRef
-} from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Component, OnInit, inject, signal, computed, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { SHARED_IMPORTS } from '@shared';
+import { ActivatedRoute, Router } from '@angular/router';
 import { STColumn, STData } from '@delon/abc/st';
 import { ModalHelper } from '@delon/theme';
+import { SHARED_IMPORTS } from '@shared';
+import { BlueprintModuleDocument, ModuleStatus } from '@shared/models/blueprint-module.model';
 import { NzMessageService } from 'ng-zorro-antd/message';
-import { ModuleManagerService } from './module-manager.service';
+
 import { ModuleCardComponent } from './components/module-card.component';
 import { ModuleConfigFormComponent } from './components/module-config-form.component';
 import { ModuleDependencyGraphComponent } from './components/module-dependency-graph.component';
 import { ModuleStatusBadgeComponent } from './components/module-status-badge.component';
-import { BlueprintModuleDocument, ModuleStatus } from '@shared/models/blueprint-module.model';
+import { ModuleManagerService } from './module-manager.service';
 
 @Component({
   selector: 'app-module-manager',
   standalone: true,
-  imports: [
-    SHARED_IMPORTS,
-    ModuleCardComponent,
-    ModuleConfigFormComponent,
-    ModuleDependencyGraphComponent,
-    ModuleStatusBadgeComponent
-  ],
+  imports: [SHARED_IMPORTS, ModuleCardComponent, ModuleConfigFormComponent, ModuleDependencyGraphComponent, ModuleStatusBadgeComponent],
   template: `
     <page-header [title]="'模組管理'" [subtitle]="'Blueprint Modules'">
       <ng-template #extra>
@@ -61,46 +49,22 @@ import { BlueprintModuleDocument, ModuleStatus } from '@shared/models/blueprint-
     <nz-card [nzTitle]="'模組統計'" class="mb-3">
       <nz-row [nzGutter]="16">
         <nz-col [nzSpan]="4">
-          <nz-statistic 
-            [nzValue]="stats().total" 
-            [nzTitle]="'總模組數'"
-            [nzPrefix]="totalIcon">
-          </nz-statistic>
+          <nz-statistic [nzValue]="stats().total" [nzTitle]="'總模組數'" [nzPrefix]="totalIcon"> </nz-statistic>
         </nz-col>
         <nz-col [nzSpan]="4">
-          <nz-statistic 
-            [nzValue]="stats().enabled" 
-            [nzTitle]="'已啟用'"
-            [nzValueStyle]="{ color: '#52c41a' }">
-          </nz-statistic>
+          <nz-statistic [nzValue]="stats().enabled" [nzTitle]="'已啟用'" [nzValueStyle]="{ color: '#52c41a' }"> </nz-statistic>
         </nz-col>
         <nz-col [nzSpan]="4">
-          <nz-statistic 
-            [nzValue]="stats().disabled" 
-            [nzTitle]="'已停用'"
-            [nzValueStyle]="{ color: '#8c8c8c' }">
-          </nz-statistic>
+          <nz-statistic [nzValue]="stats().disabled" [nzTitle]="'已停用'" [nzValueStyle]="{ color: '#8c8c8c' }"> </nz-statistic>
         </nz-col>
         <nz-col [nzSpan]="4">
-          <nz-statistic 
-            [nzValue]="stats().running" 
-            [nzTitle]="'運行中'"
-            [nzValueStyle]="{ color: '#1890ff' }">
-          </nz-statistic>
+          <nz-statistic [nzValue]="stats().running" [nzTitle]="'運行中'" [nzValueStyle]="{ color: '#1890ff' }"> </nz-statistic>
         </nz-col>
         <nz-col [nzSpan]="4">
-          <nz-statistic 
-            [nzValue]="stats().failed" 
-            [nzTitle]="'失敗'"
-            [nzValueStyle]="{ color: '#ff4d4f' }">
-          </nz-statistic>
+          <nz-statistic [nzValue]="stats().failed" [nzTitle]="'失敗'" [nzValueStyle]="{ color: '#ff4d4f' }"> </nz-statistic>
         </nz-col>
         <nz-col [nzSpan]="4">
-          <nz-statistic 
-            [nzValue]="stats().uninitialized" 
-            [nzTitle]="'未初始化'"
-            [nzValueStyle]="{ color: '#faad14' }">
-          </nz-statistic>
+          <nz-statistic [nzValue]="stats().uninitialized" [nzTitle]="'未初始化'" [nzValueStyle]="{ color: '#faad14' }"> </nz-statistic>
         </nz-col>
       </nz-row>
     </nz-card>
@@ -110,20 +74,11 @@ import { BlueprintModuleDocument, ModuleStatus } from '@shared/models/blueprint-
       <nz-row [nzGutter]="16">
         <nz-col [nzSpan]="8">
           <nz-input-group [nzPrefix]="searchIcon">
-            <input
-              nz-input
-              placeholder="搜尋模組名稱或描述"
-              [(ngModel)]="searchText"
-              (ngModelChange)="onSearchChange()"
-            />
+            <input nz-input placeholder="搜尋模組名稱或描述" [(ngModel)]="searchText" (ngModelChange)="onSearchChange()" />
           </nz-input-group>
         </nz-col>
         <nz-col [nzSpan]="4">
-          <nz-select
-            nzPlaceHolder="狀態篩選"
-            [(ngModel)]="statusFilter"
-            (ngModelChange)="onFilterChange()"
-            style="width: 100%">
+          <nz-select nzPlaceHolder="狀態篩選" [(ngModel)]="statusFilter" (ngModelChange)="onFilterChange()" style="width: 100%">
             <nz-option nzValue="all" nzLabel="全部"></nz-option>
             <nz-option nzValue="enabled" nzLabel="已啟用"></nz-option>
             <nz-option nzValue="disabled" nzLabel="已停用"></nz-option>
@@ -146,15 +101,9 @@ import { BlueprintModuleDocument, ModuleStatus } from '@shared/models/blueprint-
           @if (selectedCount() > 0) {
             <nz-space>
               <span *nzSpaceItem>已選取 {{ selectedCount() }} 個模組</span>
-              <button *nzSpaceItem nz-button nzType="primary" nzSize="small" (click)="bulkEnable()">
-                批次啟用
-              </button>
-              <button *nzSpaceItem nz-button nzSize="small" (click)="bulkDisable()">
-                批次停用
-              </button>
-              <button *nzSpaceItem nz-button nzDanger nzSize="small" (click)="clearSelection()">
-                清除選取
-              </button>
+              <button *nzSpaceItem nz-button nzType="primary" nzSize="small" (click)="bulkEnable()"> 批次啟用 </button>
+              <button *nzSpaceItem nz-button nzSize="small" (click)="bulkDisable()"> 批次停用 </button>
+              <button *nzSpaceItem nz-button nzDanger nzSize="small" (click)="clearSelection()"> 清除選取 </button>
             </nz-space>
           }
         </nz-col>
@@ -173,27 +122,15 @@ import { BlueprintModuleDocument, ModuleStatus } from '@shared/models/blueprint-
 
     <!-- Error State -->
     @else if (error()) {
-      <nz-alert
-        nzType="error"
-        nzMessage="載入失敗"
-        [nzDescription]="error()"
-        nzShowIcon
-        nzCloseable
-        (nzOnClose)="clearError()">
-      </nz-alert>
+      <nz-alert nzType="error" nzMessage="載入失敗" [nzDescription]="error()" nzShowIcon nzCloseable (nzOnClose)="clearError()"> </nz-alert>
     }
 
     <!-- Grid View -->
     @else if (viewMode === 'grid') {
       @if (filteredModules().length === 0) {
-        <nz-empty
-          [nzNotFoundContent]="'沒有找到模組'"
-          [nzNotFoundFooter]="emptyFooter">
-        </nz-empty>
+        <nz-empty [nzNotFoundContent]="'沒有找到模組'" [nzNotFoundFooter]="emptyFooter"> </nz-empty>
         <ng-template #emptyFooter>
-          <button nz-button nzType="primary" (click)="registerModule()">
-            註冊第一個模組
-          </button>
+          <button nz-button nzType="primary" (click)="registerModule()"> 註冊第一個模組 </button>
         </ng-template>
       } @else {
         <nz-row [nzGutter]="[16, 16]">
@@ -205,7 +142,8 @@ import { BlueprintModuleDocument, ModuleStatus } from '@shared/models/blueprint-
                 (selectionChange)="toggleSelection(module.id)"
                 (enableChange)="onEnableChange(module)"
                 (configClick)="openConfig(module)"
-                (deleteClick)="deleteModule(module)">
+                (deleteClick)="deleteModule(module)"
+              >
               </app-module-card>
             </nz-col>
           }
@@ -222,7 +160,8 @@ import { BlueprintModuleDocument, ModuleStatus } from '@shared/models/blueprint-
           [columns]="columns"
           [loading]="loading()"
           [page]="{ show: true, showSize: true }"
-          (change)="onTableChange($event)">
+          (change)="onTableChange($event)"
+        >
         </st>
       </nz-card>
     }
@@ -235,32 +174,34 @@ import { BlueprintModuleDocument, ModuleStatus } from '@shared/models/blueprint-
       <span nz-icon nzType="appstore" nzTheme="outline"></span>
     </ng-template>
   `,
-  styles: [`
-    :host {
-      display: block;
-    }
+  styles: [
+    `
+      :host {
+        display: block;
+      }
 
-    .mb-3 {
-      margin-bottom: 1.5rem;
-    }
+      .mb-3 {
+        margin-bottom: 1.5rem;
+      }
 
-    .text-center {
-      text-align: center;
-    }
+      .text-center {
+        text-align: center;
+      }
 
-    .text-right {
-      text-align: right;
-    }
+      .text-right {
+        text-align: right;
+      }
 
-    .py-5 {
-      padding-top: 3rem;
-      padding-bottom: 3rem;
-    }
+      .py-5 {
+        padding-top: 3rem;
+        padding-bottom: 3rem;
+      }
 
-    .mt-3 {
-      margin-top: 1rem;
-    }
-  `]
+      .mt-3 {
+        margin-top: 1rem;
+      }
+    `
+  ]
 })
 export class ModuleManagerComponent implements OnInit {
   private route = inject(ActivatedRoute);
@@ -293,10 +234,7 @@ export class ModuleManagerComponent implements OnInit {
     // Search filter
     if (this.searchText) {
       const search = this.searchText.toLowerCase();
-      filtered = filtered.filter(m =>
-        m.name.toLowerCase().includes(search) ||
-        m.description?.toLowerCase().includes(search)
-      );
+      filtered = filtered.filter(m => m.name.toLowerCase().includes(search) || m.description?.toLowerCase().includes(search));
     }
 
     // Status filter
@@ -411,15 +349,13 @@ export class ModuleManagerComponent implements OnInit {
 
   ngOnInit(): void {
     // Get blueprint ID from route
-    this.route.params
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(params => {
-        const id = params['id'];
-        if (id) {
-          this.blueprintId.set(id);
-          this.loadModules();
-        }
-      });
+    this.route.params.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {
+      const id = params['id'];
+      if (id) {
+        this.blueprintId.set(id);
+        this.loadModules();
+      }
+    });
   }
 
   async loadModules(): Promise<void> {
@@ -445,11 +381,9 @@ export class ModuleManagerComponent implements OnInit {
   }
 
   showDependencyGraph(): void {
-    this.modal.create(
-      ModuleDependencyGraphComponent,
-      { modules: this.modules() },
-      { size: 'lg', modalOptions: { nzTitle: '模組依賴圖' } }
-    ).subscribe();
+    this.modal
+      .create(ModuleDependencyGraphComponent, { modules: this.modules() }, { size: 'lg', modalOptions: { nzTitle: '模組依賴圖' } })
+      .subscribe();
   }
 
   onSearchChange(): void {
@@ -541,15 +475,13 @@ export class ModuleManagerComponent implements OnInit {
   }
 
   openConfig(module: BlueprintModuleDocument): void {
-    this.modal.create(
-      ModuleConfigFormComponent,
-      { module },
-      { size: 'md', modalOptions: { nzTitle: `配置: ${module.name}` } }
-    ).subscribe((config: any) => {
-      if (config) {
-        this.updateConfig(module, config);
-      }
-    });
+    this.modal
+      .create(ModuleConfigFormComponent, { module }, { size: 'md', modalOptions: { nzTitle: `配置: ${module.name}` } })
+      .subscribe((config: any) => {
+        if (config) {
+          this.updateConfig(module, config);
+        }
+      });
   }
 
   async updateConfig(module: BlueprintModuleDocument, config: any): Promise<void> {

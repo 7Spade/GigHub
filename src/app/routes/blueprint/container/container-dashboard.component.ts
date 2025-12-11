@@ -1,21 +1,21 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { NzStatisticModule } from 'ng-zorro-antd/statistic';
-import { NzCardModule } from 'ng-zorro-antd/card';
-import { NzGridModule } from 'ng-zorro-antd/grid';
+import { LoggerService } from '@core';
+import { SHARED_IMPORTS } from '@shared';
+import { NzAlertModule } from 'ng-zorro-antd/alert';
 import { NzBadgeModule } from 'ng-zorro-antd/badge';
 import { NzButtonModule } from 'ng-zorro-antd/button';
+import { NzCardModule } from 'ng-zorro-antd/card';
+import { NzGridModule } from 'ng-zorro-antd/grid';
 import { NzIconModule } from 'ng-zorro-antd/icon';
-import { NzAlertModule } from 'ng-zorro-antd/alert';
-import { SHARED_IMPORTS } from '@shared';
-import { LoggerService } from '@core';
+import { NzStatisticModule } from 'ng-zorro-antd/statistic';
 
 /**
  * Container Dashboard Component
- * 
+ *
  * Provides a comprehensive overview of the Blueprint Container Layer status,
  * including modules, events, resources, and lifecycle information.
- * 
+ *
  * Features:
  * - Real-time container status monitoring
  * - Module registry overview
@@ -23,28 +23,16 @@ import { LoggerService } from '@core';
  * - Resource provider status
  * - Lifecycle manager state
  * - Quick navigation to detailed views
- * 
+ *
  * @version 1.0.0
  * @since Angular 20.3.0
  */
 @Component({
   selector: 'app-container-dashboard',
   standalone: true,
-  imports: [
-    SHARED_IMPORTS,
-    NzStatisticModule,
-    NzCardModule,
-    NzGridModule,
-    NzBadgeModule,
-    NzButtonModule,
-    NzIconModule,
-    NzAlertModule
-  ],
+  imports: [SHARED_IMPORTS, NzStatisticModule, NzCardModule, NzGridModule, NzBadgeModule, NzButtonModule, NzIconModule, NzAlertModule],
   template: `
-    <page-header
-      [title]="'容器儀表板'"
-      [breadcrumb]="breadcrumb"
-    >
+    <page-header [title]="'容器儀表板'" [breadcrumb]="breadcrumb">
       <ng-template #breadcrumb>
         <nz-breadcrumb>
           <nz-breadcrumb-item>
@@ -69,59 +57,34 @@ import { LoggerService } from '@core';
         </ng-template>
 
         @if (containerLoading()) {
-          <nz-alert
-            nzType="info"
-            nzMessage="正在載入容器狀態..."
-            nzShowIcon
-            class="mb-md"
-          />
+          <nz-alert nzType="info" nzMessage="正在載入容器狀態..." nzShowIcon class="mb-md" />
         } @else if (containerError()) {
-          <nz-alert
-            nzType="error"
-            [nzMessage]="'載入失敗'"
-            [nzDescription]="containerError()"
-            nzShowIcon
-            class="mb-md"
-          />
+          <nz-alert nzType="error" [nzMessage]="'載入失敗'" [nzDescription]="containerError()" nzShowIcon class="mb-md" />
         } @else {
           <div nz-row [nzGutter]="16">
             <div nz-col [nzSpan]="6">
-              <nz-statistic
-                [nzValue]="containerStatus().status"
-                nzTitle="運行狀態"
-                [nzValueStyle]="getStatusStyle()"
-              >
+              <nz-statistic [nzValue]="containerStatus().status" nzTitle="運行狀態" [nzValueStyle]="getStatusStyle()">
                 <ng-template #nzPrefix>
                   <span nz-icon [nzType]="getStatusIcon()"></span>
                 </ng-template>
               </nz-statistic>
             </div>
             <div nz-col [nzSpan]="6">
-              <nz-statistic
-                [nzValue]="containerStatus().uptime"
-                nzTitle="運行時間"
-                nzSuffix="秒"
-              >
+              <nz-statistic [nzValue]="containerStatus().uptime" nzTitle="運行時間" nzSuffix="秒">
                 <ng-template #nzPrefix>
                   <span nz-icon nzType="clock-circle"></span>
                 </ng-template>
               </nz-statistic>
             </div>
             <div nz-col [nzSpan]="6">
-              <nz-statistic
-                [nzValue]="containerStatus().moduleCount"
-                nzTitle="已載入模組"
-              >
+              <nz-statistic [nzValue]="containerStatus().moduleCount" nzTitle="已載入模組">
                 <ng-template #nzPrefix>
                   <span nz-icon nzType="appstore"></span>
                 </ng-template>
               </nz-statistic>
             </div>
             <div nz-col [nzSpan]="6">
-              <nz-statistic
-                [nzValue]="containerStatus().eventCount"
-                nzTitle="事件處理數"
-              >
+              <nz-statistic [nzValue]="containerStatus().eventCount" nzTitle="事件處理數">
                 <ng-template #nzPrefix>
                   <span nz-icon nzType="thunderbolt"></span>
                 </ng-template>
@@ -135,27 +98,14 @@ import { LoggerService } from '@core';
       <div nz-row [nzGutter]="[16, 16]">
         <!-- Event Bus Monitor Card -->
         <div nz-col [nzSpan]="12">
-          <nz-card 
-            nzTitle="事件總線監控" 
-            [nzHoverable]="true"
-            class="dashboard-card"
-            (click)="navigateToEventBus()"
-          >
+          <nz-card nzTitle="事件總線監控" [nzHoverable]="true" class="dashboard-card" (click)="navigateToEventBus()">
             <div class="card-content">
               <div class="card-icon">
                 <span nz-icon nzType="radar-chart" nzTheme="outline"></span>
               </div>
               <div class="card-stats">
-                <nz-statistic
-                  [nzValue]="eventBusStats().totalEvents"
-                  nzTitle="總事件數"
-                  [nzValueStyle]="{ color: '#1890ff' }"
-                />
-                <nz-statistic
-                  [nzValue]="eventBusStats().subscriberCount"
-                  nzTitle="訂閱者數量"
-                  [nzValueStyle]="{ color: '#52c41a' }"
-                />
+                <nz-statistic [nzValue]="eventBusStats().totalEvents" nzTitle="總事件數" [nzValueStyle]="{ color: '#1890ff' }" />
+                <nz-statistic [nzValue]="eventBusStats().subscriberCount" nzTitle="訂閱者數量" [nzValueStyle]="{ color: '#52c41a' }" />
               </div>
             </div>
             <div class="card-footer">
@@ -166,27 +116,14 @@ import { LoggerService } from '@core';
 
         <!-- Module Registry Card -->
         <div nz-col [nzSpan]="12">
-          <nz-card 
-            nzTitle="模組註冊表" 
-            [nzHoverable]="true"
-            class="dashboard-card"
-            (click)="navigateToModuleRegistry()"
-          >
+          <nz-card nzTitle="模組註冊表" [nzHoverable]="true" class="dashboard-card" (click)="navigateToModuleRegistry()">
             <div class="card-content">
               <div class="card-icon">
                 <span nz-icon nzType="appstore" nzTheme="outline"></span>
               </div>
               <div class="card-stats">
-                <nz-statistic
-                  [nzValue]="moduleStats().totalModules"
-                  nzTitle="註冊模組"
-                  [nzValueStyle]="{ color: '#1890ff' }"
-                />
-                <nz-statistic
-                  [nzValue]="moduleStats().activeModules"
-                  nzTitle="運行中"
-                  [nzValueStyle]="{ color: '#52c41a' }"
-                />
+                <nz-statistic [nzValue]="moduleStats().totalModules" nzTitle="註冊模組" [nzValueStyle]="{ color: '#1890ff' }" />
+                <nz-statistic [nzValue]="moduleStats().activeModules" nzTitle="運行中" [nzValueStyle]="{ color: '#52c41a' }" />
               </div>
             </div>
             <div class="card-footer">
@@ -197,26 +134,14 @@ import { LoggerService } from '@core';
 
         <!-- Lifecycle Manager Card -->
         <div nz-col [nzSpan]="12">
-          <nz-card 
-            nzTitle="生命週期管理器" 
-            [nzHoverable]="true"
-            class="dashboard-card"
-            (click)="navigateToLifecycle()"
-          >
+          <nz-card nzTitle="生命週期管理器" [nzHoverable]="true" class="dashboard-card" (click)="navigateToLifecycle()">
             <div class="card-content">
               <div class="card-icon">
                 <span nz-icon nzType="deployment-unit" nzTheme="outline"></span>
               </div>
               <div class="card-stats">
-                <nz-statistic
-                  [nzValue]="lifecycleStats().currentPhase"
-                  nzTitle="當前階段"
-                />
-                <nz-statistic
-                  [nzValue]="lifecycleStats().transitionCount"
-                  nzTitle="狀態轉換"
-                  [nzValueStyle]="{ color: '#722ed1' }"
-                />
+                <nz-statistic [nzValue]="lifecycleStats().currentPhase" nzTitle="當前階段" />
+                <nz-statistic [nzValue]="lifecycleStats().transitionCount" nzTitle="狀態轉換" [nzValueStyle]="{ color: '#722ed1' }" />
               </div>
             </div>
             <div class="card-footer">
@@ -227,27 +152,14 @@ import { LoggerService } from '@core';
 
         <!-- Resource Provider Card -->
         <div nz-col [nzSpan]="12">
-          <nz-card 
-            nzTitle="資源提供者" 
-            [nzHoverable]="true"
-            class="dashboard-card"
-            (click)="navigateToResources()"
-          >
+          <nz-card nzTitle="資源提供者" [nzHoverable]="true" class="dashboard-card" (click)="navigateToResources()">
             <div class="card-content">
               <div class="card-icon">
                 <span nz-icon nzType="database" nzTheme="outline"></span>
               </div>
               <div class="card-stats">
-                <nz-statistic
-                  [nzValue]="resourceStats().totalResources"
-                  nzTitle="總資源數"
-                  [nzValueStyle]="{ color: '#1890ff' }"
-                />
-                <nz-statistic
-                  [nzValue]="resourceStats().healthyResources"
-                  nzTitle="健康資源"
-                  [nzValueStyle]="{ color: '#52c41a' }"
-                />
+                <nz-statistic [nzValue]="resourceStats().totalResources" nzTitle="總資源數" [nzValueStyle]="{ color: '#1890ff' }" />
+                <nz-statistic [nzValue]="resourceStats().healthyResources" nzTitle="健康資源" [nzValueStyle]="{ color: '#52c41a' }" />
               </div>
             </div>
             <div class="card-footer">
@@ -258,28 +170,14 @@ import { LoggerService } from '@core';
 
         <!-- Shared Context Card -->
         <div nz-col [nzSpan]="12">
-          <nz-card 
-            nzTitle="共享上下文" 
-            [nzHoverable]="true"
-            class="dashboard-card"
-            (click)="navigateToContext()"
-          >
+          <nz-card nzTitle="共享上下文" [nzHoverable]="true" class="dashboard-card" (click)="navigateToContext()">
             <div class="card-content">
               <div class="card-icon">
                 <span nz-icon nzType="cluster" nzTheme="outline"></span>
               </div>
               <div class="card-stats">
-                <nz-statistic
-                  [nzValue]="contextStats().dataSize"
-                  nzTitle="資料大小"
-                  nzSuffix="KB"
-                  [nzValueStyle]="{ color: '#1890ff' }"
-                />
-                <nz-statistic
-                  [nzValue]="contextStats().serviceCount"
-                  nzTitle="服務數量"
-                  [nzValueStyle]="{ color: '#13c2c2' }"
-                />
+                <nz-statistic [nzValue]="contextStats().dataSize" nzTitle="資料大小" nzSuffix="KB" [nzValueStyle]="{ color: '#1890ff' }" />
+                <nz-statistic [nzValue]="contextStats().serviceCount" nzTitle="服務數量" [nzValueStyle]="{ color: '#13c2c2' }" />
               </div>
             </div>
             <div class="card-footer">
@@ -290,11 +188,7 @@ import { LoggerService } from '@core';
 
         <!-- Performance Metrics Card -->
         <div nz-col [nzSpan]="12">
-          <nz-card 
-            nzTitle="效能指標" 
-            [nzHoverable]="true"
-            class="dashboard-card"
-          >
+          <nz-card nzTitle="效能指標" [nzHoverable]="true" class="dashboard-card">
             <div class="card-content">
               <div class="card-icon">
                 <span nz-icon nzType="dashboard" nzTheme="outline"></span>
@@ -322,65 +216,67 @@ import { LoggerService } from '@core';
       </div>
     </div>
   `,
-  styles: [`
-    :host {
-      display: block;
-    }
+  styles: [
+    `
+      :host {
+        display: block;
+      }
 
-    .container-dashboard {
-      padding: 0;
-    }
+      .container-dashboard {
+        padding: 0;
+      }
 
-    .dashboard-card {
-      cursor: pointer;
-      transition: all 0.3s ease;
-      height: 100%;
-    }
+      .dashboard-card {
+        cursor: pointer;
+        transition: all 0.3s ease;
+        height: 100%;
+      }
 
-    .dashboard-card:hover {
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-      transform: translateY(-2px);
-    }
+      .dashboard-card:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        transform: translateY(-2px);
+      }
 
-    .card-content {
-      display: flex;
-      align-items: center;
-      gap: 24px;
-      margin-bottom: 16px;
-    }
+      .card-content {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+        margin-bottom: 16px;
+      }
 
-    .card-icon {
-      font-size: 48px;
-      color: #1890ff;
-      line-height: 1;
-    }
+      .card-icon {
+        font-size: 48px;
+        color: #1890ff;
+        line-height: 1;
+      }
 
-    .card-stats {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
+      .card-stats {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
 
-    .card-footer {
-      padding-top: 12px;
-      border-top: 1px solid #f0f0f0;
-      text-align: right;
-    }
+      .card-footer {
+        padding-top: 12px;
+        border-top: 1px solid #f0f0f0;
+        text-align: right;
+      }
 
-    .card-footer a {
-      color: #1890ff;
-      transition: color 0.3s ease;
-    }
+      .card-footer a {
+        color: #1890ff;
+        transition: color 0.3s ease;
+      }
 
-    .card-footer a:hover {
-      color: #40a9ff;
-    }
+      .card-footer a:hover {
+        color: #40a9ff;
+      }
 
-    .mb-md {
-      margin-bottom: 16px;
-    }
-  `]
+      .mb-md {
+        margin-bottom: 16px;
+      }
+    `
+  ]
 })
 export class ContainerDashboardComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
@@ -445,7 +341,7 @@ export class ContainerDashboardComponent implements OnInit {
       // TODO: Replace with actual container service calls
       // Simulated data for now
       await this.simulateDataLoad();
-      
+
       this.logger.info('[ContainerDashboard]', 'Container status loaded successfully');
     } catch (error) {
       this.containerError.set(error instanceof Error ? error.message : 'Unknown error');
@@ -516,23 +412,31 @@ export class ContainerDashboardComponent implements OnInit {
   getStatusIcon(): string {
     const status = this.containerStatus().status;
     switch (status) {
-      case 'RUNNING': return 'check-circle';
-      case 'STOPPED': return 'pause-circle';
-      case 'ERROR': return 'close-circle';
-      default: return 'question-circle';
+      case 'RUNNING':
+        return 'check-circle';
+      case 'STOPPED':
+        return 'pause-circle';
+      case 'ERROR':
+        return 'close-circle';
+      default:
+        return 'question-circle';
     }
   }
 
   /**
    * Get status style based on container status
    */
-  getStatusStyle(): { [key: string]: string } {
+  getStatusStyle(): Record<string, string> {
     const status = this.containerStatus().status;
     switch (status) {
-      case 'RUNNING': return { color: '#52c41a' };
-      case 'STOPPED': return { color: '#faad14' };
-      case 'ERROR': return { color: '#f5222d' };
-      default: return { color: '#d9d9d9' };
+      case 'RUNNING':
+        return { color: '#52c41a' };
+      case 'STOPPED':
+        return { color: '#faad14' };
+      case 'ERROR':
+        return { color: '#f5222d' };
+      default:
+        return { color: '#d9d9d9' };
     }
   }
 

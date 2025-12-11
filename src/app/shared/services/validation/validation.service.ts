@@ -16,9 +16,7 @@ export interface FieldValidator {
  * Validation schema definition
  * 驗證架構定義
  */
-export interface ValidationSchema {
-  [field: string]: FieldValidator[];
-}
+export type ValidationSchema = Record<string, FieldValidator[]>;
 
 /**
  * Validation result
@@ -65,11 +63,7 @@ export class ValidationService {
    * Validate single field
    * 驗證單一欄位
    */
-  private validateField(
-    field: string,
-    value: unknown,
-    validator: FieldValidator
-  ): ValidationErrorDetail | null {
+  private validateField(field: string, value: unknown, validator: FieldValidator): ValidationErrorDetail | null {
     switch (validator.type) {
       case 'required':
         if (value === null || value === undefined || value === '') {
@@ -132,14 +126,10 @@ export class ValidationService {
    * Throw validation error if validation fails
    * 如果驗證失敗則擲出驗證錯誤
    */
-  validateOrThrow(data: unknown, schema: ValidationSchema, fieldName: string = 'data'): void {
+  validateOrThrow(data: unknown, schema: ValidationSchema, fieldName = 'data'): void {
     const result = this.validate(data, schema);
     if (!result.valid) {
-      throw new ValidationError(
-        fieldName,
-        `Validation failed with ${result.errors.length} errors`,
-        result.errors
-      );
+      throw new ValidationError(fieldName, `Validation failed with ${result.errors.length} errors`, result.errors);
     }
   }
 }

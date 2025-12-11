@@ -4,32 +4,24 @@
  */
 
 import { Component, OnInit, inject, input, signal } from '@angular/core';
-import { SHARED_IMPORTS } from '@shared';
 import { SFSchema, SFButton } from '@delon/form';
-import { NzModalRef } from 'ng-zorro-antd/modal';
+import { SHARED_IMPORTS } from '@shared';
 import { BlueprintModuleDocument } from '@shared/models/blueprint-module.model';
+import { NzModalRef } from 'ng-zorro-antd/modal';
 
 @Component({
   selector: 'app-module-config-form',
   standalone: true,
   imports: [SHARED_IMPORTS],
-  template: `
-    <sf
-      [schema]="schema"
-      [formData]="formData()"
-      [button]="button"
-      [loading]="loading()"
-      (formSubmit)="submit($event)">
-    </sf>
-  `
+  template: ` <sf [schema]="schema" [formData]="formData()" [button]="button" [loading]="loading()" (formSubmit)="submit($event)"> </sf> `
 })
 export class ModuleConfigFormComponent implements OnInit {
   private modal = inject(NzModalRef);
-  
+
   module = input.required<BlueprintModuleDocument>();
   loading = signal(false);
   formData = signal<any>({});
-  
+
   schema: SFSchema = {
     properties: {
       enabled: {
@@ -49,22 +41,22 @@ export class ModuleConfigFormComponent implements OnInit {
       }
     }
   };
-  
+
   button: SFButton = {
     submit: 'Save',
     reset: 'Cancel'
   };
-  
+
   ngOnInit(): void {
     const mod = this.module();
     this.formData.set({
       enabled: mod.enabled,
       config: mod.config || {}
     });
-    
+
     // TODO: Generate schema from module metadata
   }
-  
+
   submit(value: any): void {
     this.modal.close(value.config);
   }

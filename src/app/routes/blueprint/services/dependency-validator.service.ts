@@ -1,4 +1,5 @@
 import { Injectable, inject } from '@angular/core';
+
 import { ModuleConnection } from '../models/module-connection.interface';
 
 /**
@@ -41,14 +42,14 @@ export interface ValidationWarning {
 
 /**
  * 依賴驗證服務
- * 
+ *
  * 使用 DFS 演算法檢測循環依賴,檢查缺失模組等驗證功能
  */
 @Injectable({ providedIn: 'root' })
 export class DependencyValidatorService {
   /**
    * 驗證藍圖配置
-   * 
+   *
    * @param moduleIds - 所有模組 ID 列表
    * @param connections - 連接列表
    * @returns 驗證結果
@@ -109,7 +110,7 @@ export class DependencyValidatorService {
 
   /**
    * 檢測循環依賴 (使用 DFS 演算法)
-   * 
+   *
    * @param moduleIds - 所有模組 ID
    * @param connections - 連接列表
    * @returns 循環路徑列表
@@ -207,9 +208,7 @@ export class DependencyValidatorService {
    * 檢查無效連接 (例如自連接)
    */
   private checkInvalidConnections(connections: ModuleConnection[]): ModuleConnection[] {
-    return connections.filter(conn => 
-      conn.source.moduleId === conn.target.moduleId
-    );
+    return connections.filter(conn => conn.source.moduleId === conn.target.moduleId);
   }
 
   /**

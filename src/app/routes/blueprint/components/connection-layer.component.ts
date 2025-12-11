@@ -1,5 +1,6 @@
-import { Component, input, output, computed, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, input, output, computed, ChangeDetectionStrategy } from '@angular/core';
+
 import { ModuleConnection } from '../models';
 
 /**
@@ -28,11 +29,11 @@ interface ConnectionPath {
 /**
  * Connection Layer Component
  * 連接層元件 - 使用 SVG 渲染模組間的連接線
- * 
+ *
  * @description
  * 此元件負責在設計器畫布上渲染所有模組連接。
  * 使用貝塞爾曲線繪製平滑的連接線，支援懸停、選中和標籤顯示。
- * 
+ *
  * Features:
  * - SVG 貝塞爾曲線渲染
  * - 連接線懸停效果
@@ -40,7 +41,7 @@ interface ConnectionPath {
  * - 連接標籤顯示
  * - 點擊選擇功能
  * - 右鍵選單支援
- * 
+ *
  * @example
  * ```html
  * <app-connection-layer
@@ -61,28 +62,13 @@ interface ConnectionPath {
     <svg class="connection-layer">
       <!-- Connection lines -->
       @for (path of connectionPaths(); track path.id) {
-        <g 
-          class="connection-group"
-          (click)="handleClick(path.id)"
-          (contextmenu)="handleContextMenu($event, path.id)"
-        >
+        <g class="connection-group" (click)="handleClick(path.id)" (contextmenu)="handleContextMenu($event, path.id)">
           <!-- Main connection line -->
-          <path
-            [attr.d]="path.d"
-            [class]="path.className"
-            fill="none"
-            stroke-width="2"
-          />
-          
+          <path [attr.d]="path.d" [class]="path.className" fill="none" stroke-width="2" />
+
           <!-- Hover hit area (invisible, wider for easier interaction) -->
-          <path
-            [attr.d]="path.d"
-            class="connection-hit-area"
-            fill="none"
-            stroke="transparent"
-            stroke-width="20"
-          />
-          
+          <path [attr.d]="path.d" class="connection-hit-area" fill="none" stroke="transparent" stroke-width="20" />
+
           <!-- Connection label -->
           @if (path.label) {
             <text
@@ -99,76 +85,78 @@ interface ConnectionPath {
       }
     </svg>
   `,
-  styles: [`
-    :host {
-      display: block;
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-    }
+  styles: [
+    `
+      :host {
+        display: block;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+      }
 
-    .connection-layer {
-      width: 100%;
-      height: 100%;
-    }
+      .connection-layer {
+        width: 100%;
+        height: 100%;
+      }
 
-    .connection-group {
-      pointer-events: auto;
-      cursor: pointer;
-    }
+      .connection-group {
+        pointer-events: auto;
+        cursor: pointer;
+      }
 
-    .connection-line {
-      stroke: #8c8c8c;
-      transition: all 0.2s ease;
-    }
+      .connection-line {
+        stroke: #8c8c8c;
+        transition: all 0.2s ease;
+      }
 
-    .connection-line:hover {
-      stroke: #1890ff;
-      stroke-width: 3;
-    }
+      .connection-line:hover {
+        stroke: #1890ff;
+        stroke-width: 3;
+      }
 
-    .connection-line.selected {
-      stroke: #1890ff;
-      stroke-width: 3;
-      filter: drop-shadow(0 0 4px rgba(24, 144, 255, 0.5));
-    }
+      .connection-line.selected {
+        stroke: #1890ff;
+        stroke-width: 3;
+        filter: drop-shadow(0 0 4px rgba(24, 144, 255, 0.5));
+      }
 
-    .connection-line.error {
-      stroke: #ff4d4f;
-      stroke-dasharray: 5, 5;
-    }
+      .connection-line.error {
+        stroke: #ff4d4f;
+        stroke-dasharray: 5, 5;
+      }
 
-    .connection-line.inactive {
-      stroke: #d9d9d9;
-      opacity: 0.5;
-    }
+      .connection-line.inactive {
+        stroke: #d9d9d9;
+        opacity: 0.5;
+      }
 
-    .connection-hit-area {
-      cursor: pointer;
-    }
+      .connection-hit-area {
+        cursor: pointer;
+      }
 
-    .connection-label {
-      fill: #595959;
-      font-size: 12px;
-      font-weight: 500;
-      pointer-events: none;
-      user-select: none;
-    }
+      .connection-label {
+        fill: #595959;
+        font-size: 12px;
+        font-weight: 500;
+        pointer-events: none;
+        user-select: none;
+      }
 
-    .connection-group:hover .connection-label {
-      fill: #1890ff;
-    }
-  `]
+      .connection-group:hover .connection-label {
+        fill: #1890ff;
+      }
+    `
+  ]
 })
 export class ConnectionLayerComponent {
   // ✅ Modern Angular 19+ input/output functions
   connections = input.required<ModuleConnection[]>();
   modules = input.required<ModulePosition[]>();
   selectedConnectionId = input<string | null>(null);
-  
+
   connectionClick = output<string>();
   connectionContextMenu = output<{ connectionId: string; event: MouseEvent }>();
 
@@ -180,12 +168,12 @@ export class ConnectionLayerComponent {
     const conns = this.connections();
     const mods = this.modules();
     const selectedId = this.selectedConnectionId();
-    
+
     return conns.map(conn => {
       const path = this.calculatePath(conn, mods);
       const className = this.getConnectionClassName(conn, selectedId);
       const labelPosition = this.calculateLabelPosition(conn, mods);
-      
+
       return {
         id: conn.id,
         d: path,
@@ -199,7 +187,7 @@ export class ConnectionLayerComponent {
   /**
    * Calculate SVG path for connection using Bezier curve
    * 計算連接的 SVG 路徑 (使用貝塞爾曲線)
-   * 
+   *
    * @param connection - Connection to render
    * @param modules - Module positions for endpoint calculation
    * @returns SVG path string
@@ -207,24 +195,24 @@ export class ConnectionLayerComponent {
   private calculatePath(connection: ModuleConnection, modules: ModulePosition[]): string {
     const sourceModule = modules.find(m => m.id === connection.source.moduleId);
     const targetModule = modules.find(m => m.id === connection.target.moduleId);
-    
+
     if (!sourceModule || !targetModule) {
       return ''; // Invalid connection, no modules found
     }
-    
+
     // Calculate connection points (right side of source, left side of target)
     const startX = sourceModule.position.x + sourceModule.width;
     const startY = sourceModule.position.y + sourceModule.height / 2;
     const endX = targetModule.position.x;
     const endY = targetModule.position.y + targetModule.height / 2;
-    
+
     // Calculate control points for smooth Bezier curve
     const controlPointOffset = Math.abs(endX - startX) / 2;
     const cp1x = startX + controlPointOffset;
     const cp1y = startY;
     const cp2x = endX - controlPointOffset;
     const cp2y = endY;
-    
+
     // Generate SVG path using cubic Bezier curve (C command)
     return `M ${startX},${startY} C ${cp1x},${cp1y} ${cp2x},${cp2y} ${endX},${endY}`;
   }
@@ -235,17 +223,17 @@ export class ConnectionLayerComponent {
    */
   private getConnectionClassName(connection: ModuleConnection, selectedId: string | null): string {
     const classes = ['connection-line'];
-    
+
     if (connection.id === selectedId) {
       classes.push('selected');
     }
-    
+
     if (connection.status === 'error') {
       classes.push('error');
     } else if (connection.status === 'inactive') {
       classes.push('inactive');
     }
-    
+
     return classes.join(' ');
   }
 
@@ -253,22 +241,19 @@ export class ConnectionLayerComponent {
    * Calculate label position at the middle of the connection
    * 計算標籤位置 (連接線中點)
    */
-  private calculateLabelPosition(
-    connection: ModuleConnection,
-    modules: ModulePosition[]
-  ): { x: number; y: number } {
+  private calculateLabelPosition(connection: ModuleConnection, modules: ModulePosition[]): { x: number; y: number } {
     const sourceModule = modules.find(m => m.id === connection.source.moduleId);
     const targetModule = modules.find(m => m.id === connection.target.moduleId);
-    
+
     if (!sourceModule || !targetModule) {
       return { x: 0, y: 0 };
     }
-    
+
     const startX = sourceModule.position.x + sourceModule.width;
     const startY = sourceModule.position.y + sourceModule.height / 2;
     const endX = targetModule.position.x;
     const endY = targetModule.position.y + targetModule.height / 2;
-    
+
     // Label at midpoint
     return {
       x: (startX + endX) / 2,

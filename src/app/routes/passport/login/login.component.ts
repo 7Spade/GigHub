@@ -17,7 +17,7 @@ import { firstValueFrom } from 'rxjs';
 /**
  * User Login Component
  * 使用者登入元件
- * 
+ *
  * ✅ Modernized with:
  * - Signals for reactive state
  * - async/await for Firebase Auth
@@ -52,7 +52,7 @@ export class UserLoginComponent {
     password: ['', [Validators.required, Validators.minLength(6)]],
     remember: [true]
   });
-  
+
   // ✅ Modern Pattern: Use Signals for reactive state
   error = signal('');
   loading = signal(false);
@@ -68,7 +68,7 @@ export class UserLoginComponent {
     email.updateValueAndValidity();
     password.markAsDirty();
     password.updateValueAndValidity();
-    
+
     if (email.invalid || password.invalid) {
       return;
     }
@@ -77,17 +77,14 @@ export class UserLoginComponent {
 
     try {
       // Sign in with Firebase Auth
-      await this.firebaseAuth.signInWithEmailAndPassword(
-        this.form.value.email!,
-        this.form.value.password!
-      );
+      await this.firebaseAuth.signInWithEmailAndPassword(this.form.value.email!, this.form.value.password!);
 
       // Clear reuse tab info
       this.reuseTabService?.clear();
 
       // Reload startup service to refresh user permissions
       await firstValueFrom(this.startupSrv.load());
-      
+
       // Navigate to home page
       await this.router.navigateByUrl('/');
     } catch (error: any) {

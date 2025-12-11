@@ -1,11 +1,11 @@
 /**
  * Tasks Repository
- * 
+ *
  * Data access layer for task management.
  * Handles all Firestore operations for tasks within a blueprint.
- * 
+ *
  * Collection path: blueprints/{blueprintId}/tasks/{taskId}
- * 
+ *
  * @author GigHub Development Team
  * @date 2025-12-10
  */
@@ -28,8 +28,8 @@ import {
   CollectionReference,
   QueryConstraint
 } from '@angular/fire/firestore';
-import { Observable, from, map, catchError, of } from 'rxjs';
 import { LoggerService } from '@core/services/logger.service';
+import { Observable, from, map, catchError, of } from 'rxjs';
 
 /**
  * Task Status
@@ -111,7 +111,7 @@ export interface TaskQueryOptions {
 
 /**
  * Tasks Repository Service
- * 
+ *
  * Manages CRUD operations for tasks within a blueprint.
  */
 @Injectable({
@@ -152,9 +152,7 @@ export class TasksRepository {
       createdBy: data.createdBy,
       createdAt: data.createdAt instanceof Timestamp ? data.createdAt.toDate() : data.createdAt,
       updatedAt: data.updatedAt instanceof Timestamp ? data.updatedAt.toDate() : data.updatedAt,
-      deletedAt: data.deletedAt 
-        ? (data.deletedAt instanceof Timestamp ? data.deletedAt.toDate() : data.deletedAt)
-        : null
+      deletedAt: data.deletedAt ? (data.deletedAt instanceof Timestamp ? data.deletedAt.toDate() : data.deletedAt) : null
     };
   }
 
@@ -189,9 +187,7 @@ export class TasksRepository {
     const q = query(this.getTasksCollection(blueprintId), ...constraints);
 
     return from(getDocs(q)).pipe(
-      map(snapshot =>
-        snapshot.docs.map(docSnap => this.toTaskDocument(docSnap.data(), docSnap.id))
-      ),
+      map(snapshot => snapshot.docs.map(docSnap => this.toTaskDocument(docSnap.data(), docSnap.id))),
       catchError(error => {
         this.logger.error('[TasksRepository]', 'findByBlueprintId failed', error as Error);
         return of([]);
@@ -203,12 +199,8 @@ export class TasksRepository {
    * Find task by ID
    */
   findById(blueprintId: string, taskId: string): Observable<TaskDocument | null> {
-    return from(
-      getDoc(doc(this.firestore, this.parentCollection, blueprintId, this.subcollectionName, taskId))
-    ).pipe(
-      map(snapshot =>
-        snapshot.exists() ? this.toTaskDocument(snapshot.data(), snapshot.id) : null
-      ),
+    return from(getDoc(doc(this.firestore, this.parentCollection, blueprintId, this.subcollectionName, taskId))).pipe(
+      map(snapshot => (snapshot.exists() ? this.toTaskDocument(snapshot.data(), snapshot.id) : null)),
       catchError(error => {
         this.logger.error('[TasksRepository]', 'findById failed', error as Error);
         return of(null);
@@ -268,28 +260,19 @@ export class TasksRepository {
 
     // Convert dates to Timestamps
     if (data.dueDate) {
-      docData.dueDate = data.dueDate instanceof Date 
-        ? Timestamp.fromDate(data.dueDate) 
-        : data.dueDate;
+      docData.dueDate = data.dueDate instanceof Date ? Timestamp.fromDate(data.dueDate) : data.dueDate;
     }
     if (data.startDate) {
-      docData.startDate = data.startDate instanceof Date
-        ? Timestamp.fromDate(data.startDate)
-        : data.startDate;
+      docData.startDate = data.startDate instanceof Date ? Timestamp.fromDate(data.startDate) : data.startDate;
     }
     if (data.completedDate) {
-      docData.completedDate = data.completedDate instanceof Date
-        ? Timestamp.fromDate(data.completedDate)
-        : data.completedDate;
+      docData.completedDate = data.completedDate instanceof Date ? Timestamp.fromDate(data.completedDate) : data.completedDate;
     }
 
     delete (docData as any).id;
 
     try {
-      await updateDoc(
-        doc(this.firestore, this.parentCollection, blueprintId, this.subcollectionName, taskId),
-        docData
-      );
+      await updateDoc(doc(this.firestore, this.parentCollection, blueprintId, this.subcollectionName, taskId), docData);
       this.logger.info('[TasksRepository]', `Task updated: ${taskId}`);
     } catch (error: any) {
       this.logger.error('[TasksRepository]', 'update failed', error as Error);
@@ -302,13 +285,10 @@ export class TasksRepository {
    */
   async delete(blueprintId: string, taskId: string): Promise<void> {
     try {
-      await updateDoc(
-        doc(this.firestore, this.parentCollection, blueprintId, this.subcollectionName, taskId),
-        {
-          deletedAt: Timestamp.now(),
-          updatedAt: Timestamp.now()
-        }
-      );
+      await updateDoc(doc(this.firestore, this.parentCollection, blueprintId, this.subcollectionName, taskId), {
+        deletedAt: Timestamp.now(),
+        updatedAt: Timestamp.now()
+      });
       this.logger.info('[TasksRepository]', `Task deleted: ${taskId}`);
     } catch (error: any) {
       this.logger.error('[TasksRepository]', 'delete failed', error as Error);
@@ -321,9 +301,7 @@ export class TasksRepository {
    */
   async hardDelete(blueprintId: string, taskId: string): Promise<void> {
     try {
-      await deleteDoc(
-        doc(this.firestore, this.parentCollection, blueprintId, this.subcollectionName, taskId)
-      );
+      await deleteDoc(doc(this.firestore, this.parentCollection, blueprintId, this.subcollectionName, taskId));
       this.logger.info('[TasksRepository]', `Task hard deleted: ${taskId}`);
     } catch (error: any) {
       this.logger.error('[TasksRepository]', 'hardDelete failed', error as Error);
@@ -336,12 +314,7 @@ export class TasksRepository {
    */
   async getCountByStatus(blueprintId: string): Promise<Record<TaskStatus, number>> {
     try {
-      const snapshot = await getDocs(
-        query(
-          this.getTasksCollection(blueprintId),
-          where('deletedAt', '==', null)
-        )
-      );
+      const snapshot = await getDocs(query(this.getTasksCollection(blueprintId), where('deletedAt', '==', null)));
 
       const counts: Record<TaskStatus, number> = {
         [TaskStatus.PENDING]: 0,

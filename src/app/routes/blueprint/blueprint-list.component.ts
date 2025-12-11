@@ -1,26 +1,25 @@
 import { Component, OnInit, inject, effect, computed } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { firstValueFrom } from 'rxjs';
+import { Blueprint, BlueprintStatus, LoggerService, FirebaseAuthService, OwnerType, ContextType } from '@core';
 import { STColumn, STData } from '@delon/abc/st';
 import { ModalHelper } from '@delon/theme';
+import { SHARED_IMPORTS, createAsyncArrayState, BlueprintService, WorkspaceContextService } from '@shared';
+import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzSpaceModule } from 'ng-zorro-antd/space';
 import { NzStatisticModule } from 'ng-zorro-antd/statistic';
-import { NzInputModule } from 'ng-zorro-antd/input';
-import { SHARED_IMPORTS, createAsyncArrayState } from '@shared';
-import { Blueprint, BlueprintStatus, LoggerService, FirebaseAuthService, OwnerType, ContextType } from '@core';
-import { BlueprintService, WorkspaceContextService } from '@shared';
+import { firstValueFrom } from 'rxjs';
 
 /**
  * Blueprint List Component
  * 藍圖列表元件 - 顯示使用者的所有藍圖
- * 
+ *
  * Features:
  * - Display blueprints in ST table
  * - Filter by status
  * - Create new blueprint
  * - Navigate to detail
- * 
+ *
  * ✅ Modernized with AsyncState pattern
  */
 @Component({
@@ -58,11 +57,7 @@ import { BlueprintService, WorkspaceContextService } from '@shared';
       <nz-row [nzGutter]="16" class="mb-md">
         <nz-col [nzXs]="12" [nzSm]="12" [nzMd]="6">
           <nz-card>
-            <nz-statistic
-              [nzValue]="stats().total"
-              nzTitle="總數"
-              [nzPrefix]="totalPrefixTpl"
-            />
+            <nz-statistic [nzValue]="stats().total" nzTitle="總數" [nzPrefix]="totalPrefixTpl" />
             <ng-template #totalPrefixTpl>
               <span nz-icon nzType="project" nzTheme="outline"></span>
             </ng-template>
@@ -70,12 +65,7 @@ import { BlueprintService, WorkspaceContextService } from '@shared';
         </nz-col>
         <nz-col [nzXs]="12" [nzSm]="12" [nzMd]="6">
           <nz-card>
-            <nz-statistic
-              [nzValue]="stats().active"
-              nzTitle="啟用中"
-              [nzValueStyle]="{ color: '#52c41a' }"
-              [nzPrefix]="activePrefixTpl"
-            />
+            <nz-statistic [nzValue]="stats().active" nzTitle="啟用中" [nzValueStyle]="{ color: '#52c41a' }" [nzPrefix]="activePrefixTpl" />
             <ng-template #activePrefixTpl>
               <span nz-icon nzType="check-circle" nzTheme="outline"></span>
             </ng-template>
@@ -83,12 +73,7 @@ import { BlueprintService, WorkspaceContextService } from '@shared';
         </nz-col>
         <nz-col [nzXs]="12" [nzSm]="12" [nzMd]="6">
           <nz-card>
-            <nz-statistic
-              [nzValue]="stats().draft"
-              nzTitle="草稿"
-              [nzValueStyle]="{ color: '#1890ff' }"
-              [nzPrefix]="draftPrefixTpl"
-            />
+            <nz-statistic [nzValue]="stats().draft" nzTitle="草稿" [nzValueStyle]="{ color: '#1890ff' }" [nzPrefix]="draftPrefixTpl" />
             <ng-template #draftPrefixTpl>
               <span nz-icon nzType="edit" nzTheme="outline"></span>
             </ng-template>
@@ -114,24 +99,13 @@ import { BlueprintService, WorkspaceContextService } from '@shared';
       <!-- Filter Section -->
       <div class="mb-md" style="display: flex; gap: 8px; flex-wrap: wrap;">
         <nz-input-group [nzPrefix]="searchPrefix" style="width: 250px;">
-          <input
-            nz-input
-            placeholder="搜尋藍圖..."
-            [(ngModel)]="searchText"
-            (ngModelChange)="onFilterChange()"
-          />
+          <input nz-input placeholder="搜尋藍圖..." [(ngModel)]="searchText" (ngModelChange)="onFilterChange()" />
         </nz-input-group>
         <ng-template #searchPrefix>
           <span nz-icon nzType="search"></span>
         </ng-template>
-        
-        <nz-select
-          [(ngModel)]="filterStatus"
-          (ngModelChange)="onFilterChange()"
-          nzPlaceHolder="篩選狀態"
-          nzAllowClear
-          style="width: 150px"
-        >
+
+        <nz-select [(ngModel)]="filterStatus" (ngModelChange)="onFilterChange()" nzPlaceHolder="篩選狀態" nzAllowClear style="width: 150px">
           <nz-option nzLabel="全部" [nzValue]="null"></nz-option>
           <nz-option nzLabel="草稿" nzValue="draft"></nz-option>
           <nz-option nzLabel="啟用" nzValue="active"></nz-option>
@@ -150,11 +124,13 @@ import { BlueprintService, WorkspaceContextService } from '@shared';
       ></st>
     </nz-card>
   `,
-  styles: [`
-    :host {
-      display: block;
-    }
-  `]
+  styles: [
+    `
+      :host {
+        display: block;
+      }
+    `
+  ]
 })
 export class BlueprintListComponent implements OnInit {
   private readonly router = inject(Router);
@@ -168,15 +144,15 @@ export class BlueprintListComponent implements OnInit {
 
   // ✅ Modern Pattern: Use AsyncState
   readonly blueprintsState = createAsyncArrayState<Blueprint>([]);
-  
+
   filterStatus: BlueprintStatus | null = null;
   searchText = '';
-  
+
   // ✅ Modern Pattern: Separate auth state for guards
   private readonly authenticated = this.workspaceContext.isAuthenticated;
   private readonly contextType = this.workspaceContext.contextType;
   private readonly contextId = this.workspaceContext.contextId;
-  
+
   // ✅ Computed: Stats
   readonly stats = computed(() => {
     const data = this.blueprintsState.data() || [];
@@ -187,48 +163,49 @@ export class BlueprintListComponent implements OnInit {
       archived: data.filter(b => b.status === 'archived').length
     };
   });
-  
+
   // ✅ Computed: Filtered blueprints
   readonly filteredBlueprints = computed(() => {
     let data = this.blueprintsState.data() || [];
-    
+
     // Filter by status
     if (this.filterStatus) {
       data = data.filter(b => b.status === this.filterStatus);
     }
-    
+
     // Filter by search text
     if (this.searchText) {
       const search = this.searchText.toLowerCase();
-      data = data.filter(b => 
-        b.name.toLowerCase().includes(search) ||
-        b.slug.toLowerCase().includes(search) ||
-        (b.description && b.description.toLowerCase().includes(search))
+      data = data.filter(
+        b =>
+          b.name.toLowerCase().includes(search) ||
+          b.slug.toLowerCase().includes(search) ||
+          (b.description && b.description.toLowerCase().includes(search))
       );
     }
-    
+
     return data;
   });
-  
+
   // ✅ Computed: Logic separation - determine if we should load
   private readonly shouldLoadBlueprints = computed(() => {
     const isAuth = this.authenticated();
     const type = this.contextType();
     const id = this.contextId();
-    
+
     // Must be authenticated
     if (!isAuth) {
       return false;
     }
-    
+
     // For non-USER contexts, require contextId
     if (type !== ContextType.USER && !id) {
       return false;
     }
-    
+
     return true;
   });
-  
+
   constructor() {
     // ✅ Effect: Only handle side effects, logic is in computed
     effect(() => {
@@ -281,7 +258,7 @@ export class BlueprintListComponent implements OnInit {
       title: '啟用模組',
       index: 'enabledModules',
       width: '120px',
-      format: (item: Blueprint) => item.enabledModules ? `${item.enabledModules.length}/5` : '0/5'
+      format: (item: Blueprint) => (item.enabledModules ? `${item.enabledModules.length}/5` : '0/5')
     },
     {
       title: '操作',
@@ -327,12 +304,12 @@ export class BlueprintListComponent implements OnInit {
    * Load blueprints for current workspace context
    * 載入當前工作區上下文的藍圖
    * ✅ Using AsyncState for automatic state management
-   * 
+   *
    * Note: Auth is guaranteed by shouldLoadBlueprints computed signal
    */
   private async loadBlueprints(): Promise<void> {
     const user = this.authService.currentUser;
-    
+
     // ✅ Silent guard: Effect guarantees auth, but defensive check for safety
     if (!user) {
       console.warn('[BlueprintList] Unexpected: loadBlueprints called without authenticated user');
@@ -343,10 +320,10 @@ export class BlueprintListComponent implements OnInit {
     // Determine owner type and ID based on workspace context
     const contextType = this.workspaceContext.contextType();
     const contextId = this.workspaceContext.contextId();
-    
+
     let ownerType: OwnerType;
     let ownerId: string;
-    
+
     switch (contextType) {
       case ContextType.ORGANIZATION:
         ownerType = OwnerType.ORGANIZATION;
@@ -371,9 +348,7 @@ export class BlueprintListComponent implements OnInit {
     }
 
     try {
-      await this.blueprintsState.load(
-        firstValueFrom(this.blueprintService.getByOwner(ownerType, ownerId))
-      );
+      await this.blueprintsState.load(firstValueFrom(this.blueprintService.getByOwner(ownerType, ownerId)));
       this.logger.info('[BlueprintListComponent]', `Loaded ${this.blueprintsState.length()} blueprints for ${ownerType}:${ownerId}`);
     } catch (error) {
       this.message.error('載入藍圖失敗');
@@ -412,17 +387,11 @@ export class BlueprintListComponent implements OnInit {
    */
   async create(): Promise<void> {
     const { BlueprintModalComponent } = await import('./blueprint-modal.component');
-    this.modal
-      .createStatic(
-        BlueprintModalComponent,
-        {},
-        { size: 'md' }
-      )
-      .subscribe((result) => {
-        if (result) {
-          this.refresh();
-        }
-      });
+    this.modal.createStatic(BlueprintModalComponent, {}, { size: 'md' }).subscribe(result => {
+      if (result) {
+        this.refresh();
+      }
+    });
   }
 
   /**
@@ -452,17 +421,11 @@ export class BlueprintListComponent implements OnInit {
   async edit(record: STData): Promise<void> {
     const blueprint = record as unknown as Blueprint;
     const { BlueprintModalComponent } = await import('./blueprint-modal.component');
-    this.modal
-      .createStatic(
-        BlueprintModalComponent,
-        { blueprint },
-        { size: 'md' }
-      )
-      .subscribe((result) => {
-        if (result) {
-          this.refresh();
-        }
-      });
+    this.modal.createStatic(BlueprintModalComponent, { blueprint }, { size: 'md' }).subscribe(result => {
+      if (result) {
+        this.refresh();
+      }
+    });
   }
 
   /**
@@ -471,7 +434,7 @@ export class BlueprintListComponent implements OnInit {
    */
   async delete(record: STData): Promise<void> {
     const blueprint = record as unknown as Blueprint;
-    
+
     try {
       await this.blueprintService.delete(blueprint.id);
       this.message.success('藍圖已刪除');

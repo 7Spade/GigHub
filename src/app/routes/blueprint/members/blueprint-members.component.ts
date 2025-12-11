@@ -1,22 +1,21 @@
 import { Component, OnInit, inject, input } from '@angular/core';
-import { firstValueFrom } from 'rxjs';
-import { NzMessageService } from 'ng-zorro-antd/message';
-import { ModalHelper } from '@delon/theme';
-import { STColumn } from '@delon/abc/st';
-import { SHARED_IMPORTS, createAsyncArrayState } from '@shared';
 import { BlueprintMember, BlueprintRole, LoggerService } from '@core';
-import { BlueprintMemberRepository } from '@shared';
+import { STColumn } from '@delon/abc/st';
+import { ModalHelper } from '@delon/theme';
+import { SHARED_IMPORTS, createAsyncArrayState, BlueprintMemberRepository } from '@shared';
+import { NzMessageService } from 'ng-zorro-antd/message';
+import { firstValueFrom } from 'rxjs';
 
 /**
  * Blueprint Members Component
  * 藍圖成員元件 - 管理藍圖成員
- * 
+ *
  * Features:
  * - Display members list
  * - Add new member
  * - Update member role
  * - Remove member
- * 
+ *
  * Following Occam's Razor: Simple, focused member management
  * ✅ Modernized with AsyncState pattern
  */
@@ -44,20 +43,17 @@ import { BlueprintMemberRepository } from '@shared';
           class="mb-md"
         />
       } @else {
-        <st
-          #st
-          [data]="membersState.data() || []"
-          [columns]="columns"
-          [page]="{ show: false }"
-        ></st>
+        <st #st [data]="membersState.data() || []" [columns]="columns" [page]="{ show: false }"></st>
       }
     </nz-card>
   `,
-  styles: [`
-    :host {
-      display: block;
-    }
-  `]
+  styles: [
+    `
+      :host {
+        display: block;
+      }
+    `
+  ]
 })
 export class BlueprintMembersComponent implements OnInit {
   private readonly message = inject(NzMessageService);
@@ -141,9 +137,7 @@ export class BlueprintMembersComponent implements OnInit {
    */
   private async loadMembers(): Promise<void> {
     try {
-      await this.membersState.load(
-        firstValueFrom(this.memberRepository.findByBlueprint(this.blueprintId()))
-      );
+      await this.membersState.load(firstValueFrom(this.memberRepository.findByBlueprint(this.blueprintId())));
       this.logger.info('[BlueprintMembersComponent]', `Loaded ${this.membersState.length()} members`);
     } catch (error) {
       this.message.error('載入成員失敗');
@@ -157,7 +151,7 @@ export class BlueprintMembersComponent implements OnInit {
    */
   private getBusinessRoleName(role?: string): string {
     if (!role) return '-';
-    
+
     const roleMap: Record<string, string> = {
       project_manager: '專案經理',
       site_supervisor: '工地主任',
@@ -167,7 +161,7 @@ export class BlueprintMembersComponent implements OnInit {
       contractor: '承包商',
       client: '業主'
     };
-    
+
     return roleMap[role] || role;
   }
 
@@ -177,17 +171,11 @@ export class BlueprintMembersComponent implements OnInit {
    */
   async addMember(): Promise<void> {
     const { MemberModalComponent } = await import('./member-modal.component');
-    this.modal
-      .createStatic(
-        MemberModalComponent,
-        { blueprintId: this.blueprintId() },
-        { size: 'md' }
-      )
-      .subscribe((result) => {
-        if (result) {
-          this.loadMembers();
-        }
-      });
+    this.modal.createStatic(MemberModalComponent, { blueprintId: this.blueprintId() }, { size: 'md' }).subscribe(result => {
+      if (result) {
+        this.loadMembers();
+      }
+    });
   }
 
   /**
@@ -197,17 +185,11 @@ export class BlueprintMembersComponent implements OnInit {
   async editMember(record: any): Promise<void> {
     const member = record as BlueprintMember;
     const { MemberModalComponent } = await import('./member-modal.component');
-    this.modal
-      .createStatic(
-        MemberModalComponent,
-        { blueprintId: this.blueprintId(), member },
-        { size: 'md' }
-      )
-      .subscribe((result) => {
-        if (result) {
-          this.loadMembers();
-        }
-      });
+    this.modal.createStatic(MemberModalComponent, { blueprintId: this.blueprintId(), member }, { size: 'md' }).subscribe(result => {
+      if (result) {
+        this.loadMembers();
+      }
+    });
   }
 
   /**

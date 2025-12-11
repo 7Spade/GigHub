@@ -1,19 +1,20 @@
 /**
  * Tasks Component
- * 
+ *
  * Angular UI component for task management.
  * Uses Angular 20 Signals and modern syntax.
- * 
+ *
  * @author GigHub Development Team
  * @date 2025-12-10
  */
 
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { SHARED_IMPORTS } from '@shared';
 import { STColumn, STData } from '@delon/abc/st';
-import { TasksService } from './tasks.service';
+import { SHARED_IMPORTS } from '@shared';
+
 import { TaskStatus, TaskPriority, CreateTaskData } from './tasks.repository';
+import { TasksService } from './tasks.service';
 
 @Component({
   selector: 'app-tasks',
@@ -27,32 +28,16 @@ import { TaskStatus, TaskPriority, CreateTaskData } from './tasks.repository';
     <nz-card [nzTitle]="'任務統計'" [nzExtra]="statsExtra">
       <nz-row [nzGutter]="16">
         <nz-col [nzSpan]="6">
-          <nz-statistic 
-            [nzValue]="taskStats().total" 
-            [nzTitle]="'總任務數'"
-            [nzPrefix]="totalIcon">
-          </nz-statistic>
+          <nz-statistic [nzValue]="taskStats().total" [nzTitle]="'總任務數'" [nzPrefix]="totalIcon"> </nz-statistic>
         </nz-col>
         <nz-col [nzSpan]="6">
-          <nz-statistic 
-            [nzValue]="taskStats().pending" 
-            [nzTitle]="'待處理'"
-            [nzValueStyle]="{ color: '#faad14' }">
-          </nz-statistic>
+          <nz-statistic [nzValue]="taskStats().pending" [nzTitle]="'待處理'" [nzValueStyle]="{ color: '#faad14' }"> </nz-statistic>
         </nz-col>
         <nz-col [nzSpan]="6">
-          <nz-statistic 
-            [nzValue]="taskStats().inProgress" 
-            [nzTitle]="'進行中'"
-            [nzValueStyle]="{ color: '#1890ff' }">
-          </nz-statistic>
+          <nz-statistic [nzValue]="taskStats().inProgress" [nzTitle]="'進行中'" [nzValueStyle]="{ color: '#1890ff' }"> </nz-statistic>
         </nz-col>
         <nz-col [nzSpan]="6">
-          <nz-statistic 
-            [nzValue]="taskStats().completed" 
-            [nzTitle]="'已完成'"
-            [nzValueStyle]="{ color: '#52c41a' }">
-          </nz-statistic>
+          <nz-statistic [nzValue]="taskStats().completed" [nzTitle]="'已完成'" [nzValueStyle]="{ color: '#52c41a' }"> </nz-statistic>
         </nz-col>
       </nz-row>
 
@@ -72,26 +57,20 @@ import { TaskStatus, TaskPriority, CreateTaskData } from './tasks.repository';
       @if (tasksService.loading()) {
         <nz-spin nzSimple />
       } @else if (tasksService.error()) {
-        <nz-alert 
-          nzType="error" 
-          [nzMessage]="tasksService.error()" 
-          nzShowIcon>
-        </nz-alert>
+        <nz-alert nzType="error" [nzMessage]="tasksService.error()" nzShowIcon> </nz-alert>
       } @else {
-        <st 
-          [data]="tasksService.tasks()" 
-          [columns]="columns"
-          [page]="{ show: true, showSize: true }"
-          [loading]="tasksService.loading()">
+        <st [data]="tasksService.tasks()" [columns]="columns" [page]="{ show: true, showSize: true }" [loading]="tasksService.loading()">
         </st>
       }
     </nz-card>
   `,
-  styles: [`
-    :host {
-      display: block;
-    }
-  `]
+  styles: [
+    `
+      :host {
+        display: block;
+      }
+    `
+  ]
 })
 export class TasksComponent implements OnInit {
   private route = inject(ActivatedRoute);

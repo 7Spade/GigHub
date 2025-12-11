@@ -1,17 +1,11 @@
 import { Injectable, inject } from '@angular/core';
+import { Blueprint, BlueprintQueryOptions, CreateBlueprintRequest, OwnerType, UpdateBlueprintRequest, LoggerService } from '@core';
 import { Observable } from 'rxjs';
-import {
-  Blueprint,
-  BlueprintQueryOptions,
-  CreateBlueprintRequest,
-  OwnerType,
-  UpdateBlueprintRequest,
-  LoggerService
-} from '@core';
-import { BlueprintRepository } from './blueprint.repository';
+
 import { BlueprintMemberRepository } from './blueprint-member.repository';
-import { ValidationService } from '../validation/validation.service';
+import { BlueprintRepository } from './blueprint.repository';
 import { BlueprintCreateSchema, BlueprintUpdateSchema } from '../validation/blueprint-validation-schemas';
+import { ValidationService } from '../validation/validation.service';
 
 @Injectable({
   providedIn: 'root'
@@ -37,7 +31,7 @@ export class BlueprintService {
   async create(request: CreateBlueprintRequest): Promise<Blueprint> {
     // Validate request
     this.validator.validateOrThrow(request, BlueprintCreateSchema, 'blueprint');
-    
+
     try {
       const blueprint = await this.repository.create(request);
       this.logger.info('[BlueprintService]', `Blueprint created ${blueprint.id}`);
@@ -51,7 +45,7 @@ export class BlueprintService {
   async update(id: string, updates: UpdateBlueprintRequest): Promise<void> {
     // Validate updates
     this.validator.validateOrThrow(updates, BlueprintUpdateSchema, 'blueprint');
-    
+
     try {
       await this.repository.update(id, updates);
       this.logger.info('[BlueprintService]', `Blueprint updated ${id}`);
@@ -71,10 +65,7 @@ export class BlueprintService {
     }
   }
 
-  async addMember(
-    blueprintId: string,
-    member: Parameters<BlueprintMemberRepository['addMember']>[1]
-  ): Promise<void> {
+  async addMember(blueprintId: string, member: Parameters<BlueprintMemberRepository['addMember']>[1]): Promise<void> {
     try {
       await this.memberRepository.addMember(blueprintId, member);
       this.logger.info('[BlueprintService]', `Member added to ${blueprintId}`);
@@ -84,4 +75,3 @@ export class BlueprintService {
     }
   }
 }
-

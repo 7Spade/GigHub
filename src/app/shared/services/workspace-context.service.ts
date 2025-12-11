@@ -25,12 +25,12 @@
 
 import { Injectable, computed, inject, signal, effect } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { ContextType, Account, Organization, Team, Bot } from '@core';
-import { FirebaseAuthService } from '@core';
+import { ContextType, Account, Organization, Team, Bot, FirebaseAuthService } from '@core';
 import { SettingsService } from '@delon/theme';
+import { combineLatest, of, switchMap, map, shareReplay, catchError } from 'rxjs';
+
 import { OrganizationRepository } from './organization/organization.repository';
 import { TeamRepository } from './team/team.repository';
-import { combineLatest, of, switchMap, map, shareReplay, catchError } from 'rxjs';
 
 const STORAGE_KEY = 'workspace_context';
 
@@ -56,7 +56,7 @@ export class WorkspaceContextService {
   // ============================================================================
   // RxJS Pipeline: Handle ALL async operations
   // ============================================================================
-  
+
   /**
    * Main data pipeline using RxJS operators (Angular 20 best practice)
    * - switchMap: Automatically cancels previous requests
@@ -87,15 +87,13 @@ export class WorkspaceContextService {
       return this.organizationRepo.findByCreator(user.uid).pipe(
         switchMap(organizations => {
           console.log('[WorkspaceContextService] ✅ Organizations loaded:', organizations.length);
-          
+
           if (organizations.length === 0) {
             return of({ user: account, organizations: [], teams: [], bots: [] });
           }
 
           // Load teams for all organizations in parallel
-          const teamObservables = organizations.map(org => 
-            this.teamRepo.findByOrganization(org.id)
-          );
+          const teamObservables = organizations.map(org => this.teamRepo.findByOrganization(org.id));
 
           return combineLatest(teamObservables).pipe(
             map(teamArrays => {
@@ -105,7 +103,7 @@ export class WorkspaceContextService {
                 user: account,
                 organizations,
                 teams: allTeams,
-                bots: [] as Bot[]  // Bots not yet implemented
+                bots: [] as Bot[] // Bots not yet implemented
               };
             })
           );
@@ -117,13 +115,13 @@ export class WorkspaceContextService {
         })
       );
     }),
-    shareReplay(1)  // Cache result, prevent duplicate requests
+    shareReplay(1) // Cache result, prevent duplicate requests
   );
 
   // ============================================================================
   // Signals: Manage sync state only
   // ============================================================================
-  
+
   /**
    * Convert Observable to Signal (only at the end of pipeline)
    * This is the Angular 20 recommended pattern: RxJS for async, Signals for sync
@@ -140,12 +138,12 @@ export class WorkspaceContextService {
   // ============================================================================
   // Public Readonly Signals (Computed from userData)
   // ============================================================================
-  
+
   readonly currentUser = computed(() => this._userData().user);
   readonly organizations = computed(() => this._userData().organizations);
   readonly teams = computed(() => this._userData().teams);
   readonly bots = computed(() => this._userData().bots);
-  
+
   readonly contextType = this._contextType.asReadonly();
   readonly contextId = this._contextId.asReadonly();
   readonly switching = this._switching.asReadonly();
@@ -160,7 +158,7 @@ export class WorkspaceContextService {
   // ============================================================================
   // Computed Signals: Derived state (pure logic, no side effects)
   // ============================================================================
-  
+
   /** Is user authenticated? */
   readonly isAuthenticated = computed(() => !!this.currentUser());
 
@@ -222,7 +220,7 @@ export class WorkspaceContextService {
   // ============================================================================
   // Effects: Side effects only (sync to SettingsService, persistence)
   // ============================================================================
-  
+
   constructor() {
     /**
      * Effect #1: Sync to SettingsService for ng-alain components
@@ -277,7 +275,7 @@ export class WorkspaceContextService {
      */
     effect(() => {
       const user = this.currentUser();
-      
+
       // Only restore context when user is first loaded
       if (user && this.contextType() === ContextType.USER && !this.contextId()) {
         console.log('[WorkspaceContextService] 🔄 Auto-restoring context...');
@@ -288,7 +286,7 @@ export class WorkspaceContextService {
   // ============================================================================
   // Context Switching: Pure sync operations
   // ============================================================================
-  
+
   /**
    * Switch to user context
    */
@@ -324,20 +322,20 @@ export class WorkspaceContextService {
   switchContext(type: ContextType, id: string | null): void {
     console.log('[WorkspaceContextService] 🔀 Switching context:', { type, id });
     this._switching.set(true);
-    
+
     this._contextType.set(type);
     this._contextId.set(id);
-    
+
     this.persistContext();
     this._switching.set(false);
-    
+
     console.log('[WorkspaceContextService] ✅ Context switched successfully');
   }
 
   // ============================================================================
   // Data Management: Manual operations (for dynamic updates)
   // ============================================================================
-  
+
   /**
    * Add organization to the list
    * Useful when user creates a new organization
@@ -345,7 +343,7 @@ export class WorkspaceContextService {
   addOrganization(org: Organization): void {
     const current = this._userData();
     const organizations = current.organizations;
-    
+
     // Check if already exists to avoid duplicates
     if (!organizations.find(o => o.id === org.id)) {
       // Note: We can't directly mutate _userData since it's from toSignal
@@ -401,7 +399,7 @@ export class WorkspaceContextService {
   // ============================================================================
   // Persistence: localStorage operations
   // ============================================================================
-  
+
   /**
    * Restore context from localStorage
    */

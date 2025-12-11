@@ -1,29 +1,26 @@
 /**
  * Tasks Module
- * 
+ *
  * Implementation of IBlueprintModule interface for task management.
  * Handles module lifecycle and integration with Blueprint Container.
- * 
+ *
  * @author GigHub Development Team
  * @date 2025-12-10
  */
 
 import { Injectable, signal, inject, WritableSignal } from '@angular/core';
-import { IBlueprintModule } from '@core/blueprint/modules/module.interface';
-import { ModuleStatus } from '@core/blueprint/modules/module-status.enum';
 import type { IExecutionContext } from '@core/blueprint/context/execution-context.interface';
+import { ModuleStatus } from '@core/blueprint/modules/module-status.enum';
+import { IBlueprintModule } from '@core/blueprint/modules/module.interface';
 import { LoggerService } from '@core/services/logger.service';
-import { TasksService } from './tasks.service';
+
+import { TASKS_MODULE_METADATA, TASKS_MODULE_DEFAULT_CONFIG, TASKS_MODULE_EVENTS } from './module.metadata';
 import { TasksRepository } from './tasks.repository';
-import {
-  TASKS_MODULE_METADATA,
-  TASKS_MODULE_DEFAULT_CONFIG,
-  TASKS_MODULE_EVENTS
-} from './module.metadata';
+import { TasksService } from './tasks.service';
 
 /**
  * Tasks Module Implementation
- * 
+ *
  * Provides task management functionality for Blueprint V2.
  * Implements full module lifecycle: init → start → ready → stop → dispose.
  */

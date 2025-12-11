@@ -1,6 +1,6 @@
 /**
  * Blueprint Configuration
- * 
+ *
  * Configuration interfaces for blueprint setup.
  */
 

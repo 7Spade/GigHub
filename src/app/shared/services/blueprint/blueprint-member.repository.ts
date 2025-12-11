@@ -12,8 +12,8 @@ import {
   DocumentReference,
   Timestamp
 } from '@angular/fire/firestore';
-import { Observable, from, map } from 'rxjs';
 import { BlueprintMember } from '@core';
+import { Observable, from, map } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'

@@ -15,8 +15,8 @@ import {
   DocumentReference,
   Timestamp
 } from '@angular/fire/firestore';
-import { Observable, from, map, catchError, of } from 'rxjs';
 import { Team, LoggerService } from '@core';
+import { Observable, from, map, catchError, of } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -57,10 +57,7 @@ export class TeamRepository {
   findByOrganization(organizationId: string): Observable<Team[]> {
     // Note: Removed orderBy to avoid requiring a composite Firestore index
     // Sorting can be done in-memory if needed
-    const q = query(
-      this.getCollectionRef(),
-      where('organization_id', '==', organizationId)
-    );
+    const q = query(this.getCollectionRef(), where('organization_id', '==', organizationId));
 
     return from(getDocs(q)).pipe(
       map(snapshot => {
@@ -95,7 +92,7 @@ export class TeamRepository {
       // 1. 建立文件 (Create document)
       const docRef = await addDoc(this.getCollectionRef(), docData);
       console.log('[TeamRepository] ✅ Document created with ID:', docRef.id);
-      
+
       // 2. 讀取剛建立的文件以確認持久化成功 (Read back to confirm persistence)
       const snapshot = await getDoc(docRef);
       if (snapshot.exists()) {

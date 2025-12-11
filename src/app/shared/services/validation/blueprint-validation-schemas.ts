@@ -23,18 +23,14 @@ export const BlueprintCreateSchema: ValidationSchema = {
       message: 'Slug 只能包含小寫字母、數字和連字符'
     }
   ],
-  description: [
-    { type: 'maxLength', value: 500, message: '描述不能超過 500 個字元' }
-  ],
-  ownerId: [
-    { type: 'required', message: '擁有者 ID 為必填' }
-  ],
+  description: [{ type: 'maxLength', value: 500, message: '描述不能超過 500 個字元' }],
+  ownerId: [{ type: 'required', message: '擁有者 ID 為必填' }],
   ownerType: [
     { type: 'required', message: '擁有者類型為必填' },
     {
       type: 'custom',
       message: '擁有者類型必須為 user 或 organization',
-      validator: (value) => value === 'user' || value === 'organization'
+      validator: value => value === 'user' || value === 'organization'
     }
   ]
 };
@@ -55,7 +51,5 @@ export const BlueprintUpdateSchema: ValidationSchema = {
       message: 'Slug 只能包含小寫字母、數字和連字符'
     }
   ],
-  description: [
-    { type: 'maxLength', value: 500, message: '描述不能超過 500 個字元' }
-  ]
+  description: [{ type: 'maxLength', value: 500, message: '描述不能超過 500 個字元' }]
 };

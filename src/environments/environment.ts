@@ -17,4 +17,3 @@ export const environment = {
   providers: [provideMockConfig({ data: MOCKDATA })],
   interceptorFns: [mockInterceptor]
 } as Environment;
-

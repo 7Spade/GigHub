@@ -1,8 +1,8 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { NZ_MODAL_DATA, NzModalRef } from 'ng-zorro-antd/modal';
-import { SHARED_IMPORTS, AccountRepository } from '@shared';
 import { TeamRole, OrganizationMember, Account } from '@core';
+import { SHARED_IMPORTS, AccountRepository } from '@shared';
+import { NZ_MODAL_DATA, NzModalRef } from 'ng-zorro-antd/modal';
 import { forkJoin, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 
@@ -25,13 +25,13 @@ export interface TeamMemberModalData {
 /**
  * Team Member Modal Component
  * 團隊成員 Modal 元件 - 用於新增團隊成員
- * 
+ *
  * Features:
  * - Select member from organization with search
  * - Display full user information (name, email)
  * - Select team role
  * - Form validation
- * 
+ *
  * ✅ Modern Angular 20 pattern with Signals & Reactive Forms
  * ✅ Uses ng-zorro nz-select with search functionality
  * ✅ Integrates AccountRepository for user details
@@ -45,21 +45,11 @@ export interface TeamMemberModalData {
       <nz-form-item>
         <nz-form-label nzRequired>選擇成員</nz-form-label>
         <nz-form-control nzErrorTip="請選擇要加入的成員">
-          <nz-select 
-            formControlName="userId" 
-            nzPlaceHolder="搜尋或選擇成員"
-            nzShowSearch
-            [nzLoading]="loading()"
-            nzAllowClear
-          >
-            <nz-option 
-              *ngFor="let member of membersWithAccounts()" 
-              [nzValue]="member.user_id" 
-              [nzLabel]="getMemberLabel(member)"
-            >
+          <nz-select formControlName="userId" nzPlaceHolder="搜尋或選擇成員" nzShowSearch [nzLoading]="loading()" nzAllowClear>
+            <nz-option *ngFor="let member of membersWithAccounts()" [nzValue]="member.user_id" [nzLabel]="getMemberLabel(member)">
               <div class="member-option">
-                <nz-avatar 
-                  [nzSize]="32" 
+                <nz-avatar
+                  [nzSize]="32"
                   [nzSrc]="member.account?.avatar_url || undefined"
                   [nzText]="getMemberInitials(member)"
                   [style.background-color]="getAvatarColor(member.user_id)"
@@ -73,7 +63,7 @@ export interface TeamMemberModalData {
           </nz-select>
         </nz-form-control>
       </nz-form-item>
-      
+
       <nz-form-item>
         <nz-form-label nzRequired>團隊角色</nz-form-label>
         <nz-form-control nzErrorTip="請選擇角色">
@@ -99,116 +89,104 @@ export interface TeamMemberModalData {
           </nz-select>
         </nz-form-control>
       </nz-form-item>
-      
+
       @if (form.get('userId')?.value && getSelectedMember()) {
-        <nz-alert
-          nzType="info"
-          nzShowIcon
-          [nzMessage]="'將加入成員'"
-          [nzDescription]="getSelectedMemberSummary()"
-          class="mb-md"
-        />
+        <nz-alert nzType="info" nzShowIcon [nzMessage]="'將加入成員'" [nzDescription]="getSelectedMemberSummary()" class="mb-md" />
       }
     </form>
-    
+
     <div *nzModalFooter>
       <button nz-button nzType="default" (click)="handleCancel()">取消</button>
-      <button 
-        nz-button 
-        nzType="primary" 
-        [nzLoading]="submitting()" 
-        [disabled]="!form.valid"
-        (click)="handleOk()"
-      >
-        確定
-      </button>
+      <button nz-button nzType="primary" [nzLoading]="submitting()" [disabled]="!form.valid" (click)="handleOk()"> 確定 </button>
     </div>
   `,
-  styles: [`
-    :host {
-      display: block;
-    }
-    
-    .member-option {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 4px 0;
-    }
-    
-    .member-info {
-      flex: 1;
-      min-width: 0;
-    }
-    
-    .member-name {
-      font-weight: 500;
-      color: rgba(0, 0, 0, 0.85);
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-    
-    .member-email {
-      font-size: 12px;
-      color: rgba(0, 0, 0, 0.45);
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-    
-    .role-option {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 4px 0;
-    }
-    
-    .role-option [nz-icon] {
-      font-size: 20px;
-    }
-    
-    .role-info {
-      flex: 1;
-    }
-    
-    .role-name {
-      font-weight: 500;
-      color: rgba(0, 0, 0, 0.85);
-    }
-    
-    .role-desc {
-      font-size: 12px;
-      color: rgba(0, 0, 0, 0.45);
-    }
-  `]
+  styles: [
+    `
+      :host {
+        display: block;
+      }
+
+      .member-option {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 4px 0;
+      }
+
+      .member-info {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .member-name {
+        font-weight: 500;
+        color: rgba(0, 0, 0, 0.85);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .member-email {
+        font-size: 12px;
+        color: rgba(0, 0, 0, 0.45);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .role-option {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 4px 0;
+      }
+
+      .role-option [nz-icon] {
+        font-size: 20px;
+      }
+
+      .role-info {
+        flex: 1;
+      }
+
+      .role-name {
+        font-weight: 500;
+        color: rgba(0, 0, 0, 0.85);
+      }
+
+      .role-desc {
+        font-size: 12px;
+        color: rgba(0, 0, 0, 0.45);
+      }
+    `
+  ]
 })
 export class TeamMemberModalComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly modalRef = inject(NzModalRef);
   private readonly modalData = inject<TeamMemberModalData>(NZ_MODAL_DATA);
   private readonly accountRepository = inject(AccountRepository);
-  
+
   // Expose TeamRole for template
   readonly TeamRole = TeamRole;
-  
+
   // Signals for state management
   loading = signal(false);
   submitting = signal(false);
   private readonly _membersWithAccounts = signal<OrganizationMemberWithAccount[]>([]);
-  
+
   // Computed signals
   membersWithAccounts = this._membersWithAccounts.asReadonly();
-  
+
   form: FormGroup = this.fb.group({
     userId: ['', [Validators.required]],
     role: [TeamRole.MEMBER, [Validators.required]]
   });
-  
+
   ngOnInit(): void {
     this.loadMemberAccounts();
   }
-  
+
   /**
    * Load account information for available members
    * 載入可用成員的帳戶資訊
@@ -218,9 +196,9 @@ export class TeamMemberModalComponent implements OnInit {
       this._membersWithAccounts.set([]);
       return;
     }
-    
+
     this.loading.set(true);
-    
+
     // Fetch account info for each member
     const accountRequests = this.modalData.availableMembers.map(member =>
       this.accountRepository.findById(member.user_id).pipe(
@@ -228,29 +206,27 @@ export class TeamMemberModalComponent implements OnInit {
         catchError(() => of({ ...member, account: undefined }))
       )
     );
-    
+
     forkJoin(accountRequests).subscribe({
-      next: (membersWithAccounts) => {
+      next: membersWithAccounts => {
         this._membersWithAccounts.set(membersWithAccounts);
         this.loading.set(false);
       },
-      error: (error) => {
+      error: error => {
         console.error('[TeamMemberModalComponent] Failed to load accounts:', error);
-        this._membersWithAccounts.set(
-          this.modalData.availableMembers.map(m => ({ ...m, account: undefined }))
-        );
+        this._membersWithAccounts.set(this.modalData.availableMembers.map(m => ({ ...m, account: undefined })));
         this.loading.set(false);
       }
     });
   }
-  
+
   /**
    * Get display label for member
    */
   getMemberLabel(member: OrganizationMemberWithAccount): string {
     return member.account?.name || member.user_id;
   }
-  
+
   /**
    * Get member initials for avatar
    */
@@ -262,19 +238,16 @@ export class TeamMemberModalComponent implements OnInit {
     }
     return name.substring(0, 2).toUpperCase();
   }
-  
+
   /**
    * Get avatar color based on user ID
    */
   getAvatarColor(userId: string): string {
-    const colors = [
-      '#f56a00', '#7265e6', '#ffbf00', '#00a2ae',
-      '#1890ff', '#52c41a', '#fa8c16', '#eb2f96'
-    ];
+    const colors = ['#f56a00', '#7265e6', '#ffbf00', '#00a2ae', '#1890ff', '#52c41a', '#fa8c16', '#eb2f96'];
     const hash = userId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
     return colors[hash % colors.length];
   }
-  
+
   /**
    * Get currently selected member
    */
@@ -282,7 +255,7 @@ export class TeamMemberModalComponent implements OnInit {
     const userId = this.form.get('userId')?.value;
     return this.membersWithAccounts().find(m => m.user_id === userId);
   }
-  
+
   /**
    * Get summary of selected member
    */
@@ -290,13 +263,13 @@ export class TeamMemberModalComponent implements OnInit {
     const member = this.getSelectedMember();
     const role = this.form.get('role')?.value;
     const roleName = role === TeamRole.LEADER ? '團隊領導' : '團隊成員';
-    
+
     if (member?.account) {
       return `${member.account.name} (${member.account.email}) - ${roleName}`;
     }
     return `${member?.user_id} - ${roleName}`;
   }
-  
+
   /**
    * Handle OK button click
    */
@@ -308,16 +281,16 @@ export class TeamMemberModalComponent implements OnInit {
       });
       return;
     }
-    
+
     this.submitting.set(true);
-    
+
     // Return form data to parent component
     this.modalRef.close({
       userId: this.form.value.userId,
       role: this.form.value.role
     });
   }
-  
+
   /**
    * Handle Cancel button click
    */
