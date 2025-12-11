@@ -5,6 +5,8 @@ import { STColumn, STData } from '@delon/abc/st';
 import { ModalHelper } from '@delon/theme';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzSpaceModule } from 'ng-zorro-antd/space';
+import { NzStatisticModule } from 'ng-zorro-antd/statistic';
+import { NzInputModule } from 'ng-zorro-antd/input';
 import { SHARED_IMPORTS, createAsyncArrayState } from '@shared';
 import { Blueprint, BlueprintStatus, LoggerService, FirebaseAuthService, OwnerType, ContextType } from '@core';
 import { BlueprintService, WorkspaceContextService } from '@shared';
@@ -24,24 +26,110 @@ import { BlueprintService, WorkspaceContextService } from '@shared';
 @Component({
   selector: 'app-blueprint-list',
   standalone: true,
-  imports: [SHARED_IMPORTS, NzSpaceModule],
+  imports: [SHARED_IMPORTS, NzSpaceModule, NzStatisticModule, NzInputModule],
   template: `
-    <page-header [title]="'藍圖管理'" [action]="action">
+    <page-header [title]="'藍圖列表'" [action]="action">
       <ng-template #action>
-        <button nz-button nzType="primary" (click)="create()">
-          <span nz-icon nzType="plus"></span>
-          建立藍圖
-        </button>
+        <nz-space>
+          <button *nzSpaceItem nz-button (click)="refresh()">
+            <span nz-icon nzType="reload"></span>
+            重新整理
+          </button>
+          <button *nzSpaceItem nz-button nzType="primary" (click)="create()">
+            <span nz-icon nzType="plus"></span>
+            建立藍圖
+          </button>
+        </nz-space>
       </ng-template>
     </page-header>
 
+    @if (blueprintsState.error()) {
+      <nz-alert
+        nzType="error"
+        nzShowIcon
+        [nzMessage]="'載入失敗'"
+        [nzDescription]="blueprintsState.error()?.message || '無法載入藍圖列表'"
+        class="mb-md"
+      />
+    }
+
+    <!-- Statistics Cards -->
+    @if (!blueprintsState.loading()) {
+      <nz-row [nzGutter]="16" class="mb-md">
+        <nz-col [nzXs]="12" [nzSm]="12" [nzMd]="6">
+          <nz-card>
+            <nz-statistic
+              [nzValue]="stats().total"
+              nzTitle="總數"
+              [nzPrefix]="totalPrefixTpl"
+            />
+            <ng-template #totalPrefixTpl>
+              <span nz-icon nzType="project" nzTheme="outline"></span>
+            </ng-template>
+          </nz-card>
+        </nz-col>
+        <nz-col [nzXs]="12" [nzSm]="12" [nzMd]="6">
+          <nz-card>
+            <nz-statistic
+              [nzValue]="stats().active"
+              nzTitle="啟用中"
+              [nzValueStyle]="{ color: '#52c41a' }"
+              [nzPrefix]="activePrefixTpl"
+            />
+            <ng-template #activePrefixTpl>
+              <span nz-icon nzType="check-circle" nzTheme="outline"></span>
+            </ng-template>
+          </nz-card>
+        </nz-col>
+        <nz-col [nzXs]="12" [nzSm]="12" [nzMd]="6">
+          <nz-card>
+            <nz-statistic
+              [nzValue]="stats().draft"
+              nzTitle="草稿"
+              [nzValueStyle]="{ color: '#1890ff' }"
+              [nzPrefix]="draftPrefixTpl"
+            />
+            <ng-template #draftPrefixTpl>
+              <span nz-icon nzType="edit" nzTheme="outline"></span>
+            </ng-template>
+          </nz-card>
+        </nz-col>
+        <nz-col [nzXs]="12" [nzSm]="12" [nzMd]="6">
+          <nz-card>
+            <nz-statistic
+              [nzValue]="stats().archived"
+              nzTitle="已封存"
+              [nzValueStyle]="{ color: '#d9d9d9' }"
+              [nzPrefix]="archivedPrefixTpl"
+            />
+            <ng-template #archivedPrefixTpl>
+              <span nz-icon nzType="inbox" nzTheme="outline"></span>
+            </ng-template>
+          </nz-card>
+        </nz-col>
+      </nz-row>
+    }
+
     <nz-card>
       <!-- Filter Section -->
-      <div class="mb-md" style="display: flex; gap: 8px;">
+      <div class="mb-md" style="display: flex; gap: 8px; flex-wrap: wrap;">
+        <nz-input-group [nzPrefix]="searchPrefix" style="width: 250px;">
+          <input
+            nz-input
+            placeholder="搜尋藍圖..."
+            [(ngModel)]="searchText"
+            (ngModelChange)="onFilterChange()"
+          />
+        </nz-input-group>
+        <ng-template #searchPrefix>
+          <span nz-icon nzType="search"></span>
+        </ng-template>
+        
         <nz-select
           [(ngModel)]="filterStatus"
           (ngModelChange)="onFilterChange()"
           nzPlaceHolder="篩選狀態"
+          nzAllowClear
           style="width: 150px"
         >
           <nz-option nzLabel="全部" [nzValue]="null"></nz-option>
@@ -49,21 +137,7 @@ import { BlueprintService, WorkspaceContextService } from '@shared';
           <nz-option nzLabel="啟用" nzValue="active"></nz-option>
           <nz-option nzLabel="封存" nzValue="archived"></nz-option>
         </nz-select>
-        <button nz-button (click)="refresh()">
-          <span nz-icon nzType="reload"></span>
-          重新整理
-        </button>
       </div>
-
-      @if (blueprintsState.error()) {
-        <nz-alert
-          nzType="error"
-          nzShowIcon
-          [nzMessage]="'載入失敗'"
-          [nzDescription]="blueprintsState.error()?.message || '無法載入藍圖列表'"
-          class="mb-md"
-        />
-      }
 
       <!-- Table -->
       <st
@@ -96,18 +170,44 @@ export class BlueprintListComponent implements OnInit {
   readonly blueprintsState = createAsyncArrayState<Blueprint>([]);
   
   filterStatus: BlueprintStatus | null = null;
+  searchText = '';
   
   // ✅ Modern Pattern: Separate auth state for guards
   private readonly authenticated = this.workspaceContext.isAuthenticated;
   private readonly contextType = this.workspaceContext.contextType;
   private readonly contextId = this.workspaceContext.contextId;
   
+  // ✅ Computed: Stats
+  readonly stats = computed(() => {
+    const data = this.blueprintsState.data() || [];
+    return {
+      total: data.length,
+      active: data.filter(b => b.status === 'active').length,
+      draft: data.filter(b => b.status === 'draft').length,
+      archived: data.filter(b => b.status === 'archived').length
+    };
+  });
+  
   // ✅ Computed: Filtered blueprints
   readonly filteredBlueprints = computed(() => {
-    const data = this.blueprintsState.data() || [];
-    return this.filterStatus
-      ? data.filter(b => b.status === this.filterStatus)
-      : data;
+    let data = this.blueprintsState.data() || [];
+    
+    // Filter by status
+    if (this.filterStatus) {
+      data = data.filter(b => b.status === this.filterStatus);
+    }
+    
+    // Filter by search text
+    if (this.searchText) {
+      const search = this.searchText.toLowerCase();
+      data = data.filter(b => 
+        b.name.toLowerCase().includes(search) ||
+        b.slug.toLowerCase().includes(search) ||
+        (b.description && b.description.toLowerCase().includes(search))
+      );
+    }
+    
+    return data;
   });
   
   // ✅ Computed: Logic separation - determine if we should load
