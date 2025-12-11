@@ -11,9 +11,9 @@
 import { Injectable, Injector, signal, inject } from '@angular/core';
 
 import { IBlueprintContainer } from './blueprint-container.interface';
-import { ModuleRegistry } from './module-registry';
 import { LifecycleManager } from './lifecycle-manager';
 import { ILifecycleManager } from './lifecycle-manager.interface';
+import { ModuleRegistry } from './module-registry';
 import { IModuleRegistry } from './module-registry.interface';
 import { ResourceProvider } from './resource-provider';
 import { IResourceProvider } from './resource-provider.interface';

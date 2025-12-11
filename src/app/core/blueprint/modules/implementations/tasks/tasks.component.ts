@@ -8,7 +8,7 @@
  * @date 2025-12-10
  */
 
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, ChangeDetectionStrategy, OnInit, inject, signal, computed } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { STColumn, STData } from '@delon/abc/st';
 import { SHARED_IMPORTS } from '@shared';
@@ -17,6 +17,7 @@ import { TaskStatus, TaskPriority, CreateTaskData } from './tasks.repository';
 import { TasksService } from './tasks.service';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-tasks',
   standalone: true,
   imports: [SHARED_IMPORTS],

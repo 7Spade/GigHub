@@ -1,4 +1,4 @@
-import { Component, inject, input, OnInit } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, input, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Team } from '@core';
 import { SHARED_IMPORTS } from '@shared';
@@ -15,6 +15,7 @@ import { SHARED_IMPORTS } from '@shared';
  * ✅ Modern Angular pattern with Reactive Forms
  */
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-team-modal',
   standalone: true,
   imports: [SHARED_IMPORTS],

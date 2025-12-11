@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { GlobalFooterModule } from '@delon/abc/global-footer';
 import { DA_SERVICE_TOKEN } from '@delon/auth';
@@ -9,6 +9,7 @@ import { HeaderI18nComponent } from '../basic/widgets/i18n.component';
 
 @Component({
   selector: 'layout-passport',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="container">
       <header-i18n showLangText="false" class="langs" />

@@ -1,8 +1,8 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit, effect } from '@angular/core';
 import { Router } from '@angular/router';
 import { ContextType, Team } from '@core';
-import { SHARED_IMPORTS, WorkspaceContextService } from '@shared';
 import { TeamRepository, TeamMemberRepository } from '@core/repositories';
+import { SHARED_IMPORTS, WorkspaceContextService } from '@shared';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
 import { NzDescriptionsModule } from 'ng-zorro-antd/descriptions';
 import { NzDrawerService } from 'ng-zorro-antd/drawer';
@@ -11,14 +11,13 @@ import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzModalService } from 'ng-zorro-antd/modal';
 import { NzSpaceModule } from 'ng-zorro-antd/space';
 import { NzTableModule } from 'ng-zorro-antd/table';
+import { NzTagModule } from 'ng-zorro-antd/tag';
 import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { CreateTeamModalComponent } from '../../../shared/components/create-team-modal/create-team-modal.component';
 import { EditTeamModalComponent } from '../../../shared/components/edit-team-modal/edit-team-modal.component';
 import { TeamDetailDrawerComponent } from '../../../shared/components/team-detail-drawer/team-detail-drawer.component';
-
-import { NzTagModule } from 'ng-zorro-antd/tag';
 
 @Component({
   selector: 'app-organization-teams',

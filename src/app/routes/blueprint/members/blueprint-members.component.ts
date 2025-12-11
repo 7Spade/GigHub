@@ -1,9 +1,9 @@
-import { Component, OnInit, inject, input } from '@angular/core';
+import { Component, ChangeDetectionStrategy, OnInit, inject, input } from '@angular/core';
 import { BlueprintMember, BlueprintRole, LoggerService } from '@core';
+import { BlueprintMemberRepository } from '@core/blueprint/repositories';
 import { STColumn } from '@delon/abc/st';
 import { ModalHelper } from '@delon/theme';
 import { SHARED_IMPORTS, createAsyncArrayState } from '@shared';
-import { BlueprintMemberRepository } from '@core/blueprint/repositories';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { firstValueFrom } from 'rxjs';
 
@@ -21,6 +21,7 @@ import { firstValueFrom } from 'rxjs';
  * ✅ Modernized with AsyncState pattern
  */
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-blueprint-members',
   standalone: true,
   imports: [SHARED_IMPORTS],

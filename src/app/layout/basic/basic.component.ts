@@ -1,4 +1,4 @@
-import { Component, inject, effect } from '@angular/core';
+import { Component, inject, effect, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink, RouterOutlet } from '@angular/router';
 import { ContextType } from '@core';
 import { SettingsService, User, ModalHelper } from '@delon/theme';
@@ -27,6 +27,7 @@ import { CreateTeamComponent } from '../../shared/components/create-team/create-
 
 @Component({
   selector: 'layout-basic',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <layout-default [options]="options" [asideUser]="asideUserTpl" [content]="contentTpl" [customError]="null">
       <layout-default-header-item direction="left">

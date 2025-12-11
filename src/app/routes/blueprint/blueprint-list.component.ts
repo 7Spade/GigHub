@@ -1,10 +1,10 @@
-import { Component, OnInit, inject, effect, computed } from '@angular/core';
+import { Component, OnInit, inject, effect, computed, ChangeDetectionStrategy } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Blueprint, BlueprintStatus, LoggerService, FirebaseAuthService, OwnerType, ContextType } from '@core';
+import { BlueprintService } from '@core/blueprint/services';
 import { STColumn, STData } from '@delon/abc/st';
 import { ModalHelper } from '@delon/theme';
 import { SHARED_IMPORTS, createAsyncArrayState, WorkspaceContextService } from '@shared';
-import { BlueprintService } from '@core/blueprint/services';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzSpaceModule } from 'ng-zorro-antd/space';
@@ -22,10 +22,12 @@ import { firstValueFrom } from 'rxjs';
  * - Navigate to detail
  *
  * ✅ Modernized with AsyncState pattern
+ * ✅ OnPush change detection for optimal performance
  */
 @Component({
   selector: 'app-blueprint-list',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [SHARED_IMPORTS, NzSpaceModule, NzStatisticModule, NzInputModule],
   template: `
     <page-header [title]="'藍圖列表'" [action]="action">

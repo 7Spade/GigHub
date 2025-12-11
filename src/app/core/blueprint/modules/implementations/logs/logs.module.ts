@@ -4,8 +4,8 @@
  */
 
 import { Injectable, inject, signal } from '@angular/core';
-import { IBlueprintModule, ModuleMetadata, IExecutionContext, ModuleStatus } from '@core/blueprint/interfaces';
 import { LoggerService } from '@core';
+import { IBlueprintModule, ModuleMetadata, IExecutionContext, ModuleStatus } from '@core/blueprint/interfaces';
 
 import { LogsRepository } from './logs.repository';
 import { LogsService } from './logs.service';

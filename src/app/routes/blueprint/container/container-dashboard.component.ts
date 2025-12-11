@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { LoggerService } from '@core';
 import { SHARED_IMPORTS } from '@shared';
@@ -28,6 +28,7 @@ import { NzStatisticModule } from 'ng-zorro-antd/statistic';
  * @since Angular 20.3.0
  */
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-container-dashboard',
   standalone: true,
   imports: [SHARED_IMPORTS, NzStatisticModule, NzCardModule, NzGridModule, NzBadgeModule, NzButtonModule, NzIconModule, NzAlertModule],

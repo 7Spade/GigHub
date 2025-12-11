@@ -2,8 +2,8 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit } 
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Team, TeamMember, TeamRole, OrganizationMember } from '@core';
-import { SHARED_IMPORTS, WorkspaceContextService } from '@shared';
 import { TeamMemberRepository, OrganizationMemberRepository, TeamRepository } from '@core/repositories';
+import { SHARED_IMPORTS, WorkspaceContextService } from '@shared';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
 import { NzDescriptionsModule } from 'ng-zorro-antd/descriptions';
 import { NzDividerModule } from 'ng-zorro-antd/divider';
@@ -79,10 +79,10 @@ export class TeamDetailDrawerComponent implements OnInit {
     try {
       this.loading.set(true);
       console.log('[TeamDetailDrawer] 🔄 Loading members for team:', this.team().id);
-      
+
       const members = await firstValueFrom(this.teamMemberRepository.findByTeam(this.team().id));
       this.membersState.set(members || []);
-      
+
       console.log('[TeamDetailDrawer] ✅ Members loaded:', members?.length || 0);
     } catch (error) {
       console.error('[TeamDetailDrawer] ❌ Error loading team members:', error);
@@ -96,10 +96,10 @@ export class TeamDetailDrawerComponent implements OnInit {
   private async loadOrganizationMembers(): Promise<void> {
     try {
       console.log('[TeamDetailDrawer] 🔄 Loading org members for:', this.organizationId);
-      
+
       const orgMembers = await firstValueFrom(this.orgMemberRepository.findByOrganization(this.organizationId));
       this.orgMembersState.set(orgMembers || []);
-      
+
       console.log('[TeamDetailDrawer] ✅ Org members loaded:', orgMembers?.length || 0);
     } catch (error) {
       console.error('[TeamDetailDrawer] ❌ Error loading organization members:', error);
