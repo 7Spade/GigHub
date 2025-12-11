@@ -9,6 +9,7 @@ import { FormsModule } from '@angular/forms';
 import { SHARED_IMPORTS } from '@shared';
 import { Blueprint, LoggerService, ModuleType } from '@core';
 import { BlueprintService } from '@shared';
+import { ModuleConnection, CreateConnectionDto } from './models';
 
 /**
  * Canvas Module Interface
@@ -38,16 +39,34 @@ interface ModuleCategory {
 }
 
 /**
+ * Connection Creation State
+ * 連接建立狀態
+ */
+interface ConnectionCreationState {
+  /** 是否正在建立連接 */
+  active: boolean;
+  /** 來源模組 ID */
+  sourceModuleId: string | null;
+  /** 來源端點位置 */
+  sourcePosition: { x: number; y: number } | null;
+  /** 當前滑鼠位置 */
+  currentPosition: { x: number; y: number } | null;
+}
+
+/**
  * Blueprint Designer Component
  * 藍圖設計器 - 視覺化拖放式模組配置介面
  * 
  * Features:
  * - Drag-and-drop module configuration
- * - Visual module dependencies
+ * - Visual module dependencies (NEW: Task 1)
+ * - Module connection visualization (NEW: Task 1)
+ * - Dependency validation (NEW: Task 2)
  * - Real-time property editing
  * - Canvas-based layout
  * 
  * ✅ Modern Angular 20 with Signals and new control flow
+ * ✅ Task 1.1: Connection data structures implemented
  */
 @Component({
   selector: 'app-blueprint-designer',
@@ -331,6 +350,16 @@ export class BlueprintDesignerComponent implements OnInit {
   readonly selectedModule = signal<CanvasModule | null>(null);
   readonly saving = signal(false);
   readonly moduleConfigJson = signal('{}');
+
+  // ✅ NEW: Task 1.1 - Connection management signals
+  readonly connections = signal<ModuleConnection[]>([]);
+  readonly selectedConnectionId = signal<string | null>(null);
+  readonly connectionCreationState = signal<ConnectionCreationState>({
+    active: false,
+    sourceModuleId: null,
+    sourcePosition: null,
+    currentPosition: null
+  });
 
   // ✅ Computed signal for module categories
   readonly moduleCategories = computed<ModuleCategory[]>(() => [
