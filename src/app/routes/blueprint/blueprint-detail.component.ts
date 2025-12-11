@@ -14,6 +14,7 @@ import { SHARED_IMPORTS, createAsyncState } from '@shared';
 import { Blueprint, LoggerService } from '@core';
 import { BlueprintService } from '@shared';
 import { BlueprintMembersComponent } from './members/blueprint-members.component';
+import { TaskListComponent } from './modules/tasks/task-list.component';
 
 /**
  * Blueprint Detail Component
@@ -29,7 +30,7 @@ import { BlueprintMembersComponent } from './members/blueprint-members.component
 @Component({
   selector: 'app-blueprint-detail',
   standalone: true,
-  imports: [SHARED_IMPORTS, NzStatisticModule, NzResultModule, NzDescriptionsModule, NzEmptyModule, NzSpaceModule, NzTabsModule, NzTagModule, DatePipe, BlueprintMembersComponent],
+  imports: [SHARED_IMPORTS, NzStatisticModule, NzResultModule, NzDescriptionsModule, NzEmptyModule, NzSpaceModule, NzTabsModule, NzTagModule, DatePipe, BlueprintMembersComponent, TaskListComponent],
   template: `
     <page-header
       [title]="blueprint()?.name || '藍圖詳情'"
@@ -274,7 +275,7 @@ import { BlueprintMembersComponent } from './members/blueprint-members.component
           <!-- Tasks Tab -->
           <nz-tab nzTitle="任務">
             <ng-template nz-tab>
-              <nz-empty nzNotFoundContent="任務模組尚未實作" />
+              <app-task-list [blueprintId]="blueprint()!.id" />
             </ng-template>
           </nz-tab>
 
