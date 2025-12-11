@@ -41,7 +41,7 @@ export interface BlueprintModuleDocument {
   dependencies: string[];
 
   /** Module-specific configuration */
-  config: ModuleConfiguration;
+  config: BlueprintModuleConfiguration;
 
   /** Module metadata */
   metadata?: Record<string, unknown>;
@@ -64,11 +64,11 @@ export interface BlueprintModuleDocument {
 }
 
 /**
- * Module Configuration
+ * Blueprint Module Configuration
  *
- * Type-safe module configuration structure.
+ * Type-safe module configuration structure for blueprint modules.
  */
-export interface ModuleConfiguration {
+export interface BlueprintModuleConfiguration {
   /** Enable/disable specific features */
   features?: Record<string, boolean>;
 
@@ -112,7 +112,7 @@ export interface CreateModuleData {
   enabled?: boolean;
   order?: number;
   dependencies?: string[];
-  config?: ModuleConfiguration;
+  config?: BlueprintModuleConfiguration;
   metadata?: Record<string, unknown>;
   configuredBy: string;
 }

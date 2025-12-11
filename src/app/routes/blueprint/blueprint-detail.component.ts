@@ -2,7 +2,8 @@ import { DatePipe } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Blueprint, LoggerService } from '@core';
-import { SHARED_IMPORTS, createAsyncState, BlueprintService } from '@shared';
+import { SHARED_IMPORTS, createAsyncState } from '@shared';
+import { BlueprintService } from '@core/blueprint/services';
 import { NzDescriptionsModule } from 'ng-zorro-antd/descriptions';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
 import { NzMessageService } from 'ng-zorro-antd/message';
@@ -286,7 +287,7 @@ export class BlueprintDetailComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly message = inject(NzMessageService);
   private readonly logger = inject(LoggerService);
-  private readonly blueprintService = inject(BlueprintService);
+  private readonly blueprintService: BlueprintService = inject(BlueprintService);
 
   // ✅ Modern Pattern: Use AsyncState
   readonly blueprintState = createAsyncState<Blueprint | null>(null);

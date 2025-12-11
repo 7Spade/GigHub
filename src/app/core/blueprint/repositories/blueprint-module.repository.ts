@@ -348,21 +348,22 @@ export class BlueprintModuleRepository {
       snapshot.docs.forEach(doc => {
         const data = doc.data();
 
-        if (data.enabled) {
+        if (data['enabled']) {
           summary.enabled++;
         } else {
           summary.disabled++;
         }
 
-        if (data.status === ModuleStatus.RUNNING || data.status === ModuleStatus.STARTED) {
+        const status = data['status'] as ModuleStatus;
+        if (status === ModuleStatus.RUNNING || status === ModuleStatus.STARTED) {
           summary.active++;
         }
 
-        if (data.status === ModuleStatus.ERROR) {
+        if (status === ModuleStatus.ERROR) {
           summary.error++;
         }
 
-        summary.byStatus[data.status as ModuleStatus]++;
+        summary.byStatus[status]++;
       });
 
       return summary;

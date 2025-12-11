@@ -91,7 +91,8 @@ export class StorageRepository {
     try {
       this.logger.info('[StorageRepository]', `Downloading file from ${bucket}/${path}`);
 
-      const { data, error } = await this.supabase.client.storage.from(bucket).download(path, options?.transform);
+      const downloadOptions = options?.transform ? { transform: options.transform } : undefined;
+      const { data, error } = await this.supabase.client.storage.from(bucket).download(path, downloadOptions);
 
       if (error) {
         this.logger.error('[StorageRepository]', 'Download failed', error as Error);

@@ -2,7 +2,8 @@ import { Component, OnInit, inject, signal, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Blueprint, CreateBlueprintRequest, LoggerService, ModuleType, OwnerType, ContextType, FirebaseAuthService } from '@core';
-import { SHARED_IMPORTS, WorkspaceContextService, BlueprintService } from '@shared';
+import { SHARED_IMPORTS, WorkspaceContextService } from '@shared';
+import { BlueprintService } from '@core/blueprint/services';
 import { NzFormModule } from 'ng-zorro-antd/form';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NZ_MODAL_DATA, NzModalRef } from 'ng-zorro-antd/modal';
@@ -82,7 +83,7 @@ export class BlueprintModalComponent implements OnInit {
   private readonly modal = inject(NzModalRef);
   private readonly message = inject(NzMessageService);
   private readonly logger = inject(LoggerService);
-  private readonly blueprintService = inject(BlueprintService);
+  private readonly blueprintService: BlueprintService = inject(BlueprintService);
   private readonly authService = inject(FirebaseAuthService);
   private readonly workspaceContext = inject(WorkspaceContextService);
   private readonly data: { blueprint?: Blueprint } = inject(NZ_MODAL_DATA, { optional: true }) || {};

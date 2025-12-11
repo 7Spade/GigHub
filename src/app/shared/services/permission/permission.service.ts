@@ -31,7 +31,7 @@ export class PermissionService {
    * 檢查當前使用者是否可讀取藍圖
    */
   canReadBlueprint(blueprintId: string): Observable<boolean> {
-    const user = this.authService.currentUser();
+    const user = this.authService.currentUser;
     if (!user) {
       return of(false);
     }
@@ -61,7 +61,7 @@ export class PermissionService {
    * 檢查當前使用者是否可編輯藍圖
    */
   canEditBlueprint(blueprintId: string): Observable<boolean> {
-    const user = this.authService.currentUser();
+    const user = this.authService.currentUser;
     if (!user) {
       return of(false);
     }
@@ -88,7 +88,7 @@ export class PermissionService {
    * 檢查當前使用者是否可刪除藍圖
    */
   canDeleteBlueprint(blueprintId: string): Observable<boolean> {
-    const user = this.authService.currentUser();
+    const user = this.authService.currentUser;
     if (!user) {
       return of(false);
     }
@@ -115,7 +115,7 @@ export class PermissionService {
    * 檢查當前使用者是否可管理成員
    */
   canManageMembers(blueprintId: string): Observable<boolean> {
-    const user = this.authService.currentUser();
+    const user = this.authService.currentUser;
     if (!user) {
       return of(false);
     }
@@ -156,7 +156,7 @@ export class PermissionService {
     canManageMembers: boolean;
     canManageSettings: boolean;
   }> {
-    const user = this.authService.currentUser();
+    const user = this.authService.currentUser;
     if (!user) {
       return of({
         canRead: false,

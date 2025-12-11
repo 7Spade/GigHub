@@ -9,7 +9,7 @@
  * @date 2025-12-10
  */
 
-import { ModuleConfiguration } from '@core/models/blueprint-module.model';
+import { BlueprintModuleConfiguration } from '@core/models/blueprint-module.model';
 
 /**
  * Tasks Module Metadata
@@ -66,7 +66,7 @@ export const TASKS_MODULE_METADATA = {
  *
  * Default settings when the module is first enabled.
  */
-export const TASKS_MODULE_DEFAULT_CONFIG: ModuleConfiguration = {
+export const TASKS_MODULE_DEFAULT_CONFIG: BlueprintModuleConfiguration = {
   features: {
     enableTaskCreation: true,
     enableTaskAssignment: true,

@@ -2,7 +2,8 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit, e
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ContextType, TeamMember, TeamRole, OrganizationMember } from '@core';
-import { SHARED_IMPORTS, WorkspaceContextService, TeamMemberRepository, OrganizationMemberRepository } from '@shared';
+import { TeamMemberRepository, OrganizationMemberRepository } from '@core/repositories';
+import { SHARED_IMPORTS, WorkspaceContextService } from '@shared';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
 import { NzMessageService } from 'ng-zorro-antd/message';
@@ -44,12 +45,12 @@ import { NzSpaceModule } from 'ng-zorro-antd/space';
     </ng-template>
 
     @if (!isTeamContext()) {
-      <nz-alert 
-        nzType="info" 
-        nzShowIcon 
-        nzMessage="請選擇團隊" 
-        nzDescription="請從組織管理 → 團隊管理頁面選擇要管理的團隊，或從側邊欄選擇一個團隊。" 
-        class="mb-md" 
+      <nz-alert
+        nzType="info"
+        nzShowIcon
+        nzMessage="請選擇團隊"
+        nzDescription="請從組織管理 → 團隊管理頁面選擇要管理的團隊，或從側邊欄選擇一個團隊。"
+        class="mb-md"
       />
     }
 
@@ -137,8 +138,8 @@ import { NzSpaceModule } from 'ng-zorro-antd/space';
 })
 export class TeamMembersComponent implements OnInit {
   readonly workspaceContext = inject(WorkspaceContextService);
-  private readonly memberRepository = inject(TeamMemberRepository);
-  private readonly orgMemberRepository = inject(OrganizationMemberRepository);
+  private readonly memberRepository: TeamMemberRepository = inject(TeamMemberRepository);
+  private readonly orgMemberRepository: OrganizationMemberRepository = inject(OrganizationMemberRepository);
   private readonly modal = inject(NzModalService);
   private readonly message = inject(NzMessageService);
   private readonly route = inject(ActivatedRoute);
@@ -146,7 +147,7 @@ export class TeamMembersComponent implements OnInit {
 
   private readonly members = signal<TeamMember[]>([]);
   loading = signal(false);
-  
+
   // Support both context-based and query parameter-based team ID
   private readonly queryParamTeamId = signal<string | null>(null);
 
@@ -162,8 +163,7 @@ export class TeamMembersComponent implements OnInit {
           console.log('[TeamMembersComponent] 🔍 Detected teamId from query params:', teamId);
           this.queryParamTeamId.set(teamId);
           // Switch to team context if needed
-          if (this.workspaceContext.contextType() !== ContextType.TEAM || 
-              this.workspaceContext.contextId() !== teamId) {
+          if (this.workspaceContext.contextType() !== ContextType.TEAM || this.workspaceContext.contextId() !== teamId) {
             this.workspaceContext.switchToTeam(teamId);
           }
         }

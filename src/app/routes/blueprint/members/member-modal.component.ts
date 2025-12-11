@@ -1,7 +1,8 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { BlueprintMember, BlueprintRole, BusinessRole, LoggerService, FirebaseAuthService } from '@core';
-import { SHARED_IMPORTS, BlueprintMemberRepository } from '@shared';
+import { SHARED_IMPORTS } from '@shared';
+import { BlueprintMemberRepository } from '@core/blueprint/repositories';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NZ_MODAL_DATA, NzModalRef } from 'ng-zorro-antd/modal';
 
@@ -70,7 +71,7 @@ export class MemberModalComponent implements OnInit {
   private readonly message = inject(NzMessageService);
   private readonly logger = inject(LoggerService);
   private readonly authService = inject(FirebaseAuthService);
-  private readonly memberRepository = inject(BlueprintMemberRepository);
+  private readonly memberRepository: BlueprintMemberRepository = inject(BlueprintMemberRepository);
   private readonly data: { blueprintId: string; member?: BlueprintMember } = inject(NZ_MODAL_DATA);
 
   // Expose enum for template

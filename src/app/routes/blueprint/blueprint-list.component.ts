@@ -3,7 +3,8 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { Blueprint, BlueprintStatus, LoggerService, FirebaseAuthService, OwnerType, ContextType } from '@core';
 import { STColumn, STData } from '@delon/abc/st';
 import { ModalHelper } from '@delon/theme';
-import { SHARED_IMPORTS, createAsyncArrayState, BlueprintService, WorkspaceContextService } from '@shared';
+import { SHARED_IMPORTS, createAsyncArrayState, WorkspaceContextService } from '@shared';
+import { BlueprintService } from '@core/blueprint/services';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzSpaceModule } from 'ng-zorro-antd/space';
@@ -138,7 +139,7 @@ export class BlueprintListComponent implements OnInit {
   private readonly modal = inject(ModalHelper);
   private readonly message = inject(NzMessageService);
   private readonly logger = inject(LoggerService);
-  private readonly blueprintService = inject(BlueprintService);
+  private readonly blueprintService: BlueprintService = inject(BlueprintService);
   private readonly authService = inject(FirebaseAuthService);
   private readonly workspaceContext = inject(WorkspaceContextService);
 

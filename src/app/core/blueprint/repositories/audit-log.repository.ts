@@ -339,21 +339,22 @@ export class AuditLogRepository {
       snapshot.docs.forEach(doc => {
         const data = doc.data();
 
-        if (data.category) {
-          summary.byCategory[data.category as AuditCategory]++;
+        if (data['category']) {
+          summary.byCategory[data['category'] as AuditCategory]++;
         }
 
-        if (data.severity) {
-          summary.bySeverity[data.severity as AuditSeverity]++;
+        if (data['severity']) {
+          summary.bySeverity[data['severity'] as AuditSeverity]++;
         }
 
-        if (data.status) {
-          summary.byStatus[data.status as AuditStatus]++;
+        if (data['status']) {
+          summary.byStatus[data['status'] as AuditStatus]++;
         }
 
         // Count recent errors (last 24 hours)
-        if (data.status === AuditStatus.FAILED) {
-          const logDate = data.timestamp instanceof Timestamp ? data.timestamp.toDate() : new Date(data.timestamp);
+        if (data['status'] === AuditStatus.FAILED) {
+          const timestamp = data['timestamp'];
+          const logDate = timestamp instanceof Timestamp ? timestamp.toDate() : new Date(timestamp);
           const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
 
           if (logDate >= dayAgo) {

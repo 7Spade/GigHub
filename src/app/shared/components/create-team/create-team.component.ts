@@ -20,7 +20,8 @@
 import { ChangeDetectionStrategy, Component, inject, signal, input } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Team } from '@core';
-import { WorkspaceContextService, TeamRepository } from '@shared';
+import { WorkspaceContextService } from '@shared';
+import { TeamRepository } from '@core/repositories';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzFormModule } from 'ng-zorro-antd/form';
 import { NzInputModule } from 'ng-zorro-antd/input';

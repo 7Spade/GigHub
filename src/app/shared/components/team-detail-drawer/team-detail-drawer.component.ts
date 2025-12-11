@@ -2,7 +2,8 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit } 
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Team, TeamMember, TeamRole, OrganizationMember } from '@core';
-import { SHARED_IMPORTS, TeamMemberRepository, OrganizationMemberRepository, TeamRepository, WorkspaceContextService } from '@shared';
+import { SHARED_IMPORTS, WorkspaceContextService } from '@shared';
+import { TeamMemberRepository, OrganizationMemberRepository, TeamRepository } from '@core/repositories';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
 import { NzDescriptionsModule } from 'ng-zorro-antd/descriptions';
 import { NzDividerModule } from 'ng-zorro-antd/divider';
@@ -44,9 +45,9 @@ interface DrawerData {
 export class TeamDetailDrawerComponent implements OnInit {
   private readonly drawerRef = inject(NzDrawerRef);
   private readonly drawerData = inject<DrawerData>(NZ_DRAWER_DATA);
-  private readonly teamMemberRepository = inject(TeamMemberRepository);
-  private readonly orgMemberRepository = inject(OrganizationMemberRepository);
-  private readonly teamRepository = inject(TeamRepository);
+  private readonly teamMemberRepository: TeamMemberRepository = inject(TeamMemberRepository);
+  private readonly orgMemberRepository: OrganizationMemberRepository = inject(OrganizationMemberRepository);
+  private readonly teamRepository: TeamRepository = inject(TeamRepository);
   private readonly workspaceContext = inject(WorkspaceContextService);
   private readonly message = inject(NzMessageService);
   private readonly modal = inject(NzModalService);

@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, OnInit } from '@angular/core';
 import { ContextType, OrganizationMember, OrganizationRole } from '@core';
-import { SHARED_IMPORTS, WorkspaceContextService, OrganizationMemberRepository, createAsyncArrayState } from '@shared';
+import { SHARED_IMPORTS, WorkspaceContextService, createAsyncArrayState } from '@shared';
+import { OrganizationMemberRepository } from '@core/repositories';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
 import { firstValueFrom } from 'rxjs';
@@ -80,7 +81,7 @@ import { firstValueFrom } from 'rxjs';
 })
 export class OrganizationMembersComponent implements OnInit {
   private readonly workspaceContext = inject(WorkspaceContextService);
-  private readonly memberRepository = inject(OrganizationMemberRepository);
+  private readonly memberRepository: OrganizationMemberRepository = inject(OrganizationMemberRepository);
 
   // ✅ Modern Pattern: Use AsyncState for unified state management
   readonly membersState = createAsyncArrayState<OrganizationMember>([]);

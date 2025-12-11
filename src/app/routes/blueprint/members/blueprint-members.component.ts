@@ -2,7 +2,8 @@ import { Component, OnInit, inject, input } from '@angular/core';
 import { BlueprintMember, BlueprintRole, LoggerService } from '@core';
 import { STColumn } from '@delon/abc/st';
 import { ModalHelper } from '@delon/theme';
-import { SHARED_IMPORTS, createAsyncArrayState, BlueprintMemberRepository } from '@shared';
+import { SHARED_IMPORTS, createAsyncArrayState } from '@shared';
+import { BlueprintMemberRepository } from '@core/blueprint/repositories';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { firstValueFrom } from 'rxjs';
 
@@ -59,7 +60,7 @@ export class BlueprintMembersComponent implements OnInit {
   private readonly message = inject(NzMessageService);
   private readonly modal = inject(ModalHelper);
   private readonly logger = inject(LoggerService);
-  private readonly memberRepository = inject(BlueprintMemberRepository);
+  private readonly memberRepository: BlueprintMemberRepository = inject(BlueprintMemberRepository);
 
   // Input: blueprint ID
   blueprintId = input.required<string>();

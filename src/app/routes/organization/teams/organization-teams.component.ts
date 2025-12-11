@@ -1,7 +1,8 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit, effect } from '@angular/core';
 import { Router } from '@angular/router';
 import { ContextType, Team } from '@core';
-import { SHARED_IMPORTS, WorkspaceContextService, TeamRepository, TeamMemberRepository } from '@shared';
+import { SHARED_IMPORTS, WorkspaceContextService } from '@shared';
+import { TeamRepository, TeamMemberRepository } from '@core/repositories';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
 import { NzDescriptionsModule } from 'ng-zorro-antd/descriptions';
 import { NzDrawerService } from 'ng-zorro-antd/drawer';
@@ -148,8 +149,8 @@ import { NzTagModule } from 'ng-zorro-antd/tag';
 })
 export class OrganizationTeamsComponent implements OnInit {
   readonly workspaceContext = inject(WorkspaceContextService);
-  private readonly teamRepository = inject(TeamRepository);
-  private readonly teamMemberRepository = inject(TeamMemberRepository);
+  private readonly teamRepository: TeamRepository = inject(TeamRepository);
+  private readonly teamMemberRepository: TeamMemberRepository = inject(TeamMemberRepository);
   private readonly modal = inject(NzModalService);
   private readonly message = inject(NzMessageService);
   private readonly router = inject(Router);

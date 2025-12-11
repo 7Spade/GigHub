@@ -1,10 +1,11 @@
 import { Component, OnInit, inject, input } from '@angular/core';
-import { AuditLog, AuditQueryOptions, AuditEntityType, AuditOperation, LoggerService } from '@core';
+import { AuditQueryOptions, AuditEntityType, AuditOperation, LoggerService } from '@core';
+import { AuditLogRepository } from '@core/blueprint/repositories';
+import { AuditLogDocument } from '@core/models/audit-log.model';
 import { STColumn } from '@delon/abc/st';
-import { SHARED_IMPORTS, createAsyncArrayState, AuditLogRepository } from '@shared';
+import { SHARED_IMPORTS, createAsyncArrayState } from '@shared';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzSpaceModule } from 'ng-zorro-antd/space';
-import { firstValueFrom } from 'rxjs';
 
 /**
  * Audit Logs Component
@@ -89,13 +90,13 @@ import { firstValueFrom } from 'rxjs';
 export class AuditLogsComponent implements OnInit {
   private readonly message = inject(NzMessageService);
   private readonly logger = inject(LoggerService);
-  private readonly auditRepository = inject(AuditLogRepository);
+  private readonly auditRepository: AuditLogRepository = inject(AuditLogRepository);
 
   // Input: blueprint ID
   blueprintId = input.required<string>();
 
   // ✅ Modern Pattern: Use AsyncState for unified state management
-  readonly logsState = createAsyncArrayState<AuditLog>([]);
+  readonly logsState = createAsyncArrayState<AuditLogDocument>([]);
 
   // Filter state
   filterEntityType: AuditEntityType | null = null;
@@ -111,31 +112,28 @@ export class AuditLogsComponent implements OnInit {
       dateFormat: 'yyyy-MM-dd HH:mm:ss'
     },
     {
-      title: '實體類型',
-      index: 'entityType',
-      width: '120px'
-    },
-    {
-      title: '操作',
-      index: 'operation',
-      width: '100px',
-      type: 'badge',
-      badge: {
-        create: { text: '建立', color: 'success' },
-        update: { text: '更新', color: 'processing' },
-        delete: { text: '刪除', color: 'error' },
-        access: { text: '存取', color: 'default' },
-        permission_grant: { text: '授權', color: 'warning' }
-      }
-    },
-    {
-      title: '使用者',
-      index: 'userName',
+      title: '事件類型',
+      index: 'eventType',
       width: '150px'
     },
     {
-      title: '實體 ID',
-      index: 'entityId',
+      title: '操作',
+      index: 'action',
+      width: '200px'
+    },
+    {
+      title: '使用者',
+      index: 'actorId',
+      width: '150px'
+    },
+    {
+      title: '資源類型',
+      index: 'resourceType',
+      width: '120px'
+    },
+    {
+      title: '資源 ID',
+      index: 'resourceId',
       width: '200px'
     },
     {
@@ -168,8 +166,9 @@ export class AuditLogsComponent implements OnInit {
     };
 
     try {
-      await this.logsState.load(firstValueFrom(this.auditRepository.queryLogs(this.blueprintId(), options)));
-      this.logger.info('[AuditLogsComponent]', `Loaded ${this.logsState.length()} audit logs`);
+      const logs = await this.auditRepository.queryLogs(this.blueprintId(), options);
+      this.logsState.setData(logs);
+      this.logger.info('[AuditLogsComponent]', `Loaded ${logs.length} audit logs`);
     } catch (error) {
       this.message.error('載入審計記錄失敗');
       this.logger.error('[AuditLogsComponent]', 'Failed to load audit logs', error as Error);
@@ -213,7 +212,7 @@ export class AuditLogsComponent implements OnInit {
    * 檢視審計記錄詳情
    */
   viewDetails(record: any): void {
-    const log = record as AuditLog;
+    const log = record as AuditLogDocument;
 
     // Show details in modal or drawer
     // For simplicity, show in message (can be enhanced later)

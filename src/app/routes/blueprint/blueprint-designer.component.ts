@@ -3,7 +3,8 @@ import { Component, OnInit, inject, signal, computed, ChangeDetectionStrategy, E
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Blueprint, LoggerService, ModuleType } from '@core';
-import { SHARED_IMPORTS, BlueprintService } from '@shared';
+import { SHARED_IMPORTS } from '@shared';
+import { BlueprintService } from '@core/blueprint/services';
 import { NzDrawerModule } from 'ng-zorro-antd/drawer';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
 import { NzFormModule } from 'ng-zorro-antd/form';
@@ -440,7 +441,7 @@ export class BlueprintDesignerComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly message = inject(NzMessageService);
   private readonly logger = inject(LoggerService);
-  private readonly blueprintService = inject(BlueprintService);
+  private readonly blueprintService: BlueprintService = inject(BlueprintService);
   private readonly validatorService = inject(DependencyValidatorService);
 
   @ViewChild('canvas', { static: false }) canvasElement?: ElementRef<HTMLDivElement>;
