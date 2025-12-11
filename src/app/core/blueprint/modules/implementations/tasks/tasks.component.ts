@@ -8,7 +8,7 @@
  * @date 2025-12-10
  */
 
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, input, effect } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { STColumn, STData } from '@delon/abc/st';
 import { SHARED_IMPORTS } from '@shared';
@@ -21,10 +21,6 @@ import { TasksService } from './tasks.service';
   standalone: true,
   imports: [SHARED_IMPORTS],
   template: `
-    <page-header [title]="'任務管理'" [subtitle]="blueprintName()">
-      <ng-content></ng-content>
-    </page-header>
-
     <nz-card [nzTitle]="'任務統計'" [nzExtra]="statsExtra">
       <nz-row [nzGutter]="16">
         <nz-col [nzSpan]="6">
@@ -76,8 +72,23 @@ export class TasksComponent implements OnInit {
   private route = inject(ActivatedRoute);
   readonly tasksService = inject(TasksService);
 
-  blueprintId = signal<string>('');
+  // Input from parent (Angular 19+ input() function)
+  blueprintId = input<string>();
+  
+  // Internal state
+  private _blueprintId = signal<string>('');
   blueprintName = signal<string>('任務管理');
+  
+  constructor() {
+    // Watch for blueprintId input changes
+    effect(() => {
+      const id = this.blueprintId();
+      if (id) {
+        this._blueprintId.set(id);
+        this.loadTasks(id);
+      }
+    });
+  }
 
   // Computed from service
   taskStats = this.tasksService.taskStats;
@@ -165,12 +176,12 @@ export class TasksComponent implements OnInit {
   ];
 
   ngOnInit(): void {
-    // Get blueprint ID from route params
+    // Also check route params for backwards compatibility
     this.route.params.subscribe(params => {
-      const blueprintId = params['id'] || params['blueprintId'];
-      if (blueprintId) {
-        this.blueprintId.set(blueprintId);
-        this.loadTasks(blueprintId);
+      const routeBlueprintId = params['id'] || params['blueprintId'];
+      if (routeBlueprintId && !this.blueprintId()) {
+        this._blueprintId.set(routeBlueprintId);
+        this.loadTasks(routeBlueprintId);
       }
     });
   }
@@ -191,7 +202,7 @@ export class TasksComponent implements OnInit {
 
   async deleteTask(task: any): Promise<void> {
     try {
-      const blueprintId = this.blueprintId();
+      const blueprintId = this._blueprintId();
       if (blueprintId && task.id) {
         await this.tasksService.deleteTask(blueprintId, task.id, 'current-user');
       }

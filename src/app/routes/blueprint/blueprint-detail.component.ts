@@ -14,6 +14,8 @@ import { NzTabsModule } from 'ng-zorro-antd/tabs';
 import { NzTagModule } from 'ng-zorro-antd/tag';
 import { firstValueFrom } from 'rxjs';
 import { BlueprintMembersComponent } from './members/blueprint-members.component';
+import { ConstructionLogComponent } from './construction-log/construction-log.component';
+import { TasksComponent } from '@core/blueprint/modules/implementations/tasks/tasks.component';
 
 /**
  * Blueprint Detail Component
@@ -23,8 +25,11 @@ import { BlueprintMembersComponent } from './members/blueprint-members.component
  * - Display blueprint information
  * - Show enabled modules
  * - Navigate to module pages
+ * - Integrated construction logs (工地施工日誌)
+ * - Integrated tasks (任務管理)
  *
  * ✅ Modernized with AsyncState pattern
+ * ✅ Updated: 2025-12-11 - Added Construction Log & Task modules
  */
 @Component({
   selector: 'app-blueprint-detail',
@@ -39,7 +44,9 @@ import { BlueprintMembersComponent } from './members/blueprint-members.component
     NzTabsModule,
     NzTagModule,
     DatePipe,
-    BlueprintMembersComponent
+    BlueprintMembersComponent,
+    ConstructionLogComponent,
+    TasksComponent
   ],
   template: `
     <page-header [title]="blueprint()?.name || '藍圖詳情'" [action]="action" [breadcrumb]="breadcrumb">
@@ -213,14 +220,18 @@ import { BlueprintMembersComponent } from './members/blueprint-members.component
           <!-- Tasks Tab -->
           <nz-tab nzTitle="任務">
             <ng-template nz-tab>
-              <nz-empty nzNotFoundContent="任務模組尚未實作" />
+              @if (blueprint()?.id) {
+                <app-tasks [blueprintId]="blueprint()!.id" />
+              }
             </ng-template>
           </nz-tab>
 
-          <!-- Logs Tab -->
-          <nz-tab nzTitle="日誌">
+          <!-- Construction Logs Tab -->
+          <nz-tab nzTitle="工地日誌">
             <ng-template nz-tab>
-              <nz-empty nzNotFoundContent="日誌模組尚未實作" />
+              @if (blueprint()?.id) {
+                <app-construction-log [blueprintId]="blueprint()!.id" />
+              }
             </ng-template>
           </nz-tab>
 
