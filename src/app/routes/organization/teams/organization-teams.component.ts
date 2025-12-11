@@ -184,7 +184,6 @@ export class OrganizationTeamsComponent implements OnInit {
       next: (teams: Team[]) => {
         this.teamsState.set(teams);
         this.loading.set(false);
-        console.log('[OrganizationTeamsComponent] ✅ Loaded teams:', teams.length);
 
         // Load member counts for all teams
         this.loadMemberCounts(teams);
@@ -213,7 +212,6 @@ export class OrganizationTeamsComponent implements OnInit {
         const map = new Map<string, number>();
         counts.forEach(({ teamId, count }) => map.set(teamId, count));
         this.memberCountsState.set(map);
-        console.log('[OrganizationTeamsComponent] ✅ Loaded member counts:', map.size);
       },
       error: error => {
         console.error('[OrganizationTeamsComponent] ❌ Failed to load member counts:', error);
