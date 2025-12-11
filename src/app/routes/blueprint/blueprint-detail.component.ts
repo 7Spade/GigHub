@@ -101,99 +101,143 @@ import { BlueprintMembersComponent } from './members/blueprint-members.component
           <!-- Overview Tab -->
           <nz-tab nzTitle="概覽">
             <ng-template nz-tab>
-              <div nz-row [nzGutter]="16">
-                <div nz-col [nzXs]="24" [nzMd]="16">
-                  <!-- Statistics -->
-                  <nz-card nzTitle="專案統計" class="mb-md">
-                    <nz-row [nzGutter]="16">
-                      <nz-col [nzSpan]="8">
-                        <nz-statistic
-                          [nzValue]="blueprint()!.enabledModules.length"
-                          nzTitle="啟用模組"
-                          [nzPrefix]="moduleIconTpl"
-                        />
-                        <ng-template #moduleIconTpl>
-                          <span nz-icon nzType="appstore" style="color: #1890ff;"></span>
-                        </ng-template>
-                      </nz-col>
-                      <nz-col [nzSpan]="8">
-                        <nz-statistic
-                          [nzValue]="0"
-                          nzTitle="總任務"
-                          [nzPrefix]="taskIconTpl"
-                        />
-                        <ng-template #taskIconTpl>
-                          <span nz-icon nzType="check-square" style="color: #52c41a;"></span>
-                        </ng-template>
-                      </nz-col>
-                      <nz-col [nzSpan]="8">
-                        <nz-statistic
-                          [nzValue]="0"
-                          nzTitle="日誌數"
-                          [nzPrefix]="logIconTpl"
-                        />
-                        <ng-template #logIconTpl>
-                          <span nz-icon nzType="file-text" style="color: #faad14;"></span>
-                        </ng-template>
-                      </nz-col>
-                    </nz-row>
+              <!-- Overview Header - Key Metrics -->
+              <div nz-row [nzGutter]="[16, 16]" class="mb-md">
+                <div nz-col [nzXs]="24" [nzSm]="12" [nzMd]="6">
+                  <nz-card [nzBordered]="false" class="metric-card">
+                    <nz-statistic
+                      [nzValue]="blueprint()!.enabledModules.length"
+                      nzTitle="啟用模組"
+                      [nzPrefix]="moduleIconTpl"
+                      [nzValueStyle]="{ color: '#1890ff' }"
+                    />
+                    <ng-template #moduleIconTpl>
+                      <span nz-icon nzType="appstore"></span>
+                    </ng-template>
                   </nz-card>
+                </div>
+                <div nz-col [nzXs]="24" [nzSm]="12" [nzMd]="6">
+                  <nz-card [nzBordered]="false" class="metric-card">
+                    <nz-statistic
+                      [nzValue]="0"
+                      nzTitle="總任務"
+                      [nzPrefix]="taskIconTpl"
+                      [nzValueStyle]="{ color: '#52c41a' }"
+                      nzSuffix="項"
+                    />
+                    <ng-template #taskIconTpl>
+                      <span nz-icon nzType="check-square"></span>
+                    </ng-template>
+                  </nz-card>
+                </div>
+                <div nz-col [nzXs]="24" [nzSm]="12" [nzMd]="6">
+                  <nz-card [nzBordered]="false" class="metric-card">
+                    <nz-statistic
+                      [nzValue]="0"
+                      nzTitle="日誌記錄"
+                      [nzPrefix]="logIconTpl"
+                      [nzValueStyle]="{ color: '#faad14' }"
+                      nzSuffix="筆"
+                    />
+                    <ng-template #logIconTpl>
+                      <span nz-icon nzType="file-text"></span>
+                    </ng-template>
+                  </nz-card>
+                </div>
+                <div nz-col [nzXs]="24" [nzSm]="12" [nzMd]="6">
+                  <nz-card [nzBordered]="false" class="metric-card">
+                    <nz-statistic
+                      [nzValue]="0"
+                      nzTitle="成員人數"
+                      [nzPrefix]="memberIconTpl"
+                      [nzValueStyle]="{ color: '#722ed1' }"
+                      nzSuffix="人"
+                    />
+                    <ng-template #memberIconTpl>
+                      <span nz-icon nzType="team"></span>
+                    </ng-template>
+                  </nz-card>
+                </div>
+              </div>
 
+              <div nz-row [nzGutter]="16">
+                <!-- Left Column - Main Content -->
+                <div nz-col [nzXs]="24" [nzLg]="16">
                   <!-- Enabled Modules -->
-                  <nz-card nzTitle="啟用模組">
+                  <nz-card nzTitle="啟用模組" [nzExtra]="modulesExtra" class="mb-md">
+                    <ng-template #modulesExtra>
+                      <button nz-button nzType="link" nzSize="small" (click)="configureModules()">
+                        <span nz-icon nzType="setting"></span>
+                        配置
+                      </button>
+                    </ng-template>
+                    
                     @if (blueprint()!.enabledModules.length > 0) {
                       <nz-row [nzGutter]="[16, 16]">
                         @for (module of blueprint()!.enabledModules; track module) {
-                          <nz-col [nzXs]="24" [nzSm]="12" [nzMd]="8">
-                            <nz-card [nzHoverable]="true" class="module-card" (click)="openModule(module)">
-                              <div style="text-align: center;">
-                                <span nz-icon [nzType]="getModuleIcon(module)" style="font-size: 32px; color: #1890ff;"></span>
-                                <h4 style="margin-top: 12px;">{{ getModuleName(module) }}</h4>
-                                <p class="text-grey" style="font-size: 12px;">{{ getModuleDescription(module) }}</p>
-                              </div>
+                          <nz-col [nzXs]="24" [nzSm]="12" [nzLg]="8">
+                            <nz-card 
+                              [nzHoverable]="true" 
+                              [nzBodyStyle]="{ padding: '20px', textAlign: 'center' }"
+                              class="module-card" 
+                              (click)="openModule(module)"
+                            >
+                              <span nz-icon [nzType]="getModuleIcon(module)" class="module-icon"></span>
+                              <h4 class="module-title">{{ getModuleName(module) }}</h4>
+                              <p class="module-desc">{{ getModuleDescription(module) }}</p>
                             </nz-card>
                           </nz-col>
                         }
                       </nz-row>
                     } @else {
-                      <nz-empty nzNotFoundContent="尚未啟用任何模組">
+                      <nz-empty 
+                        nzNotFoundContent="尚未啟用任何模組"
+                        [nzNotFoundImage]="'simple'"
+                      >
                         <ng-template nz-empty-footer>
                           <button nz-button nzType="primary" (click)="configureModules()">
-                            <span nz-icon nzType="setting"></span>
-                            配置模組
+                            <span nz-icon nzType="plus"></span>
+                            啟用模組
                           </button>
                         </ng-template>
                       </nz-empty>
                     }
                   </nz-card>
+
+                  <!-- Recent Activity (Placeholder) -->
+                  <nz-card nzTitle="最近活動">
+                    <nz-empty 
+                      nzNotFoundContent="暫無活動記錄"
+                      [nzNotFoundImage]="'simple'"
+                    />
+                  </nz-card>
                 </div>
 
-                <div nz-col [nzXs]="24" [nzMd]="8">
+                <!-- Right Column - Sidebar -->
+                <div nz-col [nzXs]="24" [nzLg]="8">
                   <!-- Quick Actions -->
                   <nz-card nzTitle="快速操作" class="mb-md">
-                    <button nz-button nzBlock class="mb-sm" (click)="openContainer()">
-                      <span nz-icon nzType="dashboard"></span>
-                      容器儀表板
-                    </button>
-                    <button nz-button nzBlock class="mb-sm" (click)="navigateToMembers()">
-                      <span nz-icon nzType="team"></span>
-                      成員管理
-                    </button>
-                    <button nz-button nzBlock class="mb-sm" (click)="configureModules()">
-                      <span nz-icon nzType="setting"></span>
-                      模組配置
-                    </button>
-                    <button nz-button nzBlock class="mb-sm" (click)="viewAuditLogs()">
-                      <span nz-icon nzType="file-text"></span>
-                      審計記錄
-                    </button>
+                    <nz-space nzDirection="vertical" style="width: 100%;">
+                      <button *nzSpaceItem nz-button nzBlock nzSize="large" (click)="openContainer()">
+                        <span nz-icon nzType="dashboard"></span>
+                        容器儀表板
+                      </button>
+                      <button *nzSpaceItem nz-button nzBlock nzSize="large" (click)="activeTabIndex = 3">
+                        <span nz-icon nzType="team"></span>
+                        管理成員
+                      </button>
+                      <button *nzSpaceItem nz-button nzBlock nzSize="large" (click)="viewAuditLogs()">
+                        <span nz-icon nzType="file-text"></span>
+                        審計記錄
+                      </button>
+                    </nz-space>
                   </nz-card>
 
-                  <!-- Basic Info -->
-                  <nz-card nzTitle="基本資訊">
-                    <nz-descriptions [nzColumn]="1" [nzColon]="false">
-                      <nz-descriptions-item nzTitle="Slug">
-                        <nz-tag>{{ blueprint()!.slug }}</nz-tag>
+                  <!-- Project Info -->
+                  <nz-card nzTitle="專案資訊" class="mb-md">
+                    <nz-descriptions [nzColumn]="1" [nzColon]="false" [nzBordered]="false">
+                      <nz-descriptions-item nzTitle="識別碼">
+                        <nz-tag [nzColor]="'blue'">{{ blueprint()!.slug }}</nz-tag>
                       </nz-descriptions-item>
                       <nz-descriptions-item nzTitle="可見性">
                         @if (blueprint()!.isPublic) {
@@ -202,13 +246,22 @@ import { BlueprintMembersComponent } from './members/blueprint-members.component
                             公開
                           </nz-tag>
                         } @else {
-                          <nz-tag nzColor="default">
+                          <nz-tag nzColor="orange">
                             <span nz-icon nzType="eye-invisible"></span>
                             私人
                           </nz-tag>
                         }
                       </nz-descriptions-item>
-                      <nz-descriptions-item nzTitle="更新時間">
+                      <nz-descriptions-item nzTitle="狀態">
+                        <nz-badge
+                          [nzStatus]="getStatusBadge(blueprint()!.status)"
+                          [nzText]="getStatusText(blueprint()!.status)"
+                        />
+                      </nz-descriptions-item>
+                      <nz-descriptions-item nzTitle="建立時間">
+                        {{ blueprint()!.createdAt | date: 'yyyy-MM-dd' }}
+                      </nz-descriptions-item>
+                      <nz-descriptions-item nzTitle="最後更新">
                         {{ blueprint()!.updatedAt | date: 'yyyy-MM-dd HH:mm' }}
                       </nz-descriptions-item>
                     </nz-descriptions>
@@ -277,18 +330,63 @@ import { BlueprintMembersComponent } from './members/blueprint-members.component
       display: block;
     }
     
+    /* Metric Cards */
+    .metric-card {
+      border-radius: 8px;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+      transition: all 0.3s;
+    }
+    
+    .metric-card:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      transform: translateY(-2px);
+    }
+    
+    /* Module Cards */
     .module-card {
       cursor: pointer;
       transition: all 0.3s;
+      border-radius: 8px;
+      height: 100%;
     }
     
     .module-card:hover {
       transform: translateY(-4px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+    }
+    
+    .module-icon {
+      font-size: 40px;
+      color: #1890ff;
+      display: block;
+      margin-bottom: 12px;
+    }
+    
+    .module-title {
+      margin: 12px 0 8px;
+      font-size: 16px;
+      font-weight: 600;
+      color: rgba(0, 0, 0, 0.85);
+    }
+    
+    .module-desc {
+      margin: 0;
+      font-size: 12px;
+      color: rgba(0, 0, 0, 0.45);
+      line-height: 1.5;
     }
     
     .text-grey {
       color: rgba(0, 0, 0, 0.45);
+    }
+    
+    /* Responsive spacing */
+    .mb-sm {
+      margin-bottom: 8px;
+    }
+    
+    .mb-md {
+      margin-bottom: 16px;
     }
   `]
 })
