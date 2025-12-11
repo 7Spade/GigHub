@@ -99,7 +99,7 @@ export class UserRegisterComponent {
       // Register user with Firebase Auth
       const email = String(data.mail || '');
       const password = String(data.password || '');
-      
+
       await this.firebaseAuth.signUpWithEmailAndPassword(email, password);
 
       // Navigate to result page

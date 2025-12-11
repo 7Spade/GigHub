@@ -1,6 +1,6 @@
-import { ModuleType } from '../module/module.types';
 import { BlueprintStatus } from './blueprint-status.enum';
 import { OwnerType } from './owner-type.enum';
+import { ModuleType } from '../module/module.types';
 
 /**
  * Blueprint role enumeration (system roles)
@@ -126,9 +126,7 @@ export interface CreateBlueprintRequest {
  * Blueprint update payload
  * 藍圖更新資料
  */
-export type UpdateBlueprintRequest = Partial<
-  Omit<Blueprint, 'id' | 'createdAt' | 'createdBy'>
->;
+export type UpdateBlueprintRequest = Partial<Omit<Blueprint, 'id' | 'createdAt' | 'createdBy'>>;
 
 /**
  * Blueprint query options

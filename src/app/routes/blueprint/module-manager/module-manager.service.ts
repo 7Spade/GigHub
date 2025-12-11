@@ -1,16 +1,15 @@
 /**
  * Module Manager Service
- * 
+ *
  * Service layer for managing Blueprint modules with Signal-based state management.
  * Provides operations for loading, enabling, disabling, and configuring modules.
- * 
+ *
  * @author GigHub Development Team
  * @date 2025-12-11
  */
 
 import { Injectable, inject, signal, computed } from '@angular/core';
-import { BlueprintModuleRepository } from '@shared/services/blueprint/blueprint-module.repository';
-import { AuditLogRepository } from '@shared/services/blueprint/audit-log.repository';
+import { AuditLogEventType, AuditLogCategory } from '@shared/models/audit-log.model';
 import {
   BlueprintModuleDocument,
   ModuleStatus,
@@ -18,7 +17,8 @@ import {
   UpdateModuleData,
   BatchResult
 } from '@shared/models/blueprint-module.model';
-import { AuditLogEventType, AuditLogCategory } from '@shared/models/audit-log.model';
+import { AuditLogRepository } from '@shared/services/blueprint/audit-log.repository';
+import { BlueprintModuleRepository } from '@shared/services/blueprint/blueprint-module.repository';
 import { firstValueFrom } from 'rxjs';
 
 /**
@@ -45,19 +45,19 @@ export interface ModuleFilterOptions {
 
 /**
  * Module Manager Service
- * 
+ *
  * Manages module lifecycle, configuration, and state with Signal-based reactivity.
- * 
+ *
  * @example
  * ```typescript
  * const service = inject(ModuleManagerService);
- * 
+ *
  * // Load modules
  * await service.loadModules('blueprint-123');
- * 
+ *
  * // Get statistics
  * const stats = service.moduleStats();
- * 
+ *
  * // Enable a module
  * await service.enableModule('module-id');
  * ```
@@ -84,21 +84,13 @@ export class ModuleManagerService {
   readonly selectedModules = this._selectedModules.asReadonly();
 
   // Computed state
-  readonly enabledModules = computed(() =>
-    this._modules().filter(m => m.enabled)
-  );
+  readonly enabledModules = computed(() => this._modules().filter(m => m.enabled));
 
-  readonly disabledModules = computed(() =>
-    this._modules().filter(m => !m.enabled)
-  );
+  readonly disabledModules = computed(() => this._modules().filter(m => !m.enabled));
 
-  readonly runningModules = computed(() =>
-    this._modules().filter(m => m.status === ModuleStatus.RUNNING)
-  );
+  readonly runningModules = computed(() => this._modules().filter(m => m.status === ModuleStatus.RUNNING));
 
-  readonly failedModules = computed(() =>
-    this._modules().filter(m => m.status === ModuleStatus.ERROR)
-  );
+  readonly failedModules = computed(() => this._modules().filter(m => m.status === ModuleStatus.ERROR));
 
   readonly moduleStats = computed((): ModuleStatistics => {
     const modules = this._modules();
@@ -114,7 +106,7 @@ export class ModuleManagerService {
 
   /**
    * Load modules for a blueprint
-   * 
+   *
    * @param blueprintId - Blueprint ID
    */
   async loadModules(blueprintId: string): Promise<void> {
@@ -123,9 +115,7 @@ export class ModuleManagerService {
     this._currentBlueprintId.set(blueprintId);
 
     try {
-      const modules = await firstValueFrom(
-        this.moduleRepo.findByBlueprintId(blueprintId)
-      );
+      const modules = await firstValueFrom(this.moduleRepo.findByBlueprintId(blueprintId));
       this._modules.set(modules);
     } catch (err) {
       const error = err instanceof Error ? err.message : 'Failed to load modules';
@@ -150,7 +140,7 @@ export class ModuleManagerService {
 
   /**
    * Register a new module
-   * 
+   *
    * @param data - Module creation data
    * @returns Created module document
    */
@@ -194,7 +184,7 @@ export class ModuleManagerService {
 
   /**
    * Enable a module
-   * 
+   *
    * @param moduleId - Module ID
    */
   async enableModule(moduleId: string): Promise<void> {
@@ -208,9 +198,7 @@ export class ModuleManagerService {
 
     try {
       await this.moduleRepo.update(blueprintId, moduleId, { enabled: true });
-      this._modules.update(modules =>
-        modules.map(m => m.id === moduleId ? { ...m, enabled: true } : m)
-      );
+      this._modules.update(modules => modules.map(m => (m.id === moduleId ? { ...m, enabled: true } : m)));
 
       // Log audit event
       const module = this._modules().find(m => m.id === moduleId);
@@ -236,7 +224,7 @@ export class ModuleManagerService {
 
   /**
    * Disable a module
-   * 
+   *
    * @param moduleId - Module ID
    */
   async disableModule(moduleId: string): Promise<void> {
@@ -250,9 +238,7 @@ export class ModuleManagerService {
 
     try {
       await this.moduleRepo.update(blueprintId, moduleId, { enabled: false });
-      this._modules.update(modules =>
-        modules.map(m => m.id === moduleId ? { ...m, enabled: false } : m)
-      );
+      this._modules.update(modules => modules.map(m => (m.id === moduleId ? { ...m, enabled: false } : m)));
 
       // Log audit event
       const module = this._modules().find(m => m.id === moduleId);
@@ -278,7 +264,7 @@ export class ModuleManagerService {
 
   /**
    * Update module status
-   * 
+   *
    * @param moduleId - Module ID
    * @param status - New status
    */
@@ -293,9 +279,7 @@ export class ModuleManagerService {
 
     try {
       await this.moduleRepo.updateStatus(blueprintId, moduleId, status);
-      this._modules.update(modules =>
-        modules.map(m => m.id === moduleId ? { ...m, status } : m)
-      );
+      this._modules.update(modules => modules.map(m => (m.id === moduleId ? { ...m, status } : m)));
     } catch (err) {
       const error = err instanceof Error ? err.message : 'Failed to update module status';
       this._error.set(error);
@@ -308,7 +292,7 @@ export class ModuleManagerService {
 
   /**
    * Update module configuration
-   * 
+   *
    * @param moduleId - Module ID
    * @param config - New configuration
    */
@@ -323,9 +307,7 @@ export class ModuleManagerService {
 
     try {
       await this.moduleRepo.update(blueprintId, moduleId, { config });
-      this._modules.update(modules =>
-        modules.map(m => m.id === moduleId ? { ...m, config, updatedAt: new Date() } : m)
-      );
+      this._modules.update(modules => modules.map(m => (m.id === moduleId ? { ...m, config, updatedAt: new Date() } : m)));
 
       // Log audit event
       const module = this._modules().find(m => m.id === moduleId);
@@ -352,7 +334,7 @@ export class ModuleManagerService {
 
   /**
    * Delete a module
-   * 
+   *
    * @param moduleId - Module ID
    */
   async deleteModule(moduleId: string): Promise<void> {
@@ -389,7 +371,7 @@ export class ModuleManagerService {
 
   /**
    * Batch enable/disable modules
-   * 
+   *
    * @param moduleIds - Array of module IDs
    * @param enabled - Enable (true) or disable (false)
    * @returns Batch result
@@ -405,15 +387,9 @@ export class ModuleManagerService {
 
     try {
       const result = await this.moduleRepo.batchUpdateEnabled(blueprintId, moduleIds, enabled);
-      
+
       // Update local state
-      this._modules.update(modules =>
-        modules.map(m =>
-          result.successful.includes(m.id)
-            ? { ...m, enabled }
-            : m
-        )
-      );
+      this._modules.update(modules => modules.map(m => (result.successful.includes(m.id) ? { ...m, enabled } : m)));
 
       // Log audit event
       await this.auditRepo.create(blueprintId, {
@@ -441,7 +417,7 @@ export class ModuleManagerService {
 
   /**
    * Filter modules
-   * 
+   *
    * @param options - Filter options
    * @returns Filtered modules
    */
@@ -450,10 +426,7 @@ export class ModuleManagerService {
 
     if (options.search) {
       const search = options.search.toLowerCase();
-      filtered = filtered.filter(m =>
-        m.name.toLowerCase().includes(search) ||
-        m.description?.toLowerCase().includes(search)
-      );
+      filtered = filtered.filter(m => m.name.toLowerCase().includes(search) || m.description?.toLowerCase().includes(search));
     }
 
     if (options.status !== undefined) {
@@ -473,7 +446,7 @@ export class ModuleManagerService {
 
   /**
    * Toggle module selection
-   * 
+   *
    * @param moduleId - Module ID
    */
   toggleSelection(moduleId: string): void {

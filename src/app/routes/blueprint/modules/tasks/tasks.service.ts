@@ -1,9 +1,9 @@
 /**
  * Tasks Service
- * 
+ *
  * Business logic layer for task management.
  * Orchestrates between repository and UI, handles validation and business rules.
- * 
+ *
  * @author GigHub Development Team
  * @date 2025-12-10
  */
@@ -11,6 +11,9 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { LoggerService } from '@core/services/logger.service';
+import { AuditEventType, AuditCategory, AuditSeverity, ActorType, AuditStatus } from '@shared/models/audit-log.model';
+import { AuditLogRepository, CreateAuditLogData } from '@shared/services/blueprint/audit-log.repository';
+
 import {
   TasksRepository,
   TaskDocument,
@@ -20,18 +23,10 @@ import {
   TaskPriority,
   TaskQueryOptions
 } from './tasks.repository';
-import { AuditLogRepository, CreateAuditLogData } from '@shared/services/blueprint/audit-log.repository';
-import {
-  AuditEventType,
-  AuditCategory,
-  AuditSeverity,
-  ActorType,
-  AuditStatus
-} from '@shared/models/audit-log.model';
 
 /**
  * Tasks Service
- * 
+ *
  * Manages task operations with business logic and audit logging.
  */
 @Injectable({
@@ -54,17 +49,11 @@ export class TasksService {
   readonly error = this._error.asReadonly();
 
   // Computed signals
-  readonly pendingTasks = computed(() =>
-    this._tasks().filter(t => t.status === TaskStatus.PENDING)
-  );
+  readonly pendingTasks = computed(() => this._tasks().filter(t => t.status === TaskStatus.PENDING));
 
-  readonly inProgressTasks = computed(() =>
-    this._tasks().filter(t => t.status === TaskStatus.IN_PROGRESS)
-  );
+  readonly inProgressTasks = computed(() => this._tasks().filter(t => t.status === TaskStatus.IN_PROGRESS));
 
-  readonly completedTasks = computed(() =>
-    this._tasks().filter(t => t.status === TaskStatus.COMPLETED)
-  );
+  readonly completedTasks = computed(() => this._tasks().filter(t => t.status === TaskStatus.COMPLETED));
 
   readonly tasksByPriority = computed(() => {
     const tasks = this._tasks();
@@ -83,9 +72,7 @@ export class TasksService {
       pending: this.pendingTasks().length,
       inProgress: this.inProgressTasks().length,
       completed: this.completedTasks().length,
-      completionRate: tasks.length > 0 
-        ? Math.round((this.completedTasks().length / tasks.length) * 100)
-        : 0
+      completionRate: tasks.length > 0 ? Math.round((this.completedTasks().length / tasks.length) * 100) : 0
     };
   });
 
@@ -149,19 +136,12 @@ export class TasksService {
   /**
    * Update a task
    */
-  async updateTask(
-    blueprintId: string,
-    taskId: string,
-    data: UpdateTaskData,
-    actorId: string
-  ): Promise<void> {
+  async updateTask(blueprintId: string, taskId: string, data: UpdateTaskData, actorId: string): Promise<void> {
     try {
       await this.repository.update(blueprintId, taskId, data);
 
       // Update local state
-      this._tasks.update(tasks =>
-        tasks.map(t => (t.id === taskId ? { ...t, ...data, updatedAt: new Date() } : t))
-      );
+      this._tasks.update(tasks => tasks.map(t => (t.id === taskId ? { ...t, ...data, updatedAt: new Date() } : t)));
 
       // Log audit event
       await this.logAuditEvent(blueprintId, {
@@ -218,12 +198,7 @@ export class TasksService {
   /**
    * Update task status
    */
-  async updateTaskStatus(
-    blueprintId: string,
-    taskId: string,
-    status: TaskStatus,
-    actorId: string
-  ): Promise<void> {
+  async updateTaskStatus(blueprintId: string, taskId: string, status: TaskStatus, actorId: string): Promise<void> {
     const updateData: UpdateTaskData = { status };
 
     if (status === TaskStatus.COMPLETED) {
@@ -236,19 +211,8 @@ export class TasksService {
   /**
    * Assign task to user
    */
-  async assignTask(
-    blueprintId: string,
-    taskId: string,
-    assigneeId: string,
-    assigneeName: string,
-    actorId: string
-  ): Promise<void> {
-    await this.updateTask(
-      blueprintId,
-      taskId,
-      { assigneeId, assigneeName },
-      actorId
-    );
+  async assignTask(blueprintId: string, taskId: string, assigneeId: string, assigneeName: string, actorId: string): Promise<void> {
+    await this.updateTask(blueprintId, taskId, { assigneeId, assigneeName }, actorId);
   }
 
   /**

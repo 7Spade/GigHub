@@ -1,9 +1,10 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { ContextType } from '@core';
 import { SHARED_IMPORTS, WorkspaceContextService } from '@shared';
-import { HeaderContextSwitcherComponent } from '../../../layout/basic/widgets/context-switcher.component';
-import { NzMenuModule } from 'ng-zorro-antd/menu';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
+import { NzMenuModule } from 'ng-zorro-antd/menu';
+
+import { HeaderContextSwitcherComponent } from '../../../layout/basic/widgets/context-switcher.component';
 
 @Component({
   selector: 'app-organization-settings',
@@ -11,7 +12,7 @@ import { NzAlertModule } from 'ng-zorro-antd/alert';
   imports: [SHARED_IMPORTS, NzMenuModule, NzAlertModule, HeaderContextSwitcherComponent],
   template: `
     <page-header [title]="'組織設定'" [content]="headerContent" [breadcrumb]="breadcrumb"></page-header>
-    
+
     <ng-template #breadcrumb>
       <nz-breadcrumb>
         <nz-breadcrumb-item>
@@ -29,7 +30,7 @@ import { NzAlertModule } from 'ng-zorro-antd/alert';
         <nz-breadcrumb-item>組織設定</nz-breadcrumb-item>
       </nz-breadcrumb>
     </ng-template>
-    
+
     <ng-template #headerContent>
       <div>調整組織偏好與資訊。</div>
     </ng-template>
@@ -54,10 +55,7 @@ import { NzAlertModule } from 'ng-zorro-antd/alert';
     <nz-card nzTitle="基本資訊">
       <nz-list>
         <nz-list-item>
-          <nz-list-item-meta
-            nzTitle="組織名稱"
-            [nzDescription]="activeLabel() || '尚未選擇組織'"
-          ></nz-list-item-meta>
+          <nz-list-item-meta nzTitle="組織名稱" [nzDescription]="activeLabel() || '尚未選擇組織'"></nz-list-item-meta>
         </nz-list-item>
         <nz-list-item>
           <nz-list-item-meta nzTitle="自訂設定" nzDescription="此處預留未來與後端串接的欄位。"></nz-list-item-meta>

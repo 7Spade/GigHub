@@ -1,6 +1,6 @@
 /**
  * Unit Tests for SharedContext
- * 
+ *
  * Tests comprehensive state management functionality including:
  * - Initialization and tenant isolation
  * - State CRUD operations
@@ -10,8 +10,9 @@
  * - Cleanup and disposal
  */
 
-import { TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
+
 import { SharedContext } from './shared-context';
 import { TenantInfo, ContextType } from './tenant-info.interface';
 
@@ -43,7 +44,7 @@ describe('SharedContext', () => {
       };
 
       context.initialize(tenant);
-      
+
       const retrievedTenant = context.getTenant();
       expect(retrievedTenant).toEqual(tenant);
     });
@@ -64,21 +65,21 @@ describe('SharedContext', () => {
   describe('State Management - Basic Operations', () => {
     it('should set and get string state', () => {
       context.setState('theme', 'dark');
-      
+
       const theme = context.getState<string>('theme');
       expect(theme).toBe('dark');
     });
 
     it('should set and get number state', () => {
       context.setState('count', 42);
-      
+
       const count = context.getState<number>('count');
       expect(count).toBe(42);
     });
 
     it('should set and get boolean state', () => {
       context.setState('enabled', true);
-      
+
       const enabled = context.getState<boolean>('enabled');
       expect(enabled).toBe(true);
     });
@@ -86,7 +87,7 @@ describe('SharedContext', () => {
     it('should set and get object state', () => {
       const user = { name: 'John', age: 30 };
       context.setState('user', user);
-      
+
       const retrievedUser = context.getState<typeof user>('user');
       expect(retrievedUser).toEqual(user);
     });
@@ -94,7 +95,7 @@ describe('SharedContext', () => {
     it('should set and get array state', () => {
       const items = ['a', 'b', 'c'];
       context.setState('items', items);
-      
+
       const retrievedItems = context.getState<string[]>('items');
       expect(retrievedItems).toEqual(items);
     });
@@ -102,7 +103,7 @@ describe('SharedContext', () => {
     it('should update existing state', () => {
       context.setState('theme', 'light');
       expect(context.getState<string>('theme')).toBe('light');
-      
+
       context.setState('theme', 'dark');
       expect(context.getState<string>('theme')).toBe('dark');
     });
@@ -116,7 +117,7 @@ describe('SharedContext', () => {
   describe('State Management - Namespaces', () => {
     it('should set and get state with namespace', () => {
       context.setState('preferences', { theme: 'dark' }, 'user');
-      
+
       const prefs = context.getState<any>('preferences', 'user');
       expect(prefs).toEqual({ theme: 'dark' });
     });
@@ -124,7 +125,7 @@ describe('SharedContext', () => {
     it('should isolate state between namespaces', () => {
       context.setState('config', { value: 1 }, 'namespace1');
       context.setState('config', { value: 2 }, 'namespace2');
-      
+
       expect(context.getState<any>('config', 'namespace1')).toEqual({ value: 1 });
       expect(context.getState<any>('config', 'namespace2')).toEqual({ value: 2 });
     });
@@ -132,7 +133,7 @@ describe('SharedContext', () => {
     it('should isolate namespaced state from non-namespaced state', () => {
       context.setState('key', 'value1');
       context.setState('key', 'value2', 'namespace');
-      
+
       expect(context.getState<string>('key')).toBe('value1');
       expect(context.getState<string>('key', 'namespace')).toBe('value2');
     });
@@ -141,9 +142,9 @@ describe('SharedContext', () => {
       context.setState('key1', 'value1', 'namespace');
       context.setState('key2', 'value2', 'namespace');
       context.setState('key3', 'value3', 'other');
-      
+
       context.clearNamespace('namespace');
-      
+
       expect(context.hasState('key1', 'namespace')).toBe(false);
       expect(context.hasState('key2', 'namespace')).toBe(false);
       expect(context.hasState('key3', 'other')).toBe(true);
@@ -153,7 +154,7 @@ describe('SharedContext', () => {
   describe('State Signals - Reactive Updates', () => {
     it('should get state as Signal', () => {
       context.setState('theme', 'dark');
-      
+
       const themeSignal = context.getStateSignal<string>('theme');
       expect(themeSignal()).toBe('dark');
     });
@@ -166,20 +167,20 @@ describe('SharedContext', () => {
     it('should update signal when state changes', () => {
       context.setState('count', 0);
       const countSignal = context.getStateSignal<number>('count');
-      
+
       expect(countSignal()).toBe(0);
-      
+
       context.setState('count', 5);
       expect(countSignal()).toBe(5);
     });
 
-    it('should trigger signal updates when state changes', (done) => {
+    it('should trigger signal updates when state changes', done => {
       context.setState('theme', 'light');
       const themeSignal = context.getStateSignal<string>('theme');
-      
+
       // Verify initial value
       expect(themeSignal()).toBe('light');
-      
+
       // Trigger change and verify update
       setTimeout(() => {
         context.setState('theme', 'dark');
@@ -190,20 +191,20 @@ describe('SharedContext', () => {
 
     it('should update stateCount signal when state changes', () => {
       expect(context.stateCount()).toBe(0);
-      
+
       context.setState('key1', 'value1');
       expect(context.stateCount()).toBe(1);
-      
+
       context.setState('key2', 'value2');
       expect(context.stateCount()).toBe(2);
     });
 
     it('should update stateKeys signal when state changes', () => {
       expect(context.stateKeys()).toEqual([]);
-      
+
       context.setState('key1', 'value1');
       expect(context.stateKeys()).toContain('key1');
-      
+
       context.setState('key2', 'value2');
       expect(context.stateKeys()).toContain('key1');
       expect(context.stateKeys()).toContain('key2');
@@ -228,7 +229,7 @@ describe('SharedContext', () => {
     it('should return false after clearing state', () => {
       context.setState('key', 'value');
       expect(context.hasState('key')).toBe(true);
-      
+
       context.clearState('key');
       expect(context.hasState('key')).toBe(false);
     });
@@ -238,18 +239,18 @@ describe('SharedContext', () => {
     it('should clear specific state', () => {
       context.setState('key1', 'value1');
       context.setState('key2', 'value2');
-      
+
       context.clearState('key1');
-      
+
       expect(context.hasState('key1')).toBe(false);
       expect(context.hasState('key2')).toBe(true);
     });
 
     it('should clear namespaced state', () => {
       context.setState('key', 'value', 'namespace');
-      
+
       context.clearState('key', 'namespace');
-      
+
       expect(context.hasState('key', 'namespace')).toBe(false);
     });
 
@@ -263,9 +264,9 @@ describe('SharedContext', () => {
       context.setState('key1', 'value1');
       context.setState('key2', 'value2', 'namespace');
       context.setState('key3', 'value3');
-      
+
       context.clearAll();
-      
+
       expect(context.stateCount()).toBe(0);
       expect(context.stateKeys()).toEqual([]);
       expect(context.hasState('key1')).toBe(false);
@@ -275,11 +276,11 @@ describe('SharedContext', () => {
   });
 
   describe('State Metadata', () => {
-    it('should track state timestamp', (done) => {
+    it('should track state timestamp', done => {
       const beforeTimestamp = Date.now();
-      
+
       context.setState('key', 'value');
-      
+
       setTimeout(() => {
         const metadata = context.getStateMetadata('key');
         expect(metadata).toBeDefined();
@@ -291,7 +292,7 @@ describe('SharedContext', () => {
 
     it('should track namespace in metadata', () => {
       context.setState('key', 'value', 'test-namespace');
-      
+
       const metadata = context.getStateMetadata('key', 'test-namespace');
       expect(metadata?.namespace).toBe('test-namespace');
     });
@@ -301,11 +302,11 @@ describe('SharedContext', () => {
       expect(metadata).toBeUndefined();
     });
 
-    it('should update timestamp when state is updated', (done) => {
+    it('should update timestamp when state is updated', done => {
       context.setState('key', 'value1');
       const firstMetadata = context.getStateMetadata('key');
       const firstTimestamp = firstMetadata!.timestamp;
-      
+
       setTimeout(() => {
         context.setState('key', 'value2');
         const secondMetadata = context.getStateMetadata('key');
@@ -320,9 +321,9 @@ describe('SharedContext', () => {
       context.setState('key1', 'value1');
       context.setState('key2', 'value2');
       context.setState('key3', 'value3', 'namespace');
-      
+
       const allState = context.getAllState();
-      
+
       expect(allState.size).toBe(3);
       expect(allState.get('key1')).toBe('value1');
       expect(allState.get('key2')).toBe('value2');
@@ -338,9 +339,9 @@ describe('SharedContext', () => {
       context.setState('key1', 'value1');
       context.setState('key2', 'value2');
       context.clearState('key1');
-      
+
       const allState = context.getAllState();
-      
+
       expect(allState.size).toBe(1);
       expect(allState.has('key1')).toBe(false);
       expect(allState.has('key2')).toBe(true);
@@ -351,9 +352,9 @@ describe('SharedContext', () => {
     it('should clear all state on dispose', () => {
       context.setState('key1', 'value1');
       context.setState('key2', 'value2');
-      
+
       context.dispose();
-      
+
       expect(context.stateCount()).toBe(0);
     });
 
@@ -364,10 +365,10 @@ describe('SharedContext', () => {
         userId: 'user-789',
         contextType: ContextType.TEAM
       };
-      
+
       context.initialize(tenant);
       expect(context.getTenant()).toEqual(tenant);
-      
+
       context.dispose();
       expect(context.getTenant()).toBeNull();
     });
@@ -378,7 +379,7 @@ describe('SharedContext', () => {
       context.setState('config', { value: 1 }, 'module1');
       context.setState('config', { value: 2 }, 'module2');
       context.setState('config', { value: 3 }, 'module3');
-      
+
       expect(context.getState<any>('config', 'module1')?.value).toBe(1);
       expect(context.getState<any>('config', 'module2')?.value).toBe(2);
       expect(context.getState<any>('config', 'module3')?.value).toBe(3);
@@ -396,10 +397,10 @@ describe('SharedContext', () => {
           }
         }
       };
-      
+
       context.setState('data', complexObject);
       const retrieved = context.getState<typeof complexObject>('data');
-      
+
       expect(retrieved).toEqual(complexObject);
       expect(retrieved?.user.profile.preferences.theme).toBe('dark');
     });
@@ -407,17 +408,17 @@ describe('SharedContext', () => {
     it('should handle state with dot notation keys', () => {
       context.setState('user.preferences.theme', 'dark');
       context.setState('user.preferences.language', 'en');
-      
+
       expect(context.getState<string>('user.preferences.theme')).toBe('dark');
       expect(context.getState<string>('user.preferences.language')).toBe('en');
     });
 
     it('should maintain state isolation between different instances', () => {
       const context2 = TestBed.inject(SharedContext);
-      
+
       context.setState('key', 'value1');
       context2.setState('key', 'value2');
-      
+
       // Note: Both are singleton instances in root, so they share state
       // This test verifies the service is properly provided
       expect(context).toBe(context2);
@@ -452,10 +453,10 @@ describe('SharedContext', () => {
         id: i,
         data: `item-${i}`
       }));
-      
+
       context.setState('largeArray', largeArray);
       const retrieved = context.getState<typeof largeArray>('largeArray');
-      
+
       expect(retrieved?.length).toBe(1000);
       expect(retrieved?.[500].id).toBe(500);
     });

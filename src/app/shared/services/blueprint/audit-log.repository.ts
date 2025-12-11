@@ -1,9 +1,9 @@
 /**
  * Audit Log Repository
- * 
+ *
  * Manages CRUD operations for audit log subcollection in Firestore.
  * Collection path: blueprints/{blueprintId}/audit-logs/{logId}
- * 
+ *
  * @author GigHub Development Team
  * @date 2025-12-10
  */
@@ -26,7 +26,6 @@ import {
   QueryConstraint,
   QueryDocumentSnapshot
 } from '@angular/fire/firestore';
-import { Observable, from, map, catchError, of } from 'rxjs';
 import { LoggerService } from '@core/services/logger.service';
 import {
   AuditLogDocument,
@@ -38,6 +37,7 @@ import {
   AuditSeverity,
   AuditStatus
 } from '@shared/models/audit-log.model';
+import { Observable, from, map, catchError, of } from 'rxjs';
 
 /**
  * Pagination result for audit logs
@@ -50,7 +50,7 @@ export interface AuditLogPage {
 
 /**
  * Audit Log Repository Service
- * 
+ *
  * Handles all Firestore operations for audit logs.
  * Implements efficient querying and pagination for large audit trails.
  */
@@ -110,10 +110,7 @@ export class AuditLogRepository {
     };
 
     try {
-      const docRef = await addDoc(
-        this.getAuditLogsCollection(data.blueprintId),
-        docData
-      );
+      const docRef = await addDoc(this.getAuditLogsCollection(data.blueprintId), docData);
 
       // For audit logs, we don't read back - it's write-heavy
       return this.toAuditLogDocument(docData, docRef.id, data.blueprintId);
@@ -130,7 +127,7 @@ export class AuditLogRepository {
     try {
       const promises = logs.map(log => this.create(log));
       await Promise.all(promises);
-      
+
       this.logger.info('[AuditLogRepository]', `Batch created ${logs.length} audit logs`);
     } catch (error: any) {
       this.logger.error('[AuditLogRepository]', 'createBatch failed', error as Error);
@@ -141,11 +138,7 @@ export class AuditLogRepository {
   /**
    * Find audit logs by blueprint ID with pagination
    */
-  async findByBlueprintId(
-    blueprintId: string,
-    pageSize: number = 50,
-    lastDoc?: QueryDocumentSnapshot
-  ): Promise<AuditLogPage> {
+  async findByBlueprintId(blueprintId: string, pageSize = 50, lastDoc?: QueryDocumentSnapshot): Promise<AuditLogPage> {
     const constraints: QueryConstraint[] = [
       orderBy('timestamp', 'desc'),
       limit(pageSize + 1) // Fetch one extra to check if there's more
@@ -159,9 +152,7 @@ export class AuditLogRepository {
 
     try {
       const snapshot = await getDocs(q);
-      const logs = snapshot.docs
-        .slice(0, pageSize)
-        .map(doc => this.toAuditLogDocument(doc.data(), doc.id, blueprintId));
+      const logs = snapshot.docs.slice(0, pageSize).map(doc => this.toAuditLogDocument(doc.data(), doc.id, blueprintId));
 
       return {
         logs,
@@ -177,10 +168,7 @@ export class AuditLogRepository {
   /**
    * Query audit logs with filters
    */
-  async queryLogs(
-    blueprintId: string,
-    options: AuditLogQueryOptions
-  ): Promise<AuditLogDocument[]> {
+  async queryLogs(blueprintId: string, options: AuditLogQueryOptions): Promise<AuditLogDocument[]> {
     const constraints: QueryConstraint[] = [];
 
     // Apply filters
@@ -238,9 +226,7 @@ export class AuditLogRepository {
 
     try {
       const snapshot = await getDocs(q);
-      return snapshot.docs.map(doc =>
-        this.toAuditLogDocument(doc.data(), doc.id, blueprintId)
-      );
+      return snapshot.docs.map(doc => this.toAuditLogDocument(doc.data(), doc.id, blueprintId));
     } catch (error: any) {
       this.logger.error('[AuditLogRepository]', 'queryLogs failed', error as Error);
       throw error;
@@ -250,11 +236,7 @@ export class AuditLogRepository {
   /**
    * Find logs by event type
    */
-  findByEventType(
-    blueprintId: string,
-    eventType: AuditEventType,
-    limitCount: number = 100
-  ): Observable<AuditLogDocument[]> {
+  findByEventType(blueprintId: string, eventType: AuditEventType, limitCount = 100): Observable<AuditLogDocument[]> {
     const q = query(
       this.getAuditLogsCollection(blueprintId),
       where('eventType', '==', eventType),
@@ -263,9 +245,7 @@ export class AuditLogRepository {
     );
 
     return from(getDocs(q)).pipe(
-      map(snapshot =>
-        snapshot.docs.map(doc => this.toAuditLogDocument(doc.data(), doc.id, blueprintId))
-      ),
+      map(snapshot => snapshot.docs.map(doc => this.toAuditLogDocument(doc.data(), doc.id, blueprintId))),
       catchError(error => {
         this.logger.error('[AuditLogRepository]', 'findByEventType failed', error as Error);
         return of([]);
@@ -276,11 +256,7 @@ export class AuditLogRepository {
   /**
    * Find logs by category
    */
-  findByCategory(
-    blueprintId: string,
-    category: AuditCategory,
-    limitCount: number = 100
-  ): Observable<AuditLogDocument[]> {
+  findByCategory(blueprintId: string, category: AuditCategory, limitCount = 100): Observable<AuditLogDocument[]> {
     const q = query(
       this.getAuditLogsCollection(blueprintId),
       where('category', '==', category),
@@ -289,9 +265,7 @@ export class AuditLogRepository {
     );
 
     return from(getDocs(q)).pipe(
-      map(snapshot =>
-        snapshot.docs.map(doc => this.toAuditLogDocument(doc.data(), doc.id, blueprintId))
-      ),
+      map(snapshot => snapshot.docs.map(doc => this.toAuditLogDocument(doc.data(), doc.id, blueprintId))),
       catchError(error => {
         this.logger.error('[AuditLogRepository]', 'findByCategory failed', error as Error);
         return of([]);
@@ -302,7 +276,7 @@ export class AuditLogRepository {
   /**
    * Find recent error logs
    */
-  findRecentErrors(blueprintId: string, limitCount: number = 20): Observable<AuditLogDocument[]> {
+  findRecentErrors(blueprintId: string, limitCount = 20): Observable<AuditLogDocument[]> {
     const q = query(
       this.getAuditLogsCollection(blueprintId),
       where('status', '==', AuditStatus.FAILED),
@@ -311,9 +285,7 @@ export class AuditLogRepository {
     );
 
     return from(getDocs(q)).pipe(
-      map(snapshot =>
-        snapshot.docs.map(doc => this.toAuditLogDocument(doc.data(), doc.id, blueprintId))
-      ),
+      map(snapshot => snapshot.docs.map(doc => this.toAuditLogDocument(doc.data(), doc.id, blueprintId))),
       catchError(error => {
         this.logger.error('[AuditLogRepository]', 'findRecentErrors failed', error as Error);
         return of([]);
@@ -324,11 +296,7 @@ export class AuditLogRepository {
   /**
    * Get audit log summary statistics
    */
-  async getSummary(
-    blueprintId: string,
-    startDate?: Date,
-    endDate?: Date
-  ): Promise<AuditLogSummary> {
+  async getSummary(blueprintId: string, startDate?: Date, endDate?: Date): Promise<AuditLogSummary> {
     const constraints: QueryConstraint[] = [];
 
     if (startDate) {
@@ -385,11 +353,9 @@ export class AuditLogRepository {
 
         // Count recent errors (last 24 hours)
         if (data.status === AuditStatus.FAILED) {
-          const logDate = data.timestamp instanceof Timestamp 
-            ? data.timestamp.toDate() 
-            : new Date(data.timestamp);
+          const logDate = data.timestamp instanceof Timestamp ? data.timestamp.toDate() : new Date(data.timestamp);
           const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
-          
+
           if (logDate >= dayAgo) {
             summary.recentErrors++;
           }
@@ -407,14 +373,8 @@ export class AuditLogRepository {
    * Find log by ID
    */
   findById(blueprintId: string, logId: string): Observable<AuditLogDocument | null> {
-    return from(
-      getDoc(doc(this.firestore, this.parentCollection, blueprintId, this.subcollectionName, logId))
-    ).pipe(
-      map(snapshot =>
-        snapshot.exists()
-          ? this.toAuditLogDocument(snapshot.data(), snapshot.id, blueprintId)
-          : null
-      ),
+    return from(getDoc(doc(this.firestore, this.parentCollection, blueprintId, this.subcollectionName, logId))).pipe(
+      map(snapshot => (snapshot.exists() ? this.toAuditLogDocument(snapshot.data(), snapshot.id, blueprintId) : null)),
       catchError(error => {
         this.logger.error('[AuditLogRepository]', 'findById failed', error as Error);
         return of(null);

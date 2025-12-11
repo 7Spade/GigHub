@@ -1,37 +1,31 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal, effect } from '@angular/core';
 import { Router } from '@angular/router';
-import { combineLatest } from 'rxjs';
-import { map } from 'rxjs/operators';
 import { ContextType, Team } from '@core';
 import { SHARED_IMPORTS, WorkspaceContextService, TeamRepository, TeamMemberRepository } from '@shared';
+import { NzAlertModule } from 'ng-zorro-antd/alert';
+import { NzDescriptionsModule } from 'ng-zorro-antd/descriptions';
+import { NzDrawerService } from 'ng-zorro-antd/drawer';
+import { NzEmptyModule } from 'ng-zorro-antd/empty';
+import { NzMessageService } from 'ng-zorro-antd/message';
+import { NzModalService } from 'ng-zorro-antd/modal';
+import { NzSpaceModule } from 'ng-zorro-antd/space';
+import { NzTableModule } from 'ng-zorro-antd/table';
+import { combineLatest } from 'rxjs';
+import { map } from 'rxjs/operators';
+
 import { CreateTeamModalComponent } from '../../../shared/components/create-team-modal/create-team-modal.component';
 import { EditTeamModalComponent } from '../../../shared/components/edit-team-modal/edit-team-modal.component';
 import { TeamDetailDrawerComponent } from '../../../shared/components/team-detail-drawer/team-detail-drawer.component';
-import { NzAlertModule } from 'ng-zorro-antd/alert';
-import { NzEmptyModule } from 'ng-zorro-antd/empty';
-import { NzModalService } from 'ng-zorro-antd/modal';
-import { NzMessageService } from 'ng-zorro-antd/message';
-import { NzTableModule } from 'ng-zorro-antd/table';
+
 import { NzTagModule } from 'ng-zorro-antd/tag';
-import { NzDescriptionsModule } from 'ng-zorro-antd/descriptions';
-import { NzSpaceModule } from 'ng-zorro-antd/space';
-import { NzDrawerService } from 'ng-zorro-antd/drawer';
 
 @Component({
   selector: 'app-organization-teams',
   standalone: true,
-  imports: [
-    SHARED_IMPORTS,
-    NzAlertModule,
-    NzEmptyModule,
-    NzTableModule,
-    NzTagModule,
-    NzDescriptionsModule,
-    NzSpaceModule
-  ],
+  imports: [SHARED_IMPORTS, NzAlertModule, NzEmptyModule, NzTableModule, NzTagModule, NzDescriptionsModule, NzSpaceModule],
   template: `
     <page-header [title]="'團隊管理'" [content]="headerContent" [breadcrumb]="breadcrumb"></page-header>
-    
+
     <ng-template #breadcrumb>
       <nz-breadcrumb>
         <nz-breadcrumb-item>
@@ -49,47 +43,31 @@ import { NzDrawerService } from 'ng-zorro-antd/drawer';
         <nz-breadcrumb-item>團隊管理</nz-breadcrumb-item>
       </nz-breadcrumb>
     </ng-template>
-    
+
     <ng-template #headerContent>
       <div>瀏覽並管理組織內的團隊。</div>
     </ng-template>
 
     @if (!isOrganizationContext()) {
-      <nz-alert
-        nzType="info"
-        nzShowIcon
-        nzMessage="請先選擇組織"
-        nzDescription="請從側邊欄選擇一個組織以查看團隊列表。"
-        class="mb-md"
-      />
+      <nz-alert nzType="info" nzShowIcon nzMessage="請先選擇組織" nzDescription="請從側邊欄選擇一個組織以查看團隊列表。" class="mb-md" />
     }
 
     <nz-card nzTitle="團隊列表" [nzExtra]="extraTemplate" [nzLoading]="loading()">
       <ng-template #extraTemplate>
         @if (isOrganizationContext()) {
           <nz-space>
-            <button 
-              *nzSpaceItem 
-              nz-button 
-              nzType="primary" 
-              (click)="openCreateTeamModal()"
-            >
+            <button *nzSpaceItem nz-button nzType="primary" (click)="openCreateTeamModal()">
               <span nz-icon nzType="plus"></span>
               建立團隊
             </button>
-            <button 
-              *nzSpaceItem 
-              nz-button 
-              nzType="default"
-              (click)="refreshTeams()"
-            >
+            <button *nzSpaceItem nz-button nzType="default" (click)="refreshTeams()">
               <span nz-icon nzType="reload"></span>
               重新整理
             </button>
           </nz-space>
         }
       </ng-template>
-      
+
       @if (teams().length > 0) {
         <nz-table #table [nzData]="teams()" [nzShowPagination]="false">
           <thead>
@@ -114,44 +92,26 @@ import { NzDrawerService } from 'ng-zorro-antd/drawer';
                 <td>{{ formatDate(team.created_at) }}</td>
                 <td>
                   <nz-space>
-                    <button 
-                      *nzSpaceItem 
-                      nz-button 
-                      nzType="link" 
-                      nzSize="small" 
-                      (click)="viewTeamDetails(team)"
-                    >
+                    <button *nzSpaceItem nz-button nzType="link" nzSize="small" (click)="viewTeamDetails(team)">
                       <span nz-icon nzType="eye"></span>
                       查看
                     </button>
-                    <button 
-                      *nzSpaceItem 
-                      nz-button 
-                      nzType="link" 
-                      nzSize="small" 
-                      (click)="manageMembers(team)"
-                    >
+                    <button *nzSpaceItem nz-button nzType="link" nzSize="small" (click)="manageMembers(team)">
                       <span nz-icon nzType="user"></span>
                       管理成員
                     </button>
-                    <button 
-                      *nzSpaceItem 
-                      nz-button 
-                      nzType="link" 
-                      nzSize="small" 
-                      (click)="openEditTeamModal(team)"
-                    >
+                    <button *nzSpaceItem nz-button nzType="link" nzSize="small" (click)="openEditTeamModal(team)">
                       <span nz-icon nzType="edit"></span>
                       編輯
                     </button>
-                    <button 
-                      *nzSpaceItem 
-                      nz-button 
-                      nzType="link" 
-                      nzSize="small" 
+                    <button
+                      *nzSpaceItem
+                      nz-button
+                      nzType="link"
+                      nzSize="small"
                       nzDanger
-                      nz-popconfirm 
-                      nzPopconfirmTitle="確定刪除此團隊？此操作無法復原。" 
+                      nz-popconfirm
+                      nzPopconfirmTitle="確定刪除此團隊？此操作無法復原。"
                       (nzOnConfirm)="deleteTeam(team)"
                     >
                       <span nz-icon nzType="delete"></span>
@@ -216,7 +176,7 @@ export class OrganizationTeamsComponent {
         this.teamsState.set(teams);
         this.loading.set(false);
         console.log('[OrganizationTeamsComponent] ✅ Loaded teams:', teams.length);
-        
+
         // Load member counts for all teams
         this.loadMemberCounts(teams);
       },
@@ -236,19 +196,17 @@ export class OrganizationTeamsComponent {
 
     // Load member counts for all teams in parallel
     const memberCountObservables = teams.map(team =>
-      this.teamMemberRepository.findByTeam(team.id).pipe(
-        map(members => ({ teamId: team.id, count: members.length }))
-      )
+      this.teamMemberRepository.findByTeam(team.id).pipe(map(members => ({ teamId: team.id, count: members.length })))
     );
 
     combineLatest(memberCountObservables).subscribe({
-      next: (counts) => {
+      next: counts => {
         const map = new Map<string, number>();
         counts.forEach(({ teamId, count }) => map.set(teamId, count));
         this.memberCountsState.set(map);
         console.log('[OrganizationTeamsComponent] ✅ Loaded member counts:', map.size);
       },
-      error: (error) => {
+      error: error => {
         console.error('[OrganizationTeamsComponent] ❌ Failed to load member counts:', error);
         this.memberCountsState.set(new Map());
       }
@@ -278,7 +236,7 @@ export class OrganizationTeamsComponent {
     }
     return this.teamsState();
   });
-  
+
   readonly organizationName = computed(() => this.workspaceContext.contextLabel());
 
   isOrganizationContext(): boolean {
@@ -336,7 +294,7 @@ export class OrganizationTeamsComponent {
     try {
       await this.teamRepository.delete(team.id);
       this.message.success('團隊已刪除');
-      
+
       const orgId = this.currentOrgId();
       if (orgId) {
         this.loadTeams(orgId);
@@ -371,7 +329,7 @@ export class OrganizationTeamsComponent {
       nzClosable: true
     });
 
-    drawerRef.afterClose.subscribe((result) => {
+    drawerRef.afterClose.subscribe(result => {
       if (result?.deleted || result) {
         // Reload teams if team was modified or deleted
         if (orgId) {

@@ -1,16 +1,16 @@
 /**
  * Module Status Badge Component
- * 
+ *
  * Displays module lifecycle status with appropriate badge styling.
  * Uses Angular 20 Signals and modern input() function.
- * 
+ *
  * @author GigHub Development Team
  * @date 2025-12-10
  */
 
 import { Component, input, computed } from '@angular/core';
-import { SHARED_IMPORTS } from '@shared';
 import { ModuleStatus } from '@core/blueprint/modules/module-status.enum';
+import { SHARED_IMPORTS } from '@shared';
 
 /**
  * Badge configuration for each module status
@@ -33,18 +33,14 @@ const STATUS_CONFIG: Record<ModuleStatus, { text: string; status: string; color:
   selector: 'app-module-status-badge',
   standalone: true,
   imports: [SHARED_IMPORTS],
-  template: `
-    <nz-badge 
-      [nzStatus]="badgeStatus()" 
-      [nzText]="statusText()"
-      [ngStyle]="{ color: badgeColor() }">
-    </nz-badge>
-  `,
-  styles: [`
-    :host {
-      display: inline-block;
-    }
-  `]
+  template: ` <nz-badge [nzStatus]="badgeStatus()" [nzText]="statusText()" [ngStyle]="{ color: badgeColor() }"> </nz-badge> `,
+  styles: [
+    `
+      :host {
+        display: inline-block;
+      }
+    `
+  ]
 })
 export class ModuleStatusBadgeComponent {
   /** Module status input (required) */

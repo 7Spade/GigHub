@@ -6,14 +6,8 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { LoggerService } from '@core/services/logger.service';
-import {
-  LogsRepository,
-  LogDocument,
-  CreateLogData,
-  LogLevel,
-  LogCategory,
-  LogQueryOptions
-} from './logs.repository';
+
+import { LogsRepository, LogDocument, CreateLogData, LogLevel, LogCategory, LogQueryOptions } from './logs.repository';
 
 @Injectable({ providedIn: 'root' })
 export class LogsService {
@@ -28,21 +22,13 @@ export class LogsService {
   readonly loading = this._loading.asReadonly();
   readonly error = this._error.asReadonly();
 
-  readonly debugLogs = computed(() => 
-    this._logs().filter(log => log.level === LogLevel.DEBUG)
-  );
+  readonly debugLogs = computed(() => this._logs().filter(log => log.level === LogLevel.DEBUG));
 
-  readonly infoLogs = computed(() =>
-    this._logs().filter(log => log.level === LogLevel.INFO)
-  );
+  readonly infoLogs = computed(() => this._logs().filter(log => log.level === LogLevel.INFO));
 
-  readonly warnLogs = computed(() =>
-    this._logs().filter(log => log.level === LogLevel.WARN)
-  );
+  readonly warnLogs = computed(() => this._logs().filter(log => log.level === LogLevel.WARN));
 
-  readonly errorLogs = computed(() =>
-    this._logs().filter(log => log.level === LogLevel.ERROR)
-  );
+  readonly errorLogs = computed(() => this._logs().filter(log => log.level === LogLevel.ERROR));
 
   readonly logStats = computed(() => {
     const logs = this._logs();

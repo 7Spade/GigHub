@@ -133,7 +133,7 @@ export class OrganizationMembersComponent implements OnInit {
   );
 
   displayMembers = computed(() => this.membersState.data() || []);
-  
+
   readonly organizationName = computed(() => this.workspaceContext.contextLabel());
 
   isOrganizationContext(): boolean {

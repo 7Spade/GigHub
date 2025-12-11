@@ -33,7 +33,7 @@ export class UserLockComponent {
   async submit(): Promise<void> {
     this.f.controls.password.markAsDirty();
     this.f.controls.password.updateValueAndValidity();
-    
+
     if (!this.f.valid) {
       return;
     }
@@ -46,10 +46,7 @@ export class UserLockComponent {
         return;
       }
 
-      await this.firebaseAuth.signInWithEmailAndPassword(
-        currentUser.email,
-        this.f.value.password!
-      );
+      await this.firebaseAuth.signInWithEmailAndPassword(currentUser.email, this.f.value.password!);
 
       this.router.navigate(['dashboard']);
     } catch (error: any) {

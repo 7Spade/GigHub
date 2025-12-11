@@ -1,9 +1,9 @@
 /**
  * Audit Log Data Models
- * 
+ *
  * Firestore persistence models for Audit Log subcollection.
  * Audit logs track all significant actions within a blueprint.
- * 
+ *
  * Collection path: blueprints/{blueprintId}/audit-logs/{logId}
  */
 
@@ -11,74 +11,74 @@ import { Timestamp } from '@angular/fire/firestore';
 
 /**
  * Audit Log Document (Firestore)
- * 
+ *
  * Records an auditable action or event in the system.
  */
 export interface AuditLogDocument {
   /** Document ID (auto-generated) */
   readonly id?: string;
-  
+
   /** Blueprint ID this log belongs to */
   blueprintId: string;
-  
+
   /** Event type (action performed) */
   eventType: AuditEventType;
-  
+
   /** Event category for grouping */
   category: AuditCategory;
-  
+
   /** Severity level */
   severity: AuditSeverity;
-  
+
   /** User who performed the action */
   actorId: string;
-  
+
   /** Actor type (user/system/service) */
   actorType: ActorType;
-  
+
   /** Target resource type */
   resourceType: string;
-  
+
   /** Target resource ID */
   resourceId?: string;
-  
+
   /** Action description */
   action: string;
-  
+
   /** Detailed message */
   message: string;
-  
+
   /** Change details (before/after) */
   changes?: AuditChange[];
-  
+
   /** Additional context */
   context?: AuditContext;
-  
+
   /** Metadata for filtering and analysis */
   metadata?: Record<string, unknown>;
-  
+
   /** IP address of actor */
   ipAddress?: string;
-  
+
   /** User agent */
   userAgent?: string;
-  
+
   /** Request ID for tracing */
   requestId?: string;
-  
+
   /** Timestamp when event occurred */
   timestamp: Timestamp | Date;
-  
+
   /** Status of the action */
   status: AuditStatus;
-  
+
   /** Error details (if failed) */
   error?: AuditError;
 }
 
 /**
  * Audit Event Type
- * 
+ *
  * Standard event types for audit logging.
  */
 export enum AuditEventType {
@@ -89,7 +89,7 @@ export enum AuditEventType {
   BLUEPRINT_RESTORED = 'blueprint.restored',
   BLUEPRINT_PUBLISHED = 'blueprint.published',
   BLUEPRINT_ARCHIVED = 'blueprint.archived',
-  
+
   // Module events
   MODULE_ADDED = 'module.added',
   MODULE_REMOVED = 'module.removed',
@@ -99,32 +99,32 @@ export enum AuditEventType {
   MODULE_STARTED = 'module.started',
   MODULE_STOPPED = 'module.stopped',
   MODULE_ERROR = 'module.error',
-  
+
   // Configuration events
   CONFIG_CREATED = 'config.created',
   CONFIG_UPDATED = 'config.updated',
   CONFIG_ACTIVATED = 'config.activated',
   CONFIG_ARCHIVED = 'config.archived',
-  
+
   // Member events
   MEMBER_ADDED = 'member.added',
   MEMBER_REMOVED = 'member.removed',
   MEMBER_ROLE_CHANGED = 'member.role_changed',
   MEMBER_PERMISSIONS_CHANGED = 'member.permissions_changed',
-  
+
   // Permission events
   PERMISSION_GRANTED = 'permission.granted',
   PERMISSION_REVOKED = 'permission.revoked',
   ROLE_CREATED = 'role.created',
   ROLE_UPDATED = 'role.updated',
   ROLE_DELETED = 'role.deleted',
-  
+
   // Access events
   ACCESS_GRANTED = 'access.granted',
   ACCESS_DENIED = 'access.denied',
   LOGIN = 'access.login',
   LOGOUT = 'access.logout',
-  
+
   // System events
   SYSTEM_ERROR = 'system.error',
   SYSTEM_WARNING = 'system.warning',
@@ -177,50 +177,50 @@ export enum AuditStatus {
 
 /**
  * Audit Change
- * 
+ *
  * Represents a before/after change.
  */
 export interface AuditChange {
   /** Field that changed */
   field: string;
-  
+
   /** Previous value */
   oldValue: unknown;
-  
+
   /** New value */
   newValue: unknown;
-  
+
   /** Change type */
   changeType: 'created' | 'updated' | 'deleted';
 }
 
 /**
  * Audit Context
- * 
+ *
  * Additional context information.
  */
 export interface AuditContext {
   /** Module that triggered the event */
   module?: string;
-  
+
   /** Feature or component */
   feature?: string;
-  
+
   /** Parent resource */
   parentResource?: {
     type: string;
     id: string;
   };
-  
+
   /** Related resources */
   relatedResources?: Array<{
     type: string;
     id: string;
   }>;
-  
+
   /** Session ID */
   sessionId?: string;
-  
+
   /** Geographic location */
   location?: {
     country?: string;
@@ -231,19 +231,19 @@ export interface AuditContext {
 
 /**
  * Audit Error
- * 
+ *
  * Error information when action fails.
  */
 export interface AuditError {
   /** Error code */
   code: string;
-  
+
   /** Error message */
   message: string;
-  
+
   /** Error stack trace */
   stackTrace?: string;
-  
+
   /** Error details */
   details?: Record<string, unknown>;
 }
@@ -278,44 +278,44 @@ export interface CreateAuditLogData {
 export interface AuditLogQueryOptions {
   /** Filter by event type */
   eventType?: AuditEventType | AuditEventType[];
-  
+
   /** Filter by category */
   category?: AuditCategory;
-  
+
   /** Filter by severity */
   severity?: AuditSeverity;
-  
+
   /** Filter by actor */
   actorId?: string;
-  
+
   /** Filter by resource type */
   resourceType?: string;
-  
+
   /** Filter by resource ID */
   resourceId?: string;
-  
+
   /** Filter by status */
   status?: AuditStatus;
-  
+
   /** Start date for time range */
   startDate?: Date;
-  
+
   /** End date for time range */
   endDate?: Date;
-  
+
   /** Limit results */
   limit?: number;
-  
+
   /** Pagination cursor */
   cursor?: string;
-  
+
   /** Sort order */
   sortOrder?: 'asc' | 'desc';
 }
 
 /**
  * Audit Log Summary
- * 
+ *
  * Statistical summary of audit logs.
  */
 export interface AuditLogSummary {

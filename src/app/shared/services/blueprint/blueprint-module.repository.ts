@@ -1,9 +1,9 @@
 /**
  * Blueprint Module Repository
- * 
+ *
  * Manages CRUD operations for blueprint module subcollection in Firestore.
  * Collection path: blueprints/{blueprintId}/modules/{moduleId}
- * 
+ *
  * @author GigHub Development Team
  * @date 2025-12-10
  */
@@ -27,7 +27,7 @@ import {
   QueryConstraint,
   writeBatch
 } from '@angular/fire/firestore';
-import { Observable, from, map, catchError, of } from 'rxjs';
+import { ModuleStatus } from '@core/blueprint/modules/module-status.enum';
 import { LoggerService } from '@core/services/logger.service';
 import {
   BlueprintModuleDocument,
@@ -36,11 +36,11 @@ import {
   ModuleStatusSummary,
   BatchModuleOperationResult
 } from '@shared/models/blueprint-module.model';
-import { ModuleStatus } from '@core/blueprint/modules/module-status.enum';
+import { Observable, from, map, catchError, of } from 'rxjs';
 
 /**
  * Blueprint Module Repository Service
- * 
+ *
  * Handles all Firestore operations for blueprint modules.
  */
 @Injectable({
@@ -84,11 +84,15 @@ export class BlueprintModuleRepository {
       configuredBy: data.configuredBy,
       configuredAt: data.configuredAt instanceof Timestamp ? data.configuredAt.toDate() : data.configuredAt,
       updatedAt: data.updatedAt instanceof Timestamp ? data.updatedAt.toDate() : data.updatedAt,
-      lastActivatedAt: data.lastActivatedAt 
-        ? (data.lastActivatedAt instanceof Timestamp ? data.lastActivatedAt.toDate() : data.lastActivatedAt)
+      lastActivatedAt: data.lastActivatedAt
+        ? data.lastActivatedAt instanceof Timestamp
+          ? data.lastActivatedAt.toDate()
+          : data.lastActivatedAt
         : null,
       lastDeactivatedAt: data.lastDeactivatedAt
-        ? (data.lastDeactivatedAt instanceof Timestamp ? data.lastDeactivatedAt.toDate() : data.lastDeactivatedAt)
+        ? data.lastDeactivatedAt instanceof Timestamp
+          ? data.lastDeactivatedAt.toDate()
+          : data.lastDeactivatedAt
         : null
     };
   }
@@ -97,17 +101,10 @@ export class BlueprintModuleRepository {
    * Find all modules for a blueprint
    */
   findByBlueprintId(blueprintId: string): Observable<BlueprintModuleDocument[]> {
-    const q = query(
-      this.getModulesCollection(blueprintId),
-      orderBy('order', 'asc')
-    );
+    const q = query(this.getModulesCollection(blueprintId), orderBy('order', 'asc'));
 
     return from(getDocs(q)).pipe(
-      map(snapshot => 
-        snapshot.docs.map(docSnap => 
-          this.toModuleDocument(docSnap.data(), docSnap.id, blueprintId)
-        )
-      ),
+      map(snapshot => snapshot.docs.map(docSnap => this.toModuleDocument(docSnap.data(), docSnap.id, blueprintId))),
       catchError(error => {
         this.logger.error('[BlueprintModuleRepository]', 'findByBlueprintId failed', error as Error);
         return of([]);
@@ -119,18 +116,10 @@ export class BlueprintModuleRepository {
    * Find enabled modules only
    */
   findEnabledModules(blueprintId: string): Observable<BlueprintModuleDocument[]> {
-    const q = query(
-      this.getModulesCollection(blueprintId),
-      where('enabled', '==', true),
-      orderBy('order', 'asc')
-    );
+    const q = query(this.getModulesCollection(blueprintId), where('enabled', '==', true), orderBy('order', 'asc'));
 
     return from(getDocs(q)).pipe(
-      map(snapshot =>
-        snapshot.docs.map(docSnap =>
-          this.toModuleDocument(docSnap.data(), docSnap.id, blueprintId)
-        )
-      ),
+      map(snapshot => snapshot.docs.map(docSnap => this.toModuleDocument(docSnap.data(), docSnap.id, blueprintId))),
       catchError(error => {
         this.logger.error('[BlueprintModuleRepository]', 'findEnabledModules failed', error as Error);
         return of([]);
@@ -143,11 +132,7 @@ export class BlueprintModuleRepository {
    */
   findById(blueprintId: string, moduleId: string): Observable<BlueprintModuleDocument | null> {
     return from(getDoc(this.getModuleDoc(blueprintId, moduleId))).pipe(
-      map(snapshot =>
-        snapshot.exists()
-          ? this.toModuleDocument(snapshot.data(), snapshot.id, blueprintId)
-          : null
-      ),
+      map(snapshot => (snapshot.exists() ? this.toModuleDocument(snapshot.data(), snapshot.id, blueprintId) : null)),
       catchError(error => {
         this.logger.error('[BlueprintModuleRepository]', 'findById failed', error as Error);
         return of(null);
@@ -159,10 +144,7 @@ export class BlueprintModuleRepository {
    * Find module by type
    */
   findByType(blueprintId: string, moduleType: string): Observable<BlueprintModuleDocument | null> {
-    const q = query(
-      this.getModulesCollection(blueprintId),
-      where('moduleType', '==', moduleType)
-    );
+    const q = query(this.getModulesCollection(blueprintId), where('moduleType', '==', moduleType));
 
     return from(getDocs(q)).pipe(
       map(snapshot => {
@@ -207,7 +189,7 @@ export class BlueprintModuleRepository {
       if (snapshot.exists()) {
         return this.toModuleDocument(snapshot.data(), snapshot.id, blueprintId);
       }
-      
+
       // Fallback
       return this.toModuleDocument(docData, docRef.id, blueprintId);
     } catch (error: any) {
@@ -310,11 +292,7 @@ export class BlueprintModuleRepository {
   /**
    * Batch enable/disable modules
    */
-  async batchUpdateEnabled(
-    blueprintId: string,
-    moduleIds: string[],
-    enabled: boolean
-  ): Promise<BatchModuleOperationResult> {
+  async batchUpdateEnabled(blueprintId: string, moduleIds: string[], enabled: boolean): Promise<BatchModuleOperationResult> {
     const batch = writeBatch(this.firestore);
     const result: BatchModuleOperationResult = {
       success: [],
@@ -333,7 +311,7 @@ export class BlueprintModuleRepository {
 
       await batch.commit();
       result.success = moduleIds;
-      
+
       this.logger.info(
         '[BlueprintModuleRepository]',
         `Batch update completed: ${moduleIds.length} modules ${enabled ? 'enabled' : 'disabled'}`
@@ -352,7 +330,7 @@ export class BlueprintModuleRepository {
   async getStatusSummary(blueprintId: string): Promise<ModuleStatusSummary> {
     try {
       const snapshot = await getDocs(this.getModulesCollection(blueprintId));
-      
+
       const summary: ModuleStatusSummary = {
         total: snapshot.size,
         enabled: 0,
@@ -369,7 +347,7 @@ export class BlueprintModuleRepository {
 
       snapshot.docs.forEach(doc => {
         const data = doc.data();
-        
+
         if (data.enabled) {
           summary.enabled++;
         } else {
@@ -399,10 +377,7 @@ export class BlueprintModuleRepository {
    */
   async exists(blueprintId: string, moduleType: string): Promise<boolean> {
     try {
-      const q = query(
-        this.getModulesCollection(blueprintId),
-        where('moduleType', '==', moduleType)
-      );
+      const q = query(this.getModulesCollection(blueprintId), where('moduleType', '==', moduleType));
       const snapshot = await getDocs(q);
       return !snapshot.empty;
     } catch (error: any) {

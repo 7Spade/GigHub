@@ -1,9 +1,9 @@
 /**
  * Logs Repository
- * 
+ *
  * Data access layer for log management with Firestore.
  * Collection path: blueprints/{blueprintId}/logs/{logId}
- * 
+ *
  * @author GigHub Development Team
  * @date 2025-12-11
  */
@@ -26,8 +26,8 @@ import {
   CollectionReference,
   QueryConstraint
 } from '@angular/fire/firestore';
-import { Observable, from, map, catchError, of } from 'rxjs';
 import { LoggerService } from '@core/services/logger.service';
+import { Observable, from, map, catchError, of } from 'rxjs';
 
 export enum LogLevel {
   DEBUG = 'DEBUG',
@@ -101,14 +101,17 @@ export class LogsRepository {
       const q = query(logsCollection, orderBy('createdAt', 'desc'), limit(1000));
 
       return from(getDocs(q)).pipe(
-        map(snapshot => 
-          snapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data(),
-            timestamp: doc.data()['timestamp']?.toDate() || new Date(),
-            createdAt: doc.data()['createdAt']?.toDate() || new Date(),
-            updatedAt: doc.data()['updatedAt']?.toDate() || new Date()
-          } as LogDocument))
+        map(snapshot =>
+          snapshot.docs.map(
+            doc =>
+              ({
+                id: doc.id,
+                ...doc.data(),
+                timestamp: doc.data()['timestamp']?.toDate() || new Date(),
+                createdAt: doc.data()['createdAt']?.toDate() || new Date(),
+                updatedAt: doc.data()['updatedAt']?.toDate() || new Date()
+              }) as LogDocument
+          )
         ),
         catchError(err => {
           this.logger.error('Failed to fetch logs', err);
@@ -175,13 +178,16 @@ export class LogsRepository {
       const q = query(logsCollection, ...constraints);
       const snapshot = await getDocs(q);
 
-      let results = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        timestamp: doc.data()['timestamp']?.toDate() || new Date(),
-        createdAt: doc.data()['createdAt']?.toDate() || new Date(),
-        updatedAt: doc.data()['updatedAt']?.toDate() || new Date()
-      } as LogDocument));
+      let results = snapshot.docs.map(
+        doc =>
+          ({
+            id: doc.id,
+            ...doc.data(),
+            timestamp: doc.data()['timestamp']?.toDate() || new Date(),
+            createdAt: doc.data()['createdAt']?.toDate() || new Date(),
+            updatedAt: doc.data()['updatedAt']?.toDate() || new Date()
+          }) as LogDocument
+      );
 
       if (options.searchText) {
         const searchLower = options.searchText.toLowerCase();

@@ -16,9 +16,10 @@
 import { CommonModule } from '@angular/common';
 import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
 import { ContextType, Team, Bot } from '@core';
-import { WorkspaceContextService } from '../../../shared/services/workspace-context.service';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzMenuModule } from 'ng-zorro-antd/menu';
+
+import { WorkspaceContextService } from '../../../shared/services/workspace-context.service';
 
 @Component({
   selector: 'header-context-switcher',

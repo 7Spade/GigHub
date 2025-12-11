@@ -1,18 +1,18 @@
 /**
  * AsyncState Utility for Angular 20 Signals
- * 
+ *
  * Provides a unified pattern for managing async operations with Signals.
  * Based on Angular 20 best practices and PendingTasks pattern.
- * 
+ *
  * @example
  * ```typescript
  * const blueprintsState = createAsyncState<Blueprint[]>([]);
- * 
+ *
  * // Load data
  * await blueprintsState.load(
  *   firstValueFrom(this.service.getBlueprints())
  * );
- * 
+ *
  * // Use in template
  * @if (blueprintsState.loading()) {
  *   <nz-spin />
@@ -64,13 +64,13 @@ export interface AsyncStateManager<T> {
 
 /**
  * Create an async state manager with Signals
- * 
+ *
  * This helper provides a unified pattern for managing async operations:
  * - Automatic loading/error/success state management
  * - Type-safe data access
  * - Computed signals for derived state
  * - Clean API for components
- * 
+ *
  * @param initialData - Initial data value (default: null)
  * @returns AsyncStateManager with load/reset methods and computed signals
  */
@@ -94,32 +94,32 @@ export function createAsyncState<T>(initialData: T | null = null): AsyncStateMan
    */
   const load = async (promise: Promise<T>): Promise<void> => {
     // Set loading state
-    _state.update(s => ({ 
-      ...s, 
-      state: 'loading', 
-      error: null 
+    _state.update(s => ({
+      ...s,
+      state: 'loading',
+      error: null
     }));
 
     try {
       const result = await promise;
-      
+
       // Set success state with data
-      _state.update(s => ({ 
-        ...s, 
-        data: result, 
+      _state.update(s => ({
+        ...s,
+        data: result,
         state: 'success',
-        error: null 
+        error: null
       }));
     } catch (err) {
       // Set error state
       const error = err instanceof Error ? err : new Error(String(err));
-      
-      _state.update(s => ({ 
-        ...s, 
-        state: 'error', 
-        error 
+
+      _state.update(s => ({
+        ...s,
+        state: 'error',
+        error
       }));
-      
+
       // Re-throw for caller to handle if needed
       throw error;
     }
@@ -181,7 +181,7 @@ export interface AsyncArrayStateManager<T> extends AsyncStateManager<T[]> {
  */
 export function createAsyncArrayState<T>(initialData: T[] = []): AsyncArrayStateManager<T> {
   const base = createAsyncState<T[]>(initialData);
-  
+
   const add = (item: T): void => {
     const current = base.data() || [];
     base.setData([...current, item]);
@@ -194,9 +194,7 @@ export function createAsyncArrayState<T>(initialData: T[] = []): AsyncArrayState
 
   const update = (predicate: (item: T) => boolean, updater: (item: T) => T): void => {
     const current = base.data() || [];
-    base.setData(
-      current.map(item => predicate(item) ? updater(item) : item)
-    );
+    base.setData(current.map(item => (predicate(item) ? updater(item) : item)));
   };
 
   const length = computed(() => base.data()?.length || 0);

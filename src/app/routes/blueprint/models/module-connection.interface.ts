@@ -1,11 +1,11 @@
 /**
  * Module Connection Interface
  * 模組連接介面 - 定義模組間的事件通訊連接
- * 
+ *
  * @description
  * 此介面定義了藍圖設計器中模組之間的連接關係。
  * 每個連接代表一個事件流，從源模組到目標模組。
- * 
+ *
  * @example
  * ```typescript
  * const connection: ModuleConnection = {
@@ -26,85 +26,90 @@
  * ```
  */
 export interface ModuleConnection {
-  /** 
+  /**
    * 連接唯一識別碼
    * Unique identifier for the connection
    */
   id: string;
 
-  /** 
+  /**
    * 來源模組資訊
    * Source module information
    */
   source: {
-    /** 
+    /**
      * 來源模組 ID
      * Source module ID
      */
     moduleId: string;
 
-    /** 
+    /**
      * 輸出端口 (事件類型)
      * Output port (event type)
+     *
      * @optional
      */
     portId?: string;
 
-    /** 
+    /**
      * 端點位置 (用於 SVG 路徑計算)
      * Endpoint position (for SVG path calculation)
      */
     position: { x: number; y: number };
   };
 
-  /** 
+  /**
    * 目標模組資訊
    * Target module information
    */
   target: {
-    /** 
+    /**
      * 目標模組 ID
      * Target module ID
      */
     moduleId: string;
 
-    /** 
+    /**
      * 輸入端口 (事件處理器)
      * Input port (event handler)
+     *
      * @optional
      */
     portId?: string;
 
-    /** 
+    /**
      * 端點位置 (用於 SVG 路徑計算)
      * Endpoint position (for SVG path calculation)
      */
     position: { x: number; y: number };
   };
 
-  /** 
+  /**
    * 連接傳遞的事件類型
    * Event type transmitted through this connection
    */
   eventType: string;
 
-  /** 
+  /**
    * 連接狀態
    * Connection status
+   *
    * @default 'active'
    */
   status?: 'active' | 'inactive' | 'error';
 
-  /** 
+  /**
    * 連接標籤 (可選顯示在連接線上)
    * Connection label (optional, displayed on the connection line)
+   *
    * @optional
    */
   label?: string;
 
-  /** 
+  /**
    * 連接配置 (擴展屬性)
    * Connection configuration (extended properties)
+   *
    * @optional
    */
   config?: Record<string, unknown>;
@@ -113,7 +118,7 @@ export interface ModuleConnection {
 /**
  * Connection Create DTO
  * 建立連接的資料傳輸物件
- * 
+ *
  * @description
  * 用於建立新連接時傳遞的最小必要資料
  */

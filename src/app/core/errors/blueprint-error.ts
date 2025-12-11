@@ -7,7 +7,7 @@ export class BlueprintError extends Error {
     message: string,
     public code: string,
     public severity: 'low' | 'medium' | 'high' | 'critical',
-    public recoverable: boolean = true,
+    public recoverable = true,
     public context?: Record<string, unknown>
   ) {
     super(message);

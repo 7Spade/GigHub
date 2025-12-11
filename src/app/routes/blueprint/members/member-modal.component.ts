@@ -1,15 +1,14 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { NZ_MODAL_DATA, NzModalRef } from 'ng-zorro-antd/modal';
-import { NzMessageService } from 'ng-zorro-antd/message';
-import { SHARED_IMPORTS } from '@shared';
 import { BlueprintMember, BlueprintRole, BusinessRole, LoggerService, FirebaseAuthService } from '@core';
-import { BlueprintMemberRepository } from '@shared';
+import { SHARED_IMPORTS, BlueprintMemberRepository } from '@shared';
+import { NzMessageService } from 'ng-zorro-antd/message';
+import { NZ_MODAL_DATA, NzModalRef } from 'ng-zorro-antd/modal';
 
 /**
  * Member Modal Component
  * 成員模態元件 - 新增/編輯成員
- * 
+ *
  * Following Occam's Razor: Simple form for member management
  */
 @Component({
@@ -21,83 +20,49 @@ import { BlueprintMemberRepository } from '@shared';
       <nz-form-item>
         <nz-form-label [nzSpan]="6" nzRequired>帳號 ID</nz-form-label>
         <nz-form-control [nzSpan]="16" nzErrorTip="請輸入帳號 ID">
-          <input
-            nz-input
-            formControlName="accountId"
-            placeholder="輸入 Firebase Auth UID"
-            [disabled]="isEdit"
-            />
+          <input nz-input formControlName="accountId" placeholder="輸入 Firebase Auth UID" [disabled]="isEdit" />
         </nz-form-control>
       </nz-form-item>
-    
+
       <nz-form-item>
         <nz-form-label [nzSpan]="6" nzRequired>系統角色</nz-form-label>
         <nz-form-control [nzSpan]="16" nzErrorTip="請選擇系統角色">
           <nz-radio-group formControlName="role">
-            <label nz-radio [nzValue]="BlueprintRole.VIEWER">
-              檢視者（唯讀）
-            </label>
-            <label nz-radio [nzValue]="BlueprintRole.CONTRIBUTOR">
-              貢獻者（編輯）
-            </label>
-            <label nz-radio [nzValue]="BlueprintRole.MAINTAINER">
-              維護者（完整權限）
-            </label>
+            <label nz-radio [nzValue]="BlueprintRole.VIEWER"> 檢視者（唯讀） </label>
+            <label nz-radio [nzValue]="BlueprintRole.CONTRIBUTOR"> 貢獻者（編輯） </label>
+            <label nz-radio [nzValue]="BlueprintRole.MAINTAINER"> 維護者（完整權限） </label>
           </nz-radio-group>
         </nz-form-control>
       </nz-form-item>
-    
+
       <nz-form-item>
         <nz-form-label [nzSpan]="6">業務角色</nz-form-label>
         <nz-form-control [nzSpan]="16">
-          <nz-select
-            formControlName="businessRole"
-            nzPlaceHolder="選擇業務角色（選填）"
-            nzAllowClear
-            >
+          <nz-select formControlName="businessRole" nzPlaceHolder="選擇業務角色（選填）" nzAllowClear>
             @for (role of businessRoles; track role) {
-              <nz-option
-                [nzLabel]="role.label"
-                [nzValue]="role.value"
-              ></nz-option>
+              <nz-option [nzLabel]="role.label" [nzValue]="role.value"></nz-option>
             }
           </nz-select>
         </nz-form-control>
       </nz-form-item>
-    
+
       <nz-form-item>
         <nz-form-label [nzSpan]="6">外部成員</nz-form-label>
         <nz-form-control [nzSpan]="16">
-          <label nz-checkbox formControlName="isExternal">
-            標記為外部成員（承包商、顧問等）
-          </label>
+          <label nz-checkbox formControlName="isExternal"> 標記為外部成員（承包商、顧問等） </label>
         </nz-form-control>
       </nz-form-item>
-    
+
       <nz-form-item>
         <nz-form-control [nzOffset]="6" [nzSpan]="16">
-          <button
-            nz-button
-            nzType="primary"
-            type="submit"
-            [nzLoading]="submitting()"
-            [disabled]="!form.valid"
-            >
+          <button nz-button nzType="primary" type="submit" [nzLoading]="submitting()" [disabled]="!form.valid">
             {{ isEdit ? '更新' : '新增' }}
           </button>
-          <button
-            nz-button
-            type="button"
-            class="ml-sm"
-            (click)="cancel()"
-            [disabled]="submitting()"
-            >
-            取消
-          </button>
+          <button nz-button type="button" class="ml-sm" (click)="cancel()" [disabled]="submitting()"> 取消 </button>
         </nz-form-control>
       </nz-form-item>
     </form>
-    `
+  `
 })
 export class MemberModalComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
@@ -175,15 +140,11 @@ export class MemberModalComponent implements OnInit {
 
       if (this.isEdit) {
         // Update existing member
-        await this.memberRepository.updateMember(
-          this.data.blueprintId,
-          this.data.member!.id,
-          {
-            role: formValue.role,
-            businessRole: formValue.businessRole,
-            isExternal: formValue.isExternal
-          }
-        );
+        await this.memberRepository.updateMember(this.data.blueprintId, this.data.member!.id, {
+          role: formValue.role,
+          businessRole: formValue.businessRole,
+          isExternal: formValue.isExternal
+        });
         this.message.success('成員已更新');
       } else {
         // Add new member

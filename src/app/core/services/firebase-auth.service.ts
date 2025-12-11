@@ -1,14 +1,14 @@
 import { Injectable, inject } from '@angular/core';
-import { Router } from '@angular/router';
 import { Auth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, User, authState } from '@angular/fire/auth';
+import { Router } from '@angular/router';
 import { DA_SERVICE_TOKEN, ITokenService } from '@delon/auth';
 import { SettingsService } from '@delon/theme';
-import { Observable, map } from 'rxjs';
 import { AccountRepository } from '@shared';
+import { Observable, map } from 'rxjs';
 
 /**
  * Firebase Authentication Service
- * 
+ *
  * This service bridges Firebase Auth with @delon/auth's token service (DA_SERVICE_TOKEN)
  * and @delon/theme's SettingsService for user information.
  * It provides methods for email/password authentication and syncs the Firebase user
@@ -79,7 +79,7 @@ export class FirebaseAuthService {
   async signUpWithEmailAndPassword(email: string, password: string): Promise<User> {
     try {
       const credential = await createUserWithEmailAndPassword(this.auth, email, password);
-      
+
       // Create account document in Firestore
       await this.accountRepository.create({
         uid: credential.user.uid,
@@ -87,7 +87,7 @@ export class FirebaseAuthService {
         email: credential.user.email || email,
         avatar_url: credential.user.photoURL || null
       });
-      
+
       await this.syncUserToServices(credential.user);
       return credential.user;
     } catch (error: any) {
@@ -117,10 +117,10 @@ export class FirebaseAuthService {
     try {
       // Get the ID token from Firebase
       const idToken = await user.getIdToken();
-      
+
       // Extract user name with improved fallback logic
       const displayName = this.getDisplayName(user);
-      
+
       // Set the token in Delon's token service
       // The token format follows @delon/auth's ITokenModel
       this.tokenService.set({
@@ -146,7 +146,7 @@ export class FirebaseAuthService {
 
   /**
    * Get display name for user with improved fallback logic
-   * 
+   *
    * Priority: displayName (if not 'user') > email prefix (if not 'user') > full email > UID prefix
    * This prevents "USER" from appearing in the UI
    */
@@ -185,7 +185,7 @@ export class FirebaseAuthService {
    */
   private getErrorMessage(error: any): string {
     const errorCode = error.code || '';
-    
+
     switch (errorCode) {
       case 'auth/invalid-email':
         return 'validation.email.wrong-format';

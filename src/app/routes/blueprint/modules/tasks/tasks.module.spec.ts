@@ -1,18 +1,19 @@
 /**
  * Tasks Module Unit Tests
- * 
+ *
  * Tests for Tasks Module lifecycle and integration.
- * 
+ *
  * @author GigHub Development Team
  * @date 2025-12-10
  */
 
 import { TestBed } from '@angular/core/testing';
-import { TasksModule } from './tasks.module';
-import { TasksService } from './tasks.service';
-import { TasksRepository } from './tasks.repository';
-import { ModuleStatus } from '@core/blueprint/modules/module-status.enum';
 import type { IExecutionContext } from '@core/blueprint/context/execution-context.interface';
+import { ModuleStatus } from '@core/blueprint/modules/module-status.enum';
+
+import { TasksModule } from './tasks.module';
+import { TasksRepository } from './tasks.repository';
+import { TasksService } from './tasks.service';
 
 describe('TasksModule', () => {
   let module: TasksModule;

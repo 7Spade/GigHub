@@ -11,8 +11,8 @@ import {
   DocumentReference,
   Timestamp
 } from '@angular/fire/firestore';
-import { Observable, from, map, catchError, of } from 'rxjs';
 import { Account, LoggerService } from '@core';
+import { Observable, from, map, catchError, of } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
