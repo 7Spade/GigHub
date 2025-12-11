@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit, effect } from '@angular/core';
 import { ContextType, TeamMember, TeamRole, OrganizationMember } from '@core';
-import { SHARED_IMPORTS, WorkspaceContextService, TeamMemberRepository, OrganizationMemberRepository, BreadcrumbService } from '@shared';
+import { SHARED_IMPORTS, WorkspaceContextService, TeamMemberRepository, OrganizationMemberRepository } from '@shared';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
 import { NzModalService } from 'ng-zorro-antd/modal';
@@ -14,10 +14,32 @@ import { FormsModule } from '@angular/forms';
   standalone: true,
   imports: [SHARED_IMPORTS, NzAlertModule, NzEmptyModule, NzSelectModule, NzSpaceModule, FormsModule],
   template: `
-    <page-header [title]="'團隊成員'" [content]="headerContent"></page-header>
+    <page-header [title]="'團隊成員'" [content]="headerContent" [breadcrumb]="breadcrumb"></page-header>
     
     <ng-template #headerContent>
       <div>檢視並管理目前團隊的成員。</div>
+    </ng-template>
+    
+    <ng-template #breadcrumb>
+      <nz-breadcrumb>
+        <nz-breadcrumb-item>
+          <a routerLink="/">
+            <span nz-icon nzType="home"></span>
+            首頁
+          </a>
+        </nz-breadcrumb-item>
+        @if (currentTeamId()) {
+          <nz-breadcrumb-item>
+            <span nz-icon nzType="team"></span>
+            {{ getOrganizationName() }}
+          </nz-breadcrumb-item>
+          <nz-breadcrumb-item>
+            <span nz-icon nzType="usergroup-add"></span>
+            {{ workspaceContext.contextLabel() }}
+          </nz-breadcrumb-item>
+        }
+        <nz-breadcrumb-item>成員管理</nz-breadcrumb-item>
+      </nz-breadcrumb>
     </ng-template>
 
     @if (!isTeamContext()) {
@@ -129,10 +151,9 @@ import { FormsModule } from '@angular/forms';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TeamMembersComponent implements OnInit {
-  private readonly workspaceContext = inject(WorkspaceContextService);
+  readonly workspaceContext = inject(WorkspaceContextService);
   private readonly memberRepository = inject(TeamMemberRepository);
   private readonly orgMemberRepository = inject(OrganizationMemberRepository);
-  private readonly breadcrumbService = inject(BreadcrumbService);
   private readonly modal = inject(NzModalService);
   private readonly message = inject(NzMessageService);
 
@@ -153,33 +174,14 @@ export class TeamMembersComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // Set breadcrumbs
-    const teamName = this.workspaceContext.contextLabel();
-    const orgName = this.getOrganizationName();
-    const teamId = this.currentTeamId();
-    
-    if (teamId) {
-      this.breadcrumbService.setBreadcrumbs([
-        { label: '首頁', url: '/', icon: 'home' },
-        { label: orgName, url: null, icon: 'team' },
-        { label: teamName, url: null, icon: 'usergroup-add' },
-        { label: '成員管理', url: null }
-      ]);
-    } else {
-      this.breadcrumbService.setBreadcrumbs([
-        { label: '首頁', url: '/', icon: 'home' },
-        { label: '成員管理', url: null }
-      ]);
-    }
-    
     // Load members when component initializes
-    const teamId2 = this.currentTeamId();
-    if (teamId2) {
-      this.loadMembers(teamId2);
+    const teamId = this.currentTeamId();
+    if (teamId) {
+      this.loadMembers(teamId);
     }
   }
   
-  private getOrganizationName(): string {
+  getOrganizationName(): string {
     const teams = this.workspaceContext.teams();
     const currentTeam = teams.find(t => t.id === this.currentTeamId());
     if (currentTeam) {

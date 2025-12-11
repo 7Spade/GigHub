@@ -234,10 +234,29 @@ import { BlueprintService } from '@shared';
           <!-- Members Tab -->
           <nz-tab nzTitle="成員">
             <ng-template nz-tab>
-              <button nz-button nzType="link" (click)="navigateToMembers()">
-                <span nz-icon nzType="arrow-right"></span>
-                前往成員管理頁面
-              </button>
+              @if (blueprint()?.id) {
+                <nz-card nzTitle="藍圖成員" [nzExtra]="membersExtra" class="mb-md">
+                  <ng-template #membersExtra>
+                    <button nz-button nzType="primary" (click)="navigateToMembers()">
+                      <span nz-icon nzType="arrow-right"></span>
+                      前往完整管理頁面
+                    </button>
+                  </ng-template>
+                  
+                  <nz-alert
+                    nzType="info"
+                    nzShowIcon
+                    nzMessage="藍圖成員管理"
+                    nzDescription="藍圖成員包含參與此藍圖的組織成員和組織團隊。點擊上方按鈕可前往完整的成員管理頁面進行新增、編輯等操作。"
+                    class="mb-md"
+                  />
+                  
+                  <p class="text-grey">
+                    <span nz-icon nzType="team"></span>
+                    此藍圖的成員來自組織成員和團隊，擁有不同的權限和角色。
+                  </p>
+                </nz-card>
+              }
             </ng-template>
           </nz-tab>
 
