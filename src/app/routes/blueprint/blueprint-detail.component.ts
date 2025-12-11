@@ -13,6 +13,7 @@ import { NzTagModule } from 'ng-zorro-antd/tag';
 import { SHARED_IMPORTS, createAsyncState } from '@shared';
 import { Blueprint, LoggerService } from '@core';
 import { BlueprintService } from '@shared';
+import { BlueprintMembersComponent } from './members/blueprint-members.component';
 
 /**
  * Blueprint Detail Component
@@ -28,7 +29,7 @@ import { BlueprintService } from '@shared';
 @Component({
   selector: 'app-blueprint-detail',
   standalone: true,
-  imports: [SHARED_IMPORTS, NzStatisticModule, NzResultModule, NzDescriptionsModule, NzEmptyModule, NzSpaceModule, NzTabsModule, NzTagModule, DatePipe],
+  imports: [SHARED_IMPORTS, NzStatisticModule, NzResultModule, NzDescriptionsModule, NzEmptyModule, NzSpaceModule, NzTabsModule, NzTagModule, DatePipe, BlueprintMembersComponent],
   template: `
     <page-header
       [title]="blueprint()?.name || '藍圖詳情'"
@@ -234,10 +235,7 @@ import { BlueprintService } from '@shared';
           <!-- Members Tab -->
           <nz-tab nzTitle="成員">
             <ng-template nz-tab>
-              <button nz-button nzType="link" (click)="navigateToMembers()">
-                <span nz-icon nzType="arrow-right"></span>
-                前往成員管理頁面
-              </button>
+              <app-blueprint-members [blueprintId]="blueprint()!.id" />
             </ng-template>
           </nz-tab>
 
