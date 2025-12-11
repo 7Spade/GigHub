@@ -178,21 +178,36 @@ export class BlueprintListComponent implements OnInit {
       width: '150px'
     },
     {
+      title: '啟用模組',
+      index: 'enabledModules',
+      width: '120px',
+      format: (item: Blueprint) => item.enabledModules ? `${item.enabledModules.length}/5` : '0/5'
+    },
+    {
       title: '操作',
-      width: '180px',
+      width: '220px',
       buttons: [
         {
           text: '檢視',
+          icon: 'eye',
           type: 'link',
           click: (record: STData) => this.view(record)
         },
         {
+          text: '設計',
+          icon: 'block',
+          type: 'link',
+          click: (record: STData) => this.design(record)
+        },
+        {
           text: '編輯',
+          icon: 'edit',
           type: 'link',
           click: (record: STData) => this.edit(record)
         },
         {
           text: '刪除',
+          icon: 'delete',
           type: 'del',
           pop: {
             title: '確定要刪除嗎?',
@@ -319,6 +334,15 @@ export class BlueprintListComponent implements OnInit {
     const blueprint = record as unknown as Blueprint;
     // Navigate relative to current route (preserves /blueprints/user or /blueprints/organization)
     this.router.navigate([blueprint.id], { relativeTo: this.route });
+  }
+
+  /**
+   * Open blueprint designer
+   * 開啟藍圖設計器
+   */
+  design(record: STData): void {
+    const blueprint = record as unknown as Blueprint;
+    this.router.navigate([blueprint.id, 'designer'], { relativeTo: this.route });
   }
 
   /**
