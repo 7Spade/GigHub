@@ -1,18 +1,17 @@
-import { CdkDragDrop, DragDropModule, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
+import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
 import { Component, OnInit, inject, signal, computed, ChangeDetectionStrategy, ElementRef, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Blueprint, LoggerService, ModuleType } from '@core';
+import { BlueprintService, DependencyValidatorService, DependencyValidationResult } from '@core/blueprint/services';
 import { SHARED_IMPORTS } from '@shared';
-import { BlueprintService } from '@core/blueprint/services';
 import { NzDrawerModule } from 'ng-zorro-antd/drawer';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
 import { NzFormModule } from 'ng-zorro-antd/form';
 import { NzMessageService } from 'ng-zorro-antd/message';
 
 import { ConnectionLayerComponent, ValidationAlertsComponent } from './components';
-import { ModuleConnection, CreateConnectionDto } from './models';
-import { DependencyValidatorService, DependencyValidationResult } from '@core/blueprint/services';
+import { ModuleConnection } from './models';
 
 /**
  * Canvas Module Interface
@@ -24,7 +23,7 @@ interface CanvasModule {
   name: string;
   position: { x: number; y: number };
   enabled: boolean;
-  config: Record<string, any>;
+  config: Record<string, unknown>;
   dependencies: string[];
 }
 
@@ -559,14 +558,14 @@ export class BlueprintDesignerComponent implements OnInit {
    * Handle drag start event
    * 處理拖曳開始事件
    */
-  onDragStart(module: any): void {
+  onDragStart(module: { type: string; name: string; icon: string }): void {
     this.logger.debug('[BlueprintDesigner]', 'Drag started', { module });
   }
 
   /**
    * Handle drop event on canvas
    * 處理放置事件
-   * 
+   *
    * ✅ FIX: Enhanced to properly handle drops from palette to canvas
    */
   onDrop(event: CdkDragDrop<CanvasModule[]>): void {
@@ -575,29 +574,29 @@ export class BlueprintDesignerComponent implements OnInit {
       const modules = [...this.canvasModules()];
       moveItemInArray(modules, event.previousIndex, event.currentIndex);
       this.canvasModules.set(modules);
-      this.logger.debug('[BlueprintDesigner]', 'Module reordered', { 
-        fromIndex: event.previousIndex, 
-        toIndex: event.currentIndex 
+      this.logger.debug('[BlueprintDesigner]', 'Module reordered', {
+        fromIndex: event.previousIndex,
+        toIndex: event.currentIndex
       });
     } else {
       // Add new module from palette to canvas
       const moduleData = event.item.data;
-      
+
       // Calculate position relative to canvas container
       let x = 50; // Default position
       let y = 50;
-      
+
       if (this.canvasElement && event.dropPoint) {
         const canvas = this.canvasElement.nativeElement;
         const rect = canvas.getBoundingClientRect();
         x = event.dropPoint.x - rect.left + canvas.scrollLeft;
         y = event.dropPoint.y - rect.top + canvas.scrollTop;
-        
+
         // Adjust for drag offset to center the module at drop point
         x = Math.max(0, x - 100); // Center horizontally (module width 200px / 2)
-        y = Math.max(0, y - 30);  // Center vertically
+        y = Math.max(0, y - 30); // Center vertically
       }
-      
+
       const newModule: CanvasModule = {
         id: `module-${Date.now()}`,
         type: moduleData.type,
@@ -610,11 +609,11 @@ export class BlueprintDesignerComponent implements OnInit {
 
       this.canvasModules.update(modules => [...modules, newModule]);
       this.message.success(`已新增 ${newModule.name}`);
-      this.logger.info('[BlueprintDesigner]', 'Module added from palette', { 
+      this.logger.info('[BlueprintDesigner]', 'Module added from palette', {
         module: newModule,
         position: { x, y }
       });
-      
+
       // ✅ Task 2: Run validation after adding module
       this.runValidation();
     }
@@ -881,7 +880,7 @@ export class BlueprintDesignerComponent implements OnInit {
    * Handle global mouse up (finish or cancel connection)
    * 處理全域滑鼠放開 (完成或取消連接)
    */
-  private onGlobalMouseUp = (event: MouseEvent): void => {
+  private onGlobalMouseUp = (): void => {
     const state = this.connectionCreationState();
     if (!state.active) return;
 
