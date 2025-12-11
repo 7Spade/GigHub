@@ -36,7 +36,7 @@ import {
   AuditCategory,
   AuditSeverity,
   AuditStatus
-} from '@shared/models/audit-log.model';
+} from '@core/models/audit-log.model';
 import { Observable, from, map, catchError, of } from 'rxjs';
 
 /**

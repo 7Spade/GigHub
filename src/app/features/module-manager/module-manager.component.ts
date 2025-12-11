@@ -14,7 +14,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { STColumn, STData } from '@delon/abc/st';
 import { ModalHelper } from '@delon/theme';
 import { SHARED_IMPORTS } from '@shared';
-import { BlueprintModuleDocument, ModuleStatus } from '@shared/models/blueprint-module.model';
+import { BlueprintModuleDocument, ModuleStatus } from '@core/models/blueprint-module.model';
 import { NzMessageService } from 'ng-zorro-antd/message';
 
 import { ModuleCardComponent } from './components/module-card.component';

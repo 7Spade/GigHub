@@ -35,7 +35,7 @@ import {
   UpdateModuleData,
   ModuleStatusSummary,
   BatchModuleOperationResult
-} from '@shared/models/blueprint-module.model';
+} from '@core/models/blueprint-module.model';
 import { Observable, from, map, catchError, of } from 'rxjs';
 
 /**

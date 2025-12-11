@@ -9,7 +9,7 @@
  * @date 2025-12-10
  */
 
-import { ModuleConfiguration } from '@shared/models/blueprint-module.model';
+import { ModuleConfiguration } from '@core/models/blueprint-module.model';
 
 /**
  * Tasks Module Metadata

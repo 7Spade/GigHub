@@ -5,7 +5,7 @@
 
 import { Component, input, output } from '@angular/core';
 import { SHARED_IMPORTS } from '@shared';
-import { BlueprintModuleDocument } from '@shared/models/blueprint-module.model';
+import { BlueprintModuleDocument } from '@core/models/blueprint-module.model';
 
 import { ModuleStatusBadgeComponent } from './module-status-badge.component';
 

@@ -11,8 +11,8 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { LoggerService } from '@core/services/logger.service';
-import { AuditEventType, AuditCategory, AuditSeverity, ActorType, AuditStatus } from '@shared/models/audit-log.model';
-import { AuditLogRepository, CreateAuditLogData } from '@shared/services/blueprint/audit-log.repository';
+import { AuditEventType, AuditCategory, AuditSeverity, ActorType, AuditStatus } from '@core/models/audit-log.model';
+import { AuditLogRepository, CreateAuditLogData } from '@core/blueprint/repositories/audit-log.repository';
 
 import {
   TasksRepository,
