@@ -312,9 +312,11 @@ export class OrganizationTeamsComponent implements OnInit {
   }
 
   manageMembers(team: Team): void {
-    // Switch to team context and navigate to members page
-    this.workspaceContext.switchToTeam(team.id);
-    this.router.navigate(['/team/members']);
+    // Navigate to team members page with team context
+    // Use URL parameters to pass team ID instead of relying on workspace context
+    this.router.navigate(['/team/members'], {
+      queryParams: { teamId: team.id }
+    });
   }
 
   viewTeamDetails(team: Team): void {
@@ -331,7 +333,7 @@ export class OrganizationTeamsComponent implements OnInit {
         team: team,
         organizationId: orgId
       },
-      nzWidth: 520,
+      nzWidth: 720,
       nzClosable: true
     });
 

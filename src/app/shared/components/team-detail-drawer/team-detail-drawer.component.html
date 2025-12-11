@@ -34,7 +34,10 @@
     </div>
 
     @if (loading()) {
-      <nz-spin nzSimple></nz-spin>
+      <div style="text-align: center; padding: 24px;">
+        <nz-spin nzSimple></nz-spin>
+        <p style="margin-top: 12px; color: rgba(0,0,0,0.45);">載入中...</p>
+      </div>
     } @else {
       @if (members().length > 0) {
         <nz-list nzSize="small" [nzDataSource]="members()" nzBordered>
@@ -70,7 +73,11 @@
           </nz-list-item>
         </nz-list>
       } @else {
-        <nz-empty nzNotFoundContent="此團隊尚無成員"></nz-empty>
+        <nz-empty nzNotFoundContent="此團隊尚無成員" [nzNotFoundFooter]="emptyFooter">
+          <ng-template #emptyFooter>
+            <p style="color: rgba(0,0,0,0.45); font-size: 12px;">請使用下方「新增成員」功能加入團隊成員</p>
+          </ng-template>
+        </nz-empty>
       }
     }
   </div>
