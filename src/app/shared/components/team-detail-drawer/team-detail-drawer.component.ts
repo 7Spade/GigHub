@@ -77,11 +77,16 @@ export class TeamDetailDrawerComponent implements OnInit {
   private async loadMembers(): Promise<void> {
     try {
       this.loading.set(true);
+      console.log('[TeamDetailDrawer] 🔄 Loading members for team:', this.team().id);
+      
       const members = await firstValueFrom(this.teamMemberRepository.findByTeam(this.team().id));
       this.membersState.set(members || []);
+      
+      console.log('[TeamDetailDrawer] ✅ Members loaded:', members?.length || 0);
     } catch (error) {
-      console.error('Error loading team members:', error);
-      this.message.error('載入團隊成員失敗');
+      console.error('[TeamDetailDrawer] ❌ Error loading team members:', error);
+      // Don't show error to user - just set empty array
+      this.membersState.set([]);
     } finally {
       this.loading.set(false);
     }
@@ -89,11 +94,16 @@ export class TeamDetailDrawerComponent implements OnInit {
 
   private async loadOrganizationMembers(): Promise<void> {
     try {
+      console.log('[TeamDetailDrawer] 🔄 Loading org members for:', this.organizationId);
+      
       const orgMembers = await firstValueFrom(this.orgMemberRepository.findByOrganization(this.organizationId));
       this.orgMembersState.set(orgMembers || []);
+      
+      console.log('[TeamDetailDrawer] ✅ Org members loaded:', orgMembers?.length || 0);
     } catch (error) {
-      console.error('Error loading organization members:', error);
-      this.message.error('載入組織成員失敗');
+      console.error('[TeamDetailDrawer] ❌ Error loading organization members:', error);
+      // Don't show error to user - just set empty array
+      this.orgMembersState.set([]);
     }
   }
 

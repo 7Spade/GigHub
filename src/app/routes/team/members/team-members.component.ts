@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit, effect } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ContextType, TeamMember, TeamRole, OrganizationMember } from '@core';
 import { SHARED_IMPORTS, WorkspaceContextService, TeamMemberRepository, OrganizationMemberRepository } from '@shared';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
@@ -43,7 +44,13 @@ import { NzSpaceModule } from 'ng-zorro-antd/space';
     </ng-template>
 
     @if (!isTeamContext()) {
-      <nz-alert nzType="info" nzShowIcon nzMessage="請先選擇團隊" nzDescription="請從側邊欄選擇一個團隊以管理成員。" class="mb-md" />
+      <nz-alert 
+        nzType="info" 
+        nzShowIcon 
+        nzMessage="請選擇團隊" 
+        nzDescription="請從組織管理 → 團隊管理頁面選擇要管理的團隊，或從側邊欄選擇一個團隊。" 
+        class="mb-md" 
+      />
     }
 
     <nz-card nzTitle="成員列表" [nzExtra]="extraTemplate" [nzLoading]="loading()">
@@ -134,17 +141,38 @@ export class TeamMembersComponent implements OnInit {
   private readonly orgMemberRepository = inject(OrganizationMemberRepository);
   private readonly modal = inject(NzModalService);
   private readonly message = inject(NzMessageService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
 
   private readonly members = signal<TeamMember[]>([]);
   loading = signal(false);
+  
+  // Support both context-based and query parameter-based team ID
+  private readonly queryParamTeamId = signal<string | null>(null);
 
   // Add TeamRole to template
   readonly TeamRole = TeamRole;
 
   constructor() {
+    // Monitor query parameters
+    effect(() => {
+      this.route.queryParams.subscribe(params => {
+        const teamId = params['teamId'];
+        if (teamId) {
+          console.log('[TeamMembersComponent] 🔍 Detected teamId from query params:', teamId);
+          this.queryParamTeamId.set(teamId);
+          // Switch to team context if needed
+          if (this.workspaceContext.contextType() !== ContextType.TEAM || 
+              this.workspaceContext.contextId() !== teamId) {
+            this.workspaceContext.switchToTeam(teamId);
+          }
+        }
+      });
+    });
+
     // Auto-reload members when team context changes
     effect(() => {
-      const teamId = this.currentTeamId();
+      const teamId = this.effectiveTeamId();
       if (teamId) {
         this.loadMembers(teamId);
       }
@@ -153,7 +181,7 @@ export class TeamMembersComponent implements OnInit {
 
   ngOnInit(): void {
     // Load members when component initializes
-    const teamId = this.currentTeamId();
+    const teamId = this.effectiveTeamId();
     if (teamId) {
       this.loadMembers(teamId);
     }
@@ -190,8 +218,14 @@ export class TeamMembersComponent implements OnInit {
     this.workspaceContext.contextType() === ContextType.TEAM ? this.workspaceContext.contextId() : null
   );
 
+  // Effective team ID considers both context and query parameters
+  private readonly effectiveTeamId = computed(() => {
+    // Priority: query param > context
+    return this.queryParamTeamId() || this.currentTeamId();
+  });
+
   displayMembers = computed(() => {
-    const teamId = this.currentTeamId();
+    const teamId = this.effectiveTeamId();
     if (!teamId) {
       return [];
     }
@@ -199,11 +233,12 @@ export class TeamMembersComponent implements OnInit {
   });
 
   isTeamContext(): boolean {
-    return this.workspaceContext.contextType() === ContextType.TEAM;
+    // Consider both workspace context and query parameters
+    return !!this.effectiveTeamId();
   }
 
   refreshMembers(): void {
-    const teamId = this.currentTeamId();
+    const teamId = this.effectiveTeamId();
     if (teamId) {
       this.message.info('正在重新整理...');
       this.loadMembers(teamId);
@@ -211,7 +246,7 @@ export class TeamMembersComponent implements OnInit {
   }
 
   openAddMemberModal(): void {
-    const teamId = this.currentTeamId();
+    const teamId = this.effectiveTeamId();
     if (!teamId) {
       this.message.error('無法獲取團隊 ID');
       return;
@@ -278,7 +313,7 @@ export class TeamMembersComponent implements OnInit {
   }
 
   changeRole(member: TeamMember): void {
-    const teamId = this.currentTeamId();
+    const teamId = this.effectiveTeamId();
     if (!teamId) return;
 
     // Create a simple role change modal
@@ -342,7 +377,7 @@ export class TeamMembersComponent implements OnInit {
       await this.memberRepository.removeMember(member.id);
       this.message.success('成員已移除');
 
-      const teamId = this.currentTeamId();
+      const teamId = this.effectiveTeamId();
       if (teamId) {
         this.loadMembers(teamId);
       }
