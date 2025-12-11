@@ -12,6 +12,7 @@ import { NzStatisticModule } from 'ng-zorro-antd/statistic';
 import { NzTabsModule } from 'ng-zorro-antd/tabs';
 import { NzTagModule } from 'ng-zorro-antd/tag';
 import { firstValueFrom } from 'rxjs';
+import { BlueprintMembersComponent } from './members/blueprint-members.component';
 
 /**
  * Blueprint Detail Component
@@ -36,7 +37,8 @@ import { firstValueFrom } from 'rxjs';
     NzSpaceModule,
     NzTabsModule,
     NzTagModule,
-    DatePipe
+    DatePipe,
+    BlueprintMembersComponent
   ],
   template: `
     <page-header [title]="blueprint()?.name || '藍圖詳情'" [action]="action" [breadcrumb]="breadcrumb">
@@ -164,7 +166,7 @@ import { firstValueFrom } from 'rxjs';
                       <span nz-icon nzType="dashboard"></span>
                       容器儀表板
                     </button>
-                    <button nz-button nzBlock class="mb-sm" (click)="navigateToMembers()">
+                    <button nz-button nzBlock class="mb-sm" (click)="switchToMembersTab()">
                       <span nz-icon nzType="team"></span>
                       成員管理
                     </button>
@@ -225,27 +227,7 @@ import { firstValueFrom } from 'rxjs';
           <nz-tab nzTitle="成員">
             <ng-template nz-tab>
               @if (blueprint()?.id) {
-                <nz-card nzTitle="藍圖成員" [nzExtra]="membersExtra" class="mb-md">
-                  <ng-template #membersExtra>
-                    <button nz-button nzType="primary" (click)="navigateToMembers()">
-                      <span nz-icon nzType="arrow-right"></span>
-                      前往完整管理頁面
-                    </button>
-                  </ng-template>
-
-                  <nz-alert
-                    nzType="info"
-                    nzShowIcon
-                    nzMessage="藍圖成員管理"
-                    nzDescription="藍圖成員包含參與此藍圖的組織成員和組織團隊。點擊上方按鈕可前往完整的成員管理頁面進行新增、編輯等操作。"
-                    class="mb-md"
-                  />
-
-                  <p class="text-grey">
-                    <span nz-icon nzType="team"></span>
-                    此藍圖的成員來自組織成員和團隊，擁有不同的權限和角色。
-                  </p>
-                </nz-card>
+                <app-blueprint-members [blueprintId]="blueprint()!.id" />
               }
             </ng-template>
           </nz-tab>
@@ -497,11 +479,12 @@ export class BlueprintDetailComponent implements OnInit {
   }
 
   /**
-   * Navigate to members page
-   * 導航到成員管理頁面
+   * Switch to members tab
+   * 切換到成員管理標籤頁
+   * ✅ Updated: Directly switch to Members Tab instead of navigating (Occam's Razor)
    */
-  navigateToMembers(): void {
-    this.router.navigate(['members'], { relativeTo: this.route });
+  switchToMembersTab(): void {
+    this.activeTabIndex = 3; // Members tab is the 4th tab (index 3)
   }
 
   /**
