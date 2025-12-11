@@ -3,7 +3,7 @@ import { LoggerService, Permission, PermissionLevel, SystemRole, BlueprintRole }
 import { FirebaseAuthService } from '@core/services/firebase-auth.service';
 import { Observable, from, map, of } from 'rxjs';
 
-import { BlueprintMemberRepository } from '../blueprint/blueprint-member.repository';
+import { BlueprintMemberRepository } from '@core/blueprint/repositories';
 
 /**
  * Permission Service

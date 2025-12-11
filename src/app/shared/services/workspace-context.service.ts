@@ -29,8 +29,7 @@ import { ContextType, Account, Organization, Team, Bot, FirebaseAuthService } fr
 import { SettingsService } from '@delon/theme';
 import { combineLatest, of, switchMap, map, shareReplay, catchError } from 'rxjs';
 
-import { OrganizationRepository } from './organization/organization.repository';
-import { TeamRepository } from './team/team.repository';
+import { OrganizationRepository, TeamRepository } from '@core/repositories';
 
 const STORAGE_KEY = 'workspace_context';
 

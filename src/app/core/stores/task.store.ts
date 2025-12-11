@@ -3,7 +3,7 @@ import { LoggerService } from '@core';
 import { Task, TaskStatus, CreateTaskRequest, UpdateTaskRequest } from '@core/types/task';
 import { firstValueFrom } from 'rxjs';
 
-import { TaskRepository } from './task.repository';
+import { TaskRepository } from '@core/repositories';
 
 /**
  * Task Store
