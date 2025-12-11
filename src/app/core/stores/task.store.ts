@@ -1,9 +1,8 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
 import { LoggerService } from '@core';
+import { TaskRepository } from '@core/repositories';
 import { Task, TaskStatus, CreateTaskRequest, UpdateTaskRequest } from '@core/types/task';
 import { firstValueFrom } from 'rxjs';
-
-import { TaskRepository } from '@core/repositories';
 
 /**
  * Task Store

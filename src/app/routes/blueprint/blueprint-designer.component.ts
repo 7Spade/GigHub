@@ -2,17 +2,15 @@ import { CdkDragDrop, DragDropModule, moveItemInArray, transferArrayItem } from 
 import { Component, OnInit, inject, signal, computed, ChangeDetectionStrategy, ElementRef, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Blueprint, LoggerService, ModuleType } from '@core';
+import { Blueprint, LoggerService, ModuleType, ModuleConnection, CreateConnectionDto } from '@core';
+import { BlueprintService, DependencyValidatorService, DependencyValidationResult } from '@core/blueprint/services';
 import { SHARED_IMPORTS } from '@shared';
-import { BlueprintService } from '@core/blueprint/services';
 import { NzDrawerModule } from 'ng-zorro-antd/drawer';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
 import { NzFormModule } from 'ng-zorro-antd/form';
 import { NzMessageService } from 'ng-zorro-antd/message';
 
 import { ConnectionLayerComponent, ValidationAlertsComponent } from './components';
-import { ModuleConnection, CreateConnectionDto } from './models';
-import { DependencyValidatorService, DependencyValidationResult } from '@core/blueprint/services';
 
 /**
  * Canvas Module Interface

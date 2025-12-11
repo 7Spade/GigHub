@@ -9,10 +9,10 @@
  */
 
 import { Injectable, signal, inject, WritableSignal } from '@angular/core';
+import { LoggerService } from '@core';
 import type { IExecutionContext } from '@core/blueprint/context/execution-context.interface';
 import { ModuleStatus } from '@core/blueprint/modules/module-status.enum';
 import { IBlueprintModule } from '@core/blueprint/modules/module.interface';
-import { LoggerService } from '@core';
 
 import { TASKS_MODULE_METADATA, TASKS_MODULE_DEFAULT_CONFIG, TASKS_MODULE_EVENTS } from './module.metadata';
 import { TasksRepository } from './tasks.repository';

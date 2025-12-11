@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, OnInit } from '@angular/core';
 import { ContextType, OrganizationMember, OrganizationRole } from '@core';
-import { SHARED_IMPORTS, WorkspaceContextService, createAsyncArrayState } from '@shared';
 import { OrganizationMemberRepository } from '@core/repositories';
+import { SHARED_IMPORTS, WorkspaceContextService, createAsyncArrayState } from '@shared';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
 import { firstValueFrom } from 'rxjs';

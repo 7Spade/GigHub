@@ -1,6 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-
-import { ModuleConnection } from '@routes/blueprint/models/module-connection.interface';
+import { ModuleConnection } from '@core';
 
 /**
  * 依賴驗證結果介面
