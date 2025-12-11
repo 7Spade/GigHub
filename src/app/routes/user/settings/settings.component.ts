@@ -8,7 +8,19 @@ import { SHARED_IMPORTS } from '@shared';
   standalone: true,
   imports: [SHARED_IMPORTS],
   template: `
-    <page-header [title]="'個人設定'" [content]="headerContent"></page-header>
+    <page-header [title]="'個人設定'" [content]="headerContent" [breadcrumb]="breadcrumb"></page-header>
+    
+    <ng-template #breadcrumb>
+      <nz-breadcrumb>
+        <nz-breadcrumb-item>
+          <a routerLink="/">
+            <span nz-icon nzType="home"></span>
+            首頁
+          </a>
+        </nz-breadcrumb-item>
+        <nz-breadcrumb-item>個人設定</nz-breadcrumb-item>
+      </nz-breadcrumb>
+    </ng-template>
     
     <ng-template #headerContent>
       <div>管理通知與偏好設定。</div>

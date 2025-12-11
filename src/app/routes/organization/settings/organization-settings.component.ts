@@ -10,7 +10,25 @@ import { NzAlertModule } from 'ng-zorro-antd/alert';
   standalone: true,
   imports: [SHARED_IMPORTS, NzMenuModule, NzAlertModule, HeaderContextSwitcherComponent],
   template: `
-    <page-header [title]="'組織設定'" [content]="headerContent"></page-header>
+    <page-header [title]="'組織設定'" [content]="headerContent" [breadcrumb]="breadcrumb"></page-header>
+    
+    <ng-template #breadcrumb>
+      <nz-breadcrumb>
+        <nz-breadcrumb-item>
+          <a routerLink="/">
+            <span nz-icon nzType="home"></span>
+            首頁
+          </a>
+        </nz-breadcrumb-item>
+        @if (activeLabel()) {
+          <nz-breadcrumb-item>
+            <span nz-icon nzType="team"></span>
+            {{ activeLabel() }}
+          </nz-breadcrumb-item>
+        }
+        <nz-breadcrumb-item>組織設定</nz-breadcrumb-item>
+      </nz-breadcrumb>
+    </ng-template>
     
     <ng-template #headerContent>
       <div>調整組織偏好與資訊。</div>

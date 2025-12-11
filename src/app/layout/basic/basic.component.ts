@@ -24,7 +24,6 @@ import { HeaderTaskComponent } from './widgets/task.component';
 import { HeaderUserComponent } from './widgets/user.component';
 import { CreateOrganizationComponent } from '../../shared/components/create-organization/create-organization.component';
 import { CreateTeamComponent } from '../../shared/components/create-team/create-team.component';
-import { BreadcrumbComponent } from '../../shared/components/breadcrumb/breadcrumb.component';
 
 @Component({
   selector: 'layout-basic',
@@ -127,7 +126,6 @@ import { BreadcrumbComponent } from '../../shared/components/breadcrumb/breadcru
         }
       </ng-template>
       <ng-template #contentTpl>
-        <app-breadcrumb />
         <router-outlet />
       </ng-template>
     </layout-default>
@@ -145,7 +143,6 @@ import { BreadcrumbComponent } from '../../shared/components/breadcrumb/breadcru
     NzDropDownModule,
     NzAvatarModule,
     SettingDrawerModule,
-    BreadcrumbComponent,
     ThemeBtnComponent,
     HeaderSearchComponent,
     HeaderNotifyComponent,

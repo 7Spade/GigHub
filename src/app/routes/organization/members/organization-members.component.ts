@@ -10,7 +10,25 @@ import { firstValueFrom } from 'rxjs';
   standalone: true,
   imports: [SHARED_IMPORTS, NzAlertModule, NzEmptyModule],
   template: `
-    <page-header [title]="'組織成員'" [content]="headerContent"></page-header>
+    <page-header [title]="'組織成員'" [content]="headerContent" [breadcrumb]="breadcrumb"></page-header>
+
+    <ng-template #breadcrumb>
+      <nz-breadcrumb>
+        <nz-breadcrumb-item>
+          <a routerLink="/">
+            <span nz-icon nzType="home"></span>
+            首頁
+          </a>
+        </nz-breadcrumb-item>
+        @if (organizationName()) {
+          <nz-breadcrumb-item>
+            <span nz-icon nzType="team"></span>
+            {{ organizationName() }}
+          </nz-breadcrumb-item>
+        }
+        <nz-breadcrumb-item>組織成員</nz-breadcrumb-item>
+      </nz-breadcrumb>
+    </ng-template>
 
     <ng-template #headerContent>
       <div>管理當前組織的成員與角色。</div>
@@ -115,6 +133,8 @@ export class OrganizationMembersComponent implements OnInit {
   );
 
   displayMembers = computed(() => this.membersState.data() || []);
+  
+  readonly organizationName = computed(() => this.workspaceContext.contextLabel());
 
   isOrganizationContext(): boolean {
     return this.workspaceContext.contextType() === ContextType.ORGANIZATION;

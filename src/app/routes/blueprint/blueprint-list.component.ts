@@ -28,7 +28,19 @@ import { BlueprintService, WorkspaceContextService } from '@shared';
   standalone: true,
   imports: [SHARED_IMPORTS, NzSpaceModule, NzStatisticModule, NzInputModule],
   template: `
-    <page-header [title]="'藍圖列表'" [action]="action">
+    <page-header [title]="'藍圖列表'" [action]="action" [breadcrumb]="breadcrumb">
+      <ng-template #breadcrumb>
+        <nz-breadcrumb>
+          <nz-breadcrumb-item>
+            <a routerLink="/">
+              <span nz-icon nzType="home"></span>
+              首頁
+            </a>
+          </nz-breadcrumb-item>
+          <nz-breadcrumb-item>藍圖列表</nz-breadcrumb-item>
+        </nz-breadcrumb>
+      </ng-template>
+      
       <ng-template #action>
         <nz-space>
           <button *nzSpaceItem nz-button (click)="refresh()">
