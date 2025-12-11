@@ -4,3 +4,4 @@
  */
 
 export * from './connection-layer.component';
+export * from './validation-alerts.component';

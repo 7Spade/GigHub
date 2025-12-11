@@ -10,7 +10,8 @@ import { SHARED_IMPORTS } from '@shared';
 import { Blueprint, LoggerService, ModuleType } from '@core';
 import { BlueprintService } from '@shared';
 import { ModuleConnection, CreateConnectionDto } from './models';
-import { ConnectionLayerComponent } from './components/connection-layer.component';
+import { ConnectionLayerComponent, ValidationAlertsComponent } from './components';
+import { DependencyValidatorService, DependencyValidationResult } from './services';
 
 /**
  * Canvas Module Interface
@@ -75,7 +76,7 @@ interface ConnectionCreationState {
 @Component({
   selector: 'app-blueprint-designer',
   standalone: true,
-  imports: [SHARED_IMPORTS, DragDropModule, NzDrawerModule, NzEmptyModule, NzFormModule, FormsModule, ConnectionLayerComponent],
+  imports: [SHARED_IMPORTS, DragDropModule, NzDrawerModule, NzEmptyModule, NzFormModule, FormsModule, ConnectionLayerComponent, ValidationAlertsComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <page-header
@@ -99,6 +100,11 @@ interface ConnectionCreationState {
     </page-header>
 
     <div class="designer-container">
+      <!-- Validation Alerts (Top) - Task 2.3 -->
+      <div class="validation-section">
+        <app-validation-alerts [validationResult]="validationResult()" />
+      </div>
+
       <!-- Module Palette (Left Panel) -->
       <div class="module-palette">
         <nz-card nzTitle="模組選擇器" [nzBordered]="false">
@@ -288,6 +294,10 @@ interface ConnectionCreationState {
     </div>
   `,
   styles: [`
+    .validation-section {
+      margin-bottom: 16px;
+    }
+
     .designer-container {
       display: flex;
       height: calc(100vh - 180px);
@@ -453,6 +463,7 @@ export class BlueprintDesignerComponent implements OnInit {
   private readonly message = inject(NzMessageService);
   private readonly logger = inject(LoggerService);
   private readonly blueprintService = inject(BlueprintService);
+  private readonly validatorService = inject(DependencyValidatorService);
 
   @ViewChild('canvas', { static: false }) canvasElement?: ElementRef<HTMLDivElement>;
 
@@ -477,6 +488,9 @@ export class BlueprintDesignerComponent implements OnInit {
   private hoveredPortType: 'input' | 'output' | null = null;
   private hoveredPortModuleId: string | null = null;
   private isDraggingConnection = false;
+
+  // ✅ Task 2: Validation state
+  readonly validationResult = signal<DependencyValidationResult | null>(null);
 
   // ✅ Computed signal for module categories
   readonly moduleCategories = computed<ModuleCategory[]>(() => [
@@ -544,6 +558,9 @@ export class BlueprintDesignerComponent implements OnInit {
         
         this.canvasModules.set(modules);
         this.logger.info('[BlueprintDesigner]', 'Loaded blueprint', { id, modulesCount: modules.length });
+        
+        // ✅ Task 2: Run validation after loading
+        this.runValidation();
       },
       error: (error) => {
         this.logger.error('[BlueprintDesigner]', 'Failed to load blueprint', error instanceof Error ? error : new Error(String(error)));
@@ -645,12 +662,24 @@ export class BlueprintDesignerComponent implements OnInit {
   /**
    * Save blueprint configuration
    * 儲存藍圖配置
+   * 
+   * ✅ Task 2: Validate before saving
    */
   async save(): Promise<void> {
     this.saving.set(true);
     try {
       const blueprint = this.blueprint();
       if (!blueprint) return;
+
+      // ✅ Task 2: Run validation before saving
+      this.runValidation();
+      const validation = this.validationResult();
+      
+      if (validation && !validation.isValid) {
+        this.message.error(`儲存失敗: 發現 ${validation.errors.length} 個配置錯誤,請先修正`);
+        this.saving.set(false);
+        return;
+      }
 
       // Convert canvas modules to enabled modules
       const enabledModules: ModuleType[] = this.canvasModules()
@@ -664,7 +693,8 @@ export class BlueprintDesignerComponent implements OnInit {
       this.message.success('儲存成功');
       this.logger.info('[BlueprintDesigner]', 'Blueprint saved', { 
         blueprintId: blueprint.id, 
-        modulesCount: enabledModules.length 
+        modulesCount: enabledModules.length,
+        connectionsCount: this.connections().length 
       });
     } catch (error) {
       this.logger.error('[BlueprintDesigner]', 'Failed to save', error instanceof Error ? error : new Error(String(error)));
@@ -916,6 +946,10 @@ export class BlueprintDesignerComponent implements OnInit {
     };
 
     this.connections.update(conns => [...conns, newConnection]);
+    
+    // ✅ Task 2: Re-run validation after creation
+    this.runValidation();
+    
     this.message.success(`已建立連接: ${sourceModule.name} → ${targetModule.name}`);
     
     this.logger.info('[BlueprintDesigner]', 'Connection created', { 
@@ -974,8 +1008,31 @@ export class BlueprintDesignerComponent implements OnInit {
       this.selectedConnectionId.set(null);
     }
     
+    // ✅ Task 2: Re-run validation after deletion
+    this.runValidation();
+    
     this.message.success('已刪除連接');
     this.logger.info('[BlueprintDesigner]', 'Connection deleted', { connectionId });
+  }
+
+  /**
+   * Run dependency validation
+   * 執行依賴驗證
+   * 
+   * ✅ Task 2.1-2.2: DFS cycle detection + missing module check
+   */
+  private runValidation(): void {
+    const moduleIds = this.canvasModules().map(m => m.id);
+    const connections = this.connections();
+    
+    const result = this.validatorService.validate(moduleIds, connections);
+    this.validationResult.set(result);
+    
+    this.logger.debug('[BlueprintDesigner]', 'Validation completed', {
+      isValid: result.isValid,
+      errorsCount: result.errors.length,
+      warningsCount: result.warnings.length
+    });
   }
 
   /**
