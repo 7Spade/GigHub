@@ -11,7 +11,7 @@ import { NzMessageService } from 'ng-zorro-antd/message';
 
 import { ConnectionLayerComponent, ValidationAlertsComponent } from './components';
 import { ModuleConnection, CreateConnectionDto } from './models';
-import { DependencyValidatorService, DependencyValidationResult } from './services';
+import { DependencyValidatorService, DependencyValidationResult } from '@core/blueprint/services';
 
 /**
  * Canvas Module Interface

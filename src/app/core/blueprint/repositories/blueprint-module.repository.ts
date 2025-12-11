@@ -28,7 +28,7 @@ import {
   writeBatch
 } from '@angular/fire/firestore';
 import { ModuleStatus } from '@core/blueprint/modules/module-status.enum';
-import { LoggerService } from '@core/services/logger.service';
+import { LoggerService } from '@core';
 import {
   BlueprintModuleDocument,
   CreateModuleData,
