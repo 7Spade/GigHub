@@ -1,6 +1,6 @@
 /**
  * Blueprint Models
- * 藍圖模型匯出
+ * 藍圖核心模型匯出
  */
 
 export * from './module-connection.interface';

@@ -160,7 +160,6 @@ export class TeamMembersComponent implements OnInit {
       this.route.queryParams.subscribe(params => {
         const teamId = params['teamId'];
         if (teamId) {
-          console.log('[TeamMembersComponent] 🔍 Detected teamId from query params:', teamId);
           this.queryParamTeamId.set(teamId);
           // Switch to team context if needed
           if (this.workspaceContext.contextType() !== ContextType.TEAM || this.workspaceContext.contextId() !== teamId) {
@@ -204,7 +203,6 @@ export class TeamMembersComponent implements OnInit {
       next: (members: TeamMember[]) => {
         this.members.set(members);
         this.loading.set(false);
-        console.log('[TeamMembersComponent] ✅ Loaded members:', members.length);
       },
       error: (error: Error) => {
         console.error('[TeamMembersComponent] ❌ Failed to load members:', error);

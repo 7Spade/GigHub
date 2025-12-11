@@ -28,6 +28,9 @@
  * @packageDocumentation
  */
 
+// Models
+export * from './models';
+
 // Module System
 export * from './modules';
 

@@ -104,7 +104,6 @@ export class OrganizationMembersComponent implements OnInit {
 
     try {
       await this.membersState.load(firstValueFrom(this.memberRepository.findByOrganization(orgId)));
-      console.log('[OrganizationMembersComponent] ✅ Loaded members:', this.membersState.length());
     } catch (error) {
       console.error('[OrganizationMembersComponent] ❌ Failed to load members:', error);
       // Error is automatically managed by AsyncState
