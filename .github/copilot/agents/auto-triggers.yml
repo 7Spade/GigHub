@@ -216,7 +216,7 @@ triggers:
     
     conditions:
       # 當輸入套件名稱時
-      - trigger_pattern: 'import .* from ["\'](@angular|ng-zorro|@delon)'
+      - trigger_pattern: 'import .* from ["''](@angular|ng-zorro|@delon)'
         mcp_action:
           tool: "context7"
           action: "驗證 import 路徑正確性"

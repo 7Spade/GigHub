@@ -40,6 +40,39 @@
 - ⚠️ **SSR + Hydration** (optional): Server-side rendering with client hydration
 - ⚠️ **View Transitions** (optional): Built-in page transition animations
 
+### Development Commands
+
+**Package Manager**: Yarn 4.9.2 (Berry)
+
+```bash
+# Install dependencies
+yarn install
+
+# Development server
+yarn start              # Starts dev server at http://localhost:4200
+
+# Build
+yarn build             # Production build
+yarn analyze           # Build with source maps for analysis
+
+# Linting
+yarn lint              # Run all linters
+yarn lint:ts           # Lint TypeScript/Angular files
+yarn lint:style        # Lint LESS styles
+
+# Testing
+yarn test              # Run unit tests with watch
+yarn test-coverage     # Run tests with coverage report
+yarn e2e               # Run end-to-end tests
+```
+
+**Key Configuration Files:**
+- `angular.json` - Angular workspace configuration
+- `tsconfig.json` - TypeScript compiler options (strict mode enabled)
+- `package.json` - Dependencies and scripts
+- `eslint.config.mjs` - ESLint configuration
+- `stylelint.config.mjs` - Stylelint configuration
+
 ## 🚨 MANDATORY Tool Usage Policy
 
 **CRITICAL**: This repository requires Copilot to **ALWAYS** read this instruction file and **MANDATORILY** use the following MCP tools. This is not optional.
@@ -127,6 +160,26 @@
 4. ✅ Did I read this instruction file?
 
 **If answer to ANY question is NO, STOP and use the required tool(s) first.**
+
+### MCP Auto-Triggers
+
+**IMPORTANT**: This repository has configured automatic MCP tool triggers in `.github/copilot/agents/auto-triggers.yml`.
+
+**What this means:**
+- The system may automatically invoke MCP tools based on specific patterns or keywords
+- Auto-triggers are configured for context7 to verify API signatures, check version compatibility, and validate syntax
+- You should still manually invoke tools when needed, but be aware of automatic assistance
+
+**Key Auto-Trigger Scenarios:**
+1. **API Parameter Uncertainty** - Automatically queries context7 for correct function signatures
+2. **Version Compatibility** - Checks for breaking changes and deprecated APIs
+3. **New Framework Features** - Validates Angular 19+/20+ syntax and patterns
+4. **Third-Party Packages** - Verifies ng-zorro-antd, @delon/*, and other library APIs
+5. **Error Messages** - Automatically searches for official solutions to compilation errors
+6. **TypeScript Type Issues** - Queries for correct type definitions
+
+**Configuration Location**: `.github/copilot/agents/auto-triggers.yml`  
+**MCP Server Config**: `.github/copilot/mcp-servers.yml`
 
 ## Repository Guidelines
 
@@ -282,6 +335,8 @@ See `.github/instructions/` for detailed guidelines:
 See `.github/copilot/` for additional resources:
 - `shortcuts/chat-shortcuts.md` - **Copilot Chat 快捷指令** ⭐
 - `constraints.md` - **禁止模式與約束** 🚫
+- `agents/auto-triggers.yml` - **MCP 自動觸發規則** 🤖
+- `mcp-servers.yml` - **MCP 伺服器配置** 🔧
 - `security-rules.yml` - 安全規則配置
 
 ## Getting Help
