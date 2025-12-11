@@ -7,7 +7,7 @@
  *
  * NOTE: This module integrates with the existing Blueprint Event Bus
  * (src/app/core/blueprint/events/event-bus.ts) as specified in the
- * Container Layer specification (setc.md).
+ * Container Layer specification (.github/instructions/enterprise-angular-architecture.instructions.md).
  *
  * @author GigHub Development Team
  * @date 2025-12-11

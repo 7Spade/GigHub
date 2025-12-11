@@ -51,13 +51,18 @@ ngOnInit(): void {
 }
 ```
 
-**Files Affected**:
+**Files Affected** (Representative Sample - 14+ total across codebase):
 - `blueprint-list.component.ts`
 - `blueprint-members.component.ts`
 - `team-members.component.ts`
 - `organization-teams.component.ts`
 - `layout/basic/basic.component.ts`
-- And 9+ more files
+- `layout/basic/widgets/i18n.component.ts`
+- `layout/basic/widgets/search.component.ts`
+- `shared/components/team-detail-drawer/team-detail-drawer.component.ts`
+- `routes/blueprint/blueprint-modal.component.ts`
+- `routes/team/members/team-member-modal.component.ts`
+- Plus additional files with similar patterns
 
 **Solution**:
 ```typescript

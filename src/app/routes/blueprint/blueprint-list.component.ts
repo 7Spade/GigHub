@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, effect, computed, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, inject, effect, computed, signal, ChangeDetectionStrategy, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Blueprint, BlueprintStatus, LoggerService, FirebaseAuthService, OwnerType, ContextType } from '@core';
@@ -153,6 +153,7 @@ export class BlueprintListComponent implements OnInit {
   private readonly blueprintService: BlueprintService = inject(BlueprintService);
   private readonly authService = inject(FirebaseAuthService);
   private readonly workspaceContext = inject(WorkspaceContextService);
+  private readonly destroyRef = inject(DestroyRef);
 
   // ✅ Modern Pattern: Use AsyncState
   readonly blueprintsState = createAsyncArrayState<Blueprint>([]);
@@ -236,7 +237,7 @@ export class BlueprintListComponent implements OnInit {
     });
 
     // ✅ Debounced search: 300ms delay for better performance
-    this.searchSubject.pipe(debounceTime(300), takeUntilDestroyed()).subscribe((text: string) => {
+    this.searchSubject.pipe(debounceTime(300), takeUntilDestroyed(this.destroyRef)).subscribe((text: string) => {
       this.searchText.set(text);
     });
   }

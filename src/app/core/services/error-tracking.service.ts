@@ -234,7 +234,7 @@ export class GlobalErrorHandler implements ErrorHandler {
       originalError: error
     });
 
-    // Rethrow to let Angular handle it normally
-    throw error;
+    // Do not rethrow; Angular will not recursively handle the error.
+    // (Removed throw to prevent infinite loop)
   }
 }

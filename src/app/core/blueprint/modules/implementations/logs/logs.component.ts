@@ -3,7 +3,7 @@
  * Angular 20 UI with Signals and new control flow syntax.
  */
 
-import { Component, ChangeDetectionStrategy, inject, signal, computed, OnInit } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, signal, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { SHARED_IMPORTS } from '@shared';
 

@@ -8,7 +8,7 @@
  * @date 2025-12-10
  */
 
-import { Component, ChangeDetectionStrategy, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, ChangeDetectionStrategy, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { STColumn, STData } from '@delon/abc/st';
 import { SHARED_IMPORTS } from '@shared';

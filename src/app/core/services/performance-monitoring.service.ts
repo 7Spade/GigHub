@@ -65,8 +65,25 @@ export class PerformanceMonitoringService {
 
   private navigationStartTime = 0;
   private currentRoute = '';
+  private isInitialized = false;
 
   constructor() {
+    // Initialization moved to explicit init() method.
+    // Call init() from app.config.ts or APP_INITIALIZER for clarity.
+  }
+
+  /**
+   * Explicitly initialize performance monitoring.
+   * Must be called during application startup (e.g., from app.config.ts or APP_INITIALIZER).
+   * 
+   * 明確初始化效能監控
+   * 必須在應用程式啟動時呼叫（例如從 app.config.ts 或 APP_INITIALIZER）
+   */
+  public init(): void {
+    if (this.isInitialized) {
+      return;
+    }
+    this.isInitialized = true;
     this.initializeRouteTracking();
     this.initializePerformanceObserver();
   }
