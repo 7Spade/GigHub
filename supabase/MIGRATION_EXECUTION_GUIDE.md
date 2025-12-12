@@ -4,7 +4,7 @@
 
 This guide provides instructions for executing the SQL migrations from PR #63 to the remote Supabase database.
 
-**Project Reference**: `obwyowvbsnqsxsnlsbhl`  
+**Project Reference**: `zecsbstjqjqoytwgjyct` (Primary) | `obwyowvbsnqsxsnlsbhl` (Alternative)  
 **Migrations to Execute**: 3 files in `supabase/migrations/`
 
 ---
@@ -48,7 +48,7 @@ This guide provides instructions for executing the SQL migrations from PR #63 to
 ### Method 1: Supabase Dashboard SQL Editor (Recommended ⭐)
 
 **Steps**:
-1. Go to [Supabase Dashboard](https://supabase.com/dashboard/project/obwyowvbsnqsxsnlsbhl)
+1. Go to [Supabase Dashboard](https://supabase.com/dashboard/project/zecsbstjqjqoytwgjyct)
 2. Navigate to **SQL Editor** in the left sidebar
 3. Click **New Query**
 4. Execute migrations in order:
@@ -122,7 +122,7 @@ supabase login
 
 # Step 2: Link to project
 cd /path/to/GigHub
-supabase link --project-ref obwyowvbsnqsxsnlsbhl
+supabase link --project-ref zecsbstjqjqoytwgjyct
 
 # Step 3: Push migrations
 supabase db push --linked
@@ -135,7 +135,7 @@ export SUPABASE_ACCESS_TOKEN="your-access-token-here"
 
 # Step 2: Push migrations
 cd /path/to/GigHub
-supabase db push --linked --project-ref obwyowvbsnqsxsnlsbhl
+supabase db push --linked --project-ref zecsbstjqjqoytwgjyct
 ```
 
 #### Option C: Using Database URL
@@ -183,7 +183,7 @@ jobs:
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
         run: |
-          supabase db push --linked --project-ref obwyowvbsnqsxsnlsbhl
+          supabase db push --linked --project-ref zecsbstjqjqoytwgjyct
 ```
 
 ---
@@ -355,4 +355,4 @@ For issues or questions:
 
 **Last Updated**: 2025-12-12  
 **Migrations Version**: PR #63  
-**Project Ref**: obwyowvbsnqsxsnlsbhl
+**Project Ref**: zecsbstjqjqoytwgjyct (Primary) | obwyowvbsnqsxsnlsbhl (Alternative)

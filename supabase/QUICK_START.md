@@ -6,6 +6,11 @@
 
 1. **Open Supabase SQL Editor**
    ```
+   https://supabase.com/dashboard/project/zecsbstjqjqoytwgjyct/sql
+   ```
+   
+   **Alternative Project URL** (if above doesn't work):
+   ```
    https://supabase.com/dashboard/project/obwyowvbsnqsxsnlsbhl/sql
    ```
 
@@ -68,7 +73,12 @@ supabase db push --linked --project-ref obwyowvbsnqsxsnlsbhl
 ```bash
 export SUPABASE_ACCESS_TOKEN="your-token-here"
 cd /path/to/GigHub
-supabase db push --linked --project-ref obwyowvbsnqsxsnlsbhl
+
+# Use the current project reference
+supabase db push --linked --project-ref zecsbstjqjqoytwgjyct
+
+# Or if using the alternative project
+# supabase db push --linked --project-ref obwyowvbsnqsxsnlsbhl
 ```
 
 ---
@@ -206,11 +216,11 @@ Then recreate properly after blueprints table exists.
 ---
 
 **Quick Links:**
-- 🌐 [Supabase Dashboard](https://supabase.com/dashboard/project/obwyowvbsnqsxsnlsbhl)
-- 📝 [SQL Editor](https://supabase.com/dashboard/project/obwyowvbsnqsxsnlsbhl/sql)
-- 🗄️ [Table Editor](https://supabase.com/dashboard/project/obwyowvbsnqsxsnlsbhl/editor)
-- 🔒 [Policies](https://supabase.com/dashboard/project/obwyowvbsnqsxsnlsbhl/auth/policies)
-- 📦 [Storage](https://supabase.com/dashboard/project/obwyowvbsnqsxsnlsbhl/storage/buckets)
+- 🌐 [Supabase Dashboard](https://supabase.com/dashboard/project/zecsbstjqjqoytwgjyct)
+- 📝 [SQL Editor](https://supabase.com/dashboard/project/zecsbstjqjqoytwgjyct/sql) ⭐ **Start Here**
+- 🗄️ [Table Editor](https://supabase.com/dashboard/project/zecsbstjqjqoytwgjyct/editor)
+- 🔒 [Policies](https://supabase.com/dashboard/project/zecsbstjqjqoytwgjyct/auth/policies)
+- 📦 [Storage](https://supabase.com/dashboard/project/zecsbstjqjqoytwgjyct/storage/buckets)
 
 **Last Updated**: 2025-12-12  
 **Status**: Ready to execute ✅

@@ -23,7 +23,7 @@ supabase/
 ### 執行資料庫遷移 (5 分鐘)
 
 1. **打開 Supabase SQL Editor**
-   - 前往: https://supabase.com/dashboard/project/obwyowvbsnqsxsnlsbhl/sql
+   - 前往: https://supabase.com/dashboard/project/zecsbstjqjqoytwgjyct/sql
 
 2. **複製整合 SQL**
    - 開啟檔案: `migrations/CONSOLIDATED_MIGRATION.sql`
@@ -305,11 +305,11 @@ ORDER BY tablename, indexname;
 
 ## 🔗 相關連結
 
-- **Supabase Project**: https://supabase.com/dashboard/project/obwyowvbsnqsxsnlsbhl
-- **SQL Editor**: https://supabase.com/dashboard/project/obwyowvbsnqsxsnlsbhl/sql
-- **Table Editor**: https://supabase.com/dashboard/project/obwyowvbsnqsxsnlsbhl/editor
-- **Policies**: https://supabase.com/dashboard/project/obwyowvbsnqsxsnlsbhl/auth/policies
-- **Storage**: https://supabase.com/dashboard/project/obwyowvbsnqsxsnlsbhl/storage/buckets
+- **Supabase Project**: https://supabase.com/dashboard/project/zecsbstjqjqoytwgjyct
+- **SQL Editor**: https://supabase.com/dashboard/project/zecsbstjqjqoytwgjyct/sql ⭐ **Start Here**
+- **Table Editor**: https://supabase.com/dashboard/project/zecsbstjqjqoytwgjyct/editor
+- **Policies**: https://supabase.com/dashboard/project/zecsbstjqjqoytwgjyct/auth/policies
+- **Storage**: https://supabase.com/dashboard/project/zecsbstjqjqoytwgjyct/storage/buckets
 
 ---
 
@@ -323,5 +323,5 @@ ORDER BY tablename, indexname;
 
 **Last Updated**: 2025-12-12  
 **Database Version**: PR #63  
-**Project Ref**: obwyowvbsnqsxsnlsbhl  
+**Project Ref**: zecsbstjqjqoytwgjyct (Primary) | obwyowvbsnqsxsnlsbhl (Alternative)  
 **Status**: Ready for deployment ✅
