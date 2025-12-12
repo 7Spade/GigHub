@@ -156,7 +156,33 @@ yarn analyze:view
 
 ---
 
+## 📦 封存文檔 (Archived Documentation)
+
+已完成的功能文檔已移至 [`archive/`](./archive/) 目錄：
+
+### 最新封存 (2025-12-12)
+- ✅ Construction Log 模組實作總結
+- ✅ Blueprint Designer 拖曳功能修復文檔
+- ✅ Angular 20 專案結構重構總結
+- ✅ Supabase 遷移與安全整合指南
+- ✅ GigHub 架構分析與剩餘工作分析報告
+
+**查看完整封存清單**: [archive/README.md](./archive/README.md)
+
+---
+
 ## 📝 變更記錄 (Changelog)
+
+### v2.0.0 (2025-12-12) - 文檔封存更新
+
+**封存**:
+- ✅ 移動 10 個已完成文檔至 archive
+- ✅ 新增 4 個封存分類目錄
+- ✅ 更新 archive/README.md 記錄新封存
+
+**清理**:
+- ✅ docs/ 根目錄保留 9 個活躍文檔
+- ✅ 移除已完成功能的文檔參考
 
 ### v1.0.0 (2025-01-09) - 文檔重組與中文化
 
