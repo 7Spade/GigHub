@@ -2,8 +2,8 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit, e
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ContextType, TeamMember, TeamRole, OrganizationMember } from '@core';
-import { TeamMemberRepository, OrganizationMemberRepository } from '@core/repositories';
+import { ContextType, TeamMember, TeamRole, OrganizationMember, TeamStore } from '@core';
+import { OrganizationMemberRepository } from '@core/repositories';
 import { SHARED_IMPORTS, WorkspaceContextService } from '@shared';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
@@ -139,16 +139,13 @@ import { NzSpaceModule } from 'ng-zorro-antd/space';
 })
 export class TeamMembersComponent implements OnInit {
   readonly workspaceContext = inject(WorkspaceContextService);
-  private readonly memberRepository: TeamMemberRepository = inject(TeamMemberRepository);
+  readonly teamStore = inject(TeamStore);
   private readonly orgMemberRepository: OrganizationMemberRepository = inject(OrganizationMemberRepository);
   private readonly modal = inject(NzModalService);
   private readonly message = inject(NzMessageService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
-
-  private readonly members = signal<TeamMember[]>([]);
-  loading = signal(false);
 
   // Support both context-based and query parameter-based team ID
   private readonly queryParamTeamId = signal<string | null>(null);
@@ -175,7 +172,7 @@ export class TeamMembersComponent implements OnInit {
     effect(() => {
       const teamId = this.effectiveTeamId();
       if (teamId) {
-        this.loadMembers(teamId);
+        this.teamStore.loadMembers(teamId);
       }
     });
   }
@@ -184,7 +181,7 @@ export class TeamMembersComponent implements OnInit {
     // Load members when component initializes
     const teamId = this.effectiveTeamId();
     if (teamId) {
-      this.loadMembers(teamId);
+      this.teamStore.loadMembers(teamId);
     }
   }
 
@@ -199,23 +196,7 @@ export class TeamMembersComponent implements OnInit {
     return '組織';
   }
 
-  private loadMembers(teamId: string): void {
-    this.loading.set(true);
-    this.memberRepository
-      .findByTeam(teamId)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (members: TeamMember[]) => {
-          this.members.set(members);
-          this.loading.set(false);
-        },
-        error: (error: Error) => {
-          console.error('[TeamMembersComponent] ❌ Failed to load members:', error);
-          this.members.set([]);
-          this.loading.set(false);
-        }
-      });
-  }
+
 
   readonly currentTeamId = computed(() =>
     this.workspaceContext.contextType() === ContextType.TEAM ? this.workspaceContext.contextId() : null
@@ -232,8 +213,10 @@ export class TeamMembersComponent implements OnInit {
     if (!teamId) {
       return [];
     }
-    return this.members();
+    return this.teamStore.currentTeamMembers();
   });
+
+  readonly loading = this.teamStore.loading;
 
   isTeamContext(): boolean {
     // Consider both workspace context and query parameters
@@ -244,7 +227,7 @@ export class TeamMembersComponent implements OnInit {
     const teamId = this.effectiveTeamId();
     if (teamId) {
       this.message.info('正在重新整理...');
-      this.loadMembers(teamId);
+      this.teamStore.loadMembers(teamId);
     }
   }
 
@@ -263,16 +246,13 @@ export class TeamMembersComponent implements OnInit {
     }
 
     // Load organization members
-    this.loading.set(true);
     this.orgMemberRepository
       .findByOrganization(currentTeam.organization_id)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (orgMembers: OrganizationMember[]) => {
-          this.loading.set(false);
-
           // Filter out members already in team
-          const currentMemberIds = this.members().map(m => m.user_id);
+          const currentMemberIds = this.teamStore.currentTeamMembers().map(m => m.user_id);
           const availableMembers = orgMembers.filter(om => !currentMemberIds.includes(om.user_id));
 
           if (availableMembers.length === 0) {
@@ -283,7 +263,6 @@ export class TeamMembersComponent implements OnInit {
           this.showAddMemberModal(teamId, availableMembers);
         },
         error: (error: Error) => {
-          this.loading.set(false);
           console.error('[TeamMembersComponent] ❌ Failed to load org members:', error);
           this.message.error('載入組織成員失敗');
         }
@@ -306,9 +285,8 @@ export class TeamMembersComponent implements OnInit {
       modalRef.afterClose.subscribe(async result => {
         if (result) {
           try {
-            await this.memberRepository.addMember(teamId, result.userId, result.role);
+            await this.teamStore.addMember(teamId, result.userId, result.role);
             this.message.success('成員已加入團隊');
-            this.loadMembers(teamId);
           } catch (error) {
             console.error('[TeamMembersComponent] ❌ Failed to add member:', error);
             this.message.error('新增成員失敗');
@@ -363,11 +341,9 @@ export class TeamMembersComponent implements OnInit {
         }
 
         try {
-          // Remove and re-add with new role (simple approach)
-          await this.memberRepository.removeMember(member.id);
-          await this.memberRepository.addMember(teamId, member.user_id, newRole);
+          // Use TeamStore's updateMemberRole (simplified)
+          await this.teamStore.updateMemberRole(member.id, teamId, member.user_id, newRole);
           this.message.success('角色已變更');
-          this.loadMembers(teamId);
           return true;
         } catch (error) {
           console.error('[TeamMembersComponent] ❌ Failed to change role:', error);
@@ -380,13 +356,14 @@ export class TeamMembersComponent implements OnInit {
 
   async removeMember(member: TeamMember): Promise<void> {
     try {
-      await this.memberRepository.removeMember(member.id);
-      this.message.success('成員已移除');
-
       const teamId = this.effectiveTeamId();
-      if (teamId) {
-        this.loadMembers(teamId);
+      if (!teamId) {
+        this.message.error('無法獲取團隊 ID');
+        return;
       }
+
+      await this.teamStore.removeMember(member.id, teamId);
+      this.message.success('成員已移除');
     } catch (error) {
       console.error('[TeamMembersComponent] ❌ Failed to remove member:', error);
       this.message.error('移除成員失敗');
