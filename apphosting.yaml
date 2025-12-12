@@ -89,3 +89,39 @@ env:
 
   - variable: FIREBASE_MEASUREMENT_ID
     value: 'G-5KJJ3DD2G7'
+
+  - variable: NG_APP_SUPABASE_URL
+    value: 'https://zecsbstjqjqoytwgjyct.supabase.co'
+
+  - variable: NG_APP_SUPABASE_ANON_KEY
+    value: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InplY3Nic3RqcWpxb3l0d2dqeWN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU0OTk5MzcsImV4cCI6MjA4MTA3NTkzN30.GQSslGa2ujmjdR-DeqXwPiAUr0RPe2O3lwb37wnJQeE'
+
+  - variable: NG_APP_ENABLE_SUPABASE
+    value: 'true'
+
+  - variable: NG_APP_ENABLE_DUAL_WRITE
+    value: 'false'
+
+  - variable: NG_APP_PRIMARY_DATASOURCE
+    value: 'supabase'
+
+  - variable: NG_APP_ENABLE_VERBOSE_LOGGING
+    value: 'false'
+
+  - variable: NG_APP_ENABLE_HEALTH_CHECK
+    value: 'true'
+
+  - variable: NG_APP_HEALTH_CHECK_INTERVAL
+    value: '30000'
+
+  - variable: NG_APP_SENTRY_DSN
+    value: ''
+
+  - variable: NG_APP_PRODUCTION
+    value: 'false'
+
+  - variable: NG_APP_API_BASE_URL
+    value: './'
+
+  - variable: NG_APP_USE_HASH
+    value: 'true'
