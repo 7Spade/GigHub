@@ -273,20 +273,18 @@ export class ConstructionLogComponent implements OnInit {
   }
 
   async deleteLog(log: Log): Promise<void> {
+    const blueprintId = this.blueprintId();
+    if (!blueprintId || !log.id) return;
+
     try {
-      const blueprintId = this.blueprintId();
-      if (blueprintId && log.id) {
-        await this.logStore.deleteLog(blueprintId, log.id);
-        this.message.success('日誌刪除成功');
-      }
+      await this.logStore.deleteLog(blueprintId, log.id);
+      this.message.success('日誌刪除成功');
     } catch (error) {
-      console.error('Delete log failed:', error);
       this.message.error('日誌刪除失敗');
     }
   }
 
   handleTableChange(event: STChange): void {
-    console.log('Table change event:', event);
-    // Handle pagination, sorting, filtering etc.
+    // Future: Handle pagination, sorting, filtering
   }
 }

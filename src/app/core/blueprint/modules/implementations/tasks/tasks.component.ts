@@ -10,13 +10,13 @@
 
 import { Component, OnInit, inject, signal, effect, input } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { STColumn } from '@delon/abc/st';
-import { SHARED_IMPORTS } from '@shared';
 import { LoggerService } from '@core';
-import { NzMessageService } from 'ng-zorro-antd/message';
-import { NzModalService } from 'ng-zorro-antd/modal';
 import { TaskStore } from '@core/stores/task.store';
 import { TaskStatus, TaskPriority } from '@core/types/task';
+import { STColumn } from '@delon/abc/st';
+import { SHARED_IMPORTS } from '@shared';
+import { NzMessageService } from 'ng-zorro-antd/message';
+import { NzModalService } from 'ng-zorro-antd/modal';
 
 import { TaskModalComponent } from './task-modal.component';
 
@@ -59,8 +59,7 @@ import { TaskModalComponent } from './task-modal.component';
       } @else if (error()) {
         <nz-alert nzType="error" [nzMessage]="error()" nzShowIcon> </nz-alert>
       } @else {
-        <st [data]="tasks()" [columns]="columns" [page]="{ show: true, showSize: true }" [loading]="loading()">
-        </st>
+        <st [data]="tasks()" [columns]="columns" [page]="{ show: true, showSize: true }" [loading]="loading()"> </st>
       }
     </nz-card>
   `,
