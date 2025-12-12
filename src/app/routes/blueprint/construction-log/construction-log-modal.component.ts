@@ -20,7 +20,7 @@ import { Log, CreateLogRequest, UpdateLogRequest } from '@core/types/log/log.typ
 import { SHARED_IMPORTS } from '@shared';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NZ_MODAL_DATA, NzModalRef } from 'ng-zorro-antd/modal';
-import { NzUploadChangeParam, NzUploadFile } from 'ng-zorro-antd/upload';
+import { NzUploadFile } from 'ng-zorro-antd/upload';
 
 import { ConstructionLogStore } from './construction-log.store';
 
@@ -120,7 +120,6 @@ interface ModalData {
               [nzMultiple]="true"
               [nzAccept]="'image/*'"
               [nzBeforeUpload]="beforeUpload"
-              (nzChange)="handleUploadChange($event)"
               [nzShowUploadList]="{ showPreviewIcon: true, showRemoveIcon: true }"
             >
               <p class="ant-upload-drag-icon">
@@ -224,44 +223,33 @@ export class ConstructionLogModalComponent implements OnInit {
   }
 
   beforeUpload = (file: NzUploadFile): boolean => {
-    // Validate file type
+    // Validate file type and size
     if (!file.type?.startsWith('image/')) {
       this.message.error('只能上傳圖片檔案');
       return false;
     }
 
-    // Validate file size (5MB)
-    const isLt5M = file.size! / 1024 / 1024 < 5;
-    if (!isLt5M) {
+    if (file.size! / 1024 / 1024 >= 5) {
       this.message.error('圖片大小必須小於 5MB');
       return false;
     }
 
-    // Add to file list (don't auto upload)
     this.fileList.update(list => [...list, file as any]);
-    return false; // Prevent auto upload
+    return false;
   };
 
-  handleUploadChange(event: NzUploadChangeParam): void {
-    console.log('Upload change:', event);
-  }
-
   async deletePhoto(photoId: string): Promise<void> {
+    const logId = this.modalData.log?.id;
+    if (!logId) return;
+
     try {
-      const blueprintId = this.modalData.blueprintId;
-      const logId = this.modalData.log?.id;
-
-      if (!logId) return;
-
-      await this.logStore.deletePhoto(blueprintId, logId, photoId);
+      await this.logStore.deletePhoto(this.modalData.blueprintId, logId, photoId);
       this.message.success('照片刪除成功');
 
-      // Refresh modal data
       if (this.modalData.log) {
         this.modalData.log.photos = this.modalData.log.photos.filter(p => p.id !== photoId);
       }
     } catch (error) {
-      console.error('Failed to delete photo:', error);
       this.message.error('照片刪除失敗');
     }
   }
@@ -281,21 +269,26 @@ export class ConstructionLogModalComponent implements OnInit {
 
     try {
       const formValue = this.form.value;
+      const isCreate = this.modalData.mode === 'create';
 
-      if (this.modalData.mode === 'create') {
-        await this.createLog(formValue);
-      } else if (this.modalData.mode === 'edit') {
-        await this.updateLog(formValue);
+      const log = isCreate ? await this.createLog(formValue) : await this.updateLog(formValue);
+
+      if (!log) throw new Error('Operation failed');
+
+      // Upload photos if any
+      if (this.fileList().length > 0) {
+        await this.uploadPhotos(log.id);
       }
+
+      this.modalRef.close({ success: true, log });
     } catch (error) {
-      console.error('Submit failed:', error);
       this.message.error('操作失敗');
     } finally {
       this.submitting.set(false);
     }
   }
 
-  private async createLog(formValue: any): Promise<void> {
+  private async createLog(formValue: any): Promise<Log | null> {
     const request: CreateLogRequest = {
       blueprintId: this.modalData.blueprintId,
       date: formValue.date,
@@ -309,25 +302,12 @@ export class ConstructionLogModalComponent implements OnInit {
       creatorId: 'current-user' // TODO: Get from auth service
     };
 
-    const newLog = await this.logStore.createLog(request);
-
-    if (!newLog) {
-      throw new Error('Failed to create log');
-    }
-
-    // Upload photos if any
-    if (this.fileList().length > 0) {
-      await this.uploadPhotos(newLog.id);
-    }
-
-    this.modalRef.close({ success: true, log: newLog });
+    return this.logStore.createLog(request);
   }
 
-  private async updateLog(formValue: any): Promise<void> {
+  private async updateLog(formValue: any): Promise<Log | null> {
     const logId = this.modalData.log?.id;
-    if (!logId) {
-      throw new Error('Log ID not found');
-    }
+    if (!logId) return null;
 
     const request: UpdateLogRequest = {
       date: formValue.date,
@@ -340,25 +320,12 @@ export class ConstructionLogModalComponent implements OnInit {
       temperature: formValue.temperature
     };
 
-    const updatedLog = await this.logStore.updateLog(this.modalData.blueprintId, logId, request);
-
-    if (!updatedLog) {
-      throw new Error('Failed to update log');
-    }
-
-    // Upload new photos if any
-    if (this.fileList().length > 0) {
-      await this.uploadPhotos(logId);
-    }
-
-    this.modalRef.close({ success: true, log: updatedLog });
+    return this.logStore.updateLog(this.modalData.blueprintId, logId, request);
   }
 
   private async uploadPhotos(logId: string): Promise<void> {
     const files = this.fileList();
-    const uploadPromises = files.map(file => this.logStore.uploadPhoto(this.modalData.blueprintId, logId, file));
-
-    await Promise.all(uploadPromises);
+    await Promise.all(files.map(file => this.logStore.uploadPhoto(this.modalData.blueprintId, logId, file)));
   }
 
   cancel(): void {

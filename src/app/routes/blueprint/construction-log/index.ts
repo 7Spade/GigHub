@@ -5,5 +5,4 @@
 
 export * from './construction-log.component';
 export * from './construction-log.store';
-export * from './construction-log.repository';
 export * from './construction-log-modal.component';

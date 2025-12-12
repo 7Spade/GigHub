@@ -2,7 +2,9 @@
 
 ## Overview
 
-The Construction Log module provides a comprehensive solution for managing daily construction site logs with photo attachments. It follows modern Angular 20 patterns with Signals and integrates seamlessly with Supabase backend.
+The Construction Log module provides a streamlined solution for managing daily construction site logs with photo attachments. It follows modern Angular 20 patterns with Signals and Firebase/Firestore backend.
+
+**Design Philosophy**: Occam's Razor - minimum complexity, maximum clarity.
 
 ## Features
 
@@ -17,14 +19,14 @@ The Construction Log module provides a comprehensive solution for managing daily
 
 ## Architecture
 
-This module follows the project's three-layer architecture:
+This module follows a simplified two-layer architecture:
 
 ```
 Construction Log Module
-├── construction-log.component.ts      # Presentation Layer (UI)
+├── construction-log.component.ts       # Presentation Layer (UI)
 ├── construction-log-modal.component.ts # Modal for create/edit/view
-├── construction-log.store.ts          # Business Logic Layer (Signals Store)
-└── construction-log.repository.ts     # Data Access Layer (Supabase)
+└── construction-log.store.ts          # Business Logic Layer (Signals Store)
+    └── Uses LogFirestoreRepository     # Data Access (from @core/repositories)
 ```
 
 ### Layer Responsibilities
@@ -38,14 +40,15 @@ Construction Log Module
 2. **Business Logic Layer** (`*.store.ts`)
    - Manage application state with Angular Signals
    - Provide computed statistics
-   - Coordinate data operations
+   - Coordinate data operations via LogFirestoreRepository
    - Handle error states
 
-3. **Data Access Layer** (`*.repository.ts`)
-   - Interact with Supabase database
-   - Handle file uploads to Supabase Storage
+3. **Data Access Layer** (`LogFirestoreRepository` in @core/repositories)
+   - Interact with Firebase Firestore
+   - Handle file uploads to Firebase Storage
    - Map database models to domain entities
    - Implement query filtering
+   - **Shared across all modules** (not duplicated)
 
 ## Usage
 
@@ -126,20 +129,20 @@ export class MyComponent {
 - `uploadPhoto(blueprintId: string, logId: string, file: File): Promise<string | null>`
 - `deletePhoto(blueprintId: string, logId: string, photoId: string): Promise<void>`
 
-### ConstructionLogRepository
+### LogFirestoreRepository (from @core/repositories)
 
-**Methods:**
-- `findAll(options?: LogQueryOptions): Promise<Log[]>`
-- `findById(blueprintId: string, logId: string): Promise<Log | null>`
+**Key Methods:**
+- `findByBlueprint(blueprintId: string, options?: LogQueryOptions): Promise<Log[]>`
+- `findById(id: string): Promise<Log | null>`
 - `create(request: CreateLogRequest): Promise<Log>`
-- `update(blueprintId: string, logId: string, request: UpdateLogRequest): Promise<Log>`
-- `delete(blueprintId: string, logId: string): Promise<void>`
-- `uploadPhoto(blueprintId: string, logId: string, file: File): Promise<string>`
-- `deletePhoto(blueprintId: string, logId: string, photoId: string): Promise<void>`
+- `update(id: string, request: UpdateLogRequest): Promise<void>`
+- `delete(id: string): Promise<void>` (soft delete)
+- `uploadPhoto(logId: string, file: File, caption?: string): Promise<LogPhoto>`
+- `deletePhoto(logId: string, photoId: string): Promise<void>`
 
 ## Data Model
 
-### Log Interface
+### Log Interface (Simplified)
 
 ```typescript
 interface Log {
@@ -161,6 +164,8 @@ interface Log {
 }
 ```
 
+**Note**: Reserved fields (voiceRecords, documents, metadata) have been removed to reduce complexity. They can be added back when actually needed.
+
 ### LogPhoto Interface
 
 ```typescript
@@ -175,22 +180,21 @@ interface LogPhoto {
 }
 ```
 
-## Database Setup
+## Firebase/Firestore Setup
 
-### Required Tables
+### Required Firestore Collection
 
-Execute the SQL script located at `docs/database/construction_logs.sql` to create:
-- `construction_logs` table with all required fields and indexes
-- RLS policies for secure access
-- Triggers for automatic timestamp updates
+Collection: `logs`
+- Automatic creation on first write
+- Security rules managed at project level
+- Indexes created automatically by Firestore
 
-### Required Storage Bucket
+### Required Firebase Storage Bucket
 
-Create a Supabase Storage bucket named `construction-photos`:
-1. Navigate to Supabase Dashboard → Storage
-2. Create new bucket: `construction-photos`
-3. Set to **private** (not public)
-4. Apply RLS policies (included in SQL script comments)
+Bucket: `log-photos`
+- Used for storing log photo attachments
+- Security rules managed at project level
+- Automatic public URL generation
 
 ## Development Guidelines
 
@@ -199,19 +203,20 @@ Create a Supabase Storage bucket named `construction-photos`:
 To add new fields to logs:
 
 1. Update type definition in `@core/types/log/log.types.ts`
-2. Add database column in `construction_logs.sql`
-3. Update repository mapping in `construction-log.repository.ts`
-4. Add form field in `construction-log-modal.component.ts`
-5. Update ST column in `construction-log.component.ts`
+2. Update `LogFirestoreRepository.toEntity()` and `toDocument()` methods
+3. Add form field in `construction-log-modal.component.ts`
+4. Update ST column in `construction-log.component.ts`
 
 ### Extending Functionality
 
-The module is designed for easy extension:
+The module follows a minimalist approach. Add features only when needed:
 
-- **Voice Records**: Reserved fields and interfaces already defined
-- **Documents**: Ready for implementation with Supabase Storage
-- **Realtime Updates**: Repository structure supports Supabase Realtime subscriptions
-- **Export**: Can easily add PDF/Excel export functionality
+- **Voice Records**: Can be added to Log interface when feature is planned
+- **Documents**: Can be added similar to photos using Firebase Storage
+- **Realtime Updates**: Can subscribe to Firestore changes using AngularFire
+- **Export**: Can add PDF/Excel export when business requirement emerges
+
+**Principle**: Don't add complexity for "future-proofing" - add it when you need it.
 
 ## Best Practices
 
@@ -222,37 +227,35 @@ The module is designed for easy extension:
 5. **Type everything** - use strict TypeScript
 6. **Test with RLS enabled** - ensure security policies work correctly
 
-## Future Enhancements
+## Potential Future Enhancements
+
+*Note: Add these only when there's a clear business need*
 
 - [ ] Realtime updates when other users add logs
-- [ ] Voice recording support
-- [ ] Document attachment support
 - [ ] Export to PDF/Excel
 - [ ] Advanced filtering and search
-- [ ] Log templates
-- [ ] Batch operations
-- [ ] Activity timeline view
-- [ ] Integration with task management
+- [ ] Voice recording support (if needed)
+- [ ] Document attachments (if needed)
 - [ ] Weather API integration for auto-fill
 
 ## Troubleshooting
 
 ### Photos not uploading
-- Check Supabase Storage bucket exists: `construction-photos`
-- Verify RLS policies are applied correctly
+- Check Firebase Storage bucket exists: `log-photos`
+- Verify Firebase security rules allow access
 - Ensure file size is under 5MB
 - Check browser console for errors
 
 ### Logs not appearing
 - Verify blueprint ID is correct
-- Check RLS policies allow user access
-- Ensure user has required permissions in blueprint_members
-- Check network tab for API errors
+- Check Firestore security rules allow read access
+- Check browser network tab for API errors
+- Verify LogFirestoreRepository is properly injected
 
 ### Permission denied errors
-- User must be blueprint owner or member with appropriate role
-- Check `blueprint_members` table for user's role
-- Verify RLS policies in `construction_logs` table
+- Check Firestore security rules
+- Verify user authentication status
+- Ensure Firebase project configuration is correct
 
 ## Support
 
