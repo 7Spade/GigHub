@@ -16,6 +16,48 @@ import {
 import { SearchCacheService } from './search-cache.service';
 
 /**
+ * Firestore Document Interfaces
+ * Define explicit types for Firestore documents to avoid `any` usage
+ */
+interface AccountFirestoreDoc {
+  uid: string;
+  name: string;
+  email: string;
+  avatar_url?: string;
+  organization_count?: number;
+  blueprint_count?: number;
+  created_at: Timestamp;
+}
+
+interface OrganizationFirestoreDoc {
+  name: string;
+  description?: string;
+  logo_url?: string;
+  is_public: boolean;
+  created_by: string;
+  member_count?: number;
+  blueprint_count?: number;
+  created_at: Timestamp;
+}
+
+interface BlueprintFirestoreDoc {
+  name: string;
+  description?: string;
+  cover_url?: string;
+  owner_id: string;
+  owner_type: 'user' | 'organization' | 'team';
+  owner_name?: string;
+  is_public: boolean;
+  status: 'draft' | 'active' | 'archived';
+  enabled_modules: string[];
+  task_count?: number;
+  member_count?: number;
+  created_by: string;
+  created_at: Timestamp;
+  updated_at: Timestamp;
+}
+
+/**
  * Explore Search Facade
  *
  * Unified search interface for Users, Organizations, and Blueprints.
@@ -42,6 +84,9 @@ export class ExploreSearchFacade {
   // Configuration constants
   private readonly SEARCH_BATCH_LIMIT = 50;
   private readonly CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
+  // Cached escaped query for current search (performance optimization)
+  private _escapedQuery = '';
 
   // Private state signals
   private _query = signal('');
@@ -102,6 +147,9 @@ export class ExploreSearchFacade {
     this._query.set(sanitizedQuery);
     this._loading.set(true);
     this._error.set(null);
+
+    // Cache escaped query for relevance calculations (performance optimization)
+    this._escapedQuery = this.escapeRegex(sanitizedQuery.toLowerCase());
 
     // Apply filter overrides if provided
     if (options?.filters) {
@@ -233,6 +281,8 @@ export class ExploreSearchFacade {
     // This prevents bypass attempts like "<scr<script>ipt>"
     let sanitized = queryInput.trim();
     let previousLength: number;
+    let iterations = 0;
+    const MAX_ITERATIONS = 10; // Safety limit to prevent potential performance issues
 
     do {
       previousLength = sanitized.length;
@@ -243,7 +293,8 @@ export class ExploreSearchFacade {
         .replace(/'/g, '') // Remove single quotes
         .replace(/`/g, '') // Remove backticks
         .replace(/&/g, ''); // Remove ampersands (prevent HTML entities)
-    } while (sanitized.length !== previousLength);
+      iterations++;
+    } while (sanitized.length !== previousLength && iterations < MAX_ITERATIONS);
 
     // Limit length
     return sanitized.substring(0, 100);
@@ -276,7 +327,7 @@ export class ExploreSearchFacade {
       const snapshot = await runInInjectionContext(this.injector, () => getDocs(q));
 
       return snapshot.docs.map(doc => {
-        const data = doc.data() as any;
+        const data = doc.data() as AccountFirestoreDoc;
         return this.transformAccountToResult(doc.id, data, searchQuery);
       });
     } catch (error) {
@@ -303,7 +354,7 @@ export class ExploreSearchFacade {
       const snapshot = await runInInjectionContext(this.injector, () => getDocs(q));
 
       return snapshot.docs.map(doc => {
-        const data = doc.data() as any;
+        const data = doc.data() as OrganizationFirestoreDoc;
         return this.transformOrganizationToResult(doc.id, data, searchQuery);
       });
     } catch (error) {
@@ -333,7 +384,7 @@ export class ExploreSearchFacade {
       const snapshot = await runInInjectionContext(this.injector, () => getDocs(q));
 
       return snapshot.docs.map(doc => {
-        const data = doc.data() as any;
+        const data = doc.data() as BlueprintFirestoreDoc;
         return this.transformBlueprintToResult(doc.id, data, searchQuery);
       });
     } catch (error) {
@@ -345,7 +396,7 @@ export class ExploreSearchFacade {
   /**
    * Transform Firestore account document to SearchResult
    */
-  private transformAccountToResult(id: string, data: any, searchQuery: string): SearchResult {
+  private transformAccountToResult(id: string, data: AccountFirestoreDoc, searchQuery: string): SearchResult {
     const createdAt = data.created_at instanceof Timestamp ? data.created_at.toDate() : new Date(data.created_at || Date.now());
 
     const metadata: AccountMetadata = {
@@ -360,7 +411,7 @@ export class ExploreSearchFacade {
       title: data.name || 'Unknown User',
       subtitle: data.email || '',
       avatarUrl: data.avatar_url || null,
-      relevanceScore: this.calculateRelevance(data.name || '', searchQuery),
+      relevanceScore: this.calculateRelevance(data.name || '', searchQuery, this._escapedQuery),
       metadata,
       highlights: this.extractHighlights(data, searchQuery),
       createdAt,
@@ -371,7 +422,7 @@ export class ExploreSearchFacade {
   /**
    * Transform Firestore organization document to SearchResult
    */
-  private transformOrganizationToResult(id: string, data: any, searchQuery: string): SearchResult {
+  private transformOrganizationToResult(id: string, data: OrganizationFirestoreDoc, searchQuery: string): SearchResult {
     const createdAt = data.created_at instanceof Timestamp ? data.created_at.toDate() : new Date(data.created_at || Date.now());
 
     const metadata: OrganizationMetadata = {
@@ -389,7 +440,7 @@ export class ExploreSearchFacade {
       title: data.name || 'Unknown Organization',
       subtitle,
       avatarUrl: data.logo_url || null,
-      relevanceScore: this.calculateRelevance(data.name || '', searchQuery),
+      relevanceScore: this.calculateRelevance(data.name || '', searchQuery, this._escapedQuery),
       metadata,
       highlights: this.extractHighlights(data, searchQuery),
       createdAt,
@@ -400,7 +451,7 @@ export class ExploreSearchFacade {
   /**
    * Transform Firestore blueprint document to SearchResult
    */
-  private transformBlueprintToResult(id: string, data: any, searchQuery: string): SearchResult {
+  private transformBlueprintToResult(id: string, data: BlueprintFirestoreDoc, searchQuery: string): SearchResult {
     const createdAt = data.created_at instanceof Timestamp ? data.created_at.toDate() : new Date(data.created_at || Date.now());
 
     const updatedAt = data.updated_at instanceof Timestamp ? data.updated_at.toDate() : createdAt;
@@ -427,7 +478,7 @@ export class ExploreSearchFacade {
       title: data.name || 'Unknown Blueprint',
       subtitle,
       avatarUrl: data.cover_url || null,
-      relevanceScore: this.calculateRelevance(data.name || '', searchQuery),
+      relevanceScore: this.calculateRelevance(data.name || '', searchQuery, this._escapedQuery),
       metadata,
       highlights: this.extractHighlights(data, searchQuery),
       createdAt,
@@ -437,8 +488,11 @@ export class ExploreSearchFacade {
 
   /**
    * Calculate relevance score for a result
+   * @param name The name to score
+   * @param searchQuery The search query (normalized)
+   * @param escapedQuery Pre-escaped query for regex (to avoid redundant escaping)
    */
-  private calculateRelevance(name: string, searchQuery: string): number {
+  private calculateRelevance(name: string, searchQuery: string, escapedQuery?: string): number {
     const normalizedQuery = searchQuery.toLowerCase();
     const normalizedName = name.toLowerCase();
 
@@ -449,7 +503,9 @@ export class ExploreSearchFacade {
     if (normalizedName.startsWith(normalizedQuery)) return 80;
 
     // Contains as word: 60 points
-    if (new RegExp(`\\b${this.escapeRegex(normalizedQuery)}`, 'i').test(normalizedName)) return 60;
+    // Use pre-escaped query if provided to avoid redundant escapeRegex calls
+    const escaped = escapedQuery || this.escapeRegex(normalizedQuery);
+    if (new RegExp(`\\b${escaped}`, 'i').test(normalizedName)) return 60;
 
     // Contains anywhere: 40 points
     if (normalizedName.includes(normalizedQuery)) return 40;

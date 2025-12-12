@@ -177,9 +177,9 @@ export class FilterPanelComponent {
         entityTypes: current.filter(t => t !== type)
       });
     } else {
-      // If selecting a single type, only show that type
+      // Add the type to the current selection
       this.searchFacade.updateFilters({
-        entityTypes: [type]
+        entityTypes: [...current, type]
       });
     }
   }
