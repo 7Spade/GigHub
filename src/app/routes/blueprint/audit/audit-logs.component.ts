@@ -30,13 +30,7 @@ import { NzSpaceModule } from 'ng-zorro-antd/space';
     <nz-card nzTitle="審計記錄">
       <!-- Filters -->
       <div class="mb-md" style="display: flex; gap: 8px;">
-        <nz-select
-          [(ngModel)]="filterCategory"
-          (ngModelChange)="onFilterChange()"
-          nzPlaceHolder="類別"
-          style="width: 150px"
-          nzAllowClear
-        >
+        <nz-select [(ngModel)]="filterCategory" (ngModelChange)="onFilterChange()" nzPlaceHolder="類別" style="width: 150px" nzAllowClear>
           <nz-option nzLabel="藍圖" nzValue="blueprint"></nz-option>
           <nz-option nzLabel="成員" nzValue="member"></nz-option>
           <nz-option nzLabel="安全性" nzValue="security"></nz-option>

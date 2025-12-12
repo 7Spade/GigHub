@@ -309,7 +309,7 @@ export abstract class FirestoreBaseRepository<T> {
         deleted_at: Timestamp.now(),
         updated_at: Timestamp.now()
       } as Record<string, any>;
-      
+
       await updateDoc(docRef, updateData);
     }
   }

@@ -12,6 +12,7 @@ import { Log, CreateLogRequest, UpdateLogRequest, LogQueryOptions, LogPhoto } fr
 export class ConstructionLogRepository {
   /**
    * Find all logs with optional filters
+   *
    * @deprecated Use LogFirestoreRepository instead
    */
   async findAll(options?: LogQueryOptions): Promise<Log[]> {
@@ -21,6 +22,7 @@ export class ConstructionLogRepository {
 
   /**
    * Find log by ID
+   *
    * @deprecated Use LogFirestoreRepository instead
    */
   async findById(id: string): Promise<Log | null> {
@@ -30,6 +32,7 @@ export class ConstructionLogRepository {
 
   /**
    * Create a new log
+   *
    * @deprecated Use LogFirestoreRepository instead
    */
   async create(request: CreateLogRequest): Promise<Log> {
@@ -39,6 +42,7 @@ export class ConstructionLogRepository {
 
   /**
    * Update existing log
+   *
    * @deprecated Use LogFirestoreRepository instead
    */
   async update(id: string, request: UpdateLogRequest): Promise<void> {
@@ -47,6 +51,7 @@ export class ConstructionLogRepository {
 
   /**
    * Delete log
+   *
    * @deprecated Use LogFirestoreRepository instead
    */
   async delete(id: string): Promise<void> {
@@ -55,6 +60,7 @@ export class ConstructionLogRepository {
 
   /**
    * Upload photo to log
+   *
    * @deprecated Use LogFirestoreRepository instead
    */
   async uploadPhoto(logId: string, file: File, caption?: string): Promise<LogPhoto> {
@@ -64,6 +70,7 @@ export class ConstructionLogRepository {
 
   /**
    * Delete photo from log
+   *
    * @deprecated Use LogFirestoreRepository instead
    */
   async deletePhoto(logId: string, photoId: string): Promise<void> {

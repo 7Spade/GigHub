@@ -5,20 +5,20 @@ import { Blueprint, LoggerService } from '@core';
 import { TasksComponent } from '@core/blueprint/modules/implementations/tasks/tasks.component';
 import { BlueprintService } from '@core/blueprint/services';
 import { SHARED_IMPORTS, createAsyncState } from '@shared';
+import { NzAlertModule } from 'ng-zorro-antd/alert';
+import { NzBadgeModule } from 'ng-zorro-antd/badge';
+import { NzButtonModule } from 'ng-zorro-antd/button';
+import { NzCardModule } from 'ng-zorro-antd/card';
 import { NzDescriptionsModule } from 'ng-zorro-antd/descriptions';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
+import { NzGridModule } from 'ng-zorro-antd/grid';
+import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzResultModule } from 'ng-zorro-antd/result';
 import { NzSpaceModule } from 'ng-zorro-antd/space';
 import { NzStatisticModule } from 'ng-zorro-antd/statistic';
 import { NzTabsModule } from 'ng-zorro-antd/tabs';
 import { NzTagModule } from 'ng-zorro-antd/tag';
-import { NzAlertModule } from 'ng-zorro-antd/alert';
-import { NzBadgeModule } from 'ng-zorro-antd/badge';
-import { NzButtonModule } from 'ng-zorro-antd/button';
-import { NzCardModule } from 'ng-zorro-antd/card';
-import { NzGridModule } from 'ng-zorro-antd/grid';
-import { NzIconModule } from 'ng-zorro-antd/icon';
 import { firstValueFrom } from 'rxjs';
 
 import { AuditLogsComponent } from './audit/audit-logs.component';
@@ -333,7 +333,11 @@ import { BlueprintMembersComponent } from './members/blueprint-members.component
                     <div style="text-align: center;">
                       <span nz-icon nzType="appstore" style="font-size: 48px; color: #52c41a;"></span>
                       <div style="margin-top: 16px;">
-                        <nz-statistic [nzValue]="blueprint()!.enabledModules.length" nzTitle="註冊模組" [nzValueStyle]="{ fontSize: '20px' }" />
+                        <nz-statistic
+                          [nzValue]="blueprint()!.enabledModules.length"
+                          nzTitle="註冊模組"
+                          [nzValueStyle]="{ fontSize: '20px' }"
+                        />
                       </div>
                     </div>
                     <div style="text-align: center; margin-top: 12px; color: #52c41a;">
@@ -424,7 +428,7 @@ export class BlueprintDetailComponent implements OnInit {
   private async loadBlueprint(id: string): Promise<void> {
     try {
       await this.blueprintState.load(firstValueFrom(this.blueprintService.getById(id)));
-      
+
       const data = this.blueprintState.data();
       if (data) {
         this.logger.info('[BlueprintDetailComponent]', `Loaded blueprint: ${data.name}`);
@@ -544,7 +548,7 @@ export class BlueprintDetailComponent implements OnInit {
    */
   refreshContainerStatus(): void {
     this.containerLoading.set(true);
-    
+
     // Simulate loading container status
     setTimeout(() => {
       this.containerStatus.set({
