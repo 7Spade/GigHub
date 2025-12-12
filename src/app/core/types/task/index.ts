@@ -5,3 +5,4 @@
 
 export * from './task.types';
 export * from './task-quantity.types';
+export * from './task-view.types';

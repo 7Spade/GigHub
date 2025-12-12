@@ -4,3 +4,4 @@
  */
 
 export * from './tasks/tasks.module';
+export * from './climate';

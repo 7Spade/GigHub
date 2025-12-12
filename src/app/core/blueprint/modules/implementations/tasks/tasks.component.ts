@@ -10,20 +10,30 @@
 
 import { Component, OnInit, inject, signal, effect, input } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { LoggerService } from '@core';
-import { TaskStore } from '@core/stores/task.store';
-import { TaskStatus, TaskPriority } from '@core/types/task';
-import { STColumn } from '@delon/abc/st';
 import { SHARED_IMPORTS } from '@shared';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzModalService } from 'ng-zorro-antd/modal';
+import { TaskStore } from '@core/stores/task.store';
+import { Task, TaskViewMode } from '@core/types/task';
 
 import { TaskModalComponent } from './task-modal.component';
+import { TaskListViewComponent } from './views/task-list-view.component';
+import { TaskTreeViewComponent } from './views/task-tree-view.component';
+import { TaskKanbanViewComponent } from './views/task-kanban-view.component';
+import { TaskTimelineViewComponent } from './views/task-timeline-view.component';
+import { TaskGanttViewComponent } from './views/task-gantt-view.component';
 
 @Component({
   selector: 'app-tasks',
   standalone: true,
-  imports: [SHARED_IMPORTS],
+  imports: [
+    SHARED_IMPORTS,
+    TaskListViewComponent,
+    TaskTreeViewComponent,
+    TaskKanbanViewComponent,
+    TaskTimelineViewComponent,
+    TaskGanttViewComponent
+  ],
   template: `
     <nz-card [nzTitle]="'任務統計'" [nzExtra]="statsExtra">
       <nz-row [nzGutter]="16">
@@ -53,14 +63,52 @@ import { TaskModalComponent } from './task-modal.component';
       </ng-template>
     </nz-card>
 
-    <nz-card [nzTitle]="'任務列表'" style="margin-top: 16px;">
-      @if (loading()) {
-        <nz-spin nzSimple />
-      } @else if (error()) {
-        <nz-alert nzType="error" [nzMessage]="error()" nzShowIcon> </nz-alert>
-      } @else {
-        <st [data]="tasks()" [columns]="columns" [page]="{ show: true, showSize: true }" [loading]="loading()"> </st>
-      }
+    <nz-card style="margin-top: 16px;">
+      <nz-tabset [(nzSelectedIndex)]="selectedViewIndex" (nzSelectedIndexChange)="onViewChange($event)">
+        <nz-tab [nzTitle]="listViewTitle">
+          <ng-template #listViewTitle>
+            <span nz-icon nzType="unordered-list" nzTheme="outline"></span>
+            列表視圖
+          </ng-template>
+          <app-task-list-view 
+            [blueprintId]="_blueprintId()"
+            (editTask)="editTask($event)"
+            (deleteTask)="deleteTask($event)"
+          />
+        </nz-tab>
+
+        <nz-tab [nzTitle]="treeViewTitle">
+          <ng-template #treeViewTitle>
+            <span nz-icon nzType="apartment" nzTheme="outline"></span>
+            樹狀視圖
+          </ng-template>
+          <app-task-tree-view [blueprintId]="_blueprintId()" />
+        </nz-tab>
+
+        <nz-tab [nzTitle]="kanbanViewTitle">
+          <ng-template #kanbanViewTitle>
+            <span nz-icon nzType="project" nzTheme="outline"></span>
+            看板視圖
+          </ng-template>
+          <app-task-kanban-view [blueprintId]="_blueprintId()" />
+        </nz-tab>
+
+        <nz-tab [nzTitle]="timelineViewTitle">
+          <ng-template #timelineViewTitle>
+            <span nz-icon nzType="clock-circle" nzTheme="outline"></span>
+            時間線視圖
+          </ng-template>
+          <app-task-timeline-view [blueprintId]="_blueprintId()" />
+        </nz-tab>
+
+        <nz-tab [nzTitle]="ganttViewTitle">
+          <ng-template #ganttViewTitle>
+            <span nz-icon nzType="bar-chart" nzTheme="outline"></span>
+            甘特圖視圖
+          </ng-template>
+          <app-task-gantt-view [blueprintId]="_blueprintId()" />
+        </nz-tab>
+      </nz-tabset>
     </nz-card>
   `,
   styles: [
@@ -82,13 +130,12 @@ export class TasksComponent implements OnInit {
   blueprintId = input<string>();
 
   // Internal state
-  private _blueprintId = signal<string>('');
+  _blueprintId = signal<string>('');
   blueprintName = signal<string>('任務管理');
+  selectedViewIndex = 0;
+  currentViewMode = signal<TaskViewMode>(TaskViewMode.LIST);
 
   // Expose store signals to template
-  readonly tasks = this.taskStore.tasks;
-  readonly loading = this.taskStore.loading;
-  readonly error = this.taskStore.error;
   readonly taskStats = this.taskStore.taskStats;
 
   constructor() {
@@ -101,88 +148,6 @@ export class TasksComponent implements OnInit {
       }
     });
   }
-
-  // ST Table columns
-  columns: STColumn[] = [
-    {
-      title: 'ID',
-      index: 'id',
-      width: 100,
-      className: 'text-truncate'
-    },
-    {
-      title: '標題',
-      index: 'title',
-      width: 200
-    },
-    {
-      title: '狀態',
-      index: 'status',
-      type: 'badge',
-      width: 100,
-      badge: {
-        [TaskStatus.PENDING]: { text: '待處理', color: 'default' },
-        [TaskStatus.IN_PROGRESS]: { text: '進行中', color: 'processing' },
-        [TaskStatus.ON_HOLD]: { text: '暫停', color: 'warning' },
-        [TaskStatus.COMPLETED]: { text: '已完成', color: 'success' },
-        [TaskStatus.CANCELLED]: { text: '已取消', color: 'error' }
-      }
-    },
-    {
-      title: '優先級',
-      index: 'priority',
-      type: 'badge',
-      width: 100,
-      badge: {
-        [TaskPriority.CRITICAL]: { text: '緊急', color: 'error' },
-        [TaskPriority.HIGH]: { text: '高', color: 'warning' },
-        [TaskPriority.MEDIUM]: { text: '中', color: 'processing' },
-        [TaskPriority.LOW]: { text: '低', color: 'default' }
-      }
-    },
-    {
-      title: '負責人',
-      index: 'assigneeName',
-      width: 120,
-      default: '未分配'
-    },
-    {
-      title: '到期日',
-      index: 'dueDate',
-      type: 'date',
-      width: 120,
-      dateFormat: 'yyyy-MM-dd'
-    },
-    {
-      title: '建立時間',
-      index: 'createdAt',
-      type: 'date',
-      width: 150,
-      dateFormat: 'yyyy-MM-dd HH:mm',
-      sort: true
-    },
-    {
-      title: '操作',
-      width: 180,
-      buttons: [
-        {
-          text: '編輯',
-          icon: 'edit',
-          click: (record: any) => this.editTask(record)
-        },
-        {
-          text: '刪除',
-          icon: 'delete',
-          type: 'del',
-          pop: {
-            title: '確認刪除？',
-            okType: 'danger'
-          },
-          click: (record: any) => this.deleteTask(record)
-        }
-      ]
-    }
-  ];
 
   ngOnInit(): void {
     // Also check route params for backwards compatibility
@@ -197,6 +162,18 @@ export class TasksComponent implements OnInit {
 
   loadTasks(blueprintId: string): void {
     this.taskStore.loadTasks(blueprintId);
+  }
+
+  onViewChange(index: number): void {
+    const viewModes = [
+      TaskViewMode.LIST,
+      TaskViewMode.TREE,
+      TaskViewMode.KANBAN,
+      TaskViewMode.TIMELINE,
+      TaskViewMode.GANTT
+    ];
+    this.currentViewMode.set(viewModes[index]);
+    this.logger.info('[TasksComponent]', `View changed to: ${viewModes[index]}`);
   }
 
   showCreateTaskModal(): void {
@@ -220,7 +197,7 @@ export class TasksComponent implements OnInit {
     // Success message shown in modal, task added to store by modal
   }
 
-  editTask(task: any): void {
+  editTask(task: Task): void {
     const blueprintId = this._blueprintId();
     if (!blueprintId) {
       this.message.warning('請先選擇藍圖');
@@ -242,7 +219,7 @@ export class TasksComponent implements OnInit {
     // Success message shown in modal, task updated in store by modal
   }
 
-  async deleteTask(task: any): Promise<void> {
+  async deleteTask(task: Task): Promise<void> {
     try {
       const blueprintId = this._blueprintId();
       if (blueprintId && task.id) {

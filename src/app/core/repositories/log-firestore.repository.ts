@@ -58,10 +58,7 @@ export class LogFirestoreRepository extends FirestoreBaseRepository<Log> {
       creatorId: data['creator_id'] || data['creatorId'],
       createdAt: this.toDate(data['created_at']),
       updatedAt: this.toDate(data['updated_at']),
-      deletedAt: data['deleted_at'] ? this.toDate(data['deleted_at']) : null,
-      voiceRecords: data['voice_records'] || data['voiceRecords'] || [],
-      documents: data['documents'] || [],
-      metadata: data['metadata'] || {}
+      deletedAt: data['deleted_at'] ? this.toDate(data['deleted_at']) : null
     };
   }
 
@@ -242,10 +239,7 @@ export class LogFirestoreRepository extends FirestoreBaseRepository<Log> {
         weather: payload.weather || '',
         temperature: payload.temperature || null,
         creator_id: payload.creatorId,
-        photos: [],
-        voice_records: [],
-        documents: [],
-        metadata: {}
+        photos: []
       };
 
       const log = await this.createDocument(doc as Partial<Log>);

@@ -1,8 +1,8 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { Team, TeamMember, TeamRole, OrganizationMember } from '@core';
-import { TeamMemberRepository, OrganizationMemberRepository, TeamRepository } from '@core/repositories';
+import { Team, TeamMember, TeamRole, OrganizationMember, TeamStore } from '@core';
+import { OrganizationMemberRepository } from '@core/repositories';
 import { SHARED_IMPORTS, WorkspaceContextService } from '@shared';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
 import { NzDescriptionsModule } from 'ng-zorro-antd/descriptions';
@@ -45,9 +45,8 @@ interface DrawerData {
 export class TeamDetailDrawerComponent implements OnInit {
   private readonly drawerRef = inject(NzDrawerRef);
   private readonly drawerData = inject<DrawerData>(NZ_DRAWER_DATA);
-  private readonly teamMemberRepository: TeamMemberRepository = inject(TeamMemberRepository);
+  readonly teamStore = inject(TeamStore);
   private readonly orgMemberRepository: OrganizationMemberRepository = inject(OrganizationMemberRepository);
-  private readonly teamRepository: TeamRepository = inject(TeamRepository);
   private readonly workspaceContext = inject(WorkspaceContextService);
   private readonly message = inject(NzMessageService);
   private readonly modal = inject(NzModalService);
@@ -56,14 +55,13 @@ export class TeamDetailDrawerComponent implements OnInit {
   // State
   readonly team = signal<Team>(this.drawerData.team);
   readonly organizationId = this.drawerData.organizationId;
-  private readonly membersState = signal<TeamMember[]>([]);
-  readonly members = computed(() => this.membersState());
+  readonly members = computed(() => this.teamStore.currentTeamMembers());
   private readonly orgMembersState = signal<OrganizationMember[]>([]);
   readonly availableOrgMembers = computed(() => {
     const currentMemberIds = new Set(this.members().map(m => m.user_id));
     return this.orgMembersState().filter(om => !currentMemberIds.has(om.user_id));
   });
-  readonly loading = signal(false);
+  readonly loading = this.teamStore.loading;
   readonly addingMember = signal(false);
 
   // Add member form
@@ -71,26 +69,8 @@ export class TeamDetailDrawerComponent implements OnInit {
   selectedRole = signal<TeamRole>(TeamRole.MEMBER);
 
   ngOnInit(): void {
-    this.loadMembers();
+    this.teamStore.loadMembers(this.team().id);
     this.loadOrganizationMembers();
-  }
-
-  private async loadMembers(): Promise<void> {
-    try {
-      this.loading.set(true);
-      console.log('[TeamDetailDrawer] 🔄 Loading members for team:', this.team().id);
-
-      const members = await firstValueFrom(this.teamMemberRepository.findByTeam(this.team().id));
-      this.membersState.set(members || []);
-
-      console.log('[TeamDetailDrawer] ✅ Members loaded:', members?.length || 0);
-    } catch (error) {
-      console.error('[TeamDetailDrawer] ❌ Error loading team members:', error);
-      // Don't show error to user - just set empty array
-      this.membersState.set([]);
-    } finally {
-      this.loading.set(false);
-    }
   }
 
   private async loadOrganizationMembers(): Promise<void> {
@@ -117,15 +97,14 @@ export class TeamDetailDrawerComponent implements OnInit {
 
     try {
       this.addingMember.set(true);
-      await this.teamMemberRepository.addMember(this.team().id, userId, this.selectedRole());
+      await this.teamStore.addMember(this.team().id, userId, this.selectedRole());
       this.message.success('成員已加入團隊');
 
       // Reset form
       this.selectedUserId.set(null);
       this.selectedRole.set(TeamRole.MEMBER);
 
-      // Reload members
-      await this.loadMembers();
+      // Reload organization members to update available list
       await this.loadOrganizationMembers();
     } catch (error) {
       console.error('Error adding team member:', error);
@@ -143,10 +122,8 @@ export class TeamDetailDrawerComponent implements OnInit {
       nzContent: `是否將 ${member.user_id} 的角色從 ${this.roleLabel(member.role)} 變更為 ${this.roleLabel(newRole)}？`,
       nzOnOk: async () => {
         try {
-          await this.teamMemberRepository.removeMember(member.id);
-          await this.teamMemberRepository.addMember(this.team().id, member.user_id, newRole);
+          await this.teamStore.updateMemberRole(member.id, this.team().id, member.user_id, newRole);
           this.message.success('角色已變更');
-          await this.loadMembers();
         } catch (error) {
           console.error('Error changing role:', error);
           this.message.error('變更角色失敗');
@@ -162,9 +139,8 @@ export class TeamDetailDrawerComponent implements OnInit {
       nzOkDanger: true,
       nzOnOk: async () => {
         try {
-          await this.teamMemberRepository.removeMember(member.id);
+          await this.teamStore.removeMember(member.id, this.team().id);
           this.message.success('成員已移除');
-          await this.loadMembers();
           await this.loadOrganizationMembers();
         } catch (error) {
           console.error('Error removing member:', error);
@@ -185,14 +161,10 @@ export class TeamDetailDrawerComponent implements OnInit {
 
     modalRef.afterClose.subscribe(async result => {
       if (result) {
-        // Reload team data
-        try {
-          const updatedTeam = await firstValueFrom(this.teamRepository.findById(this.team().id));
-          if (updatedTeam) {
-            this.team.set(updatedTeam);
-          }
-        } catch (error) {
-          console.error('Error reloading team:', error);
+        // Team updated - get from store
+        const updatedTeam = this.teamStore.currentTeam();
+        if (updatedTeam) {
+          this.team.set(updatedTeam);
         }
       }
     });
@@ -205,7 +177,7 @@ export class TeamDetailDrawerComponent implements OnInit {
       nzOkDanger: true,
       nzOnOk: async () => {
         try {
-          await this.teamRepository.delete(this.team().id);
+          await this.teamStore.deleteTeam(this.team().id);
           this.message.success('團隊已刪除');
           this.drawerRef.close({ deleted: true });
         } catch (error) {

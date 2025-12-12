@@ -23,7 +23,7 @@ import { HeaderSearchComponent } from './widgets/search.component';
 import { HeaderTaskComponent } from './widgets/task.component';
 import { HeaderUserComponent } from './widgets/user.component';
 import { CreateOrganizationComponent } from '../../shared/components/create-organization/create-organization.component';
-import { CreateTeamComponent } from '../../shared/components/create-team/create-team.component';
+import { CreateTeamModalComponent } from '../../shared/components/create-team-modal/create-team-modal.component';
 
 @Component({
   selector: 'layout-basic',
@@ -225,7 +225,7 @@ export class LayoutBasicComponent {
       return;
     }
 
-    this.modal.create(CreateTeamComponent, { organizationId: currentOrgId }, { size: 'md' }).subscribe(result => {
+    this.modal.create(CreateTeamModalComponent, { organizationId: currentOrgId }, { size: 'md' }).subscribe(result => {
       if (result) {
         console.log('Team created:', result);
       }

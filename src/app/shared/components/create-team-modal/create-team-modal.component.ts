@@ -16,8 +16,7 @@
 
 import { ChangeDetectionStrategy, Component, inject, signal, Inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { Team } from '@core';
-import { TeamRepository } from '@core/repositories';
+import { Team, TeamStore } from '@core';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzFormModule } from 'ng-zorro-antd/form';
 import { NzInputModule } from 'ng-zorro-antd/input';
@@ -80,7 +79,7 @@ import { NzModalRef, NZ_MODAL_DATA } from 'ng-zorro-antd/modal';
 })
 export class CreateTeamModalComponent {
   private readonly fb = inject(FormBuilder);
-  private readonly teamRepository = inject(TeamRepository);
+  private readonly teamStore = inject(TeamStore);
   private readonly modal = inject(NzModalRef);
   private readonly message = inject(NzMessageService);
 
@@ -130,11 +129,11 @@ export class CreateTeamModalComponent {
 
     this.loading.set(true);
     try {
-      const newTeam: Team = await this.teamRepository.create({
-        organization_id: orgId,
-        name: this.form.value.name.trim(),
-        description: this.form.value.description?.trim() || null
-      });
+      const newTeam: Team = await this.teamStore.createTeam(
+        orgId,
+        this.form.value.name.trim(),
+        this.form.value.description?.trim() || null
+      );
 
       this.message.success('團隊建立成功！');
       this.modal.destroy(newTeam); // Return created team to parent

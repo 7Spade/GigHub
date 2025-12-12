@@ -22,7 +22,7 @@ import { Task, TaskStatus, TaskPriority, CreateTaskRequest, UpdateTaskRequest } 
 import { SHARED_IMPORTS } from '@shared';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NZ_MODAL_DATA, NzModalRef } from 'ng-zorro-antd/modal';
-
+import { NzSliderModule } from 'ng-zorro-antd/slider';
 interface ModalData {
   blueprintId: string;
   task?: Task;
@@ -32,7 +32,7 @@ interface ModalData {
 @Component({
   selector: 'app-task-modal',
   standalone: true,
-  imports: [SHARED_IMPORTS],
+  imports: [SHARED_IMPORTS, NzSliderModule],
   template: `
     <form nz-form [formGroup]="form" (ngSubmit)="submit()">
       <!-- Title -->
@@ -111,6 +111,16 @@ interface ModalData {
         </nz-form-control>
       </nz-form-item>
 
+      <!-- Progress -->
+      @if (modalData.mode !== 'create') {
+        <nz-form-item>
+          <nz-form-label [nzSpan]="6">進度</nz-form-label>
+          <nz-form-control [nzSpan]="14">
+            <nz-slider formControlName="progress" [nzMin]="0" [nzMax]="100" [nzStep]="5" [nzMarks]="progressMarks" />
+          </nz-form-control>
+        </nz-form-item>
+      }
+
       <!-- Tags -->
       <nz-form-item>
         <nz-form-label [nzSpan]="6">標籤</nz-form-label>
@@ -159,6 +169,15 @@ export class TaskModalComponent implements OnInit {
   // State
   submitting = signal(false);
 
+  // Progress marks
+  readonly progressMarks = {
+    0: '0%',
+    25: '25%',
+    50: '50%',
+    75: '75%',
+    100: '100%'
+  };
+
   ngOnInit(): void {
     this.initForm();
   }
@@ -176,6 +195,7 @@ export class TaskModalComponent implements OnInit {
       dueDate: [{ value: task?.dueDate ? new Date(task.dueDate as any) : null, disabled: isView }],
       startDate: [{ value: task?.startDate ? new Date(task.startDate as any) : null, disabled: isView }],
       estimatedHours: [{ value: task?.estimatedHours || null, disabled: isView }],
+      progress: [{ value: task?.progress ?? 0, disabled: isView }, [Validators.min(0), Validators.max(100)]],
       tags: [{ value: task?.tags || [], disabled: isView }]
     });
   }

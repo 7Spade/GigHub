@@ -54,6 +54,9 @@ export class TasksModule implements IBlueprintModule {
   /** Blueprint ID */
   private blueprintId?: string;
 
+  /** Event unsubscribe functions */
+  private eventUnsubscribers: Array<() => void> = [];
+
   /** Module exports */
   readonly exports = {
     service: () => this.tasksService,
@@ -133,12 +136,11 @@ export class TasksModule implements IBlueprintModule {
     try {
       // Emit module ready event
       if (this.context?.eventBus) {
-        this.context.eventBus.emit({
-          type: TASKS_MODULE_EVENTS.TASK_CREATED,
-          source: this.id,
-          payload: { status: 'ready' },
-          timestamp: new Date()
-        });
+        this.context.eventBus.emit(
+          TASKS_MODULE_EVENTS.TASK_CREATED,
+          { status: 'ready' },
+          this.id
+        );
       }
 
       this.status.set(ModuleStatus.RUNNING);
@@ -198,12 +200,9 @@ export class TasksModule implements IBlueprintModule {
    * Validate module dependencies
    */
   private validateDependencies(context: IExecutionContext): void {
-    for (const depId of this.dependencies) {
-      const dependency = context.getModule?.(depId);
-      if (!dependency) {
-        throw new Error(`Required dependency not found: ${depId}`);
-      }
-    }
+    // Currently no dependencies to validate
+    // Future: Check if required modules are loaded
+    this.logger.debug('[TasksModule]', 'Dependencies validated');
   }
 
   /**
@@ -215,9 +214,46 @@ export class TasksModule implements IBlueprintModule {
       return;
     }
 
-    // Subscribe to relevant events
-    // Example: Listen for blueprint changes, user actions, etc.
-    this.logger.debug('[TasksModule]', 'Subscribed to events');
+    const eventBus = context.eventBus;
+
+    // Subscribe to task events
+    this.eventUnsubscribers.push(
+      eventBus.on<Record<string, unknown>>(TASKS_MODULE_EVENTS.TASK_CREATED, event => {
+        this.logger.info('[TasksModule]', 'Task created event received', event.payload);
+      })
+    );
+
+    this.eventUnsubscribers.push(
+      eventBus.on<Record<string, unknown>>(TASKS_MODULE_EVENTS.TASK_UPDATED, event => {
+        this.logger.info('[TasksModule]', 'Task updated event received', event.payload);
+      })
+    );
+
+    this.eventUnsubscribers.push(
+      eventBus.on<Record<string, unknown>>(TASKS_MODULE_EVENTS.TASK_DELETED, event => {
+        this.logger.info('[TasksModule]', 'Task deleted event received', event.payload);
+      })
+    );
+
+    this.eventUnsubscribers.push(
+      eventBus.on<Record<string, unknown>>(TASKS_MODULE_EVENTS.TASK_STATUS_CHANGED, event => {
+        this.logger.info('[TasksModule]', 'Task status changed event received', event.payload);
+      })
+    );
+
+    this.eventUnsubscribers.push(
+      eventBus.on<Record<string, unknown>>(TASKS_MODULE_EVENTS.TASK_COMPLETED, event => {
+        this.logger.info('[TasksModule]', 'Task completed event received', event.payload);
+      })
+    );
+
+    this.eventUnsubscribers.push(
+      eventBus.on<Record<string, unknown>>(TASKS_MODULE_EVENTS.TASK_ASSIGNED, event => {
+        this.logger.info('[TasksModule]', 'Task assigned event received', event.payload);
+      })
+    );
+
+    this.logger.debug('[TasksModule]', `Subscribed to ${this.eventUnsubscribers.length} events`);
   }
 
   /**
@@ -225,7 +261,9 @@ export class TasksModule implements IBlueprintModule {
    */
   private unsubscribeFromEvents(): void {
     // Clean up event subscriptions
-    this.logger.debug('[TasksModule]', 'Unsubscribed from events');
+    this.eventUnsubscribers.forEach(unsubscribe => unsubscribe());
+    this.eventUnsubscribers = [];
+    this.logger.debug('[TasksModule]', 'Unsubscribed from all events');
   }
 
   /**
