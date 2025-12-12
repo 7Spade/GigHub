@@ -37,7 +37,16 @@
     "color-less": "ng-alain-plugin-theme -t=colorLess",
     "theme": "ng-alain-plugin-theme -t=themeCss",
     "icon": "ng g ng-alain:plugin icon",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "supabase:start": "supabase start",
+    "supabase:stop": "supabase stop",
+    "supabase:status": "supabase status",
+    "supabase:migrate:local": "./scripts/supabase/run-migrations.sh --local",
+    "supabase:migrate:remote": "./scripts/supabase/run-migrations.sh --remote",
+    "supabase:migrate:reset": "./scripts/supabase/run-migrations.sh --local --reset",
+    "supabase:db:push": "supabase db push",
+    "supabase:db:reset": "supabase db reset",
+    "supabase:studio": "supabase studio"
   },
   "dependencies": {
     "@angular/animations": "^20.3.0",
