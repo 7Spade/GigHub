@@ -6,6 +6,7 @@ import { STColumn } from '@delon/abc/st';
 import { SHARED_IMPORTS, createAsyncArrayState } from '@shared';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzSpaceModule } from 'ng-zorro-antd/space';
+import { NzEmptyModule } from 'ng-zorro-antd/empty';
 
 /**
  * Audit Logs Component
@@ -25,7 +26,7 @@ import { NzSpaceModule } from 'ng-zorro-antd/space';
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-audit-logs',
   standalone: true,
-  imports: [SHARED_IMPORTS, NzSpaceModule],
+  imports: [SHARED_IMPORTS, NzSpaceModule, NzEmptyModule],
   template: `
     <!-- Filters -->
     <div class="mb-md" style="display: flex; gap: 8px;">

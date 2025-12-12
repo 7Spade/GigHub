@@ -17,6 +17,7 @@ import { firstValueFrom } from 'rxjs';
 
 import { AuditLogsComponent } from './audit/audit-logs.component';
 import { ConstructionLogComponent } from './construction-log/construction-log.component';
+import { ContainerDashboardComponent } from './container/container-dashboard.component';
 import { BlueprintMembersComponent } from './members/blueprint-members.component';
 
 /**
@@ -52,6 +53,7 @@ import { BlueprintMembersComponent } from './members/blueprint-members.component
     AuditLogsComponent,
     BlueprintMembersComponent,
     ConstructionLogComponent,
+    ContainerDashboardComponent,
     TasksComponent
   ],
   template: `
@@ -240,7 +242,7 @@ import { BlueprintMembersComponent } from './members/blueprint-members.component
           <!-- Settings Tab -->
           <nz-tab nzTitle="設定">
             <ng-template nz-tab>
-              <nz-card nzTitle="藍圖設定">
+              <nz-card nzTitle="藍圖設定" class="mb-md">
                 <button nz-button (click)="edit()">
                   <span nz-icon nzType="edit"></span>
                   編輯藍圖資訊
@@ -250,6 +252,9 @@ import { BlueprintMembersComponent } from './members/blueprint-members.component
                   配置模組
                 </button>
               </nz-card>
+              
+              <!-- Container Dashboard (Embedded) -->
+              <app-container-dashboard />
             </ng-template>
           </nz-tab>
         </nz-tabset>
