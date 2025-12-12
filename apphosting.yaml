@@ -114,9 +114,6 @@ env:
   - variable: NG_APP_HEALTH_CHECK_INTERVAL
     value: '30000'
 
-  - variable: NG_APP_SENTRY_DSN
-    value: ''
-
   - variable: NG_APP_PRODUCTION
     value: 'false'
 
