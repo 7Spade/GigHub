@@ -22,3 +22,5 @@ export * from './permission/role.enum';
 export * from './storage';
 export * from './task';
 export * from './log';
+export * from './quality-control';
+export * from './workflow';

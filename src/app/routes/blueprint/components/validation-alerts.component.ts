@@ -1,10 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component, ChangeDetectionStrategy, input } from '@angular/core';
+import { DependencyValidationResult } from '@core/blueprint/services';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzIconModule } from 'ng-zorro-antd/icon';
-
-import { DependencyValidationResult, ValidationError, ValidationWarning } from '@core/blueprint/services';
 
 /**
  * 驗證警示元件

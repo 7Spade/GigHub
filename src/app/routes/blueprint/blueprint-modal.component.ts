@@ -1,9 +1,9 @@
-import { Component, OnInit, inject, signal, DestroyRef } from '@angular/core';
+import { Component, ChangeDetectionStrategy, OnInit, inject, signal, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Blueprint, CreateBlueprintRequest, LoggerService, ModuleType, OwnerType, ContextType, FirebaseAuthService } from '@core';
-import { SHARED_IMPORTS, WorkspaceContextService } from '@shared';
 import { BlueprintService } from '@core/blueprint/services';
+import { SHARED_IMPORTS, WorkspaceContextService } from '@shared';
 import { NzFormModule } from 'ng-zorro-antd/form';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NZ_MODAL_DATA, NzModalRef } from 'ng-zorro-antd/modal';
@@ -18,6 +18,7 @@ import { NZ_MODAL_DATA, NzModalRef } from 'ng-zorro-antd/modal';
  * - async/await for operations
  */
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-blueprint-modal',
   standalone: true,
   imports: [SHARED_IMPORTS, NzFormModule],

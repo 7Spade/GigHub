@@ -11,10 +11,10 @@
 import { Component, OnInit, inject, signal, computed, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
+import { BlueprintModuleDocument, ModuleStatus } from '@core/models/blueprint-module.model';
 import { STColumn, STData } from '@delon/abc/st';
 import { ModalHelper } from '@delon/theme';
 import { SHARED_IMPORTS } from '@shared';
-import { BlueprintModuleDocument, ModuleStatus } from '@core/models/blueprint-module.model';
 import { NzMessageService } from 'ng-zorro-antd/message';
 
 import { ModuleCardComponent } from './components/module-card.component';

@@ -1,15 +1,16 @@
-import { Component, OnInit, inject, effect, computed } from '@angular/core';
+import { Component, OnInit, inject, effect, computed, signal, ChangeDetectionStrategy, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Blueprint, BlueprintStatus, LoggerService, FirebaseAuthService, OwnerType, ContextType } from '@core';
+import { BlueprintService } from '@core/blueprint/services';
 import { STColumn, STData } from '@delon/abc/st';
 import { ModalHelper } from '@delon/theme';
 import { SHARED_IMPORTS, createAsyncArrayState, WorkspaceContextService } from '@shared';
-import { BlueprintService } from '@core/blueprint/services';
 import { NzInputModule } from 'ng-zorro-antd/input';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzSpaceModule } from 'ng-zorro-antd/space';
 import { NzStatisticModule } from 'ng-zorro-antd/statistic';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, Subject, debounceTime } from 'rxjs';
 
 /**
  * Blueprint List Component
@@ -22,10 +23,14 @@ import { firstValueFrom } from 'rxjs';
  * - Navigate to detail
  *
  * ✅ Modernized with AsyncState pattern
+ * ✅ OnPush change detection for optimal performance
+ * ✅ Debounced search (300ms) for better UX and performance
+ * ✅ Signal-based reactive filtering
  */
 @Component({
   selector: 'app-blueprint-list',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [SHARED_IMPORTS, NzSpaceModule, NzStatisticModule, NzInputModule],
   template: `
     <page-header [title]="'藍圖列表'" [action]="action">
@@ -100,13 +105,19 @@ import { firstValueFrom } from 'rxjs';
       <!-- Filter Section -->
       <div class="mb-md" style="display: flex; gap: 8px; flex-wrap: wrap;">
         <nz-input-group [nzPrefix]="searchPrefix" style="width: 250px;">
-          <input nz-input placeholder="搜尋藍圖..." [(ngModel)]="searchText" (ngModelChange)="onFilterChange()" />
+          <input nz-input placeholder="搜尋藍圖..." [value]="searchText()" (input)="onSearchChange($any($event.target).value)" />
         </nz-input-group>
         <ng-template #searchPrefix>
           <span nz-icon nzType="search"></span>
         </ng-template>
 
-        <nz-select [(ngModel)]="filterStatus" (ngModelChange)="onFilterChange()" nzPlaceHolder="篩選狀態" nzAllowClear style="width: 150px">
+        <nz-select
+          [ngModel]="filterStatus()"
+          (ngModelChange)="onStatusFilterChange($event)"
+          nzPlaceHolder="篩選狀態"
+          nzAllowClear
+          style="width: 150px"
+        >
           <nz-option nzLabel="全部" [nzValue]="null"></nz-option>
           <nz-option nzLabel="草稿" nzValue="draft"></nz-option>
           <nz-option nzLabel="啟用" nzValue="active"></nz-option>
@@ -142,12 +153,17 @@ export class BlueprintListComponent implements OnInit {
   private readonly blueprintService: BlueprintService = inject(BlueprintService);
   private readonly authService = inject(FirebaseAuthService);
   private readonly workspaceContext = inject(WorkspaceContextService);
+  private readonly destroyRef = inject(DestroyRef);
 
   // ✅ Modern Pattern: Use AsyncState
   readonly blueprintsState = createAsyncArrayState<Blueprint>([]);
 
-  filterStatus: BlueprintStatus | null = null;
-  searchText = '';
+  // ✅ Signal-based reactive state
+  readonly filterStatus = signal<BlueprintStatus | null>(null);
+  readonly searchText = signal('');
+
+  // ✅ Debounced search subject
+  private searchSubject = new Subject<string>();
 
   // ✅ Modern Pattern: Separate auth state for guards
   private readonly authenticated = this.workspaceContext.isAuthenticated;
@@ -165,23 +181,25 @@ export class BlueprintListComponent implements OnInit {
     };
   });
 
-  // ✅ Computed: Filtered blueprints
+  // ✅ Computed: Filtered blueprints with reactive signals
   readonly filteredBlueprints = computed(() => {
     let data = this.blueprintsState.data() || [];
 
-    // Filter by status
-    if (this.filterStatus) {
-      data = data.filter(b => b.status === this.filterStatus);
+    // Filter by status (reactive)
+    const status = this.filterStatus();
+    if (status) {
+      data = data.filter(b => b.status === status);
     }
 
-    // Filter by search text
-    if (this.searchText) {
-      const search = this.searchText.toLowerCase();
+    // Filter by search text (reactive, debounced)
+    const search = this.searchText();
+    if (search) {
+      const searchLower = search.toLowerCase();
       data = data.filter(
         b =>
-          b.name.toLowerCase().includes(search) ||
-          b.slug.toLowerCase().includes(search) ||
-          (b.description && b.description.toLowerCase().includes(search))
+          b.name.toLowerCase().includes(searchLower) ||
+          b.slug.toLowerCase().includes(searchLower) ||
+          (b.description && b.description.toLowerCase().includes(searchLower))
       );
     }
 
@@ -216,6 +234,11 @@ export class BlueprintListComponent implements OnInit {
         // Clear blueprints when conditions not met
         this.blueprintsState.setData([]);
       }
+    });
+
+    // ✅ Debounced search: 300ms delay for better performance
+    this.searchSubject.pipe(debounceTime(300), takeUntilDestroyed(this.destroyRef)).subscribe((text: string) => {
+      this.searchText.set(text);
     });
   }
 
@@ -366,11 +389,19 @@ export class BlueprintListComponent implements OnInit {
   }
 
   /**
-   * Handle filter change
-   * 處理篩選變更
+   * Handle search input change (debounced)
+   * 處理搜尋輸入變更（已去抖動）
    */
-  onFilterChange(): void {
-    this.loadBlueprints();
+  onSearchChange(text: string): void {
+    this.searchSubject.next(text);
+  }
+
+  /**
+   * Handle status filter change
+   * 處理狀態篩選變更
+   */
+  onStatusFilterChange(status: BlueprintStatus | null): void {
+    this.filterStatus.set(status);
   }
 
   /**

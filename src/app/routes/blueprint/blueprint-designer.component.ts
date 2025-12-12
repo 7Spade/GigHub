@@ -3,14 +3,13 @@ import { Component, OnInit, inject, signal, computed, ChangeDetectionStrategy, E
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Blueprint, LoggerService, ModuleType } from '@core';
+import { ModuleConnection } from '@core/blueprint/models';
 import { BlueprintService, DependencyValidatorService, DependencyValidationResult } from '@core/blueprint/services';
 import { SHARED_IMPORTS } from '@shared';
 import { NzDrawerModule } from 'ng-zorro-antd/drawer';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
 import { NzFormModule } from 'ng-zorro-antd/form';
 import { NzMessageService } from 'ng-zorro-antd/message';
-
-import { ModuleConnection } from '@core/blueprint/models';
 
 import { ConnectionLayerComponent, ValidationAlertsComponent } from './components';
 

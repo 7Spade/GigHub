@@ -1,8 +1,9 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit, effect } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit, effect, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { ContextType, Team } from '@core';
-import { SHARED_IMPORTS, WorkspaceContextService } from '@shared';
 import { TeamRepository, TeamMemberRepository } from '@core/repositories';
+import { SHARED_IMPORTS, WorkspaceContextService } from '@shared';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
 import { NzDescriptionsModule } from 'ng-zorro-antd/descriptions';
 import { NzDrawerService } from 'ng-zorro-antd/drawer';
@@ -11,14 +12,13 @@ import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzModalService } from 'ng-zorro-antd/modal';
 import { NzSpaceModule } from 'ng-zorro-antd/space';
 import { NzTableModule } from 'ng-zorro-antd/table';
+import { NzTagModule } from 'ng-zorro-antd/tag';
 import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { CreateTeamModalComponent } from '../../../shared/components/create-team-modal/create-team-modal.component';
 import { EditTeamModalComponent } from '../../../shared/components/edit-team-modal/edit-team-modal.component';
 import { TeamDetailDrawerComponent } from '../../../shared/components/team-detail-drawer/team-detail-drawer.component';
-
-import { NzTagModule } from 'ng-zorro-antd/tag';
 
 @Component({
   selector: 'app-organization-teams',
@@ -155,6 +155,7 @@ export class OrganizationTeamsComponent implements OnInit {
   private readonly message = inject(NzMessageService);
   private readonly router = inject(Router);
   private readonly drawer = inject(NzDrawerService);
+  private readonly destroyRef = inject(DestroyRef);
 
   private readonly teamsState = signal<Team[]>([]);
   private readonly memberCountsState = signal<Map<string, number>>(new Map());
@@ -180,20 +181,23 @@ export class OrganizationTeamsComponent implements OnInit {
 
   private loadTeams(organizationId: string): void {
     this.loading.set(true);
-    this.teamRepository.findByOrganization(organizationId).subscribe({
-      next: (teams: Team[]) => {
-        this.teamsState.set(teams);
-        this.loading.set(false);
+    this.teamRepository
+      .findByOrganization(organizationId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (teams: Team[]) => {
+          this.teamsState.set(teams);
+          this.loading.set(false);
 
-        // Load member counts for all teams
-        this.loadMemberCounts(teams);
-      },
-      error: (error: Error) => {
-        console.error('[OrganizationTeamsComponent] ❌ Failed to load teams:', error);
-        this.teamsState.set([]);
-        this.loading.set(false);
-      }
-    });
+          // Load member counts for all teams
+          this.loadMemberCounts(teams);
+        },
+        error: (error: Error) => {
+          console.error('[OrganizationTeamsComponent] ❌ Failed to load teams:', error);
+          this.teamsState.set([]);
+          this.loading.set(false);
+        }
+      });
   }
 
   private loadMemberCounts(teams: Team[]): void {
@@ -207,17 +211,19 @@ export class OrganizationTeamsComponent implements OnInit {
       this.teamMemberRepository.findByTeam(team.id).pipe(map(members => ({ teamId: team.id, count: members.length })))
     );
 
-    combineLatest(memberCountObservables).subscribe({
-      next: counts => {
-        const map = new Map<string, number>();
-        counts.forEach(({ teamId, count }) => map.set(teamId, count));
-        this.memberCountsState.set(map);
-      },
-      error: error => {
-        console.error('[OrganizationTeamsComponent] ❌ Failed to load member counts:', error);
-        this.memberCountsState.set(new Map());
-      }
-    });
+    combineLatest(memberCountObservables)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: counts => {
+          const map = new Map<string, number>();
+          counts.forEach(({ teamId, count }) => map.set(teamId, count));
+          this.memberCountsState.set(map);
+        },
+        error: error => {
+          console.error('[OrganizationTeamsComponent] ❌ Failed to load member counts:', error);
+          this.memberCountsState.set(new Map());
+        }
+      });
   }
 
   getMemberCount(teamId: string): number {

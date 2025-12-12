@@ -73,6 +73,18 @@ export class EventBus implements IEventBus {
   private readonly subscriptions = new Map<string, Set<Subscription>>();
 
   /**
+   * Event throttling map
+   * Tracks last emission time for each event type to prevent event storms
+   */
+  private readonly eventThrottle = new Map<string, number>();
+
+  /**
+   * Throttle duration in milliseconds
+   * Events of the same type within this window will be dropped
+   */
+  private readonly throttleMs = 100;
+
+  /**
    * Event emission count signal
    * Reactive counter for monitoring event activity
    */
@@ -95,12 +107,19 @@ export class EventBus implements IEventBus {
    *
    * Publishes an event to all subscribed listeners.
    * Automatically adds metadata and stores in history.
+   * Includes throttling to prevent event storms.
    *
    * @param type - Event type identifier
    * @param payload - Event data
    * @param source - ID of the module emitting the event
    */
   emit<T>(type: string, payload: T, source: string): void {
+    // Check if event should be throttled
+    if (this.shouldThrottle(type)) {
+      console.warn(`[EventBus] Event "${type}" throttled (too frequent)`);
+      return;
+    }
+
     const event: IBlueprintEvent<T> = {
       type,
       payload,
@@ -290,16 +309,40 @@ export class EventBus implements IEventBus {
    * Add event to history
    *
    * Maintains a circular buffer of events with max size limit.
+   * Uses splice for efficient bulk removal when history exceeds limit.
    *
    * @param event - Event to add to history
    */
   private addToHistory(event: IBlueprintEvent): void {
     this.history.push(event);
 
-    // Maintain max size by removing oldest events
+    // Maintain max size by removing oldest events in bulk
     if (this.history.length > this.maxHistorySize) {
-      this.history.shift();
+      // More efficient than shift() - removes multiple old events at once
+      this.history.splice(0, this.history.length - this.maxHistorySize);
     }
+  }
+
+  /**
+   * Check if event should be throttled
+   *
+   * Prevents event storms by limiting emission frequency per event type.
+   *
+   * @param type - Event type to check
+   * @returns True if event should be throttled (dropped)
+   */
+  private shouldThrottle(type: string): boolean {
+    const lastEmit = this.eventThrottle.get(type) || 0;
+    const now = Date.now();
+
+    // Check if enough time has passed since last emission
+    if (now - lastEmit < this.throttleMs) {
+      return true; // Too soon, throttle this event
+    }
+
+    // Update last emission time
+    this.eventThrottle.set(type, now);
+    return false;
   }
 
   /**

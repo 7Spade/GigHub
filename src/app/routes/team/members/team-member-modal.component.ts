@@ -1,8 +1,8 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { TeamRole, OrganizationMember, Account } from '@core';
-import { SHARED_IMPORTS } from '@shared';
 import { AccountRepository } from '@core/repositories';
+import { SHARED_IMPORTS } from '@shared';
 import { NZ_MODAL_DATA, NzModalRef } from 'ng-zorro-antd/modal';
 import { forkJoin, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
@@ -38,6 +38,7 @@ export interface TeamMemberModalData {
  * ✅ Integrates AccountRepository for user details
  */
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-team-member-modal',
   standalone: true,
   imports: [SHARED_IMPORTS],

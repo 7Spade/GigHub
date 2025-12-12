@@ -1,9 +1,9 @@
 import { DatePipe } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Blueprint, LoggerService } from '@core';
-import { SHARED_IMPORTS, createAsyncState } from '@shared';
 import { BlueprintService } from '@core/blueprint/services';
+import { SHARED_IMPORTS, createAsyncState } from '@shared';
 import { NzDescriptionsModule } from 'ng-zorro-antd/descriptions';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
 import { NzMessageService } from 'ng-zorro-antd/message';
@@ -13,6 +13,7 @@ import { NzStatisticModule } from 'ng-zorro-antd/statistic';
 import { NzTabsModule } from 'ng-zorro-antd/tabs';
 import { NzTagModule } from 'ng-zorro-antd/tag';
 import { firstValueFrom } from 'rxjs';
+
 import { BlueprintMembersComponent } from './members/blueprint-members.component';
 import { ConstructionLogComponent } from './construction-log/construction-log.component';
 import { TasksComponent } from '@core/blueprint/modules/implementations/tasks/tasks.component';
@@ -32,6 +33,7 @@ import { TasksComponent } from '@core/blueprint/modules/implementations/tasks/ta
  * ✅ Updated: 2025-12-11 - Added Construction Log & Task modules
  */
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-blueprint-detail',
   standalone: true,
   imports: [

@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, ChangeDetectionStrategy, OnInit, inject, signal, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { LoggerService } from '@core';
@@ -27,6 +27,7 @@ import { NzStatisticModule } from 'ng-zorro-antd/statistic';
  * @since Angular 20.3.0
  */
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-event-bus-monitor',
   standalone: true,
   imports: [SHARED_IMPORTS, DatePipe, FormsModule, NzStatisticModule, NzDescriptionsModule, NzDividerModule],

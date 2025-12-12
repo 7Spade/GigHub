@@ -1,9 +1,10 @@
-import { Component, OnInit, inject, input } from '@angular/core';
+import { Component, OnInit, inject, input, ChangeDetectionStrategy } from '@angular/core';
 import { SocialService } from '@delon/auth';
 import { SettingsService } from '@delon/theme';
 
 @Component({
   selector: 'app-callback',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: ``,
   providers: [SocialService],
   standalone: true

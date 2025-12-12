@@ -9,6 +9,8 @@
  */
 
 import { Injectable, inject, signal, computed } from '@angular/core';
+import { AuditLogRepository } from '@core/blueprint/repositories/audit-log.repository';
+import { BlueprintModuleRepository } from '@core/blueprint/repositories/blueprint-module.repository';
 import { AuditLogEventType, AuditLogCategory } from '@core/models/audit-log.model';
 import {
   BlueprintModuleDocument,
@@ -17,8 +19,6 @@ import {
   UpdateModuleData,
   BatchResult
 } from '@core/models/blueprint-module.model';
-import { AuditLogRepository } from '@core/blueprint/repositories/audit-log.repository';
-import { BlueprintModuleRepository } from '@core/blueprint/repositories/blueprint-module.repository';
 import { firstValueFrom } from 'rxjs';
 
 /**
