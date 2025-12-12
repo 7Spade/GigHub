@@ -73,7 +73,7 @@ enum ZoomLevel {
                   <div class="task-name">
                     <div class="task-info">
                       @if (ganttTask.milestone) {
-                        <span nz-icon nzType="flag" nzTheme="filled" class="milestone-icon"></span>
+                        <span nz-icon nzType="flag" nzTheme="fill" class="milestone-icon"></span>
                       }
                       <span class="task-title">{{ ganttTask.name }}</span>
                       <nz-tag [nzColor]="getPriorityColor(ganttTask)" nzSize="small"> {{ ganttTask.progress }}% </nz-tag>
@@ -99,7 +99,7 @@ enum ZoomLevel {
                         [attr.aria-label]="'里程碑: ' + ganttTask.name"
                         role="img"
                       >
-                        <span nz-icon nzType="flag" nzTheme="filled"></span>
+                        <span nz-icon nzType="flag" nzTheme="fill"></span>
                       </div>
                     } @else {
                       <div
