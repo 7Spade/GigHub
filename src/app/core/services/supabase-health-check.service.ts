@@ -1,10 +1,11 @@
 import { Injectable, inject, signal, computed, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { SupabaseService } from './supabase.service';
-import { LoggerService } from './logger';
+import { NzNotificationService } from 'ng-zorro-antd/notification';
 import { interval, from } from 'rxjs';
 import { switchMap, catchError, tap, filter } from 'rxjs/operators';
-import { NzNotificationService } from 'ng-zorro-antd/notification';
+
+import { LoggerService } from './logger';
+import { SupabaseService } from './supabase.service';
 
 /**
  * Supabase Health Check Service

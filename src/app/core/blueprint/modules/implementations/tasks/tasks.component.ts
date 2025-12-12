@@ -74,11 +74,11 @@ export class TasksComponent implements OnInit {
 
   // Input from parent (Angular 19+ input() function)
   blueprintId = input<string>();
-  
+
   // Internal state
   private _blueprintId = signal<string>('');
   blueprintName = signal<string>('任務管理');
-  
+
   constructor() {
     // Watch for blueprintId input changes
     effect(() => {

@@ -39,11 +39,11 @@ import { NzSwitchModule } from 'ng-zorro-antd/switch';
 import { NzTableModule } from 'ng-zorro-antd/table';
 import { NzTabsModule } from 'ng-zorro-antd/tabs';
 import { NzTagModule } from 'ng-zorro-antd/tag';
-import { NzUploadModule } from 'ng-zorro-antd/upload';
 
 // 低頻使用模組 - 按需導入 (不包含在 SHARED_IMPORTS)
 import { NzTimePickerModule } from 'ng-zorro-antd/time-picker';
 import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
+import { NzUploadModule } from 'ng-zorro-antd/upload';
 
 /**
  * 常用 NG-ZORRO 模組 (包含在 SHARED_IMPORTS)

@@ -1,8 +1,8 @@
 import { Injectable, inject, signal, computed, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { createClient, SupabaseClient, AuthChangeEvent, Session } from '@supabase/supabase-js';
 import { LoggerService } from '@core/services/logger';
 import { environment } from '@env/environment';
+import { createClient, SupabaseClient, AuthChangeEvent, Session } from '@supabase/supabase-js';
 
 /**
  * Enhanced Supabase Service

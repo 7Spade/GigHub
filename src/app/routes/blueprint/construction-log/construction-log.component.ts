@@ -17,14 +17,15 @@
  */
 
 import { Component, OnInit, inject, signal, computed, input } from '@angular/core';
+import { Log, CreateLogRequest, UpdateLogRequest } from '@core/types/log/log.types';
 import { STColumn, STData, STChange } from '@delon/abc/st';
 import { SFSchema } from '@delon/form';
 import { SHARED_IMPORTS } from '@shared';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzModalService } from 'ng-zorro-antd/modal';
-import { Log, CreateLogRequest, UpdateLogRequest } from '@core/types/log/log.types';
-import { ConstructionLogStore } from './construction-log.store';
+
 import { ConstructionLogModalComponent } from './construction-log-modal.component';
+import { ConstructionLogStore } from './construction-log.store';
 
 @Component({
   selector: 'app-construction-log',
@@ -35,35 +36,19 @@ import { ConstructionLogModalComponent } from './construction-log-modal.componen
       <!-- Statistics -->
       <nz-row [nzGutter]="16" class="mb-md">
         <nz-col [nzSpan]="6">
-          <nz-statistic
-            [nzValue]="logStore.totalCount()"
-            [nzTitle]="'總日誌數'"
-            [nzPrefix]="totalIconTpl"
-          />
+          <nz-statistic [nzValue]="logStore.totalCount()" [nzTitle]="'總日誌數'" [nzPrefix]="totalIconTpl" />
           <ng-template #totalIconTpl>
             <span nz-icon nzType="file-text" style="color: #1890ff;"></span>
           </ng-template>
         </nz-col>
         <nz-col [nzSpan]="6">
-          <nz-statistic
-            [nzValue]="logStore.thisMonthCount()"
-            [nzTitle]="'本月日誌'"
-            [nzValueStyle]="{ color: '#52c41a' }"
-          />
+          <nz-statistic [nzValue]="logStore.thisMonthCount()" [nzTitle]="'本月日誌'" [nzValueStyle]="{ color: '#52c41a' }" />
         </nz-col>
         <nz-col [nzSpan]="6">
-          <nz-statistic
-            [nzValue]="logStore.todayCount()"
-            [nzTitle]="'今日日誌'"
-            [nzValueStyle]="{ color: '#faad14' }"
-          />
+          <nz-statistic [nzValue]="logStore.todayCount()" [nzTitle]="'今日日誌'" [nzValueStyle]="{ color: '#faad14' }" />
         </nz-col>
         <nz-col [nzSpan]="6">
-          <nz-statistic
-            [nzValue]="logStore.totalPhotos()"
-            [nzTitle]="'總照片數'"
-            [nzPrefix]="photoIconTpl"
-          />
+          <nz-statistic [nzValue]="logStore.totalPhotos()" [nzTitle]="'總照片數'" [nzPrefix]="photoIconTpl" />
           <ng-template #photoIconTpl>
             <span nz-icon nzType="picture" style="color: #722ed1;"></span>
           </ng-template>
@@ -243,7 +228,7 @@ export class ConstructionLogComponent implements OnInit {
       nzMaskClosable: false
     });
 
-    modalRef.afterClose.subscribe((result) => {
+    modalRef.afterClose.subscribe(result => {
       if (result?.success) {
         this.refresh();
         this.message.success('日誌新增成功');
@@ -279,7 +264,7 @@ export class ConstructionLogComponent implements OnInit {
       nzMaskClosable: false
     });
 
-    modalRef.afterClose.subscribe((result) => {
+    modalRef.afterClose.subscribe(result => {
       if (result?.success) {
         this.refresh();
         this.message.success('日誌更新成功');

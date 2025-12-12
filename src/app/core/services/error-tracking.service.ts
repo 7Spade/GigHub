@@ -215,19 +215,14 @@ export class ErrorTrackingService {
    */
   trackSupabaseError(tableName: string, error: any, metadata?: Record<string, any>): void {
     const severity = this.determineSupabaseSeverity(error);
-    
-    this.logError(
-      error,
-      ErrorType.HTTP,
-      severity,
-      {
-        ...metadata,
-        tableName,
-        errorCode: error?.code,
-        errorDetails: error?.details,
-        errorHint: error?.hint
-      }
-    );
+
+    this.logError(error, ErrorType.HTTP, severity, {
+      ...metadata,
+      tableName,
+      errorCode: error?.code,
+      errorDetails: error?.details,
+      errorHint: error?.hint
+    });
   }
 
   /**
@@ -236,17 +231,17 @@ export class ErrorTrackingService {
    */
   private determineSupabaseSeverity(error: any): ErrorSeverity {
     const code = error?.code || '';
-    
+
     // Critical errors
     if (['PGRST301', '42501'].includes(code)) {
       return ErrorSeverity.CRITICAL;
     }
-    
+
     // High severity errors
     if (['23505', '23503', '23502'].includes(code)) {
       return ErrorSeverity.HIGH;
     }
-    
+
     // Default to medium
     return ErrorSeverity.MEDIUM;
   }

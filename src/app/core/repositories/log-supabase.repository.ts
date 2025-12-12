@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
-import { SupabaseBaseRepository } from './base/supabase-base.repository';
 import { Log, LogPhoto, CreateLogRequest, UpdateLogRequest, LogQueryOptions } from '@core/types/log';
+
+import { SupabaseBaseRepository } from './base/supabase-base.repository';
 
 /**
  * Log Supabase Repository
@@ -93,12 +94,7 @@ export class LogSupabaseRepository extends SupabaseBaseRepository<Log> {
    */
   async findById(id: string): Promise<Log | null> {
     return this.executeWithRetry(async () => {
-      const { data, error } = await this.client
-        .from(this.tableName)
-        .select('*')
-        .eq('id', id)
-        .is('deleted_at', null)
-        .single();
+      const { data, error } = await this.client.from(this.tableName).select('*').eq('id', id).is('deleted_at', null).single();
 
       if (error) {
         if (error.code === 'PGRST116') {
@@ -118,10 +114,7 @@ export class LogSupabaseRepository extends SupabaseBaseRepository<Log> {
    */
   async findByBlueprint(blueprintId: string, options?: LogQueryOptions): Promise<Log[]> {
     return this.executeWithRetry(async () => {
-      let query = this.client
-        .from(this.tableName)
-        .select('*')
-        .eq('blueprint_id', blueprintId);
+      let query = this.client.from(this.tableName).select('*').eq('blueprint_id', blueprintId);
 
       // Apply date range filter
       if (options?.startDate) {
@@ -226,11 +219,7 @@ export class LogSupabaseRepository extends SupabaseBaseRepository<Log> {
         metadata: {}
       };
 
-      const { data, error } = await this.client
-        .from(this.tableName)
-        .insert(record)
-        .select()
-        .single();
+      const { data, error } = await this.client.from(this.tableName).insert(record).select().single();
 
       if (error) {
         this.handleError(error, 'create log');
@@ -250,11 +239,7 @@ export class LogSupabaseRepository extends SupabaseBaseRepository<Log> {
     return this.executeWithRetry(async () => {
       const record = this.toRecord(payload);
 
-      const { error } = await this.client
-        .from(this.tableName)
-        .update(record)
-        .eq('id', id)
-        .is('deleted_at', null);
+      const { error } = await this.client.from(this.tableName).update(record).eq('id', id).is('deleted_at', null);
 
       if (error) {
         this.handleError(error, 'update log');
@@ -280,21 +265,17 @@ export class LogSupabaseRepository extends SupabaseBaseRepository<Log> {
       const fileName = `${logId}/${timestamp}_${file.name}`;
 
       // Upload file to storage
-      const { data: uploadData, error: uploadError } = await this.client.storage
-        .from(this.photosBucket)
-        .upload(fileName, file, {
-          cacheControl: '3600',
-          upsert: false
-        });
+      const { data: uploadData, error: uploadError } = await this.client.storage.from(this.photosBucket).upload(fileName, file, {
+        cacheControl: '3600',
+        upsert: false
+      });
 
       if (uploadError) {
         this.handleError(uploadError, 'upload photo');
       }
 
       // Get public URL
-      const { data: urlData } = this.client.storage
-        .from(this.photosBucket)
-        .getPublicUrl(fileName);
+      const { data: urlData } = this.client.storage.from(this.photosBucket).getPublicUrl(fileName);
 
       const photo: LogPhoto = {
         id: `${timestamp}`,
@@ -307,21 +288,14 @@ export class LogSupabaseRepository extends SupabaseBaseRepository<Log> {
       };
 
       // Update log photos array
-      const { data: currentLog, error: fetchError } = await this.client
-        .from(this.tableName)
-        .select('photos')
-        .eq('id', logId)
-        .single();
+      const { data: currentLog, error: fetchError } = await this.client.from(this.tableName).select('photos').eq('id', logId).single();
 
       if (fetchError) throw fetchError;
 
       const photos = this.parsePhotos(currentLog.photos);
       photos.push(photo);
 
-      const { error: updateError } = await this.client
-        .from(this.tableName)
-        .update({ photos: photos })
-        .eq('id', logId);
+      const { error: updateError } = await this.client.from(this.tableName).update({ photos: photos }).eq('id', logId);
 
       if (updateError) {
         this.handleError(updateError, 'update log photos');
@@ -343,11 +317,7 @@ export class LogSupabaseRepository extends SupabaseBaseRepository<Log> {
   async deletePhoto(logId: string, photoId: string): Promise<void> {
     return this.executeWithRetry(async () => {
       // Get current photos
-      const { data: currentLog, error: fetchError } = await this.client
-        .from(this.tableName)
-        .select('photos')
-        .eq('id', logId)
-        .single();
+      const { data: currentLog, error: fetchError } = await this.client.from(this.tableName).select('photos').eq('id', logId).single();
 
       if (fetchError) throw fetchError;
 
@@ -359,9 +329,7 @@ export class LogSupabaseRepository extends SupabaseBaseRepository<Log> {
       }
 
       // Remove from storage
-      const { error: storageError } = await this.client.storage
-        .from(this.photosBucket)
-        .remove([photoToDelete.url]);
+      const { error: storageError } = await this.client.storage.from(this.photosBucket).remove([photoToDelete.url]);
 
       if (storageError) {
         this.logger.warn('[LogSupabaseRepository]', 'Failed to delete photo from storage', {
@@ -372,10 +340,7 @@ export class LogSupabaseRepository extends SupabaseBaseRepository<Log> {
       // Update log photos array
       const updatedPhotos = photos.filter(p => p.id !== photoId);
 
-      const { error: updateError } = await this.client
-        .from(this.tableName)
-        .update({ photos: updatedPhotos })
-        .eq('id', logId);
+      const { error: updateError } = await this.client.from(this.tableName).update({ photos: updatedPhotos }).eq('id', logId);
 
       if (updateError) {
         this.handleError(updateError, 'update log photos after deletion');
@@ -391,10 +356,7 @@ export class LogSupabaseRepository extends SupabaseBaseRepository<Log> {
    */
   async delete(id: string): Promise<void> {
     return this.executeWithRetry(async () => {
-      const { error } = await this.client
-        .from(this.tableName)
-        .update({ deleted_at: new Date().toISOString() })
-        .eq('id', id);
+      const { error } = await this.client.from(this.tableName).update({ deleted_at: new Date().toISOString() }).eq('id', id);
 
       if (error) {
         this.handleError(error, 'soft delete log');
@@ -411,11 +373,7 @@ export class LogSupabaseRepository extends SupabaseBaseRepository<Log> {
   async hardDelete(id: string): Promise<void> {
     return this.executeWithRetry(async () => {
       // First, delete all photos from storage
-      const { data: log } = await this.client
-        .from(this.tableName)
-        .select('photos')
-        .eq('id', id)
-        .single();
+      const { data: log } = await this.client.from(this.tableName).select('photos').eq('id', id).single();
 
       if (log && log.photos) {
         const photos = this.parsePhotos(log.photos);
@@ -427,10 +385,7 @@ export class LogSupabaseRepository extends SupabaseBaseRepository<Log> {
       }
 
       // Then delete the log record
-      const { error } = await this.client
-        .from(this.tableName)
-        .delete()
-        .eq('id', id);
+      const { error } = await this.client.from(this.tableName).delete().eq('id', id);
 
       if (error) {
         this.handleError(error, 'hard delete log');
@@ -446,10 +401,7 @@ export class LogSupabaseRepository extends SupabaseBaseRepository<Log> {
    */
   async restore(id: string): Promise<void> {
     return this.executeWithRetry(async () => {
-      const { error } = await this.client
-        .from(this.tableName)
-        .update({ deleted_at: null })
-        .eq('id', id);
+      const { error } = await this.client.from(this.tableName).update({ deleted_at: null }).eq('id', id);
 
       if (error) {
         this.handleError(error, 'restore log');
@@ -463,7 +415,11 @@ export class LogSupabaseRepository extends SupabaseBaseRepository<Log> {
    * Get logs statistics
    * 取得日誌統計
    */
-  async getStatistics(blueprintId: string, startDate?: Date, endDate?: Date): Promise<{
+  async getStatistics(
+    blueprintId: string,
+    startDate?: Date,
+    endDate?: Date
+  ): Promise<{
     totalLogs: number;
     totalWorkHours: number;
     totalPhotos: number;
@@ -495,9 +451,7 @@ export class LogSupabaseRepository extends SupabaseBaseRepository<Log> {
         const photos = this.parsePhotos(log.photos);
         return sum + photos.length;
       }, 0);
-      const averageWorkers = totalLogs > 0
-        ? logs.reduce((sum, log) => sum + (log.workers || 0), 0) / totalLogs
-        : 0;
+      const averageWorkers = totalLogs > 0 ? logs.reduce((sum, log) => sum + (log.workers || 0), 0) / totalLogs : 0;
 
       return {
         totalLogs,

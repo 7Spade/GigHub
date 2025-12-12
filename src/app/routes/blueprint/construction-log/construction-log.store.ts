@@ -9,9 +9,9 @@
  * @date 2025-12-11
  */
 
-import { Injectable, signal, computed } from '@angular/core';
-import { inject } from '@angular/core';
+import { Injectable, signal, computed, inject } from '@angular/core';
 import { Log, CreateLogRequest, UpdateLogRequest, LogQueryOptions } from '@core/types/log/log.types';
+
 import { ConstructionLogRepository } from './construction-log.repository';
 
 @Injectable({ providedIn: 'root' })
@@ -34,7 +34,7 @@ export class ConstructionLogStore {
   readonly thisMonthCount = computed(() => {
     const now = new Date();
     const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
-    return this._logs().filter((log) => {
+    return this._logs().filter(log => {
       const logDate = new Date(log.date);
       return logDate >= firstDay;
     }).length;
@@ -43,7 +43,7 @@ export class ConstructionLogStore {
   readonly todayCount = computed(() => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    return this._logs().filter((log) => {
+    return this._logs().filter(log => {
       const logDate = new Date(log.date);
       logDate.setHours(0, 0, 0, 0);
       return logDate.getTime() === today.getTime();
@@ -107,7 +107,7 @@ export class ConstructionLogStore {
     try {
       const newLog = await this.repository.create(request);
       // Add to local state
-      this._logs.update((logs) => [newLog, ...logs]);
+      this._logs.update(logs => [newLog, ...logs]);
       return newLog;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
@@ -129,7 +129,7 @@ export class ConstructionLogStore {
     try {
       const updatedLog = await this.repository.update(blueprintId, logId, request);
       // Update local state
-      this._logs.update((logs) => logs.map((log) => (log.id === logId ? updatedLog : log)));
+      this._logs.update(logs => logs.map(log => (log.id === logId ? updatedLog : log)));
       return updatedLog;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
@@ -151,7 +151,7 @@ export class ConstructionLogStore {
     try {
       await this.repository.delete(blueprintId, logId);
       // Remove from local state
-      this._logs.update((logs) => logs.filter((log) => log.id !== logId));
+      this._logs.update(logs => logs.filter(log => log.id !== logId));
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
       this._error.set(errorMessage);

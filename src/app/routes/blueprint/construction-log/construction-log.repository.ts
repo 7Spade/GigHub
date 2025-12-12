@@ -10,9 +10,9 @@
  */
 
 import { Injectable, inject } from '@angular/core';
-import { SupabaseClient } from '@supabase/supabase-js';
-import { Log, CreateLogRequest, UpdateLogRequest, LogQueryOptions, LogPhoto } from '@core/types/log/log.types';
 import { SupabaseService } from '@core/services/supabase.service';
+import { Log, CreateLogRequest, UpdateLogRequest, LogQueryOptions, LogPhoto } from '@core/types/log/log.types';
+import { SupabaseClient } from '@supabase/supabase-js';
 
 @Injectable({ providedIn: 'root' })
 export class ConstructionLogRepository {
@@ -191,9 +191,7 @@ export class ConstructionLogRepository {
     const filePath = `construction-logs/${fileName}`;
 
     // Upload to Supabase Storage
-    const { data: uploadData, error: uploadError } = await this.client.storage
-      .from('construction-photos')
-      .upload(filePath, file);
+    const { data: uploadData, error: uploadError } = await this.client.storage.from('construction-photos').upload(filePath, file);
 
     if (uploadError) {
       throw new Error(`Failed to upload photo: ${uploadError.message}`);
@@ -205,11 +203,7 @@ export class ConstructionLogRepository {
     const photoUrl = urlData.publicUrl;
 
     // Update log with photo
-    const { data: log, error: fetchError } = await this.client
-      .from('construction_logs')
-      .select('photos')
-      .eq('id', logId)
-      .single();
+    const { data: log, error: fetchError } = await this.client.from('construction_logs').select('photos').eq('id', logId).single();
 
     if (fetchError) {
       throw new Error(`Failed to fetch log for photo update: ${fetchError.message}`);
@@ -244,18 +238,14 @@ export class ConstructionLogRepository {
    */
   async deletePhoto(blueprintId: string, logId: string, photoId: string): Promise<void> {
     // Get current log
-    const { data: log, error: fetchError } = await this.client
-      .from('construction_logs')
-      .select('photos')
-      .eq('id', logId)
-      .single();
+    const { data: log, error: fetchError } = await this.client.from('construction_logs').select('photos').eq('id', logId).single();
 
     if (fetchError) {
       throw new Error(`Failed to fetch log for photo deletion: ${fetchError.message}`);
     }
 
     const photos = (log.photos || []) as LogPhoto[];
-    const photo = photos.find((p) => p.id === photoId);
+    const photo = photos.find(p => p.id === photoId);
 
     if (!photo) {
       throw new Error('Photo not found');
@@ -269,7 +259,7 @@ export class ConstructionLogRepository {
     }
 
     // Update log to remove photo reference
-    const updatedPhotos = photos.filter((p) => p.id !== photoId);
+    const updatedPhotos = photos.filter(p => p.id !== photoId);
 
     const { error: updateError } = await this.client
       .from('construction_logs')
@@ -308,6 +298,6 @@ export class ConstructionLogRepository {
    * Map database rows to Log entities
    */
   private mapToLogs(data: any[]): Log[] {
-    return data.map((item) => this.mapToLog(item));
+    return data.map(item => this.mapToLog(item));
   }
 }
