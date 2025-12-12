@@ -6,8 +6,11 @@
  *
  * Collection path: blueprints/{blueprintId}/tasks/{taskId}
  *
+ * Following Occam's Razor: Single repository implementation for all task operations
+ * Uses unified Task types from @core/types/task
+ *
  * @author GigHub Development Team
- * @date 2025-12-10
+ * @date 2025-12-12
  */
 
 import { Injectable, inject } from '@angular/core';
@@ -29,85 +32,24 @@ import {
   QueryConstraint
 } from '@angular/fire/firestore';
 import { LoggerService } from '@core';
+import { Task, TaskStatus, TaskPriority, CreateTaskRequest, UpdateTaskRequest, TaskQueryOptions } from '@core/types/task';
 import { Observable, from, map, catchError, of } from 'rxjs';
 
 /**
- * Task Status
+ * Type aliases for backward compatibility
+ * These will be removed in future versions
  */
-export enum TaskStatus {
-  PENDING = 'pending',
-  IN_PROGRESS = 'in_progress',
-  ON_HOLD = 'on_hold',
-  COMPLETED = 'completed',
-  CANCELLED = 'cancelled'
-}
+/** @deprecated Use Task from @core/types/task */
+export type TaskDocument = Task;
 
-/**
- * Task Priority
- */
-export enum TaskPriority {
-  LOW = 'low',
-  MEDIUM = 'medium',
-  HIGH = 'high',
-  CRITICAL = 'critical'
-}
+/** @deprecated Use CreateTaskRequest from @core/types/task */
+export type CreateTaskData = CreateTaskRequest;
 
-/**
- * Task Document Interface
- */
-export interface TaskDocument {
-  readonly id?: string;
-  title: string;
-  description?: string;
-  status: TaskStatus;
-  priority: TaskPriority;
-  assigneeId?: string;
-  assigneeName?: string;
-  dueDate?: Date | Timestamp;
-  startDate?: Date | Timestamp;
-  completedDate?: Date | Timestamp;
-  estimatedHours?: number;
-  actualHours?: number;
-  tags?: string[];
-  metadata?: Record<string, unknown>;
-  createdBy: string;
-  createdAt: Date | Timestamp;
-  updatedAt: Date | Timestamp;
-  deletedAt?: Date | Timestamp | null;
-}
+/** @deprecated Use UpdateTaskRequest from @core/types/task */
+export type UpdateTaskData = UpdateTaskRequest;
 
-/**
- * Create Task Data
- */
-export interface CreateTaskData {
-  title: string;
-  description?: string;
-  priority?: TaskPriority;
-  assigneeId?: string;
-  assigneeName?: string;
-  dueDate?: Date;
-  startDate?: Date;
-  estimatedHours?: number;
-  tags?: string[];
-  metadata?: Record<string, unknown>;
-  createdBy: string;
-}
-
-/**
- * Update Task Data
- */
-export type UpdateTaskData = Partial<Omit<TaskDocument, 'id' | 'createdAt' | 'createdBy'>>;
-
-/**
- * Task Query Options
- */
-export interface TaskQueryOptions {
-  status?: TaskStatus;
-  priority?: TaskPriority;
-  assigneeId?: string;
-  includeDeleted?: boolean;
-  limit?: number;
-}
+/** @deprecated Import from @core/types/task */
+export type { TaskStatus, TaskPriority, TaskQueryOptions };
 
 /**
  * Tasks Repository Service
@@ -131,25 +73,29 @@ export class TasksRepository {
   }
 
   /**
-   * Convert Firestore data to TaskDocument
+   * Convert Firestore data to Task entity
+   * 將 Firestore 數據轉換為 Task 實體
    */
-  private toTaskDocument(data: any, id: string): TaskDocument {
+  private toTask(data: any, id: string): Task {
     return {
       id,
+      blueprintId: data.blueprintId || '',
       title: data.title,
       description: data.description,
       status: data.status,
       priority: data.priority,
       assigneeId: data.assigneeId,
       assigneeName: data.assigneeName,
+      creatorId: data.createdBy || data.creatorId,
+      creatorName: data.creatorName,
       dueDate: data.dueDate instanceof Timestamp ? data.dueDate.toDate() : data.dueDate,
       startDate: data.startDate instanceof Timestamp ? data.startDate.toDate() : data.startDate,
       completedDate: data.completedDate instanceof Timestamp ? data.completedDate.toDate() : data.completedDate,
       estimatedHours: data.estimatedHours,
       actualHours: data.actualHours,
       tags: data.tags || [],
+      attachments: data.attachments || [],
       metadata: data.metadata || {},
-      createdBy: data.createdBy,
       createdAt: data.createdAt instanceof Timestamp ? data.createdAt.toDate() : data.createdAt,
       updatedAt: data.updatedAt instanceof Timestamp ? data.updatedAt.toDate() : data.updatedAt,
       deletedAt: data.deletedAt ? (data.deletedAt instanceof Timestamp ? data.deletedAt.toDate() : data.deletedAt) : null
@@ -158,8 +104,9 @@ export class TasksRepository {
 
   /**
    * Find all tasks for a blueprint
+   * 根據藍圖 ID 查找所有任務
    */
-  findByBlueprintId(blueprintId: string, options?: TaskQueryOptions): Observable<TaskDocument[]> {
+  findByBlueprintId(blueprintId: string, options?: TaskQueryOptions): Observable<Task[]> {
     const constraints: QueryConstraint[] = [];
 
     if (options?.status) {
@@ -187,7 +134,7 @@ export class TasksRepository {
     const q = query(this.getTasksCollection(blueprintId), ...constraints);
 
     return from(getDocs(q)).pipe(
-      map(snapshot => snapshot.docs.map(docSnap => this.toTaskDocument(docSnap.data(), docSnap.id))),
+      map(snapshot => snapshot.docs.map(docSnap => this.toTask(docSnap.data(), docSnap.id))),
       catchError(error => {
         this.logger.error('[TasksRepository]', 'findByBlueprintId failed', error as Error);
         return of([]);
@@ -197,10 +144,11 @@ export class TasksRepository {
 
   /**
    * Find task by ID
+   * 根據 ID 查找任務
    */
-  findById(blueprintId: string, taskId: string): Observable<TaskDocument | null> {
+  findById(blueprintId: string, taskId: string): Observable<Task | null> {
     return from(getDoc(doc(this.firestore, this.parentCollection, blueprintId, this.subcollectionName, taskId))).pipe(
-      map(snapshot => (snapshot.exists() ? this.toTaskDocument(snapshot.data(), snapshot.id) : null)),
+      map(snapshot => (snapshot.exists() ? this.toTask(snapshot.data(), snapshot.id) : null)),
       catchError(error => {
         this.logger.error('[TasksRepository]', 'findById failed', error as Error);
         return of(null);
@@ -210,24 +158,29 @@ export class TasksRepository {
 
   /**
    * Create a new task
+   * 創建新任務
    */
-  async create(blueprintId: string, data: CreateTaskData): Promise<TaskDocument> {
+  async create(blueprintId: string, data: CreateTaskRequest): Promise<Task> {
     const now = Timestamp.now();
     const docData = {
+      blueprintId,
       title: data.title,
       description: data.description || '',
-      status: TaskStatus.PENDING,
+      status: data.status || TaskStatus.PENDING,
       priority: data.priority || TaskPriority.MEDIUM,
-      assigneeId: data.assigneeId,
-      assigneeName: data.assigneeName,
+      assigneeId: data.assigneeId || null,
+      assigneeName: data.assigneeName || null,
+      creatorId: data.creatorId,
+      creatorName: data.creatorName || null,
       dueDate: data.dueDate ? Timestamp.fromDate(data.dueDate) : null,
       startDate: data.startDate ? Timestamp.fromDate(data.startDate) : null,
       completedDate: null,
-      estimatedHours: data.estimatedHours,
+      estimatedHours: data.estimatedHours || null,
       actualHours: 0,
       tags: data.tags || [],
+      attachments: [],
       metadata: data.metadata || {},
-      createdBy: data.createdBy,
+      createdBy: data.creatorId, // Backward compatibility
       createdAt: now,
       updatedAt: now,
       deletedAt: null
@@ -239,10 +192,10 @@ export class TasksRepository {
 
       const snapshot = await getDoc(docRef);
       if (snapshot.exists()) {
-        return this.toTaskDocument(snapshot.data(), snapshot.id);
+        return this.toTask(snapshot.data(), snapshot.id);
       }
 
-      return this.toTaskDocument(docData, docRef.id);
+      return this.toTask(docData, docRef.id);
     } catch (error: any) {
       this.logger.error('[TasksRepository]', 'create failed', error as Error);
       throw error;
@@ -251,8 +204,9 @@ export class TasksRepository {
 
   /**
    * Update an existing task
+   * 更新現有任務
    */
-  async update(blueprintId: string, taskId: string, data: UpdateTaskData): Promise<void> {
+  async update(blueprintId: string, taskId: string, data: UpdateTaskRequest): Promise<void> {
     const docData: any = {
       ...data,
       updatedAt: Timestamp.now()

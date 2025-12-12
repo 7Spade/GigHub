@@ -20,13 +20,12 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { SHARED_IMPORTS } from '@shared';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NZ_MODAL_DATA, NzModalRef } from 'ng-zorro-antd/modal';
-
-import { TaskDocument, CreateTaskData, UpdateTaskData, TaskStatus, TaskPriority } from './tasks.repository';
-import { TasksService } from './tasks.service';
+import { TaskStore } from '@core/stores/task.store';
+import { Task, TaskStatus, TaskPriority, CreateTaskRequest, UpdateTaskRequest } from '@core/types/task';
 
 interface ModalData {
   blueprintId: string;
-  task?: TaskDocument;
+  task?: Task;
   mode: 'create' | 'edit' | 'view';
 }
 
@@ -145,7 +144,7 @@ export class TaskModalComponent implements OnInit {
   private fb = inject(FormBuilder);
   private modalRef = inject(NzModalRef);
   private message = inject(NzMessageService);
-  private tasksService = inject(TasksService);
+  private taskStore = inject(TaskStore);
 
   // Modal data injected
   modalData: ModalData = inject(NZ_MODAL_DATA);
@@ -171,7 +170,7 @@ export class TaskModalComponent implements OnInit {
     this.form = this.fb.group({
       title: [{ value: task?.title || '', disabled: isView }, [Validators.required, Validators.maxLength(100)]],
       description: [{ value: task?.description || '', disabled: isView }, [Validators.maxLength(1000)]],
-      status: [{ value: task?.status || TaskStatus.PENDING, disabled: isView }],
+      status: [{ value: task?.status || TaskStatus.PENDING, disabled: isView || this.modalData.mode === 'create' }],
       priority: [{ value: task?.priority || TaskPriority.MEDIUM, disabled: isView }],
       assigneeName: [{ value: task?.assigneeName || '', disabled: isView }],
       dueDate: [{ value: task?.dueDate ? new Date(task.dueDate as any) : null, disabled: isView }],
@@ -211,20 +210,20 @@ export class TaskModalComponent implements OnInit {
   }
 
   private async createTask(formValue: any): Promise<void> {
-    const createData: CreateTaskData = {
+    const createData: CreateTaskRequest = {
       title: formValue.title,
       description: formValue.description,
-      priority: formValue.priority,
+      priority: formValue.priority || TaskPriority.MEDIUM,
       assigneeName: formValue.assigneeName || undefined,
       assigneeId: undefined, // TODO: Get from user selection if needed
       dueDate: formValue.dueDate || undefined,
       startDate: formValue.startDate || undefined,
       estimatedHours: formValue.estimatedHours || undefined,
       tags: formValue.tags || [],
-      createdBy: 'current-user' // TODO: Get from auth service
+      creatorId: 'current-user' // TODO: Get from auth service
     };
 
-    const newTask = await this.tasksService.createTask(this.modalData.blueprintId, createData);
+    const newTask = await this.taskStore.createTask(this.modalData.blueprintId, createData);
 
     if (!newTask) {
       throw new Error('Failed to create task');
@@ -240,7 +239,7 @@ export class TaskModalComponent implements OnInit {
       throw new Error('Task ID not found');
     }
 
-    const updateData: UpdateTaskData = {
+    const updateData: UpdateTaskRequest = {
       title: formValue.title,
       description: formValue.description,
       status: formValue.status,
@@ -253,7 +252,7 @@ export class TaskModalComponent implements OnInit {
       tags: formValue.tags || []
     };
 
-    await this.tasksService.updateTask(this.modalData.blueprintId, taskId, updateData, 'current-user');
+    await this.taskStore.updateTask(this.modalData.blueprintId, taskId, updateData, 'current-user');
 
     this.message.success('任務更新成功');
     this.modalRef.close({ success: true });

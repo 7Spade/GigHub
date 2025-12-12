@@ -1,11 +1,22 @@
 /**
  * Tasks Service
  *
+ * @deprecated This service has been consolidated into TaskStore
+ * Please use TaskStore from @core/stores/task.store instead
+ *
+ * Migration guide:
+ * - TasksService → TaskStore
+ * - All methods have been moved with the same signatures
+ * - Audit logging functionality is now integrated in TaskStore
+ *
+ * This file will be removed in a future version.
+ *
  * Business logic layer for task management.
  * Orchestrates between repository and UI, handles validation and business rules.
  *
  * @author GigHub Development Team
  * @date 2025-12-10
+ * @deprecated 2025-12-12
  */
 
 import { Injectable, inject, signal, computed } from '@angular/core';
@@ -26,6 +37,8 @@ import {
 
 /**
  * Tasks Service
+ *
+ * @deprecated Use TaskStore from @core/stores/task.store instead
  *
  * Manages task operations with business logic and audit logging.
  */
