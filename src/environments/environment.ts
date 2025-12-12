@@ -17,6 +17,7 @@ export const environment = {
   providers: [provideMockConfig({ data: MOCKDATA })],
   interceptorFns: [mockInterceptor],
   // Supabase configuration (read from .env or use placeholders)
-  NG_PUBLIC_SUPABASE_URL: '',
-  NG_PUBLIC_SUPABASE_ANON_KEY: ''
+  NG_PUBLIC_SUPABASE_URL: 'https://zecsbstjqjqoytwgjyct.supabase.co',
+  NG_PUBLIC_SUPABASE_ANON_KEY:
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InplY3Nic3RqcWpxb3l0d2dqeWN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU0OTk5MzcsImV4cCI6MjA4MTA3NTkzN30.GQSslGa2ujmjdR-DeqXwPiAUr0RPe2O3lwb37wnJQeE'
 } as Environment;
