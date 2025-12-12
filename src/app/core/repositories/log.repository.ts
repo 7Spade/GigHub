@@ -63,10 +63,7 @@ export class LogRepository {
       creatorId: data.creatorId,
       createdAt: data.createdAt instanceof Timestamp ? data.createdAt.toDate() : data.createdAt,
       updatedAt: data.updatedAt instanceof Timestamp ? data.updatedAt.toDate() : data.updatedAt,
-      deletedAt: data.deletedAt ? (data.deletedAt instanceof Timestamp ? data.deletedAt.toDate() : data.deletedAt) : null,
-      voiceRecords: data.voiceRecords || [],
-      documents: data.documents || [],
-      metadata: data.metadata || {}
+      deletedAt: data.deletedAt ? (data.deletedAt instanceof Timestamp ? data.deletedAt.toDate() : data.deletedAt) : null
     };
   }
 
@@ -132,9 +129,6 @@ export class LogRepository {
       ...payload,
       date: Timestamp.fromDate(payload.date),
       photos: [],
-      voiceRecords: [],
-      documents: [],
-      metadata: {},
       createdAt: now,
       updatedAt: now,
       deletedAt: null

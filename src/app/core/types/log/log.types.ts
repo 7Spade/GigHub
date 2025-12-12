@@ -36,6 +36,8 @@ export interface LogPhoto {
 /**
  * Log entity
  * 日誌實體
+ *
+ * Simplified interface - extensions can be added when needed
  */
 export interface Log {
   /** Log ID */
@@ -82,16 +84,6 @@ export interface Log {
 
   /** Soft delete timestamp */
   deletedAt?: Date | null;
-
-  // Reserved for future extensions
-  /** Voice records (reserved) */
-  voiceRecords?: string[];
-
-  /** Documents (reserved) */
-  documents?: string[];
-
-  /** Metadata for extensions */
-  metadata?: Record<string, any>;
 }
 
 /**
