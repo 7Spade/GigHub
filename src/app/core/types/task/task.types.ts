@@ -95,10 +95,22 @@ export interface Task {
   /** Progress percentage (0-100) */
   progress?: number;
 
-  /** Parent task ID for hierarchical structure (optional) */
+  /**
+   * Parent task ID for hierarchical structure (optional)
+   *
+   * When a parent task is deleted, child tasks become orphaned (parentId = null).
+   * Deletion is NOT cascaded by default. Consumers must handle orphaned tasks as needed.
+   */
   parentId?: string | null;
 
-  /** Task dependencies - array of task IDs that must be completed first (optional) */
+  /**
+   * Task dependencies - array of task IDs that must be completed first (optional)
+   *
+   * Constraints:
+   * 1. If a dependency task is deleted, its ID should be removed from all dependencies arrays.
+   * 2. Circular dependencies are prevented by isValidParentChild() utility function.
+   * 3. Maximum recommended dependencies per task: 20.
+   */
   dependencies?: string[];
 
   /** Tags (optional) */

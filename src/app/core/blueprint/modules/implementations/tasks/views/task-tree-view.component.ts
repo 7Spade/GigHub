@@ -9,7 +9,7 @@
  */
 
 import { FlatTreeControl } from '@angular/cdk/tree';
-import { Component, input, signal, computed, inject } from '@angular/core';
+import { Component, input, computed, inject } from '@angular/core';
 import { TaskStore } from '@core/stores/task.store';
 import { Task, TaskTreeNode } from '@core/types/task';
 import { buildTaskHierarchy, calculateAggregatedProgress } from '@core/utils/task-hierarchy.util';

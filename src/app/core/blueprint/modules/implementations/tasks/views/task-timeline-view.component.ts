@@ -10,7 +10,6 @@
 
 import { Component, input, computed, inject } from '@angular/core';
 import { TaskStore } from '@core/stores/task.store';
-import { Task, TimelineItem } from '@core/types/task';
 import { SHARED_IMPORTS } from '@shared';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
 import { NzTimelineModule } from 'ng-zorro-antd/timeline';

@@ -27,19 +27,24 @@ export function buildTaskHierarchy(tasks: Task[]): TaskTreeNode[] {
   const taskMap = new Map<string, TaskTreeNode>();
   const rootNodes: TaskTreeNode[] = [];
 
-  // First pass: Create all nodes
+  // First pass: Create all nodes (filter out tasks without IDs)
   tasks.forEach(task => {
+    if (!task.id) {
+      console.warn('[buildTaskHierarchy] Skipping task without ID:', task);
+      return;
+    }
+    
     const node: TaskTreeNode = {
-      key: task.id!,
+      key: task.id,
       title: task.title,
-      taskId: task.id!,
+      taskId: task.id,
       parentId: task.parentId || undefined,
       children: [],
       isLeaf: true, // Will be updated if children are found
       expanded: false,
       task: task // Store reference to original task
     };
-    taskMap.set(task.id!, node);
+    taskMap.set(task.id, node);
   });
 
   // Second pass: Build hierarchy
@@ -132,9 +137,9 @@ export function getDescendantIds(taskId: string, tasks: Task[]): string[] {
 
   const findChildren = (parentId: string) => {
     tasks.forEach(task => {
-      if (task.parentId === parentId) {
-        descendants.push(task.id!);
-        findChildren(task.id!); // Recursive
+      if (task.parentId === parentId && task.id) {
+        descendants.push(task.id);
+        findChildren(task.id); // Recursive
       }
     });
   };
@@ -153,7 +158,7 @@ export function getDescendantIds(taskId: string, tasks: Task[]): string[] {
  */
 export function getAncestorIds(taskId: string, tasks: Task[]): string[] {
   const ancestors: string[] = [];
-  const taskMap = new Map(tasks.map(t => [t.id!, t]));
+  const taskMap = new Map(tasks.filter(t => t.id != null).map(t => [t.id as string, t]));
 
   let currentId: string | null | undefined = taskId;
   while (currentId) {
@@ -222,7 +227,7 @@ export function sortTasksHierarchically(tasks: Task[]): Task[] {
   const hierarchy = buildTaskHierarchy(tasks);
   const flat = flattenTaskTree(hierarchy);
 
-  // Map back to original tasks
-  const taskMap = new Map(tasks.map(t => [t.id!, t]));
-  return flat.map(node => taskMap.get(node.taskId)!).filter(Boolean);
+  // Map back to original tasks (filter out null/undefined IDs)
+  const taskMap = new Map(tasks.filter(t => t.id != null).map(t => [t.id as string, t]));
+  return flat.map(node => taskMap.get(node.taskId)).filter((t): t is Task => t !== undefined);
 }

@@ -40,10 +40,10 @@ enum ZoomLevel {
           <div class="header-row">
             <h3>甘特圖視圖</h3>
             <nz-space>
-              <nz-radio-group *nzSpaceItem [(ngModel)]="zoomLevel">
-                <label nz-radio-button [nzValue]="'day'">日視圖</label>
-                <label nz-radio-button [nzValue]="'week'">週視圖</label>
-                <label nz-radio-button [nzValue]="'month'">月視圖</label>
+              <nz-radio-group *nzSpaceItem [(ngModel)]="zoomLevel" aria-label="選擇甘特圖時間視圖">
+                <label nz-radio-button [nzValue]="'day'" aria-label="切換到日視圖顯示60天範圍">日視圖</label>
+                <label nz-radio-button [nzValue]="'week'" aria-label="切換到週視圖顯示24週範圍">週視圖</label>
+                <label nz-radio-button [nzValue]="'month'" aria-label="切換到月視圖顯示12個月範圍">月視圖</label>
               </nz-radio-group>
               <nz-tag *nzSpaceItem [nzColor]="'blue'"> 共 {{ ganttTasks().length }} 個任務 </nz-tag>
             </nz-space>
@@ -92,7 +92,13 @@ enum ZoomLevel {
 
                     <!-- Task bar -->
                     @if (ganttTask.milestone) {
-                      <div class="milestone-marker" [style.left.%]="getTaskPosition(ganttTask)" [title]="ganttTask.name">
+                      <div
+                        class="milestone-marker"
+                        [style.left.%]="getTaskPosition(ganttTask)"
+                        [title]="ganttTask.name"
+                        [attr.aria-label]="'里程碑: ' + ganttTask.name"
+                        role="img"
+                      >
                         <span nz-icon nzType="flag" nzTheme="filled"></span>
                       </div>
                     } @else {
@@ -377,7 +383,9 @@ export class TaskGanttViewComponent {
         const end = task.dueDate ? new Date(task.dueDate) : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
         // Check if milestone (task with same start and end date, or marked as milestone)
-        const isMilestone = task.metadata?.['milestone'] === true || start.getTime() === end.getTime();
+        const isMilestone =
+          (task.metadata && typeof task.metadata === 'object' && task.metadata !== null && task.metadata['milestone'] === true) ||
+          start.getTime() === end.getTime();
 
         return {
           id: task.id!,
@@ -391,6 +399,13 @@ export class TaskGanttViewComponent {
           task
         } as GanttTask & { task: Task };
       });
+  });
+
+  // Task lookup map for better performance (O(1) lookup instead of O(n))
+  readonly ganttTaskMap = computed(() => {
+    const map = new Map<string, GanttTask & { task: Task }>();
+    this.ganttTasks().forEach(task => map.set(task.id, task));
+    return map;
   });
 
   // Timeline start and end dates based on zoom
@@ -458,25 +473,26 @@ export class TaskGanttViewComponent {
   }
 
   /**
-   * Get dependency line position
+   * Get dependency line position (using task map for O(1) lookup)
    */
   getDependencyLinePosition(task: GanttTask, depId: string): number {
-    const depTask = this.ganttTasks().find(t => t.id === depId);
+    const depTask = this.ganttTaskMap().get(depId);
     if (!depTask) return 0;
 
     return this.getTaskPosition(depTask);
   }
 
   /**
-   * Get dependency line width
+   * Get dependency line width (using task map for O(1) lookup)
    */
   getDependencyLineWidth(task: GanttTask, depId: string): number {
-    const depTask = this.ganttTasks().find(t => t.id === depId);
+    const depTask = this.ganttTaskMap().get(depId);
     if (!depTask) return 0;
 
     const depEnd = this.getTaskPosition(depTask) + this.getTaskWidth(depTask);
     const taskStart = this.getTaskPosition(task);
 
+    // Ensure non-negative width (handles invalid dependency order)
     return Math.max(0, taskStart - depEnd);
   }
 

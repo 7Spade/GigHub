@@ -11,7 +11,7 @@
 import { CdkDragDrop, DragDropModule, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { Component, input, computed, inject } from '@angular/core';
 import { TaskStore } from '@core/stores/task.store';
-import { Task, TaskStatus, KanbanColumn } from '@core/types/task';
+import { Task, TaskStatus } from '@core/types/task';
 import { SHARED_IMPORTS } from '@shared';
 import { NzMessageService } from 'ng-zorro-antd/message';
 
