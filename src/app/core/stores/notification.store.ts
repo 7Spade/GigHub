@@ -181,7 +181,9 @@ export class NotificationStore {
 
     // Auto-cleanup on component destroy
     destroyRef.onDestroy(() => {
-      channel?.unsubscribe();
+      if (channel) {
+        channel();
+      }
       this.logger.info('[NotificationStore]', 'Realtime subscription cleaned up');
     });
   }

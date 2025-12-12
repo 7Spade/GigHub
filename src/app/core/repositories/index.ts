@@ -15,12 +15,7 @@ export * from './storage.repository';
 export * from './firebase-storage.repository';
 export * from './notification.repository';
 
-// Supabase Repositories (to be deprecated)
-export * from './base/supabase-base.repository';
-export * from './task-supabase.repository';
-export * from './log-supabase.repository';
-
-// Firestore Repositories (new)
+// Firestore Repositories
 export * from './base/firestore-base.repository';
 export * from './task-firestore.repository';
 export * from './log-firestore.repository';
