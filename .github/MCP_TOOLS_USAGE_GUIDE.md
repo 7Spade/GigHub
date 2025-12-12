@@ -6,19 +6,23 @@
 
 ## 📋 已配置的 MCP 工具
 
-### 核心工具 (已在 GitHub 設定中配置)
+### 核心工具 (已在 GitHub 設定中配置並可立即使用)
 
-| 工具 | 用途 | 強制性 | 配置狀態 |
-|------|------|--------|---------|
-| **context7** | 查詢最新框架文檔 | 🔴 必須 | ✅ 已配置 |
-| **sequential-thinking** | 結構化推理與分析 | 🟡 必須 | ✅ 已配置 |
-| **software-planning-tool** | 功能規劃與任務管理 | 🟢 必須 | ✅ 已配置 |
-| **memory** | 專案知識記憶 | 🔵 自動 | ✅ 已配置 |
-| **github** | GitHub API 操作 | 🔵 自動 | ✅ 已配置 |
-| **supabase** | Supabase 操作 | 🔵 自動 | ✅ 已配置 |
-| **filesystem** | 檔案系統操作 | 🔵 自動 | ✅ 已配置 |
-| **time** | 時間相關操作 | 🔵 自動 | ✅ 已配置 |
-| **everything** | 通用工具集 | 🔵 自動 | ✅ 已配置 |
+| 工具 | 用途 | 強制性 | 配置狀態 | 連接資訊 |
+|------|------|--------|---------|---------|
+| **context7** | 查詢最新框架文檔 | 🔴 必須 | ✅ 已配置 | mcp.context7.com |
+| **github** | GitHub API 操作 | 🔴 必須 | ✅ 已配置 | api.githubcopilot.com |
+| **supabase** | 資料庫操作 | 🔴 必須 | ✅ 已配置 | project: zecsbstjqjqoytwgjyct |
+| **redis** | Redis 快取操作 | 🟡 建議 | ✅ 已配置 | Redis Cloud 已連接 |
+| **sequential-thinking** | 結構化推理與分析 | 🟡 必須 | ✅ 已配置 | 本地 MCP |
+| **software-planning-tool** | 功能規劃與任務管理 | 🟢 必須 | ✅ 已配置 | 本地 MCP |
+| **memory** | 專案知識記憶 | 🔵 自動 | ✅ 已配置 | memory.jsonl (50+ entities) |
+| **filesystem** | 檔案系統操作 | 🔵 自動 | ✅ 已配置 | 本地檔案系統 |
+| **time** | 時間相關操作 | 🔵 自動 | ✅ 已配置 | 本地 MCP |
+| **fetch** | HTTP 請求 | 🔵 自動 | ✅ 已配置 | 本地 MCP |
+| **everything** | 通用工具集 | 🔵 自動 | ✅ 已配置 | 本地 MCP |
+
+**🎉 所有工具都已完全配置且可立即使用！無需任何額外設定。**
 
 ---
 

@@ -1,6 +1,24 @@
 ---
 # MCP Servers Configuration
 # 參考: .github/agents/context7.agent.md
+#
+# ⚠️ 重要說明：
+# 此檔案是配置範本，實際的 MCP 配置已在 GitHub 設定中完成：
+# https://github.com/7Spade/GigHub/settings/copilot/coding_agent
+#
+# 🟢 已配置且可用的工具：
+# - context7: 框架文檔查詢
+# - github: GitHub API 操作  
+# - supabase: 遠端資料庫操作 (project: zecsbstjqjqoytwgjyct)
+# - redis: Redis Cloud 快取操作
+# - memory: 專案知識記憶 (.github/copilot/memory.jsonl)
+# - sequential-thinking: 結構化推理
+# - software-planning-tool: 功能規劃
+# - filesystem: 檔案系統操作
+# - everything, time, fetch: 通用工具
+#
+# 所有工具都已完全配置，無需再設定 secrets。
+# Copilot Agent 可以直接使用上述所有工具。
 
 mcp-servers:
   context7:

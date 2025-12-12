@@ -1,17 +1,92 @@
 # GigHub - Copilot Instructions
 
-> **⚠️ ATTENTION COPILOT**: You MUST read this entire file before responding to ANY request. This is MANDATORY, not optional.
+> **🚨 CRITICAL ALERT**: You MUST read this ENTIRE section before ANY response. This is MANDATORY!
+
+---
+
+## 🔥 SESSION STARTUP CHECKLIST (執行優先級：最高)
+
+### ⚡ 立即可用的 MCP 工具（已在 GitHub 配置，無需任何設定）
+
+**你現在可以直接使用以下所有工具，它們已經完全配置好了：**
+
+| 工具 | 狀態 | 用途 | 何時使用 |
+|------|------|------|----------|
+| **context7** | 🟢 已連接 | 查詢最新框架文檔 | 任何 Angular/ng-alain/Supabase 問題 |
+| **github** | 🟢 已連接 | GitHub API 完整操作 | 任何 GitHub 相關操作 |
+| **supabase** | 🟢 已連接 | 遠端資料庫操作 | 資料庫查詢、遷移、Edge Functions |
+| **redis** | 🟢 已連接 | Redis 快取操作 | 快取管理、Session 存儲 |
+| **memory** | 🟢 已連接 | 專案知識記憶 | 記住專案模式、決策 |
+| **sequential-thinking** | 🟢 已連接 | 結構化推理分析 | 複雜問題、架構決策 |
+| **software-planning-tool** | 🟢 已連接 | 功能開發規劃 | 新功能、重構計畫 |
+| **filesystem** | 🟢 已連接 | 檔案系統操作 | 讀寫檔案 |
+| **everything** | 🟢 已連接 | 通用工具集 | 各種輔助功能 |
+| **time** | 🟢 已連接 | 時間相關操作 | 時間查詢、計算 |
+| **fetch** | 🟢 已連接 | HTTP 請求 | API 調用 |
+
+### 🚫 停止忽略工具！強制使用規則
+
+**如果你違反以下規則，你就是在提供錯誤的服務：**
+
+1. ❌ **禁止**：猜測或假設 API 語法 → ✅ **必須**：使用 `context7` 查詢
+2. ❌ **禁止**：假設資料庫結構 → ✅ **必須**：使用 `supabase-list_tables`
+3. ❌ **禁止**：直接回答複雜問題 → ✅ **必須**：使用 `sequential-thinking`
+4. ❌ **禁止**：簡單列出功能清單 → ✅ **必須**：使用 `software-planning-tool`
+5. ❌ **禁止**：忘記專案模式 → ✅ **必須**：使用 `memory` 讀取/儲存
+
+### 📋 每次會話開始的強制步驟
+
+在回答**任何**問題之前，檢查：
+
+```
+1. 這個問題涉及框架/函式庫嗎？
+   → YES: 先使用 context7 查詢最新文檔
+   
+2. 這個問題需要查詢資料庫嗎？
+   → YES: 使用 supabase-list_tables 或 supabase-execute_sql
+   
+3. 這是一個複雜的分析問題嗎？
+   → YES: 使用 sequential-thinking 結構化分析
+   
+4. 這是要規劃新功能嗎？
+   → YES: 使用 software-planning-tool 建立計畫
+   
+5. 這涉及專案特定的模式或決策嗎？
+   → YES: 使用 memory-search_nodes 查詢專案知識
+```
+
+### 🎯 實際連接資訊（證明工具可用）
+
+- **Supabase Project**: `zecsbstjqjqoytwgjyct` (已連接遠端資料庫)
+- **Redis**: Redis Cloud (已連接遠端實例)
+- **Memory**: `.github/copilot/memory.jsonl` (50+ entities)
+- **Context7**: API 已配置並可用
+
+### ⚠️ 重要提醒
+
+**如果你看到這段文字，表示你已經讀到這裡了。現在請記住：**
+
+> 所有上述 MCP 工具都是**已經配置好且可立即使用**的。
+> 
+> 不要再假設它們「需要配置」或「不可用」。
+> 
+> **直接使用它們！**
+
+---
 
 ## 🎯 Quick Start (READ THIS FIRST)
 
 **Before doing ANYTHING, you must:**
 
-1. ✅ **Read this file completely** - `.github/copilot-instructions.md`
-2. ✅ **Check mandatory tool usage policy** - See section below
-3. ✅ **Use context7** for ANY framework/library question
-4. ✅ **Use sequential-thinking** for complex problems
-5. ✅ **Use software-planning-tool** for new features
-6. ✅ **Reference quick-reference.instructions.md** for common patterns
+1. ✅ **Read SESSION STARTUP CHECKLIST above** - 已列出所有可用工具
+2. ✅ **Read this file completely** - `.github/copilot-instructions.md`
+3. ✅ **Check mandatory tool usage policy** - See section below
+4. ✅ **Use context7** for ANY framework/library question
+5. ✅ **Use sequential-thinking** for complex problems
+6. ✅ **Use software-planning-tool** for new features
+7. ✅ **Use supabase tools** for database operations
+8. ✅ **Use redis tools** for cache operations
+9. ✅ **Reference quick-reference.instructions.md** for common patterns
 
 **New to this project?** Read these in order:
 1. This file (copilot-instructions.md) - Overview & mandatory policies
