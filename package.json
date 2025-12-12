@@ -37,7 +37,11 @@
     "color-less": "ng-alain-plugin-theme -t=colorLess",
     "theme": "ng-alain-plugin-theme -t=themeCss",
     "icon": "ng g ng-alain:plugin icon",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "check": "npm run lint && npm run test -- --watch=false --browsers=ChromeHeadless",
+    "check:full": "npm run lint && npm run test -- --watch=false --browsers=ChromeHeadless && npm run build",
+    "check:quick": "npm run lint:ts --fix && npm run lint:style --fix",
+    "pre-push": "npm run check:full"
   },
   "dependencies": {
     "@angular/animations": "^20.3.0",
