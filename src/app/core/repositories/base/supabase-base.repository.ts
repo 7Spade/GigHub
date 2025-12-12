@@ -1,8 +1,8 @@
 import { inject } from '@angular/core';
-import { SupabaseClient, PostgrestError } from '@supabase/supabase-js';
-import { SupabaseService } from '@core/services/supabase.service';
-import { LoggerService } from '@core/services/logger';
 import { ErrorTrackingService } from '@core/services/error-tracking.service';
+import { LoggerService } from '@core/services/logger';
+import { SupabaseService } from '@core/services/supabase.service';
+import { SupabaseClient, PostgrestError } from '@supabase/supabase-js';
 
 /**
  * Supabase Base Repository
@@ -77,11 +77,7 @@ export abstract class SupabaseBaseRepository<T> {
    * @returns 操作結果
    * @throws 最後一次錯誤（如果所有重試都失敗）
    */
-  protected async executeWithRetry<R>(
-    operation: () => Promise<R>,
-    maxRetries = 3,
-    baseDelay = 1000
-  ): Promise<R> {
+  protected async executeWithRetry<R>(operation: () => Promise<R>, maxRetries = 3, baseDelay = 1000): Promise<R> {
     let lastError: any;
     const operationName = this.getOperationName();
 
@@ -238,7 +234,7 @@ export abstract class SupabaseBaseRepository<T> {
       details: error.details,
       hint: error.hint
     };
-    
+
     // Only add code if it exists
     if (error['code']) {
       errorContext['code'] = error['code'];
@@ -246,7 +242,7 @@ export abstract class SupabaseBaseRepository<T> {
 
     // Create an Error object for logging
     const errorObj = new Error(errorMessage);
-    
+
     this.logger.error(`[${this.constructor.name}]`, `${context} failed`, errorObj, errorContext);
 
     this.errorTracking.trackSupabaseError(this.tableName, error, { context });

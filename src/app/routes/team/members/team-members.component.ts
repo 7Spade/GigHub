@@ -159,18 +159,16 @@ export class TeamMembersComponent implements OnInit {
   constructor() {
     // Monitor query parameters
     effect(() => {
-      this.route.queryParams
-        .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe(params => {
-          const teamId = params['teamId'];
-          if (teamId) {
-            this.queryParamTeamId.set(teamId);
-            // Switch to team context if needed
-            if (this.workspaceContext.contextType() !== ContextType.TEAM || this.workspaceContext.contextId() !== teamId) {
-              this.workspaceContext.switchToTeam(teamId);
-            }
+      this.route.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {
+        const teamId = params['teamId'];
+        if (teamId) {
+          this.queryParamTeamId.set(teamId);
+          // Switch to team context if needed
+          if (this.workspaceContext.contextType() !== ContextType.TEAM || this.workspaceContext.contextId() !== teamId) {
+            this.workspaceContext.switchToTeam(teamId);
           }
-        });
+        }
+      });
     });
 
     // Auto-reload members when team context changes
@@ -286,10 +284,10 @@ export class TeamMembersComponent implements OnInit {
         },
         error: (error: Error) => {
           this.loading.set(false);
-        console.error('[TeamMembersComponent] ❌ Failed to load org members:', error);
-        this.message.error('載入組織成員失敗');
-      }
-    });
+          console.error('[TeamMembersComponent] ❌ Failed to load org members:', error);
+          this.message.error('載入組織成員失敗');
+        }
+      });
   }
 
   private showAddMemberModal(teamId: string, availableMembers: OrganizationMember[]): void {

@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
-import { SupabaseBaseRepository } from './base/supabase-base.repository';
 import { Task, TaskStatus, CreateTaskRequest, UpdateTaskRequest, TaskQueryOptions } from '@core/types/task';
+
+import { SupabaseBaseRepository } from './base/supabase-base.repository';
 
 /**
  * Task Supabase Repository
@@ -69,12 +70,12 @@ export class TaskSupabaseRepository extends SupabaseBaseRepository<Task> {
    */
   private mapStatus(status: string): TaskStatus {
     const statusMap: Record<string, TaskStatus> = {
-      'TODO': TaskStatus.TODO,
-      'IN_PROGRESS': TaskStatus.IN_PROGRESS,
-      'IN_REVIEW': TaskStatus.IN_REVIEW,
-      'REVIEW': TaskStatus.IN_REVIEW,
-      'COMPLETED': TaskStatus.COMPLETED,
-      'CANCELLED': TaskStatus.CANCELLED
+      TODO: TaskStatus.TODO,
+      IN_PROGRESS: TaskStatus.IN_PROGRESS,
+      IN_REVIEW: TaskStatus.IN_REVIEW,
+      REVIEW: TaskStatus.IN_REVIEW,
+      COMPLETED: TaskStatus.COMPLETED,
+      CANCELLED: TaskStatus.CANCELLED
     };
 
     return statusMap[status] || TaskStatus.TODO;
@@ -86,12 +87,7 @@ export class TaskSupabaseRepository extends SupabaseBaseRepository<Task> {
    */
   async findById(id: string): Promise<Task | null> {
     return this.executeWithRetry(async () => {
-      const { data, error } = await this.client
-        .from(this.tableName)
-        .select('*')
-        .eq('id', id)
-        .is('deleted_at', null)
-        .single();
+      const { data, error } = await this.client.from(this.tableName).select('*').eq('id', id).is('deleted_at', null).single();
 
       if (error) {
         if (error.code === 'PGRST116') {
@@ -111,10 +107,7 @@ export class TaskSupabaseRepository extends SupabaseBaseRepository<Task> {
    */
   async findByBlueprint(blueprintId: string, options?: TaskQueryOptions): Promise<Task[]> {
     return this.executeWithRetry(async () => {
-      let query = this.client
-        .from(this.tableName)
-        .select('*')
-        .eq('blueprint_id', blueprintId);
+      let query = this.client.from(this.tableName).select('*').eq('blueprint_id', blueprintId);
 
       // Apply filters
       if (options?.status) {
@@ -216,11 +209,7 @@ export class TaskSupabaseRepository extends SupabaseBaseRepository<Task> {
         metadata: {}
       };
 
-      const { data, error } = await this.client
-        .from(this.tableName)
-        .insert(record)
-        .select()
-        .single();
+      const { data, error } = await this.client.from(this.tableName).insert(record).select().single();
 
       if (error) {
         this.handleError(error, 'create task');
@@ -240,11 +229,7 @@ export class TaskSupabaseRepository extends SupabaseBaseRepository<Task> {
     return this.executeWithRetry(async () => {
       const record = this.toRecord(payload);
 
-      const { error } = await this.client
-        .from(this.tableName)
-        .update(record)
-        .eq('id', id)
-        .is('deleted_at', null);
+      const { error } = await this.client.from(this.tableName).update(record).eq('id', id).is('deleted_at', null);
 
       if (error) {
         this.handleError(error, 'update task');
@@ -260,11 +245,7 @@ export class TaskSupabaseRepository extends SupabaseBaseRepository<Task> {
    */
   async updateStatus(id: string, status: TaskStatus): Promise<void> {
     return this.executeWithRetry(async () => {
-      const { error } = await this.client
-        .from(this.tableName)
-        .update({ status: status.toUpperCase() })
-        .eq('id', id)
-        .is('deleted_at', null);
+      const { error } = await this.client.from(this.tableName).update({ status: status.toUpperCase() }).eq('id', id).is('deleted_at', null);
 
       if (error) {
         this.handleError(error, 'update task status');
@@ -280,10 +261,7 @@ export class TaskSupabaseRepository extends SupabaseBaseRepository<Task> {
    */
   async delete(id: string): Promise<void> {
     return this.executeWithRetry(async () => {
-      const { error } = await this.client
-        .from(this.tableName)
-        .update({ deleted_at: new Date().toISOString() })
-        .eq('id', id);
+      const { error } = await this.client.from(this.tableName).update({ deleted_at: new Date().toISOString() }).eq('id', id);
 
       if (error) {
         this.handleError(error, 'soft delete task');
@@ -299,10 +277,7 @@ export class TaskSupabaseRepository extends SupabaseBaseRepository<Task> {
    */
   async hardDelete(id: string): Promise<void> {
     return this.executeWithRetry(async () => {
-      const { error } = await this.client
-        .from(this.tableName)
-        .delete()
-        .eq('id', id);
+      const { error } = await this.client.from(this.tableName).delete().eq('id', id);
 
       if (error) {
         this.handleError(error, 'hard delete task');
@@ -318,10 +293,7 @@ export class TaskSupabaseRepository extends SupabaseBaseRepository<Task> {
    */
   async restore(id: string): Promise<void> {
     return this.executeWithRetry(async () => {
-      const { error } = await this.client
-        .from(this.tableName)
-        .update({ deleted_at: null })
-        .eq('id', id);
+      const { error } = await this.client.from(this.tableName).update({ deleted_at: null }).eq('id', id);
 
       if (error) {
         this.handleError(error, 'restore task');

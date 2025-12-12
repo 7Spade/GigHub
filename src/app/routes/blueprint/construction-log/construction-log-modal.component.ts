@@ -16,11 +16,12 @@
 
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { NZ_MODAL_DATA, NzModalRef } from 'ng-zorro-antd/modal';
-import { NzMessageService } from 'ng-zorro-antd/message';
-import { NzUploadChangeParam, NzUploadFile } from 'ng-zorro-antd/upload';
-import { SHARED_IMPORTS } from '@shared';
 import { Log, CreateLogRequest, UpdateLogRequest } from '@core/types/log/log.types';
+import { SHARED_IMPORTS } from '@shared';
+import { NzMessageService } from 'ng-zorro-antd/message';
+import { NZ_MODAL_DATA, NzModalRef } from 'ng-zorro-antd/modal';
+import { NzUploadChangeParam, NzUploadFile } from 'ng-zorro-antd/upload';
+
 import { ConstructionLogStore } from './construction-log.store';
 
 interface ModalData {
@@ -165,9 +166,7 @@ interface ModalData {
       <!-- Form Actions -->
       <nz-form-item>
         <nz-form-control [nzSpan]="14" [nzOffset]="6">
-          <button nz-button nzType="default" (click)="cancel()" style="margin-right: 8px;">
-            取消
-          </button>
+          <button nz-button nzType="default" (click)="cancel()" style="margin-right: 8px;"> 取消 </button>
           @if (modalData.mode !== 'view') {
             <button nz-button nzType="primary" type="submit" [nzLoading]="submitting()" [disabled]="!form.valid">
               {{ modalData.mode === 'create' ? '新增' : '更新' }}
@@ -239,7 +238,7 @@ export class ConstructionLogModalComponent implements OnInit {
     }
 
     // Add to file list (don't auto upload)
-    this.fileList.update((list) => [...list, file as any]);
+    this.fileList.update(list => [...list, file as any]);
     return false; // Prevent auto upload
   };
 
@@ -259,7 +258,7 @@ export class ConstructionLogModalComponent implements OnInit {
 
       // Refresh modal data
       if (this.modalData.log) {
-        this.modalData.log.photos = this.modalData.log.photos.filter((p) => p.id !== photoId);
+        this.modalData.log.photos = this.modalData.log.photos.filter(p => p.id !== photoId);
       }
     } catch (error) {
       console.error('Failed to delete photo:', error);
@@ -269,7 +268,7 @@ export class ConstructionLogModalComponent implements OnInit {
 
   async submit(): Promise<void> {
     if (!this.form.valid) {
-      Object.values(this.form.controls).forEach((control) => {
+      Object.values(this.form.controls).forEach(control => {
         if (control.invalid) {
           control.markAsDirty();
           control.updateValueAndValidity({ onlySelf: true });
@@ -357,7 +356,7 @@ export class ConstructionLogModalComponent implements OnInit {
 
   private async uploadPhotos(logId: string): Promise<void> {
     const files = this.fileList();
-    const uploadPromises = files.map((file) => this.logStore.uploadPhoto(this.modalData.blueprintId, logId, file));
+    const uploadPromises = files.map(file => this.logStore.uploadPhoto(this.modalData.blueprintId, logId, file));
 
     await Promise.all(uploadPromises);
   }

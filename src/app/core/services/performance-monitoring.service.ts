@@ -75,7 +75,7 @@ export class PerformanceMonitoringService {
   /**
    * Explicitly initialize performance monitoring.
    * Must be called during application startup (e.g., from app.config.ts or APP_INITIALIZER).
-   * 
+   *
    * 明確初始化效能監控
    * 必須在應用程式啟動時呼叫（例如從 app.config.ts 或 APP_INITIALIZER）
    */

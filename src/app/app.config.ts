@@ -215,7 +215,7 @@ const supabaseProviders: Array<Provider | EnvironmentProviders> = [
   // SupabaseAuthSyncService: Syncs Firebase Auth tokens to Supabase
   // 同步 Firebase Auth Token 至 Supabase
   SupabaseAuthSyncService,
-  
+
   // SupabaseHealthCheckService: Monitors Supabase connection health
   // 監控 Supabase 連線健康狀態
   SupabaseHealthCheckService

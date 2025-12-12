@@ -1,10 +1,11 @@
 import { Injectable, inject, signal, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Auth, authState, User as FirebaseUser } from '@angular/fire/auth';
-import { SupabaseService } from './supabase.service';
-import { LoggerService } from './logger';
-import { catchError, switchMap, filter, tap, debounceTime } from 'rxjs/operators';
 import { of, from, interval } from 'rxjs';
+import { catchError, switchMap, filter, tap, debounceTime } from 'rxjs/operators';
+
+import { LoggerService } from './logger';
+import { SupabaseService } from './supabase.service';
 
 /**
  * Supabase Auth Sync Service
@@ -200,7 +201,7 @@ export class SupabaseAuthSyncService {
       const jsonPayload = decodeURIComponent(
         atob(base64)
           .split('')
-          .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+          .map(c => `%${`00${c.charCodeAt(0).toString(16)}`.slice(-2)}`)
           .join('')
       );
       return JSON.parse(jsonPayload);

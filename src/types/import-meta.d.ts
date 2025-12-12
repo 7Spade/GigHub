@@ -1,6 +1,4 @@
-interface ImportMetaEnv {
-  [key: string]: string | undefined;
-}
+type ImportMetaEnv = Record<string, string | undefined>;
 
 interface ImportMeta {
   readonly env: ImportMetaEnv;
