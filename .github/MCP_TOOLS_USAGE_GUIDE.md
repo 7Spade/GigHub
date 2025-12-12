@@ -225,6 +225,35 @@ Context7 使用率: 30% → 80% (+166%)
 
 ---
 
+## 🔐 GitHub Actions 變數與 Secrets 配置（存取環境變數）
+
+- 依照 [GitHub 官方說明](https://docs.github.com/en/enterprise-cloud@latest/actions/how-tos/write-workflows/choose-what-workflows-do/use-variables#creating-configuration-variables-for-a-repository) 在 **Settings → Secrets and variables → Actions → Variables → New variable** 建立「設定變數」。機密值請改存 **Secrets**（值會被遮罩，Agent 無法直接讀取）。
+- 若需要環境審核或不同環境值，改存到 Environment scope 並設定 Required reviewers，再在 workflow 中以 `vars.<NAME>`（變數）或 `secrets.<NAME>`（秘密）取用。
+- Copilot Agent 無法直接查看變數/Secrets，本質上只能在 workflow 中被引用後使用；請避免把 Secrets 直接 `echo` 到日誌。
+
+```yaml
+name: use-vars-example
+on: workflow_dispatch
+
+jobs:
+  demo:
+    runs-on: ubuntu-latest
+    env:
+      PUBLIC_CONFIG: ${{ vars.PUBLIC_CONFIG }}   # 非機密設定
+    steps:
+      - name: Show non-secret variable
+        run: echo "$PUBLIC_CONFIG"
+
+      - name: Use secret without printing
+        run: some-cli --token "$MY_TOKEN"
+        env:
+          MY_TOKEN: ${{ secrets.MY_TOKEN }}
+```
+
+> 原則：能用變數就不要存 Secrets；若必須用 Secrets，僅在需要的步驟中以 env 引用並遵守最小權限。
+
+---
+
 ## 🚨 常見問題排解
 
 ### Q1: Copilot 沒有使用 context7
