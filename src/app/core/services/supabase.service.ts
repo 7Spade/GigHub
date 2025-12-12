@@ -1,5 +1,4 @@
-import { Injectable, inject, signal, computed, DestroyRef } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Injectable, inject, signal, computed } from '@angular/core';
 import { LoggerService } from '@core/services/logger';
 import { environment } from '@env/environment';
 import { createClient, SupabaseClient, AuthChangeEvent, Session } from '@supabase/supabase-js';
@@ -25,7 +24,6 @@ import { createClient, SupabaseClient, AuthChangeEvent, Session } from '@supabas
 })
 export class SupabaseService {
   private readonly logger = inject(LoggerService);
-  private readonly destroyRef = inject(DestroyRef);
 
   // Supabase client instance
   private supabase!: SupabaseClient;
@@ -47,7 +45,10 @@ export class SupabaseService {
 
   constructor() {
     this.initializeClient();
-    this.setupAuthListener();
+    // Only setup auth listener if client initialized successfully
+    if (this.supabase) {
+      this.setupAuthListener();
+    }
   }
 
   /**
@@ -60,9 +61,12 @@ export class SupabaseService {
       const supabaseKey = this.getEnvVar('NG_APP_SUPABASE_ANON_KEY');
 
       if (!supabaseUrl || !supabaseKey) {
-        throw new Error(
-          'Supabase configuration missing. Please set NG_APP_SUPABASE_URL and NG_APP_SUPABASE_ANON_KEY in environment variables.'
-        );
+        const errorMessage =
+          'Supabase configuration missing. ' +
+          'Please configure NG_APP_SUPABASE_URL and NG_APP_SUPABASE_ANON_KEY in src/environments/environment.ts. ' +
+          'See .env.example for reference. ' +
+          'Note: Supabase features will be disabled until configuration is complete.';
+        throw new Error(errorMessage);
       }
 
       // Create Supabase client with optimized configuration
@@ -103,6 +107,11 @@ export class SupabaseService {
    * Setup auth state listener
    */
   private setupAuthListener(): void {
+    if (!this.supabase) {
+      this.logger.warn('[SupabaseService]', 'Cannot setup auth listener: client not initialized');
+      return;
+    }
+
     this.supabase.auth.onAuthStateChange((event: AuthChangeEvent, session: Session | null) => {
       this._session.set(session);
       this._isAuthenticated.set(!!session);
@@ -136,8 +145,9 @@ export class SupabaseService {
     }
 
     // Fallback to environment object (Angular)
-    if (environment && (environment as any)[key]) {
-      return (environment as any)[key];
+    const envWithKey = environment as Record<string, string | undefined>;
+    if (environment && envWithKey[key]) {
+      return envWithKey[key] as string;
     }
 
     return '';
