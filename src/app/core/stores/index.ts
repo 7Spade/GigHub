@@ -5,3 +5,4 @@
 
 export * from './log.store';
 export * from './task.store';
+export * from './notification.store';

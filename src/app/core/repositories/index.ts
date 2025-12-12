@@ -12,6 +12,7 @@ export * from './team-member.repository';
 export * from './log.repository';
 export * from './task.repository';
 export * from './storage.repository';
+export * from './notification.repository';
 
 // Supabase Repositories
 export * from './base/supabase-base.repository';
