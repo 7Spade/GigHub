@@ -46,7 +46,7 @@ export class TaskSupabaseRepository extends SupabaseBaseRepository<Task> {
   /**
    * Convert Task entity to database record
    */
-  protected toRecord(task: Partial<Task>): any {
+  protected override toRecord(task: Partial<Task>): any {
     const record: any = {};
 
     if (task.blueprintId) record.blueprint_id = task.blueprintId;

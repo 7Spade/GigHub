@@ -3615,6 +3615,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/node@npm:^25.0.1":
+  version: 25.0.1
+  resolution: "@types/node@npm:25.0.1"
+  dependencies:
+    undici-types: "npm:~7.16.0"
+  checksum: 10c0/1d5ca9f240d0cf8e43d5281c0e6ee96fb22d37dc2e5ef52c6ca71de47957a6128e124990cedf5b14c03d0250737bd78ad370d93bcf1729a75ca4e54384fdd51a
+  languageName: node
+  linkType: hard
+
 "@types/normalize-package-data@npm:^2.4.0":
   version: 2.4.4
   resolution: "@types/normalize-package-data@npm:2.4.4"
@@ -9174,6 +9183,7 @@ __metadata:
     "@supabase/supabase-js": "npm:^2.86.2"
     "@types/jasmine": "npm:~5.1.0"
     "@types/jasminewd2": "npm:~2.0.13"
+    "@types/node": "npm:^25.0.1"
     "@typescript-eslint/eslint-plugin": "npm:^8.44.0"
     "@typescript-eslint/parser": "npm:^8.44.0"
     "@typescript-eslint/utils": "npm:^8.44.0"

@@ -233,12 +233,21 @@ export abstract class SupabaseBaseRepository<T> {
   protected handleError(error: PostgrestError | any, context: string): never {
     const errorMessage = this.getErrorMessage(error);
 
-    this.logger.error(`[${this.constructor.name}]`, `${context} failed`, {
+    const errorContext: Record<string, unknown> = {
       message: errorMessage,
-      code: error.code,
       details: error.details,
       hint: error.hint
-    });
+    };
+    
+    // Only add code if it exists
+    if (error['code']) {
+      errorContext['code'] = error['code'];
+    }
+
+    // Create an Error object for logging
+    const errorObj = new Error(errorMessage);
+    
+    this.logger.error(`[${this.constructor.name}]`, `${context} failed`, errorObj, errorContext);
 
     this.errorTracking.trackSupabaseError(this.tableName, error, { context });
 
@@ -260,8 +269,7 @@ export abstract class SupabaseBaseRepository<T> {
       '23502': 'error.required-field-missing',
       '22P02': 'error.invalid-data-format',
       '23514': 'error.constraint-violation',
-      PGRST116: 'error.connection-failed',
-      PGRST301: 'error.unauthorized-access'
+      PGRST116: 'error.connection-failed'
     };
 
     return errorMessages[errorCode] || error.message || 'error.unknown-database-error';
