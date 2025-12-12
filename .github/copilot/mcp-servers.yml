@@ -30,3 +30,53 @@ mcp-servers:
   # 備註：
   # - 請勿在公開 repository 中放置明文 token。使用 Secrets 或 CI 環境變數注入。
   # - `tools: ['*']` 會授予該 endpoint 全部工具存取權限；僅在完全信任該 endpoint 時使用。
+
+  # 本地工具（Local MCP servers）示例：透過 npx 啟動本機工具入口
+  sequential-thinking:
+    type: local
+    command: npx
+    args:
+      - -y
+      - '@modelcontextprotocol/server-sequential-thinking'
+    tools: ['*']
+
+  software-planning-tool:
+    type: local
+    command: npx
+    args:
+      - -y
+      - 'github:NightTrek/Software-planning-mcp'
+    tools: ['*']
+
+  everything:
+    type: local
+    command: npx
+    args:
+      - -y
+      - '@modelcontextprotocol/server-everything'
+    tools: ['*']
+
+  filesystem:
+    type: local
+    command: npx
+    args:
+      - -y
+      - '@modelcontextprotocol/server-filesystem'
+      - './'
+    tools: ['*']
+
+  time:
+    type: local
+    command: npx
+    args:
+      - -y
+      - '@modelcontextprotocol/server-time'
+    tools: ['*']
+
+  fetch:
+    type: local
+    command: npx
+    args:
+      - -y
+      - '@modelcontextprotocol/server-fetch'
+    tools: ['*']
