@@ -1,0 +1,600 @@
+---
+# GitHub Copilot MCP Setup Guide for GigHub
+# 參考文檔:
+# - https://docs.github.com/en/enterprise-cloud@latest/copilot/how-tos/use-copilot-agents/coding-agent/extend-coding-agent-with-mcp
+# - https://docs.github.com/en/enterprise-cloud@latest/copilot/how-tos/provide-context/use-mcp/use-the-github-mcp-server
+# - https://docs.github.com/en/enterprise-cloud@latest/copilot/tutorials/enhance-agent-mode-with-mcp
+# - https://docs.github.com/en/enterprise-cloud@latest/copilot/how-tos/use-copilot-agents/coding-agent/customize-the-agent-environment
+# - https://docs.github.com/en/enterprise-cloud@latest/actions/how-tos/write-workflows/choose-what-workflows-do/use-variables#creating-configuration-variables-for-a-repository
+
+version: '1.0'
+name: 'GigHub Copilot MCP Setup Guide'
+description: |
+  本指南說明如何配置 GitHub Copilot Agent 使用 MCP (Model Context Protocol) 伺服器，
+  以及如何正確設定 GitHub Actions Secrets 以供 MCP 伺服器使用。
+
+# ============================================
+# 第一部分: 理解架構
+# ============================================
+architecture:
+  overview: |
+    GitHub Copilot 的 MCP 整合架構分為三個層次:
+    
+    1. **Repository Configuration** (.github/copilot/mcp-servers.yml)
+       - 定義 MCP 伺服器配置
+       - 指定所需的環境變數和 secrets
+       - 配置在專案層級，所有開發者共享
+    
+    2. **GitHub Copilot Settings** (github.com/settings/copilot)
+       - 個人或組織層級的 Copilot 設定
+       - MCP 伺服器需要在這裡啟用
+       - 每個開發者需要獨立配置
+    
+    3. **GitHub Repository Secrets** (Settings > Secrets and variables > Actions)
+       - 儲存敏感憑證 (API keys, tokens)
+       - 可在 GitHub Actions 和 Copilot 中使用
+       - 僅有倉庫管理員可存取
+  
+  limitations: |
+    ⚠️ 重要限制:
+    
+    1. **GitHub Copilot Agent Mode 無法直接存取 GitHub Actions Secrets**
+       - mcp-servers.yml 中的 ${{ secrets.XXX }} 語法僅用於文檔目的
+       - 實際使用時，需要在個人 Copilot 設定中手動輸入憑證
+    
+    2. **MCP 伺服器需要個別配置**
+       - Repository 的 mcp-servers.yml 是配置範本
+       - 每個開發者需要在自己的 Copilot 設定中加入伺服器
+    
+    3. **憑證管理責任**
+       - 開發者需要自行取得並保管 API keys
+       - Repository 管理員負責提供取得憑證的指引
+
+# ============================================
+# 第二部分: 必要步驟 (Repository 管理員)
+# ============================================
+repository_admin_setup:
+  description: |
+    Repository 管理員需要完成以下步驟，為開發者建立配置基礎。
+  
+  step_1_create_github_secrets:
+    title: '建立 GitHub Repository Secrets'
+    url: 'https://github.com/7Spade/GigHub/settings/secrets/actions'
+    instructions:
+      - action: '前往 Repository Settings'
+        details: 'https://github.com/7Spade/GigHub/settings'
+      
+      - action: '進入 Secrets and variables > Actions'
+        details: 'https://github.com/7Spade/GigHub/settings/secrets/actions'
+      
+      - action: '建立以下 Repository Secrets'
+        secrets:
+          - name: 'COPILOT_MCP_CONTEXT7'
+            description: 'Context7 MCP 伺服器的 API Key'
+            how_to_get: |
+              1. 前往 Context7 官網: https://context7.com
+              2. 註冊或登入帳號
+              3. 進入 API Settings
+              4. 建立新的 API Key
+              5. 複製 API Key 並在 GitHub Secrets 中建立
+            required: true
+            used_by:
+              - 'GitHub Copilot MCP (context7 server)'
+              - '開發者需要使用此 key 配置個人 Copilot 設定'
+          
+          - name: 'SUPABASE_PROJECT_REF'
+            description: 'Supabase 專案參考 ID'
+            how_to_get: |
+              1. 前往 Supabase Dashboard: https://supabase.com/dashboard
+              2. 選擇 GigHub 專案
+              3. 在 Project Settings > General 中找到 "Reference ID"
+              4. 複製 Reference ID (格式: zecsbstjqjqoytwgjyct)
+            example: 'zecsbstjqjqoytwgjyct'
+            required: true
+            used_by:
+              - 'GitHub Copilot MCP (supabase server)'
+              - 'Supabase MCP 伺服器需要此 ID 識別專案'
+          
+          - name: 'SUPABASE_MCP_TOKEN'
+            description: 'Supabase MCP 伺服器使用的 Access Token'
+            how_to_get: |
+              1. 前往 Supabase Dashboard: https://supabase.com/dashboard
+              2. 選擇 GigHub 專案
+              3. 進入 Settings > API
+              4. 找到 "service_role" key (⚠️ 注意: 這是敏感金鑰)
+              5. 複製 service_role key 作為 MCP token
+              
+              ⚠️ 安全提醒:
+              - service_role key 可跳過 RLS，具有完整資料庫存取權限
+              - 僅用於 MCP 伺服器的管理操作
+              - 絕不要在前端程式碼中使用
+              - 定期輪替此金鑰
+            security_level: 'HIGH - Service Role Key'
+            required: true
+            used_by:
+              - 'GitHub Copilot MCP (supabase server)'
+              - 'Supabase MCP 伺服器的認證'
+          
+          - name: 'CI_TOKEN'
+            description: 'GitHub Actions CI 使用的 Personal Access Token'
+            how_to_get: |
+              1. 前往 GitHub Settings: https://github.com/settings/tokens
+              2. 建立 Personal Access Token (classic)
+              3. 授予權限: repo (完整存取)
+              4. 複製 token
+            required: false
+            used_by:
+              - 'GitHub Actions workflows (.github/workflows/ci.yml)'
+          
+          - name: 'SURGE_LOGIN'
+            description: 'Surge.sh 部署使用的登入 email'
+            required: false
+            used_by:
+              - 'GitHub Actions workflows (preview deployment)'
+          
+          - name: 'SURGE_TOKEN'
+            description: 'Surge.sh 部署使用的 token'
+            how_to_get: |
+              1. 安裝 surge: npm install -g surge
+              2. 執行: surge token
+              3. 複製顯示的 token
+            required: false
+            used_by:
+              - 'GitHub Actions workflows (preview deployment)'
+    
+    verification:
+      - check: '確認所有必要的 secrets 已建立'
+        command: |
+          # 在 Repository Settings > Secrets and variables > Actions 檢查
+          # 應該看到以下 secrets:
+          # - COPILOT_MCP_CONTEXT7 ✅
+          # - SUPABASE_PROJECT_REF ✅
+          # - SUPABASE_MCP_TOKEN ✅
+  
+  step_2_validate_mcp_configuration:
+    title: '驗證 MCP 伺服器配置檔案'
+    file: '.github/copilot/mcp-servers.yml'
+    instructions:
+      - action: '檢查 mcp-servers.yml 檔案'
+        details: |
+          確認檔案包含正確的 MCP 伺服器配置:
+          
+          1. context7 伺服器配置
+          2. supabase 伺服器配置
+          3. local 工具配置 (sequential-thinking, software-planning-tool 等)
+      
+      - action: '驗證 YAML 語法'
+        command: |
+          # 使用 Python 驗證 YAML
+          python3 -c "import yaml; yaml.safe_load(open('.github/copilot/mcp-servers.yml')); print('✅ YAML valid')"
+          
+          # 或使用 Node.js
+          node -e "require('js-yaml').load(require('fs').readFileSync('.github/copilot/mcp-servers.yml', 'utf8')); console.log('✅ YAML valid');"
+  
+  step_3_document_for_developers:
+    title: '為開發者建立設定指南'
+    instructions:
+      - action: '將此檔案加入 README 或 wiki'
+        details: |
+          在專案的主要文檔中加入 MCP 設定指南的連結:
+          
+          - README.md: 加入 "開發者設定" 章節
+          - .github/COPILOT_SETUP.md: 更新參考連結
+          - Wiki: 建立 "Copilot MCP Setup" 頁面
+      
+      - action: '通知團隊成員'
+        details: |
+          向開發團隊說明:
+          1. MCP 伺服器的用途和優勢
+          2. 設定步驟（參考下方開發者設定）
+          3. 如何取得必要的 API keys
+          4. 支援管道（遇到問題時聯絡誰）
+
+# ============================================
+# 第三部分: 必要步驟 (開發者)
+# ============================================
+developer_setup:
+  description: |
+    每位開發者需要在自己的 GitHub Copilot 設定中配置 MCP 伺服器。
+    ⚠️ 注意: 這些設定是個人層級的，不會影響其他開發者。
+  
+  prerequisites:
+    - requirement: 'GitHub Copilot 訂閱'
+      details: 'Personal, Business, or Enterprise 方案'
+      check_url: 'https://github.com/settings/copilot'
+    
+    - requirement: 'Repository 存取權限'
+      details: '對 7Spade/GigHub 有 read 或以上權限'
+      check_url: 'https://github.com/7Spade/GigHub'
+    
+    - requirement: 'API Keys'
+      details: '從 Repository 管理員取得必要的 API keys'
+      keys_needed:
+        - 'Context7 API Key'
+        - 'Supabase Project Ref'
+        - 'Supabase MCP Token'
+  
+  step_1_enable_copilot_agent:
+    title: '啟用 GitHub Copilot Agent Mode'
+    url: 'https://github.com/settings/copilot'
+    instructions:
+      - action: '前往 GitHub Copilot Settings'
+        url: 'https://github.com/settings/copilot'
+      
+      - action: '啟用 Copilot Agent Mode'
+        details: |
+          在 Settings 頁面中:
+          1. 找到 "Copilot Agent" 區塊
+          2. 啟用 "Enable Copilot Agent for code changes"
+          3. 儲存設定
+  
+  step_2_add_mcp_servers:
+    title: '新增 MCP 伺服器到 Copilot 設定'
+    url: 'https://github.com/settings/copilot'
+    instructions:
+      - action: '進入 MCP Servers 設定'
+        details: |
+          在 Copilot Settings 中:
+          1. 找到 "Model Context Protocol (MCP) Servers" 區塊
+          2. 點擊 "Add MCP Server" 或 "Configure"
+      
+      - action: '新增 Context7 伺服器'
+        configuration:
+          server_name: 'context7'
+          server_type: 'HTTP'
+          url: 'https://mcp.context7.com/mcp'
+          headers:
+            - name: 'CONTEXT7_API_KEY'
+              value: '<從 Repository 管理員取得的 API Key>'
+          tools:
+            - 'get-library-docs'
+            - 'resolve-library-id'
+        notes: |
+          ⚠️ 注意:
+          - 將 <從 Repository 管理員取得的 API Key> 替換為實際的 Context7 API Key
+          - 此 key 與 COPILOT_MCP_CONTEXT7 secret 的值相同
+          - 不要與其他人分享你的 API key
+      
+      - action: '新增 Supabase 伺服器'
+        configuration:
+          server_name: 'supabase'
+          server_type: 'HTTP'
+          url: 'https://mcp.supabase.com/mcp?project_ref=<SUPABASE_PROJECT_REF>'
+          headers:
+            - name: 'Authorization'
+              value: 'Bearer <SUPABASE_MCP_TOKEN>'
+          tools:
+            - '*'  # 允許所有 Supabase MCP 工具
+        notes: |
+          ⚠️ 注意:
+          - 將 <SUPABASE_PROJECT_REF> 替換為專案的 Reference ID
+          - 將 <SUPABASE_MCP_TOKEN> 替換為 Supabase service_role key
+          - 謹慎保管 service_role key，它具有完整資料庫存取權限
+        example: |
+          URL: https://mcp.supabase.com/mcp?project_ref=zecsbstjqjqoytwgjyct
+          Header: Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+      
+      - action: '新增 Local MCP 工具 (可選)'
+        details: |
+          以下工具可在本地執行，不需要額外的 API keys:
+          
+          1. sequential-thinking
+             - Type: Local
+             - Command: npx
+             - Args: ["-y", "@modelcontextprotocol/server-sequential-thinking"]
+          
+          2. software-planning-tool
+             - Type: Local
+             - Command: npx
+             - Args: ["-y", "github:NightTrek/Software-planning-mcp"]
+          
+          3. filesystem
+             - Type: Local
+             - Command: npx
+             - Args: ["-y", "@modelcontextprotocol/server-filesystem", "./"]
+          
+          注意: Local 工具會在你的本機執行，需要 Node.js 環境
+  
+  step_3_verify_setup:
+    title: '驗證 MCP 設定'
+    instructions:
+      - action: '測試 Context7 工具'
+        test_command: |
+          在 GitHub Copilot Chat 中輸入:
+          
+          "使用 context7 查詢 Angular 20 中 signal() 函數的用法"
+        
+        expected_result: |
+          Copilot 應該:
+          1. 呼叫 resolve-library-id 工具
+          2. 呼叫 get-library-docs 工具
+          3. 返回 Angular 20 的最新 Signals 文檔
+      
+      - action: '測試 Supabase 工具'
+        test_command: |
+          在 GitHub Copilot Chat 中輸入:
+          
+          "列出 GigHub 專案的 Supabase 資料表"
+        
+        expected_result: |
+          Copilot 應該:
+          1. 連接到 Supabase MCP 伺服器
+          2. 查詢資料庫 schema
+          3. 列出所有資料表
+      
+      - action: '測試 Sequential Thinking'
+        test_command: |
+          在 GitHub Copilot Chat 中輸入:
+          
+          "使用 sequential-thinking 分析如何設計一個通知系統"
+        
+        expected_result: |
+          Copilot 應該:
+          1. 使用結構化推理
+          2. 分步驟分析問題
+          3. 提供詳細的設計建議
+  
+  troubleshooting:
+    title: '常見問題排解'
+    issues:
+      - problem: 'Context7 工具無法使用'
+        possible_causes:
+          - 'API Key 錯誤或過期'
+          - 'MCP 伺服器 URL 配置錯誤'
+          - 'Network 連線問題'
+        solutions:
+          - '向 Repository 管理員確認 API Key 是否正確'
+          - '檢查 MCP 伺服器配置是否與 mcp-servers.yml 一致'
+          - '測試 https://mcp.context7.com/mcp 是否可存取'
+      
+      - problem: 'Supabase 工具無法使用'
+        possible_causes:
+          - 'Project Ref 或 Token 錯誤'
+          - 'Supabase 專案設定問題'
+          - 'RLS 權限限制'
+        solutions:
+          - '確認 Project Ref 格式正確'
+          - '確認使用的是 service_role key，而非 anon key'
+          - '檢查 Supabase Dashboard 的 API Settings'
+      
+      - problem: 'Copilot 沒有使用 MCP 工具'
+        possible_causes:
+          - '問題表述不夠明確'
+          - 'MCP 伺服器未正確配置'
+          - 'Copilot 選擇不使用工具'
+        solutions:
+          - '明確要求使用特定工具，例如: "使用 context7 查詢..."'
+          - '在對話開頭聲明: "請遵循 MANDATORY 工具使用政策"'
+          - '使用預定義的 Chat Shortcuts (如 /gighub-component)'
+
+# ============================================
+# 第四部分: 最佳實踐
+# ============================================
+best_practices:
+  security:
+    title: '安全性最佳實踐'
+    guidelines:
+      - practice: '金鑰管理'
+        rules:
+          - '絕不在程式碼中硬編碼 API keys'
+          - '使用 GitHub Secrets 儲存敏感憑證'
+          - '定期輪替 API keys (建議每 90 天)'
+          - '為每個環境使用獨立的 keys'
+      
+      - practice: '權限控制'
+        rules:
+          - 'Context7 API Key: 個人使用，不共享'
+          - 'Supabase service_role: 僅用於 MCP，不用於前端'
+          - 'GitHub Secrets: 僅 Repository 管理員可管理'
+          - '遵循最小權限原則'
+      
+      - practice: '憑證保護'
+        rules:
+          - '不要在 Copilot Chat 中貼上完整的 API keys'
+          - '不要在 PR 或 Issues 中暴露 secrets'
+          - '定期審查誰有存取 secrets 的權限'
+          - '移除不再使用的舊 keys'
+  
+  usage:
+    title: 'MCP 工具使用最佳實踐'
+    guidelines:
+      - practice: '明確指定工具'
+        examples:
+          - good: '"使用 context7 查詢 Angular Signals 的最新用法"'
+          - bad: '"Angular Signals 怎麼用?"'
+      
+      - practice: '遵循 MANDATORY 政策'
+        details: |
+          根據 .github/copilot-instructions.md:
+          - 所有框架/函式庫問題必須使用 context7
+          - 複雜問題分析必須使用 sequential-thinking
+          - 功能規劃必須使用 software-planning-tool
+      
+      - practice: '使用 Chat Shortcuts'
+        shortcuts:
+          - '/gighub-component - 生成符合規範的元件'
+          - '/gighub-service - 生成符合規範的服務'
+          - '/gighub-repository - 生成 Supabase Repository'
+          - '/gighub-store - 生成 Signal-based Store'
+          - '/gighub-review - 審查程式碼規範'
+  
+  maintenance:
+    title: '維護建議'
+    schedule:
+      daily:
+        - '監控 MCP 工具使用狀況'
+        - '檢查是否有新的錯誤或警告'
+      
+      weekly:
+        - '檢視 Copilot 使用分析'
+        - '評估 context7 使用率'
+        - '更新相關文檔'
+      
+      monthly:
+        - '審查並更新 API keys'
+        - '檢查 MCP 伺服器配置'
+        - '評估新的 MCP 工具'
+        - '收集開發者回饋並優化流程'
+      
+      quarterly:
+        - '輪替所有敏感金鑰'
+        - '審查存取權限'
+        - '更新安全政策'
+
+# ============================================
+# 第五部分: 參考資源
+# ============================================
+references:
+  official_documentation:
+    - title: 'Extend GitHub Copilot Coding Agent with MCP'
+      url: 'https://docs.github.com/en/enterprise-cloud@latest/copilot/how-tos/use-copilot-agents/coding-agent/extend-coding-agent-with-mcp'
+      description: 'MCP 整合的官方指南'
+    
+    - title: 'Use the GitHub MCP Server'
+      url: 'https://docs.github.com/en/enterprise-cloud@latest/copilot/how-tos/provide-context/use-mcp/use-the-github-mcp-server'
+      description: 'GitHub MCP Server 使用說明'
+    
+    - title: 'Enhance Agent Mode with MCP'
+      url: 'https://docs.github.com/en/enterprise-cloud@latest/copilot/tutorials/enhance-agent-mode-with-mcp'
+      description: 'MCP 強化教學'
+    
+    - title: 'Customize the Agent Environment'
+      url: 'https://docs.github.com/en/enterprise-cloud@latest/copilot/how-tos/use-copilot-agents/coding-agent/customize-the-agent-environment'
+      description: 'Agent 環境自訂'
+    
+    - title: 'Creating Configuration Variables for a Repository'
+      url: 'https://docs.github.com/en/enterprise-cloud@latest/actions/how-tos/write-workflows/choose-what-workflows-do/use-variables#creating-configuration-variables-for-a-repository'
+      description: 'Repository 變數設定'
+  
+  project_documentation:
+    - file: '.github/copilot-instructions.md'
+      description: 'GigHub Copilot 主配置檔案'
+    
+    - file: '.github/copilot/mcp-servers.yml'
+      description: 'MCP 伺服器配置範本'
+    
+    - file: '.github/copilot/SETUP_VALIDATION.md'
+      description: 'Copilot 設定驗證清單'
+    
+    - file: '.github/MCP_TOOLS_USAGE_GUIDE.md'
+      description: 'MCP 工具使用指南'
+    
+    - file: '.github/COPILOT_SETUP.md'
+      description: 'Copilot 設定總覽'
+    
+    - file: '.github/instructions/quick-reference.instructions.md'
+      description: '快速參考指南'
+  
+  external_resources:
+    - title: 'Context7 Documentation'
+      url: 'https://context7.com/docs'
+      description: 'Context7 MCP 伺服器文檔'
+    
+    - title: 'Supabase MCP Server'
+      url: 'https://github.com/supabase-community/mcp-server-supabase'
+      description: 'Supabase MCP 伺服器 GitHub 倉庫'
+    
+    - title: 'Model Context Protocol'
+      url: 'https://modelcontextprotocol.io'
+      description: 'MCP 協議官方網站'
+
+# ============================================
+# 第六部分: 快速檢查清單
+# ============================================
+quick_checklist:
+  repository_admin:
+    title: 'Repository 管理員檢查清單'
+    tasks:
+      - '[ ] 在 GitHub Secrets 建立 COPILOT_MCP_CONTEXT7'
+      - '[ ] 在 GitHub Secrets 建立 SUPABASE_PROJECT_REF'
+      - '[ ] 在 GitHub Secrets 建立 SUPABASE_MCP_TOKEN'
+      - '[ ] 驗證 .github/copilot/mcp-servers.yml 配置'
+      - '[ ] 為開發者建立 API keys 取得指南'
+      - '[ ] 通知團隊成員關於 MCP 設定'
+      - '[ ] 建立支援管道 (Discord/Slack/Email)'
+  
+  developer:
+    title: '開發者檢查清單'
+    tasks:
+      - '[ ] 確認有 GitHub Copilot 訂閱'
+      - '[ ] 從 Repository 管理員取得 API keys'
+      - '[ ] 前往 GitHub Copilot Settings'
+      - '[ ] 啟用 Copilot Agent Mode'
+      - '[ ] 新增 Context7 MCP 伺服器'
+      - '[ ] 新增 Supabase MCP 伺服器'
+      - '[ ] (可選) 新增 Local MCP 工具'
+      - '[ ] 測試 context7 工具'
+      - '[ ] 測試 supabase 工具'
+      - '[ ] 測試 sequential-thinking 工具'
+      - '[ ] 閱讀 .github/copilot-instructions.md'
+      - '[ ] 熟悉 Chat Shortcuts'
+
+# ============================================
+# 附錄: 常見問題 (FAQ)
+# ============================================
+faq:
+  - question: '為什麼 Copilot 無法直接存取 GitHub Actions Secrets?'
+    answer: |
+      GitHub Actions Secrets 是為 CI/CD workflows 設計的，基於安全考量，
+      不會直接暴露給 GitHub Copilot。開發者需要在個人 Copilot 設定中
+      手動配置 MCP 伺服器和相關憑證。
+  
+  - question: 'mcp-servers.yml 中的 ${{ secrets.XXX }} 有什麼用?'
+    answer: |
+      這些是配置範本，用於:
+      1. 文檔目的 - 說明需要哪些 secrets
+      2. GitHub Actions - 如果未來 GitHub 支援，可直接使用
+      3. 團隊協作 - 統一命名規範
+      
+      實際使用時，開發者需要手動輸入這些 secrets 的值到個人 Copilot 設定。
+  
+  - question: '我是否需要配置所有的 MCP 伺服器?'
+    answer: |
+      不一定。根據你的需求選擇:
+      - **必要**: context7 (查詢最新文檔)
+      - **強烈建議**: supabase (資料庫操作)
+      - **建議**: sequential-thinking (結構化推理)
+      - **可選**: 其他 local 工具
+  
+  - question: '如何知道 Copilot 是否使用了 MCP 工具?'
+    answer: |
+      在 Copilot Chat 中:
+      1. 明確要求使用工具: "使用 context7 查詢..."
+      2. 要求展示過程: "展示你使用 context7 的過程"
+      3. 檢查回應是否包含最新、準確的資訊
+  
+  - question: 'API Keys 如何安全保管?'
+    answer: |
+      最佳實踐:
+      1. 使用密碼管理器儲存 (如 1Password, LastPass)
+      2. 絕不在程式碼或文檔中明文記錄
+      3. 定期輪替 (建議每 90 天)
+      4. 離職或不再需要時立即撤銷
+      5. 使用環境隔離 (開發/測試/生產)
+  
+  - question: '遇到問題時該如何尋求協助?'
+    answer: |
+      1. 檢查本文檔的 "常見問題排解" 章節
+      2. 查閱 .github/MCP_TOOLS_USAGE_GUIDE.md
+      3. 搜尋 GitHub Issues: https://github.com/7Spade/GigHub/issues
+      4. 聯絡 Repository 管理員
+      5. 在團隊協作頻道 (Discord/Slack) 提問
+
+# ============================================
+# 版本資訊
+# ============================================
+metadata:
+  version: '1.0.0'
+  last_updated: '2025-12-12'
+  maintained_by: 'GitHub Copilot'
+  validated_by: 'Repository Admins'
+  status: 'Active'
+  changelog:
+    - version: '1.0.0'
+      date: '2025-12-12'
+      changes:
+        - 'Initial release'
+        - 'Complete setup guide for Repository Admins and Developers'
+        - 'Security best practices'
+        - 'Troubleshooting guide'
+        - 'FAQ section'

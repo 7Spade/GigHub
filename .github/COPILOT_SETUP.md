@@ -2,9 +2,23 @@
 
 This document describes the GitHub Copilot instructions and agent configurations for the GigHub project.
 
+## 🚀 Quick Start
+
+**New to this repository?** Start here:
+
+1. **For Repository Admins**: Read [copilot-setup-steps.yml](.github/copilot-setup-steps.yml) - Section "Repository Admin Setup"
+2. **For Developers**: Read [copilot-setup-steps.yml](.github/copilot-setup-steps.yml) - Section "Developer Setup"
+3. **For Usage Guide**: Read [MCP_TOOLS_USAGE_GUIDE.md](MCP_TOOLS_USAGE_GUIDE.md)
+
 ## Overview
 
 The repository is configured with comprehensive instructions for AI-assisted development using GitHub Copilot and custom agents with MCP (Model Context Protocol) tools.
+
+### Important Documents
+
+- **[copilot-setup-steps.yml](.github/copilot-setup-steps.yml)** - 完整的 MCP 設定指南 (含 GitHub Secrets 配置)
+- **[MCP_TOOLS_USAGE_GUIDE.md](MCP_TOOLS_USAGE_GUIDE.md)** - MCP 工具使用指南與最佳實踐
+- **[SETUP_VALIDATION.md](copilot/SETUP_VALIDATION.md)** - 設定驗證清單
 
 ## Directory Structure
 
