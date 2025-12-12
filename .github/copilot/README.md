@@ -6,6 +6,7 @@ This directory contains the GitHub Copilot configuration for the GigHub project,
 
 ```
 .github/
+├── copilot.yml                       # MCP server configuration (REQUIRED by GitHub)
 ├── copilot-instructions.md          # Main Copilot instructions (ENTRY POINT)
 ├── instructions/                     # Scoped instruction files
 │   ├── quick-reference.instructions.md
@@ -19,7 +20,7 @@ This directory contains the GitHub Copilot configuration for the GigHub project,
 │   └── memory-bank.instructions.md
 ├── copilot/                          # Copilot configuration files
 │   ├── README.md                     # This file
-│   ├── mcp-servers.yml               # MCP server configuration
+│   ├── mcp-servers.yml               # MCP server configuration (reference copy)
 │   ├── security-rules.yml            # Security rules
 │   ├── constraints.md                # Forbidden patterns and anti-patterns
 │   ├── agents/
@@ -58,7 +59,9 @@ Domain-specific instruction files with `applyTo` directives:
 | `sql-sp-generation.instructions.md` | `**/*.sql` | SQL and stored procedure standards |
 | `memory-bank.instructions.md` | `**` | Documentation patterns |
 
-### 3. MCP Server Configuration: `mcp-servers.yml`
+### 3. MCP Server Configuration: `.github/copilot.yml`
+
+**IMPORTANT**: The MCP server configuration MUST be at `.github/copilot.yml` (root of .github directory) for GitHub Copilot to recognize it.
 
 Defines MCP (Model Context Protocol) servers used by Copilot:
 
@@ -67,11 +70,16 @@ mcp-servers:
   context7:
     type: http
     url: 'https://mcp.context7.com/mcp'
-    headers: { 'CONTEXT7_API_KEY': '${{ secrets.COPILOT_MCP_CONTEXT7 }}' }
-    tools: ['get-library-docs', 'resolve-library-id']
+    headers:
+      CONTEXT7_API_KEY: '${{ secrets.COPILOT_MCP_CONTEXT7 }}'
+    tools:
+      - get-library-docs
+      - resolve-library-id
 ```
 
 **Purpose**: Provides up-to-date documentation for libraries and frameworks.
+
+**Note**: A reference copy is also maintained at `.github/copilot/mcp-servers.yml` for documentation purposes, but the active configuration is at `.github/copilot.yml`.
 
 ### 4. Auto-Triggers: `agents/auto-triggers.yml`
 

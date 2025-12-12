@@ -179,7 +179,7 @@ yarn e2e               # Run end-to-end tests
 6. **TypeScript Type Issues** - Queries for correct type definitions
 
 **Configuration Location**: `.github/copilot/agents/auto-triggers.yml`  
-**MCP Server Config**: `.github/copilot/mcp-servers.yml`
+**MCP Server Config**: `.github/copilot.yml` (required by GitHub Copilot)
 
 ## Repository Guidelines
 
@@ -336,8 +336,9 @@ See `.github/copilot/` for additional resources:
 - `shortcuts/chat-shortcuts.md` - **Copilot Chat 快捷指令** ⭐
 - `constraints.md` - **禁止模式與約束** 🚫
 - `agents/auto-triggers.yml` - **MCP 自動觸發規則** 🤖
-- `mcp-servers.yml` - **MCP 伺服器配置** 🔧
 - `security-rules.yml` - 安全規則配置
+
+**MCP Server Configuration**: `.github/copilot.yml` - **MCP 伺服器配置** 🔧 (required by GitHub)
 
 ## Getting Help
 

@@ -1,0 +1,143 @@
+# GitHub Copilot Configuration
+# https://gh.io/copilot-coding-agent-tips
+#
+# This file configures MCP (Model Context Protocol) servers for GitHub Copilot.
+# MCP servers provide additional context and tools to enhance Copilot's capabilities.
+#
+# IMPORTANT: This file must be at .github/copilot.yml (root of .github directory)
+# for GitHub Copilot to recognize and use the MCP server configuration.
+
+mcp-servers:
+  # Context7 MCP Server - Documentation Expert
+  # Provides up-to-date documentation for libraries and frameworks
+  # MANDATORY: Use for all Angular, ng-alain, ng-zorro-antd, Supabase, RxJS questions
+  context7:
+    type: http
+    url: 'https://mcp.context7.com/mcp'
+    headers:
+      CONTEXT7_API_KEY: '${{ secrets.COPILOT_MCP_CONTEXT7 }}'
+    tools:
+      - get-library-docs      # Query library documentation
+      - resolve-library-id    # Resolve package names to Context7 IDs
+
+  # Supabase MCP Server - Database Expert
+  # Provides direct access to Supabase database schema and utilities
+  # NOTE: Requires SUPABASE_PROJECT_REF and SUPABASE_MCP_TOKEN secrets
+  supabase:
+    type: http
+    url: 'https://mcp.supabase.com/mcp?project_ref=${{ secrets.SUPABASE_PROJECT_REF }}'
+    headers:
+      Authorization: 'Bearer ${{ secrets.SUPABASE_MCP_TOKEN }}'
+    tools:
+      - '*'  # All Supabase tools (list_tables, execute_sql, etc.)
+
+  # Sequential Thinking MCP Server - Problem Solving Expert
+  # Provides structured thinking process for complex problems
+  # MANDATORY: Use for complex architectural decisions and bug analysis
+  sequential-thinking:
+    type: local
+    command: npx
+    args:
+      - -y
+      - '@modelcontextprotocol/server-sequential-thinking'
+    tools:
+      - '*'  # All sequential thinking tools
+
+  # Software Planning Tool MCP Server - Project Planning Expert
+  # Provides todo management and implementation planning
+  # MANDATORY: Use for new feature development
+  software-planning-tool:
+    type: local
+    command: npx
+    args:
+      - -y
+      - 'github:NightTrek/Software-planning-mcp'
+    tools:
+      - '*'  # All software planning tools
+
+  # Filesystem MCP Server - File Operations
+  # Provides enhanced file system operations
+  filesystem:
+    type: local
+    command: npx
+    args:
+      - -y
+      - '@modelcontextprotocol/server-filesystem'
+      - './'
+    tools:
+      - '*'  # All filesystem tools
+
+  # Memory MCP Server - Context Persistence
+  # Provides memory storage across sessions
+  memory:
+    type: local
+    command: npx
+    args:
+      - -y
+      - '@modelcontextprotocol/server-memory'
+    tools:
+      - '*'  # All memory tools
+
+  # Everything MCP Server - Development Utilities
+  # Provides various development utilities and tools
+  everything:
+    type: local
+    command: npx
+    args:
+      - -y
+      - '@modelcontextprotocol/server-everything'
+    tools:
+      - '*'  # All utility tools
+
+  # Time MCP Server - Time and Date Utilities
+  # Provides time-related utilities
+  time:
+    type: local
+    command: npx
+    args:
+      - -y
+      - '@modelcontextprotocol/server-time'
+    tools:
+      - '*'  # All time tools
+
+  # Fetch MCP Server - HTTP Request Utilities
+  # Provides HTTP request capabilities
+  fetch:
+    type: local
+    command: npx
+    args:
+      - -y
+      - '@modelcontextprotocol/server-fetch'
+    tools:
+      - '*'  # All fetch tools
+
+# Configuration Notes:
+#
+# 1. HTTP MCP Servers (context7, supabase):
+#    - Require secrets to be configured in GitHub repository settings
+#    - Go to: https://github.com/7Spade/GigHub/settings/secrets/codespaces
+#    - Add secrets: COPILOT_MCP_CONTEXT7, SUPABASE_PROJECT_REF, SUPABASE_MCP_TOKEN
+#
+# 2. Local MCP Servers:
+#    - Use npx to run on-demand without global installation
+#    - Automatically download and cache the latest version
+#
+# 3. Tool Usage Policy (see .github/copilot-instructions.md):
+#    - context7: MANDATORY for all library/framework questions
+#    - sequential-thinking: MANDATORY for complex problems
+#    - software-planning-tool: MANDATORY for new features
+#    - Other tools: Use as needed
+#
+# 4. Auto-Triggers:
+#    - See .github/copilot/agents/auto-triggers.yml for automatic tool invocation rules
+#    - Context7 auto-triggers on API uncertainty, version issues, error messages
+#
+# 5. Security:
+#    - Never commit secrets directly in this file
+#    - Always use ${{ secrets.SECRET_NAME }} syntax
+#    - Secrets are injected at runtime by GitHub
+#
+# For more information:
+# - Main instructions: .github/copilot-instructions.md
+# - MCP documentation: .github/copilot/README.md
+# - Best practices: https://gh.io/copilot-coding-agent-tips

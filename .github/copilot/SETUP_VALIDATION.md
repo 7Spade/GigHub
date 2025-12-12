@@ -49,13 +49,14 @@ This document validates that the GigHub repository follows [GitHub's best practi
 
 ### 4. MCP Server Configuration ✅
 
-- [x] **File exists**: `.github/copilot/mcp-servers.yml`
+- [x] **File exists**: `.github/copilot.yml` (REQUIRED location)
 - [x] **Valid YAML syntax**
-- [x] **Server configured**: context7
-- [x] **Tools defined**: `get-library-docs`, `resolve-library-id`
-- [x] **Secret reference**: `${{ secrets.COPILOT_MCP_CONTEXT7 }}`
+- [x] **Servers configured**: context7, supabase, sequential-thinking, software-planning-tool, and more
+- [x] **Tools defined**: `get-library-docs`, `resolve-library-id`, and others
+- [x] **Secret references**: `${{ secrets.COPILOT_MCP_CONTEXT7 }}`, `${{ secrets.SUPABASE_MCP_TOKEN }}`
+- [x] **Reference copy**: `.github/copilot/mcp-servers.yml` (for documentation)
 
-**Validation**: ✅ MCP server properly configured
+**Validation**: ✅ MCP server properly configured at the correct location
 
 ### 5. Auto-Triggers Configuration ✅
 
@@ -209,10 +210,12 @@ This document validates that the GigHub repository follows [GitHub's best practi
 
 ```bash
 # Verify YAML files
-python3 -c "import yaml; yaml.safe_load(open('.github/copilot/mcp-servers.yml')); print('✓ mcp-servers.yml valid')"
+python3 -c "import yaml; yaml.safe_load(open('.github/copilot.yml')); print('✓ .github/copilot.yml valid (REQUIRED)')"
+python3 -c "import yaml; yaml.safe_load(open('.github/copilot/mcp-servers.yml')); print('✓ .github/copilot/mcp-servers.yml valid (reference copy)')"
 python3 -c "import yaml; yaml.safe_load(open('.github/copilot/agents/auto-triggers.yml')); print('✓ auto-triggers.yml valid')"
 
 # Check file existence
+test -f .github/copilot.yml && echo "✓ MCP config at required location"
 test -f .github/copilot-instructions.md && echo "✓ Main instructions exist"
 test -d .github/instructions && echo "✓ Scoped instructions directory exists"
 test -f .github/copilot/README.md && echo "✓ README exists"
