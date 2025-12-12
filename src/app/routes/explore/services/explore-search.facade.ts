@@ -488,6 +488,7 @@ export class ExploreSearchFacade {
 
   /**
    * Calculate relevance score for a result
+   *
    * @param name The name to score
    * @param searchQuery The search query (normalized)
    * @param escapedQuery Pre-escaped query for regex (to avoid redundant escaping)

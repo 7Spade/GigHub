@@ -8,12 +8,12 @@
  * @date 2025-12-12
  */
 
-import { Component, input, signal, computed, inject } from '@angular/core';
 import { FlatTreeControl } from '@angular/cdk/tree';
-import { NzTreeFlatDataSource, NzTreeFlattener, NzTreeViewModule } from 'ng-zorro-antd/tree-view';
-import { SHARED_IMPORTS } from '@shared';
-import { Task, TaskTreeNode } from '@core/types/task';
+import { Component, input, signal, computed, inject } from '@angular/core';
 import { TaskStore } from '@core/stores/task.store';
+import { Task, TaskTreeNode } from '@core/types/task';
+import { SHARED_IMPORTS } from '@shared';
+import { NzTreeFlatDataSource, NzTreeFlattener, NzTreeViewModule } from 'ng-zorro-antd/tree-view';
 
 /** Flat node structure for CDK tree */
 interface FlatNode {
@@ -43,12 +43,7 @@ interface FlatNode {
               {{ node.name }}
               <nz-badge [nzStatus]="getStatusBadge(node.task.status)" style="margin-left: 8px;" />
               @if (node.task.progress !== undefined) {
-                <nz-progress 
-                  [nzPercent]="node.task.progress" 
-                  nzSize="small" 
-                  [nzShowInfo]="false"
-                  style="width: 100px; margin-left: 8px;"
-                />
+                <nz-progress [nzPercent]="node.task.progress" nzSize="small" [nzShowInfo]="false" style="width: 100px; margin-left: 8px;" />
               }
             </nz-tree-node-option>
           </nz-tree-node>

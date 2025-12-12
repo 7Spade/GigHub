@@ -108,18 +108,47 @@ export class LogFirestoreRepository extends FirestoreBaseRepository<Log> {
 
   /**
    * Convert Firestore Timestamp to Date
+   * Handles multiple formats for robustness
    */
   private toDate(timestamp: any): Date {
+    // If already a valid Date
+    if (timestamp instanceof Date && !isNaN(timestamp.getTime())) {
+      return timestamp;
+    }
+
+    // If Firestore Timestamp
     if (timestamp instanceof Timestamp) {
       return timestamp.toDate();
     }
-    if (timestamp?.toDate) {
-      return timestamp.toDate();
+
+    // If has toDate method (Firestore Timestamp-like)
+    if (timestamp?.toDate && typeof timestamp.toDate === 'function') {
+      try {
+        return timestamp.toDate();
+      } catch (error) {
+        console.warn('[LogFirestoreRepository] Failed to convert timestamp:', error);
+      }
     }
-    if (timestamp instanceof Date) {
-      return timestamp;
+
+    // If string (ISO format)
+    if (typeof timestamp === 'string') {
+      const parsed = new Date(timestamp);
+      if (!isNaN(parsed.getTime())) {
+        return parsed;
+      }
     }
-    return new Date(timestamp);
+
+    // If number (milliseconds since epoch)
+    if (typeof timestamp === 'number') {
+      const parsed = new Date(timestamp);
+      if (!isNaN(parsed.getTime())) {
+        return parsed;
+      }
+    }
+
+    // Fallback to current date
+    console.warn('[LogFirestoreRepository] Invalid timestamp, using current date:', timestamp);
+    return new Date();
   }
 
   /**
@@ -224,13 +253,26 @@ export class LogFirestoreRepository extends FirestoreBaseRepository<Log> {
    */
   async create(payload: CreateLogRequest): Promise<Log> {
     return this.executeWithRetry(async () => {
-      // Normalize date to date-only (no time)
-      const dateOnly = new Date(payload.date);
-      dateOnly.setHours(0, 0, 0, 0);
+      // Validate and normalize date
+      let dateToStore: Date;
+      try {
+        dateToStore = new Date(payload.date);
+        if (isNaN(dateToStore.getTime())) {
+          throw new Error('Invalid date value');
+        }
+        // Normalize to date-only (no time)
+        dateToStore.setHours(0, 0, 0, 0);
+      } catch (error) {
+        this.logger.error('[LogFirestoreRepository]', 'Invalid date in create request', {
+          date: payload.date,
+          error: (error as Error).message
+        });
+        throw new Error('Invalid date value: 日期格式不正確');
+      }
 
       const doc: DocumentData = {
         blueprint_id: payload.blueprintId,
-        date: Timestamp.fromDate(dateOnly),
+        date: Timestamp.fromDate(dateToStore),
         title: payload.title,
         description: payload.description || '',
         work_hours: payload.workHours || 0,

@@ -1,20 +1,20 @@
 /**
  * Team Store - Modern Angular 20 Signal-based State Management
- * 
+ *
  * 團隊 Store - 現代化 Angular 20 Signal 狀態管理
- * 
+ *
  * Following Occam's Razor: Simple signal-based state management
  * Using Angular 20 Signals for reactive state
- * 
+ *
  * Consolidates team and member management into a unified store
  * Eliminates duplicate state management across components
- * 
+ *
  * Key Benefits:
  * - Single source of truth for team and member data
  * - Automatic state synchronization across components
  * - Simplified component logic (remove ~300 lines of duplicate code)
  * - Better performance with computed signals and batched queries
- * 
+ *
  * @module core/stores
  * @author GigHub Development Team
  * @date 2025-12-12
@@ -138,7 +138,7 @@ export class TeamStore {
   /**
    * Load teams for an organization
    * 載入組織的團隊
-   * 
+   *
    * @param organizationId Organization ID
    */
   async loadTeams(organizationId: string): Promise<void> {
@@ -166,7 +166,7 @@ export class TeamStore {
   /**
    * Load member counts for teams (batch operation)
    * 載入團隊成員數量（批次操作）
-   * 
+   *
    * @param teams Teams to load counts for
    */
   private async loadMemberCounts(teams: Team[]): Promise<void> {
@@ -178,14 +178,13 @@ export class TeamStore {
     try {
       // Load all member lists in parallel
       const memberListPromises = teams.map(team =>
-        firstValueFrom(this.memberRepository.findByTeam(team.id))
-          .then(members => ({ teamId: team.id, count: members.length }))
+        firstValueFrom(this.memberRepository.findByTeam(team.id)).then(members => ({ teamId: team.id, count: members.length }))
       );
 
       const counts = await Promise.all(memberListPromises);
       const countMap = new Map<string, number>();
       counts.forEach(({ teamId, count }) => countMap.set(teamId, count));
-      
+
       this._memberCounts.set(countMap);
       this.logger.info('[TeamStore]', `Loaded member counts for ${teams.length} teams`);
     } catch (err) {
@@ -198,7 +197,7 @@ export class TeamStore {
   /**
    * Create a new team
    * 建立新團隊
-   * 
+   *
    * @param organizationId Organization ID
    * @param name Team name
    * @param description Team description (optional)
@@ -233,7 +232,7 @@ export class TeamStore {
   /**
    * Update a team
    * 更新團隊
-   * 
+   *
    * @param teamId Team ID
    * @param data Updated team data
    */
@@ -242,9 +241,7 @@ export class TeamStore {
       await this.teamRepository.update(teamId, data);
 
       // Update local state
-      this._teams.update(teams =>
-        teams.map(team => (team.id === teamId ? { ...team, ...data } : team))
-      );
+      this._teams.update(teams => teams.map(team => (team.id === teamId ? { ...team, ...data } : team)));
 
       this.logger.info('[TeamStore]', `Team updated: ${teamId}`);
     } catch (err) {
@@ -258,7 +255,7 @@ export class TeamStore {
   /**
    * Delete a team
    * 刪除團隊
-   * 
+   *
    * @param teamId Team ID
    */
   async deleteTeam(teamId: string): Promise<void> {
@@ -272,7 +269,7 @@ export class TeamStore {
         newCounts.delete(teamId);
         return newCounts;
       });
-      
+
       // Clear members if this was the current team
       if (this._currentTeamId() === teamId) {
         this._members.set([]);
@@ -295,7 +292,7 @@ export class TeamStore {
   /**
    * Load members for a team
    * 載入團隊成員
-   * 
+   *
    * @param teamId Team ID
    */
   async loadMembers(teamId: string): Promise<void> {
@@ -306,7 +303,7 @@ export class TeamStore {
     try {
       const members = await firstValueFrom(this.memberRepository.findByTeam(teamId));
       this._members.set(members);
-      
+
       // Update member count
       this._memberCounts.update(counts => {
         const newCounts = new Map(counts);
@@ -328,7 +325,7 @@ export class TeamStore {
   /**
    * Add a member to a team
    * 新增成員到團隊
-   * 
+   *
    * @param teamId Team ID
    * @param userId User ID
    * @param role Team role (default: MEMBER)
@@ -360,7 +357,7 @@ export class TeamStore {
   /**
    * Remove a member from a team
    * 從團隊移除成員
-   * 
+   *
    * @param memberId Member ID
    * @param teamId Team ID (for updating count)
    */
@@ -389,10 +386,10 @@ export class TeamStore {
   /**
    * Update member role (simplified - no delete/recreate)
    * 更新成員角色（簡化版 - 不刪除後重建）
-   * 
+   *
    * This is a simplified approach that removes and re-adds the member.
    * For a production system, consider adding an `updateRole` method to the repository.
-   * 
+   *
    * @param memberId Member ID
    * @param teamId Team ID
    * @param userId User ID
@@ -406,9 +403,7 @@ export class TeamStore {
       const updatedMember = await this.memberRepository.addMember(teamId, userId, newRole);
 
       // Update local state
-      this._members.update(members =>
-        members.map(member => (member.id === memberId ? updatedMember : member))
-      );
+      this._members.update(members => members.map(member => (member.id === memberId ? updatedMember : member)));
 
       this.logger.info('[TeamStore]', `Member role updated: ${memberId} to ${newRole}`);
     } catch (err) {
@@ -426,7 +421,7 @@ export class TeamStore {
   /**
    * Get member count for a specific team
    * 獲取特定團隊的成員數量
-   * 
+   *
    * @param teamId Team ID
    * @returns Member count
    */

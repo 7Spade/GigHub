@@ -11,18 +11,18 @@
 import { Component, OnInit, inject, signal, effect, input } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { LoggerService } from '@core';
+import { TaskStore } from '@core/stores/task.store';
+import { Task, TaskViewMode } from '@core/types/task';
 import { SHARED_IMPORTS } from '@shared';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzModalService } from 'ng-zorro-antd/modal';
-import { TaskStore } from '@core/stores/task.store';
-import { Task, TaskViewMode } from '@core/types/task';
 
 import { TaskModalComponent } from './task-modal.component';
-import { TaskListViewComponent } from './views/task-list-view.component';
-import { TaskTreeViewComponent } from './views/task-tree-view.component';
-import { TaskKanbanViewComponent } from './views/task-kanban-view.component';
-import { TaskTimelineViewComponent } from './views/task-timeline-view.component';
 import { TaskGanttViewComponent } from './views/task-gantt-view.component';
+import { TaskKanbanViewComponent } from './views/task-kanban-view.component';
+import { TaskListViewComponent } from './views/task-list-view.component';
+import { TaskTimelineViewComponent } from './views/task-timeline-view.component';
+import { TaskTreeViewComponent } from './views/task-tree-view.component';
 
 @Component({
   selector: 'app-tasks',
@@ -71,11 +71,7 @@ import { TaskGanttViewComponent } from './views/task-gantt-view.component';
             <span nz-icon nzType="unordered-list" nzTheme="outline"></span>
             列表視圖
           </ng-template>
-          <app-task-list-view 
-            [blueprintId]="_blueprintId()"
-            (editTask)="editTask($event)"
-            (deleteTask)="deleteTask($event)"
-          />
+          <app-task-list-view [blueprintId]="_blueprintId()" (editTask)="editTask($event)" (deleteTask)="deleteTask($event)" />
         </nz-tab>
 
         <nz-tab [nzTitle]="treeViewTitle">
@@ -166,13 +162,7 @@ export class TasksComponent implements OnInit {
   }
 
   onViewChange(index: number): void {
-    const viewModes = [
-      TaskViewMode.LIST,
-      TaskViewMode.TREE,
-      TaskViewMode.KANBAN,
-      TaskViewMode.TIMELINE,
-      TaskViewMode.GANTT
-    ];
+    const viewModes = [TaskViewMode.LIST, TaskViewMode.TREE, TaskViewMode.KANBAN, TaskViewMode.TIMELINE, TaskViewMode.GANTT];
     this.currentViewMode.set(viewModes[index]);
     this.logger.info('[TasksComponent]', `View changed to: ${viewModes[index]}`);
   }

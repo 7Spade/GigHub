@@ -220,8 +220,8 @@ export class OrganizationTeamsComponent implements OnInit {
 
     modalRef.afterClose.subscribe((result: Team | undefined) => {
       if (result) {
-        // Team created successfully - store automatically updated
-        // No need to reload, TeamStore maintains state
+        // Team created successfully - reload workspace context
+        this.workspaceContext.reloadData();
       }
     });
   }
