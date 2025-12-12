@@ -1,15 +1,52 @@
 <!doctype html>
-<html>
+<html lang="zh-TW">
 
 <head>
   <meta charset="utf-8">
   <title>GigHub - 工地施工進度追蹤管理系統</title>
   <base href="/">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  
+  <!-- Viewport & Compatibility -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <!-- SEO Meta Tags -->
+  <meta name="description" content="GigHub - 專業的工地施工進度追蹤管理系統，提供即時監控、任務管理、品質控制等企業級解決方案">
+  <meta name="keywords" content="工地管理,施工進度,專案追蹤,建築管理,GigHub,工程管理系統">
+  <meta name="author" content="GigHub Team">
+  <meta name="robots" content="index, follow">
+  
+  <!-- Open Graph / Social Media Meta Tags -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="GigHub - 工地施工進度追蹤管理系統">
+  <meta property="og:description" content="專業的工地施工進度追蹤管理系統，提供即時監控、任務管理、品質控制等企業級解決方案">
+  <meta property="og:url" content="https://gighub.app">
+  <meta property="og:site_name" content="GigHub">
+  <meta property="og:locale" content="zh_TW">
+  
+  <!-- Twitter Card Meta Tags -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="GigHub - 工地施工進度追蹤管理系統">
+  <meta name="twitter:description" content="專業的工地施工進度追蹤管理系統">
+  
+  <!-- Theme & App Configuration -->
+  <meta name="theme-color" content="#0EA5E9">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="GigHub">
+  
+  <!-- Resource Hints for Performance -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+  <link rel="dns-prefetch" href="https://fonts.gstatic.com">
+  
+  <!-- Icons & Manifest -->
   <link rel="icon" type="image/x-icon" href="favicon.ico">
-  <!-- Apple Touch Icon -->
-  <!-- <link rel="apple-touch-icon" href="custom-icon.png"> -->
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/icons/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="assets/icons/favicon-16x16.png">
+  <link rel="manifest" href="manifest.json">
   <!-- Azure Dragon Theme Preloader Styles -->
   <style type="text/css">
     /* ============================================
@@ -18,8 +55,9 @@
      * ============================================
      * Design: Professional construction crane animation
      * Colors: Azure Dragon gradient (#0EA5E9 → #14B8A6)
-     * Performance: GPU-accelerated (transform, opacity)
+     * Performance: GPU-accelerated (transform, opacity, will-change)
      * Compatibility: Modern browsers (CSS3 animations)
+     * Accessibility: ARIA labels, reduced motion support
      * ============================================ */
     
     /* Preloader Container */
@@ -33,6 +71,9 @@
       overflow: hidden;
       background: linear-gradient(135deg, #0EA5E9 0%, #14B8A6 100%);
       transition: opacity 0.65s cubic-bezier(0.4, 0, 0.2, 1);
+      will-change: opacity;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
     }
     
     .preloader-hidden-add {
@@ -56,6 +97,7 @@
       transform: translate(-50%, -50%);
       width: 200px;
       height: 200px;
+      will-change: transform;
     }
     
     /* Construction Site Base */
@@ -93,6 +135,7 @@
       background: linear-gradient(90deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.6) 100%);
       border-radius: 2px;
       animation: crane-swing 3s ease-in-out infinite;
+      will-change: transform;
     }
     
     /* Hook Cable */
@@ -105,6 +148,7 @@
       background: rgba(255, 255, 255, 0.5);
       transform-origin: top center;
       animation: cable-bounce 3s ease-in-out infinite;
+      will-change: height;
     }
     
     /* Construction Block */
@@ -118,6 +162,7 @@
       border-radius: 2px;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
       animation: block-lift 3s ease-in-out infinite;
+      will-change: transform, opacity;
     }
     
     /* Progress Dots */
@@ -136,6 +181,7 @@
       background: rgba(255, 255, 255, 0.4);
       border-radius: 50%;
       animation: dot-pulse 1.5s ease-in-out infinite;
+      will-change: transform, background;
     }
     
     .progress-dot:nth-child(1) { animation-delay: 0s; }
@@ -185,6 +231,7 @@
       box-shadow: 0 0 10px rgba(14, 165, 233, 0.5);
       animation: progress-fill 3s ease-in-out infinite,
                  progress-shimmer 2s linear infinite;
+      will-change: width, background-position;
     }
     
     /* Progress Percentage Text */
@@ -281,6 +328,19 @@
     }
     
     /* ============================================
+     * Reduced Motion Support (Accessibility)
+     * ============================================ */
+    @media (prefers-reduced-motion: reduce) {
+      .preloader *,
+      .preloader *::before,
+      .preloader *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+    
+    /* ============================================
      * Responsive Design
      * ============================================ */
     @media (max-width: 768px) {
@@ -309,18 +369,30 @@
         font-size: 11px;
       }
     }
+    
+    /* ============================================
+     * Print Styles (Hide Preloader)
+     * ============================================ */
+    @media print {
+      .preloader {
+        display: none !important;
+      }
+    }
   </style>
 </head>
 
 <body>
+  <!-- Main Application Root -->
   <app-root></app-root>
-  <div class="preloader">
+  
+  <!-- Preloader with Accessibility Support -->
+  <div class="preloader" role="status" aria-live="polite" aria-label="應用程式載入中">
     <div class="cs-loader">
       <!-- Construction Site Base -->
-      <div class="construction-base"></div>
+      <div class="construction-base" aria-hidden="true"></div>
       
       <!-- Crane Structure -->
-      <div class="crane">
+      <div class="crane" aria-hidden="true">
         <!-- Crane Arm -->
         <div class="crane-arm">
           <!-- Hook Cable -->
@@ -332,7 +404,7 @@
       </div>
       
       <!-- Progress Dots -->
-      <div class="progress-dots">
+      <div class="progress-dots" aria-hidden="true">
         <div class="progress-dot"></div>
         <div class="progress-dot"></div>
         <div class="progress-dot"></div>
@@ -341,19 +413,19 @@
       </div>
       
       <!-- Loading Text -->
-      <div class="loading-text">正在載入 GigHub...</div>
+      <div class="loading-text" aria-label="載入狀態">正在載入 GigHub...</div>
       
       <!-- Progress Bar with Azure Dragon Theme -->
-      <div class="progress-bar-container">
+      <div class="progress-bar-container" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="載入進度">
         <div class="progress-bar-fill"></div>
       </div>
       
       <!-- Progress Percentage -->
-      <div class="progress-percentage">0%</div>
+      <div class="progress-percentage" aria-live="polite">0%</div>
     </div>
   </div>
   
-  <!-- Progress Bar JavaScript - Simulated Loading -->
+  <!-- Progress Bar JavaScript - Simulated Loading with Accessibility -->
   <script>
     (function() {
       'use strict';
@@ -361,6 +433,7 @@
       // Simulate progress bar loading
       var progressFill = document.querySelector('.progress-bar-fill');
       var progressText = document.querySelector('.progress-percentage');
+      var progressContainer = document.querySelector('.progress-bar-container');
       var progress = 0;
       var targetProgress = 100;
       var duration = 3000; // 3 seconds to match animation
@@ -372,19 +445,47 @@
         progress = Math.floor(percentage);
         
         if (progressFill && progressText) {
+          // Update visual progress
           progressFill.style.width = progress + '%';
           progressText.textContent = progress + '%';
+          
+          // Update ARIA attributes for accessibility
+          if (progressContainer) {
+            progressContainer.setAttribute('aria-valuenow', progress);
+          }
         }
         
         if (progress < targetProgress) {
           requestAnimationFrame(updateProgress);
+        } else {
+          // Mark loading as complete
+          if (progressContainer) {
+            progressContainer.setAttribute('aria-valuenow', '100');
+            progressContainer.setAttribute('aria-label', '載入完成');
+          }
         }
       }
       
       // Start progress animation
       requestAnimationFrame(updateProgress);
+      
+      // Performance: Mark when the preloader is ready
+      if (window.performance && window.performance.mark) {
+        window.performance.mark('preloader-ready');
+      }
     })();
   </script>
+  
+  <!-- No Script Fallback -->
+  <noscript>
+    <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #0EA5E9; display: flex; align-items: center; justify-content: center; color: white; font-family: sans-serif; text-align: center; padding: 20px; z-index: 10000;">
+      <div>
+        <h1>GigHub - 工地施工進度追蹤管理系統</h1>
+        <p>此應用程式需要 JavaScript 才能運行。</p>
+        <p>請啟用 JavaScript 後重新載入頁面。</p>
+      </div>
+    </div>
+  </noscript>
 </body>
 
 </html>
