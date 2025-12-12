@@ -15,8 +15,7 @@
 
 import { ChangeDetectionStrategy, Component, inject, signal, Inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { Team } from '@core';
-import { TeamRepository } from '@core/repositories';
+import { Team, TeamStore } from '@core';
 import { NzButtonModule } from 'ng-zorro-antd/button';
 import { NzFormModule } from 'ng-zorro-antd/form';
 import { NzInputModule } from 'ng-zorro-antd/input';
@@ -79,7 +78,7 @@ import { NzModalRef, NZ_MODAL_DATA } from 'ng-zorro-antd/modal';
 })
 export class EditTeamModalComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
-  private readonly teamRepository = inject(TeamRepository);
+  private readonly teamStore = inject(TeamStore);
   private readonly modal = inject(NzModalRef);
   private readonly message = inject(NzMessageService);
 
@@ -134,7 +133,7 @@ export class EditTeamModalComponent implements OnInit {
 
     this.loading.set(true);
     try {
-      await this.teamRepository.update(teamData.id, {
+      await this.teamStore.updateTeam(teamData.id, {
         name: this.form.value.name.trim(),
         description: this.form.value.description?.trim() || null
       });

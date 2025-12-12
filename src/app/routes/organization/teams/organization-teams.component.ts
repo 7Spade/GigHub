@@ -1,8 +1,7 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal, OnInit, effect, DestroyRef } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit, effect, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
-import { ContextType, Team } from '@core';
-import { TeamRepository, TeamMemberRepository } from '@core/repositories';
+import { ContextType, Team, TeamStore } from '@core';
 import { SHARED_IMPORTS, WorkspaceContextService } from '@shared';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
 import { NzDescriptionsModule } from 'ng-zorro-antd/descriptions';
@@ -13,8 +12,6 @@ import { NzModalService } from 'ng-zorro-antd/modal';
 import { NzSpaceModule } from 'ng-zorro-antd/space';
 import { NzTableModule } from 'ng-zorro-antd/table';
 import { NzTagModule } from 'ng-zorro-antd/tag';
-import { combineLatest } from 'rxjs';
-import { map } from 'rxjs/operators';
 
 import { CreateTeamModalComponent } from '../../../shared/components/create-team-modal/create-team-modal.component';
 import { EditTeamModalComponent } from '../../../shared/components/edit-team-modal/edit-team-modal.component';
@@ -149,24 +146,19 @@ import { TeamDetailDrawerComponent } from '../../../shared/components/team-detai
 })
 export class OrganizationTeamsComponent implements OnInit {
   readonly workspaceContext = inject(WorkspaceContextService);
-  private readonly teamRepository: TeamRepository = inject(TeamRepository);
-  private readonly teamMemberRepository: TeamMemberRepository = inject(TeamMemberRepository);
+  readonly teamStore = inject(TeamStore);
   private readonly modal = inject(NzModalService);
   private readonly message = inject(NzMessageService);
   private readonly router = inject(Router);
   private readonly drawer = inject(NzDrawerService);
   private readonly destroyRef = inject(DestroyRef);
 
-  private readonly teamsState = signal<Team[]>([]);
-  private readonly memberCountsState = signal<Map<string, number>>(new Map());
-  loading = signal(false);
-
   constructor() {
     // Auto-reload teams when organization context changes
     effect(() => {
       const orgId = this.currentOrgId();
       if (orgId) {
-        this.loadTeams(orgId);
+        this.teamStore.loadTeams(orgId);
       }
     });
   }
@@ -175,66 +167,19 @@ export class OrganizationTeamsComponent implements OnInit {
     // Load teams when component initializes
     const orgId = this.currentOrgId();
     if (orgId) {
-      this.loadTeams(orgId);
+      this.teamStore.loadTeams(orgId);
     }
-  }
-
-  private loadTeams(organizationId: string): void {
-    this.loading.set(true);
-    this.teamRepository
-      .findByOrganization(organizationId)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (teams: Team[]) => {
-          this.teamsState.set(teams);
-          this.loading.set(false);
-
-          // Load member counts for all teams
-          this.loadMemberCounts(teams);
-        },
-        error: (error: Error) => {
-          console.error('[OrganizationTeamsComponent] ❌ Failed to load teams:', error);
-          this.teamsState.set([]);
-          this.loading.set(false);
-        }
-      });
-  }
-
-  private loadMemberCounts(teams: Team[]): void {
-    if (teams.length === 0) {
-      this.memberCountsState.set(new Map());
-      return;
-    }
-
-    // Load member counts for all teams in parallel
-    const memberCountObservables = teams.map(team =>
-      this.teamMemberRepository.findByTeam(team.id).pipe(map(members => ({ teamId: team.id, count: members.length })))
-    );
-
-    combineLatest(memberCountObservables)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: counts => {
-          const map = new Map<string, number>();
-          counts.forEach(({ teamId, count }) => map.set(teamId, count));
-          this.memberCountsState.set(map);
-        },
-        error: error => {
-          console.error('[OrganizationTeamsComponent] ❌ Failed to load member counts:', error);
-          this.memberCountsState.set(new Map());
-        }
-      });
   }
 
   getMemberCount(teamId: string): number {
-    return this.memberCountsState().get(teamId) || 0;
+    return this.teamStore.getMemberCount(teamId);
   }
 
   refreshTeams(): void {
     const orgId = this.currentOrgId();
     if (orgId) {
       this.message.info('正在重新整理...');
-      this.loadTeams(orgId);
+      this.teamStore.loadTeams(orgId);
     }
   }
 
@@ -247,8 +192,10 @@ export class OrganizationTeamsComponent implements OnInit {
     if (!orgId) {
       return [];
     }
-    return this.teamsState();
+    return this.teamStore.teams();
   });
+
+  readonly loading = this.teamStore.loading;
 
   isOrganizationContext(): boolean {
     return this.workspaceContext.contextType() === ContextType.ORGANIZATION;
@@ -273,8 +220,8 @@ export class OrganizationTeamsComponent implements OnInit {
 
     modalRef.afterClose.subscribe((result: Team | undefined) => {
       if (result) {
-        // Team created successfully, reload list
-        this.loadTeams(orgId);
+        // Team created successfully - store automatically updated
+        // No need to reload, TeamStore maintains state
       }
     });
   }
@@ -292,24 +239,16 @@ export class OrganizationTeamsComponent implements OnInit {
 
     modalRef.afterClose.subscribe((success: boolean | undefined) => {
       if (success) {
-        // Team updated successfully, reload list
-        const orgId = this.currentOrgId();
-        if (orgId) {
-          this.loadTeams(orgId);
-        }
+        // Team updated successfully - store automatically updated
+        // No need to reload, TeamStore maintains state
       }
     });
   }
 
   async deleteTeam(team: Team): Promise<void> {
     try {
-      await this.teamRepository.delete(team.id);
+      await this.teamStore.deleteTeam(team.id);
       this.message.success('團隊已刪除');
-
-      const orgId = this.currentOrgId();
-      if (orgId) {
-        this.loadTeams(orgId);
-      }
     } catch (error) {
       console.error('[OrganizationTeamsComponent] ❌ Failed to delete team:', error);
       this.message.error('刪除團隊失敗');
@@ -344,10 +283,8 @@ export class OrganizationTeamsComponent implements OnInit {
 
     drawerRef.afterClose.subscribe(result => {
       if (result?.deleted || result) {
-        // Reload teams if team was modified or deleted
-        if (orgId) {
-          this.loadTeams(orgId);
-        }
+        // Team modified or deleted - store automatically updated
+        // No need to reload, TeamStore maintains state
       }
     });
   }
