@@ -12,6 +12,7 @@ import {
   getDoc
 } from '@angular/fire/firestore';
 import { Log, LogPhoto, CreateLogRequest, UpdateLogRequest, LogQueryOptions } from '@core/types/log/log.types';
+
 import { FirestoreBaseRepository } from './base/firestore-base.repository';
 import { FirebaseStorageRepository } from './firebase-storage.repository';
 
@@ -432,10 +433,7 @@ export class LogFirestoreRepository extends FirestoreBaseRepository<Log> {
     averageWorkers: number;
   }> {
     return this.executeWithRetry(async () => {
-      const constraints: any[] = [
-        where('blueprint_id', '==', blueprintId),
-        where('deleted_at', '==', null)
-      ];
+      const constraints: any[] = [where('blueprint_id', '==', blueprintId), where('deleted_at', '==', null)];
 
       if (startDate) {
         constraints.push(where('date', '>=', Timestamp.fromDate(startDate)));

@@ -17,21 +17,6 @@ export const routes: Routes = [
     data: { title: '藍圖設計器' }
   },
   {
-    path: ':id/container',
-    children: [
-      {
-        path: '',
-        loadComponent: () => import('./container/container-dashboard.component').then(m => m.ContainerDashboardComponent),
-        data: { title: '容器儀表板' }
-      },
-      {
-        path: 'event-bus',
-        loadComponent: () => import('./container/event-bus-monitor.component').then(m => m.EventBusMonitorComponent),
-        data: { title: '事件總線監控' }
-      }
-    ]
-  },
-  {
     path: ':id/members',
     loadComponent: () => import('./members/blueprint-members.component').then(m => m.BlueprintMembersComponent),
     data: { title: '成員管理' }

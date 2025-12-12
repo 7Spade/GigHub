@@ -1,14 +1,7 @@
 import { Injectable, inject } from '@angular/core';
-import {
-  collection,
-  query,
-  where,
-  orderBy,
-  limit as firestoreLimit,
-  Timestamp,
-  DocumentData
-} from '@angular/fire/firestore';
+import { collection, query, where, orderBy, limit as firestoreLimit, Timestamp, DocumentData } from '@angular/fire/firestore';
 import { Task, TaskStatus, CreateTaskRequest, UpdateTaskRequest, TaskQueryOptions } from '@core/types/task/task.types';
+
 import { FirestoreBaseRepository } from './base/firestore-base.repository';
 
 /**
@@ -298,11 +291,7 @@ export class TaskFirestoreRepository extends FirestoreBaseRepository<Task> {
    */
   async countByStatus(blueprintId: string): Promise<Record<TaskStatus, number>> {
     return this.executeWithRetry(async () => {
-      const q = query(
-        this.collectionRef,
-        where('blueprint_id', '==', blueprintId),
-        where('deleted_at', '==', null)
-      );
+      const q = query(this.collectionRef, where('blueprint_id', '==', blueprintId), where('deleted_at', '==', null));
 
       const tasks = await this.queryDocuments(q);
 

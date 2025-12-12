@@ -1,11 +1,12 @@
 import { Component, ChangeDetectionStrategy, OnInit, inject, input } from '@angular/core';
-import { AuditQueryOptions, AuditEntityType, AuditOperation, LoggerService } from '@core';
+import { LoggerService } from '@core';
 import { AuditLogRepository } from '@core/blueprint/repositories';
-import { AuditLogDocument } from '@core/models/audit-log.model';
+import { AuditLogDocument, AuditEventType, AuditCategory, AuditLogQueryOptions } from '@core/models/audit-log.model';
 import { STColumn } from '@delon/abc/st';
 import { SHARED_IMPORTS, createAsyncArrayState } from '@shared';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzSpaceModule } from 'ng-zorro-antd/space';
+import { NzEmptyModule } from 'ng-zorro-antd/empty';
 
 /**
  * Audit Logs Component
@@ -13,72 +14,67 @@ import { NzSpaceModule } from 'ng-zorro-antd/space';
  *
  * Features:
  * - Display audit logs
- * - Filter by entity type, operation, user
+ * - Filter by event type, category, resource
  * - Date range filter
  * - Pagination
  *
  * Following Occam's Razor: Simple, read-only audit viewer
  * ✅ Modernized with AsyncState pattern
+ * ✅ Fixed: Use correct query parameters (eventType, category)
  */
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-audit-logs',
   standalone: true,
-  imports: [SHARED_IMPORTS, NzSpaceModule],
+  imports: [SHARED_IMPORTS, NzSpaceModule, NzEmptyModule],
   template: `
-    <nz-card nzTitle="審計記錄">
-      <!-- Filters -->
-      <div class="mb-md" style="display: flex; gap: 8px;">
-        <nz-select
-          [(ngModel)]="filterEntityType"
-          (ngModelChange)="onFilterChange()"
-          nzPlaceHolder="實體類型"
-          style="width: 150px"
-          nzAllowClear
-        >
-          <nz-option nzLabel="藍圖" nzValue="blueprint"></nz-option>
-          <nz-option nzLabel="成員" nzValue="member"></nz-option>
-          <nz-option nzLabel="任務" nzValue="task"></nz-option>
-          <nz-option nzLabel="日誌" nzValue="log"></nz-option>
-          <nz-option nzLabel="品質" nzValue="quality"></nz-option>
-          <nz-option nzLabel="模組" nzValue="module"></nz-option>
-        </nz-select>
+    <!-- Filters -->
+    <div class="mb-md" style="display: flex; gap: 8px;">
+      <nz-select [(ngModel)]="filterCategory" (ngModelChange)="onFilterChange()" nzPlaceHolder="類別" style="width: 150px" nzAllowClear>
+        <nz-option nzLabel="藍圖" nzValue="blueprint"></nz-option>
+        <nz-option nzLabel="成員" nzValue="member"></nz-option>
+        <nz-option nzLabel="安全性" nzValue="security"></nz-option>
+        <nz-option nzLabel="資料" nzValue="data"></nz-option>
+        <nz-option nzLabel="系統" nzValue="system"></nz-option>
+      </nz-select>
 
-        <nz-select
-          [(ngModel)]="filterOperation"
-          (ngModelChange)="onFilterChange()"
-          nzPlaceHolder="操作類型"
-          style="width: 150px"
-          nzAllowClear
-        >
-          <nz-option nzLabel="建立" nzValue="create"></nz-option>
-          <nz-option nzLabel="更新" nzValue="update"></nz-option>
-          <nz-option nzLabel="刪除" nzValue="delete"></nz-option>
-          <nz-option nzLabel="存取" nzValue="access"></nz-option>
-          <nz-option nzLabel="授權" nzValue="permission_grant"></nz-option>
-        </nz-select>
+      <nz-select
+        [(ngModel)]="filterResourceType"
+        (ngModelChange)="onFilterChange()"
+        nzPlaceHolder="資源類型"
+        style="width: 150px"
+        nzAllowClear
+      >
+        <nz-option nzLabel="藍圖" nzValue="blueprint"></nz-option>
+        <nz-option nzLabel="成員" nzValue="member"></nz-option>
+        <nz-option nzLabel="任務" nzValue="task"></nz-option>
+        <nz-option nzLabel="日誌" nzValue="log"></nz-option>
+        <nz-option nzLabel="品質" nzValue="quality"></nz-option>
+        <nz-option nzLabel="模組" nzValue="module"></nz-option>
+      </nz-select>
 
-        <button nz-button (click)="refresh()">
-          <span nz-icon nzType="reload"></span>
-          重新整理
-        </button>
-      </div>
+      <button nz-button (click)="refresh()">
+        <span nz-icon nzType="reload"></span>
+        重新整理
+      </button>
+    </div>
 
-      <!-- Table -->
-      @if (logsState.loading()) {
-        <nz-spin nzSimple></nz-spin>
-      } @else if (logsState.error()) {
-        <nz-alert
-          nzType="error"
-          nzShowIcon
-          [nzMessage]="'載入失敗'"
-          [nzDescription]="logsState.error()?.message || '無法載入審計記錄'"
-          class="mb-md"
-        />
-      } @else {
-        <st #st [data]="logsState.data() || []" [columns]="columns" [page]="{ show: true, showSize: true }"></st>
-      }
-    </nz-card>
+    <!-- Table -->
+    @if (logsState.loading()) {
+      <nz-spin nzSimple></nz-spin>
+    } @else if (logsState.error()) {
+      <nz-alert
+        nzType="error"
+        nzShowIcon
+        [nzMessage]="'載入失敗'"
+        [nzDescription]="logsState.error()?.message || '無法載入審計記錄'"
+        class="mb-md"
+      />
+    } @else if ((logsState.data() || []).length === 0) {
+      <nz-empty nzNotFoundContent="暫無審計記錄"></nz-empty>
+    } @else {
+      <st #st [data]="logsState.data() || []" [columns]="columns" [page]="{ show: true, showSize: true }"></st>
+    }
   `,
   styles: [
     `
@@ -99,9 +95,9 @@ export class AuditLogsComponent implements OnInit {
   // ✅ Modern Pattern: Use AsyncState for unified state management
   readonly logsState = createAsyncArrayState<AuditLogDocument>([]);
 
-  // Filter state
-  filterEntityType: AuditEntityType | null = null;
-  filterOperation: AuditOperation | null = null;
+  // Filter state - using correct model properties
+  filterCategory: AuditCategory | null = null;
+  filterResourceType: string | null = null;
 
   // Table columns
   columns: STColumn[] = [
@@ -158,38 +154,22 @@ export class AuditLogsComponent implements OnInit {
    * Load audit logs
    * 載入審計記錄
    * ✅ Using AsyncState for automatic state management
+   * ✅ Fixed: Use correct query options with category and resourceType
    */
   private async loadLogs(): Promise<void> {
-    const options: AuditQueryOptions = {
-      ...(this.filterEntityType && { entityType: this.filterEntityType }),
-      ...(this.filterOperation && { operation: this.filterOperation }),
+    const options: AuditLogQueryOptions = {
+      ...(this.filterCategory && { category: this.filterCategory }),
+      ...(this.filterResourceType && { resourceType: this.filterResourceType }),
       limit: 100
     };
 
     try {
-      const logs = await this.auditRepository.queryLogs(this.blueprintId(), options);
-      this.logsState.setData(logs);
-      this.logger.info('[AuditLogsComponent]', `Loaded ${logs.length} audit logs`);
+      await this.logsState.load(this.auditRepository.queryLogs(this.blueprintId(), options));
+      this.logger.info('[AuditLogsComponent]', `Loaded ${this.logsState.data()?.length || 0} audit logs`);
     } catch (error) {
       this.message.error('載入審計記錄失敗');
       this.logger.error('[AuditLogsComponent]', 'Failed to load audit logs', error as Error);
     }
-  }
-
-  /**
-   * Get entity type display name
-   * 取得實體類型顯示名稱
-   */
-  private getEntityTypeName(type: AuditEntityType): string {
-    const typeMap: Record<AuditEntityType, string> = {
-      blueprint: '藍圖',
-      member: '成員',
-      task: '任務',
-      log: '日誌',
-      quality: '品質',
-      module: '模組'
-    };
-    return typeMap[type] || type;
   }
 
   /**

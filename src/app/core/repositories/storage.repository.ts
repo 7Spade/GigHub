@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
-import { FirebaseStorageRepository } from './firebase-storage.repository';
 import { UploadResult, FileObject, UploadOptions, DownloadOptions, ListOptions } from '@core/types/storage';
+
+import { FirebaseStorageRepository } from './firebase-storage.repository';
 
 /**
  * Storage Repository

@@ -15,7 +15,9 @@ import { NzTabsModule } from 'ng-zorro-antd/tabs';
 import { NzTagModule } from 'ng-zorro-antd/tag';
 import { firstValueFrom } from 'rxjs';
 
+import { AuditLogsComponent } from './audit/audit-logs.component';
 import { ConstructionLogComponent } from './construction-log/construction-log.component';
+import { ContainerDashboardComponent } from './container/container-dashboard.component';
 import { BlueprintMembersComponent } from './members/blueprint-members.component';
 
 /**
@@ -28,9 +30,11 @@ import { BlueprintMembersComponent } from './members/blueprint-members.component
  * - Navigate to module pages
  * - Integrated construction logs (工地施工日誌)
  * - Integrated tasks (任務管理)
+ * - Integrated audit logs (審計記錄) in overview sidebar
  *
  * ✅ Modernized with AsyncState pattern
  * ✅ Updated: 2025-12-11 - Added Construction Log & Task modules
+ * ✅ Updated: 2025-12-12 - Simplified design, added audit logs to overview
  */
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -46,8 +50,10 @@ import { BlueprintMembersComponent } from './members/blueprint-members.component
     NzTabsModule,
     NzTagModule,
     DatePipe,
+    AuditLogsComponent,
     BlueprintMembersComponent,
     ConstructionLogComponent,
+    ContainerDashboardComponent,
     TasksComponent
   ],
   template: `
@@ -170,24 +176,11 @@ import { BlueprintMembersComponent } from './members/blueprint-members.component
                 </div>
 
                 <div nz-col [nzXs]="24" [nzMd]="8">
-                  <!-- Quick Actions -->
-                  <nz-card nzTitle="快速操作" class="mb-md">
-                    <button nz-button nzBlock class="mb-sm" (click)="openContainer()">
-                      <span nz-icon nzType="dashboard"></span>
-                      容器儀表板
-                    </button>
-                    <button nz-button nzBlock class="mb-sm" (click)="switchToMembersTab()">
-                      <span nz-icon nzType="team"></span>
-                      成員管理
-                    </button>
-                    <button nz-button nzBlock class="mb-sm" (click)="configureModules()">
-                      <span nz-icon nzType="setting"></span>
-                      模組配置
-                    </button>
-                    <button nz-button nzBlock class="mb-sm" (click)="viewAuditLogs()">
-                      <span nz-icon nzType="file-text"></span>
-                      審計記錄
-                    </button>
+                  <!-- Audit Logs (Simplified - Direct Display) -->
+                  <nz-card nzTitle="審計記錄" class="mb-md">
+                    @if (blueprint()?.id) {
+                      <app-audit-logs [blueprintId]="blueprint()!.id" />
+                    }
                   </nz-card>
 
                   <!-- Basic Info -->
@@ -249,7 +242,7 @@ import { BlueprintMembersComponent } from './members/blueprint-members.component
           <!-- Settings Tab -->
           <nz-tab nzTitle="設定">
             <ng-template nz-tab>
-              <nz-card nzTitle="藍圖設定">
+              <nz-card nzTitle="藍圖設定" class="mb-md">
                 <button nz-button (click)="edit()">
                   <span nz-icon nzType="edit"></span>
                   編輯藍圖資訊
@@ -259,6 +252,9 @@ import { BlueprintMembersComponent } from './members/blueprint-members.component
                   配置模組
                 </button>
               </nz-card>
+              
+              <!-- Container Dashboard (Embedded) -->
+              <app-container-dashboard />
             </ng-template>
           </nz-tab>
         </nz-tabset>
@@ -327,21 +323,20 @@ export class BlueprintDetailComponent implements OnInit {
    * Load blueprint details
    * 載入藍圖詳情
    * ✅ Using AsyncState for automatic state management
+   * ✅ Fixed: Use load() method to prevent flash of "Blueprint not found"
    */
   private async loadBlueprint(id: string): Promise<void> {
     try {
-      const data = await firstValueFrom(this.blueprintService.getById(id));
-
+      // Use AsyncState.load() to automatically manage loading state
+      await this.blueprintState.load(firstValueFrom(this.blueprintService.getById(id)));
+      
+      const data = this.blueprintState.data();
       if (data) {
-        this.blueprintState.setData(data);
         this.logger.info('[BlueprintDetailComponent]', `Loaded blueprint: ${data.name}`);
       } else {
-        // Blueprint not found - show 404 state
-        this.blueprintState.setData(null);
         this.logger.warn('[BlueprintDetailComponent]', `Blueprint not found: ${id}`);
       }
     } catch (error) {
-      this.blueprintState.setData(null); // Set to null to trigger 404 UI
       this.message.error('載入藍圖失敗');
       this.logger.error('[BlueprintDetailComponent]', 'Failed to load blueprint', error as Error);
     }
@@ -447,17 +442,6 @@ export class BlueprintDetailComponent implements OnInit {
   }
 
   /**
-   * Open container dashboard
-   * 開啟容器儀表板
-   */
-  openContainer(): void {
-    const blueprintId = this.blueprint()?.id;
-    if (blueprintId) {
-      this.router.navigate(['container'], { relativeTo: this.route });
-    }
-  }
-
-  /**
    * Edit blueprint
    * 編輯藍圖
    */
@@ -493,28 +477,11 @@ export class BlueprintDetailComponent implements OnInit {
   }
 
   /**
-   * Switch to members tab
-   * 切換到成員管理標籤頁
-   * ✅ Updated: Directly switch to Members Tab instead of navigating (Occam's Razor)
-   */
-  switchToMembersTab(): void {
-    this.activeTabIndex = 3; // Members tab is the 4th tab (index 3)
-  }
-
-  /**
    * Configure modules
    * 配置模組
    */
   configureModules(): void {
     this.message.info('模組配置功能待實作');
-  }
-
-  /**
-   * View audit logs
-   * 查看審計記錄
-   */
-  viewAuditLogs(): void {
-    this.router.navigate(['audit'], { relativeTo: this.route });
   }
 
   /**
