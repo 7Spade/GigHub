@@ -65,9 +65,7 @@ export class FirebaseAuthService {
    */
   async signInWithEmailAndPassword(email: string, password: string): Promise<User> {
     try {
-      const credential = await runInInjectionContext(this.injector, () => 
-        signInWithEmailAndPassword(this.auth, email, password)
-      );
+      const credential = await runInInjectionContext(this.injector, () => signInWithEmailAndPassword(this.auth, email, password));
       await this.syncUserToServices(credential.user);
       return credential.user;
     } catch (error: any) {
@@ -81,9 +79,7 @@ export class FirebaseAuthService {
    */
   async signUpWithEmailAndPassword(email: string, password: string): Promise<User> {
     try {
-      const credential = await runInInjectionContext(this.injector, () =>
-        createUserWithEmailAndPassword(this.auth, email, password)
-      );
+      const credential = await runInInjectionContext(this.injector, () => createUserWithEmailAndPassword(this.auth, email, password));
 
       // Create account document in Firestore
       await this.accountRepository.create({

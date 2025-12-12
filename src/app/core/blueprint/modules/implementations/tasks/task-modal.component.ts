@@ -17,9 +17,10 @@
 
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { NZ_MODAL_DATA, NzModalRef } from 'ng-zorro-antd/modal';
-import { NzMessageService } from 'ng-zorro-antd/message';
 import { SHARED_IMPORTS } from '@shared';
+import { NzMessageService } from 'ng-zorro-antd/message';
+import { NZ_MODAL_DATA, NzModalRef } from 'ng-zorro-antd/modal';
+
 import { TaskDocument, CreateTaskData, UpdateTaskData, TaskStatus, TaskPriority } from './tasks.repository';
 import { TasksService } from './tasks.service';
 
@@ -47,12 +48,7 @@ interface ModalData {
       <nz-form-item>
         <nz-form-label [nzSpan]="6">描述</nz-form-label>
         <nz-form-control [nzSpan]="14">
-          <textarea
-            nz-input
-            formControlName="description"
-            [nzAutosize]="{ minRows: 3, maxRows: 6 }"
-            placeholder="任務詳細描述"
-          ></textarea>
+          <textarea nz-input formControlName="description" [nzAutosize]="{ minRows: 3, maxRows: 6 }" placeholder="任務詳細描述"></textarea>
         </nz-form-control>
       </nz-form-item>
 
@@ -120,22 +116,14 @@ interface ModalData {
       <nz-form-item>
         <nz-form-label [nzSpan]="6">標籤</nz-form-label>
         <nz-form-control [nzSpan]="14">
-          <nz-select
-            formControlName="tags"
-            nzMode="tags"
-            nzPlaceHolder="輸入標籤後按Enter"
-            style="width: 100%;"
-          >
-          </nz-select>
+          <nz-select formControlName="tags" nzMode="tags" nzPlaceHolder="輸入標籤後按Enter" style="width: 100%;"> </nz-select>
         </nz-form-control>
       </nz-form-item>
 
       <!-- Form Actions -->
       <nz-form-item>
         <nz-form-control [nzSpan]="14" [nzOffset]="6">
-          <button nz-button nzType="default" (click)="cancel()" style="margin-right: 8px;">
-            取消
-          </button>
+          <button nz-button nzType="default" (click)="cancel()" style="margin-right: 8px;"> 取消 </button>
           @if (modalData.mode !== 'view') {
             <button nz-button nzType="primary" type="submit" [nzLoading]="submitting()" [disabled]="!form.valid">
               {{ modalData.mode === 'create' ? '新增' : '更新' }}
@@ -195,7 +183,7 @@ export class TaskModalComponent implements OnInit {
 
   async submit(): Promise<void> {
     if (!this.form.valid) {
-      Object.values(this.form.controls).forEach((control) => {
+      Object.values(this.form.controls).forEach(control => {
         if (control.invalid) {
           control.markAsDirty();
           control.updateValueAndValidity({ onlySelf: true });

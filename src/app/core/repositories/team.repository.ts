@@ -60,9 +60,7 @@ export class TeamRepository {
     // Sorting can be done in-memory if needed
     const q = query(this.getCollectionRef(), where('organization_id', '==', organizationId));
 
-    return from(
-      runInInjectionContext(this.injector, () => getDocs(q))
-    ).pipe(
+    return from(runInInjectionContext(this.injector, () => getDocs(q))).pipe(
       map(snapshot => {
         const teams = snapshot.docs.map(docSnap => this.toTeam(docSnap.data(), docSnap.id));
         // Sort in-memory by created_at descending

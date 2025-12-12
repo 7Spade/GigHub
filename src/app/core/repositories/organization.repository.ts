@@ -65,9 +65,7 @@ export class OrganizationRepository {
     // Sorting can be done in-memory if needed
     const q = query(this.getCollectionRef(), where('created_by', '==', creatorId));
 
-    return from(
-      runInInjectionContext(this.injector, () => getDocs(q))
-    ).pipe(
+    return from(runInInjectionContext(this.injector, () => getDocs(q))).pipe(
       map(snapshot => {
         const orgs = snapshot.docs.map(docSnap => this.toOrganization(docSnap.data(), docSnap.id));
         // Sort in-memory by created_at descending
