@@ -68,3 +68,24 @@ env:
 
   - variable: SUPABASE_SERVICE_ROLE_KEY
     value: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InplY3Nic3RqcWpxb3l0d2dqeWN0Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2NTQ5OTkzNywiZXhwIjoyMDgxMDc1OTM3fQ.3k-encLQ4LPaYGOi6MLuyZS9d5Ft31XbZM1nWqVN2so'
+
+  - variable: FIREBASE_API_KEY
+    value: 'AIzaSyCJ-eayGjJwBKsNIh3oEAG2GjbfTrvAMEI'
+
+  - variable: FIREBASE_AUTH_DOMAIN
+    value: 'elite-chiller-455712-c4.firebaseapp.com'
+
+  - variable: FIREBASE_PROJECT_ID
+    value: 'elite-chiller-455712-c4'
+
+  - variable: FIREBASE_STORAGE_BUCKET
+    value: 'elite-chiller-455712-c4.firebasestorage.app'
+
+  - variable: FIREBASE_MESSAGING_SENDER_ID
+    value: '7807661688'
+
+  - variable: FIREBASE_APP_ID
+    value: '1:7807661688:web:5f96a5fe30b799f31d1f8d'
+
+  - variable: FIREBASE_MEASUREMENT_ID
+    value: 'G-5KJJ3DD2G7'
