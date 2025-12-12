@@ -29,6 +29,8 @@ import {
   withViewTransitions
 } from '@angular/router';
 import { I18NService, defaultInterceptor, provideBindAuthRefresh, provideStartup } from '@core';
+import { SupabaseAuthSyncService } from '@core/services/supabase-auth-sync.service';
+import { SupabaseHealthCheckService } from '@core/services/supabase-health-check.service';
 import { provideCellWidgets } from '@delon/abc/cell';
 import { provideSTWidgets } from '@delon/abc/st';
 import { authSimpleInterceptor, provideAuth } from '@delon/auth';
@@ -203,6 +205,22 @@ const firebaseProviders: Array<Provider | EnvironmentProviders> = [
   provideVertexAI(() => getVertexAI())
 ];
 
+// ============================================
+// Supabase Services Configuration
+// Supabase 服務配置
+// ============================================
+// Initialize Supabase services for Tasks & Logs modules
+// 為 Task 和 Log 模組初始化 Supabase 服務
+const supabaseProviders: Array<Provider | EnvironmentProviders> = [
+  // SupabaseAuthSyncService: Syncs Firebase Auth tokens to Supabase
+  // 同步 Firebase Auth Token 至 Supabase
+  SupabaseAuthSyncService,
+  
+  // SupabaseHealthCheckService: Monitors Supabase connection health
+  // 監控 Supabase 連線健康狀態
+  SupabaseHealthCheckService
+];
+
 export const appConfig: ApplicationConfig = {
-  providers: [...providers, ...firebaseProviders]
+  providers: [...providers, ...firebaseProviders, ...supabaseProviders]
 };
