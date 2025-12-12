@@ -1,13 +1,17 @@
 import { Injectable } from '@angular/core';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { environment } from '@env/environment';
 
 /**
- * Simplified Supabase Service
+ * Supabase Service
  *
- * This service provides basic Supabase client access for statistics and data operations.
+ * This service provides Supabase client access for data operations.
  * Authentication is handled by FirebaseAuthService.
  *
- * Credentials are hardcoded as this is only used for non-sensitive statistics data.
+ * Configuration is loaded from environment configuration.
+ * 
+ * @author GigHub Development Team
+ * @date 2025-12-12
  */
 @Injectable({
   providedIn: 'root'
@@ -15,13 +19,13 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js';
 export class SupabaseService {
   private supabase: SupabaseClient;
 
-  // Hardcoded credentials for statistics usage only
-  private readonly SUPABASE_URL = 'https://edfxrqgadtlnfhqqmgjw.supabase.co';
-  private readonly SUPABASE_ANON_KEY =
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkZnhycWdhZHRsbmZocXFtZ2p3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxODY4NDEsImV4cCI6MjA4MDc2Mjg0MX0.YRy5oDkScbPMOvbnybKDtMJIfO7Vf5a3AJoCclsSW_U';
-
   constructor() {
-    this.supabase = createClient(this.SUPABASE_URL, this.SUPABASE_ANON_KEY);
+    const url = environment.supabase?.url || 'https://zecsbstjqjqoytwgjyct.supabase.co';
+    const anonKey = environment.supabase?.anonKey || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InplY3Nic3RqcWpxb3l0d2dqeWN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU0OTk5MzcsImV4cCI6MjA4MTA3NTkzN30.GQSslGa2ujmjdR-DeqXwPiAUr0RPe2O3lwQb3w';
+    
+    this.supabase = createClient(url, anonKey);
+    
+    console.log('[SupabaseService] Initialized with URL:', url);
   }
 
   /**
