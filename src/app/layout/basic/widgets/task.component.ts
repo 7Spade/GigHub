@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit, DestroyRef } from '@angular/core';
-import { SupabaseService } from '@core/services/supabase.service';
+import { FirebaseService } from '@core/services/firebase.service';
 import { NotificationStore } from '@core/stores/notification.store';
 import { NzAvatarModule } from 'ng-zorro-antd/avatar';
 import { NzBadgeModule } from 'ng-zorro-antd/badge';
@@ -81,22 +81,22 @@ import { NzSpinModule } from 'ng-zorro-antd/spin';
   imports: [NzDropDownModule, NzBadgeModule, NzIconModule, NzSpinModule, NzGridModule, NzAvatarModule, NzCardModule, NzEmptyModule]
 })
 export class HeaderTaskComponent implements OnInit {
-  private readonly supabase = inject(SupabaseService);
+  private readonly firebase = inject(FirebaseService);
   private readonly destroyRef = inject(DestroyRef);
   protected readonly notificationStore = inject(NotificationStore);
 
   async ngOnInit(): Promise<void> {
-    const user = await this.supabase.getCurrentUser();
+    const user = await this.firebase.getCurrentUser();
     if (user) {
       // Subscribe to realtime updates (shared with notify.component)
-      this.notificationStore.subscribeToRealtimeUpdates(user.id, this.destroyRef);
+      this.notificationStore.subscribeToRealtimeUpdates(user.uid, this.destroyRef);
     }
   }
 
   async loadData(): Promise<void> {
-    const user = await this.supabase.getCurrentUser();
+    const user = await this.firebase.getCurrentUser();
     if (user) {
-      await this.notificationStore.loadNotifications(user.id);
+      await this.notificationStore.loadNotifications(user.uid);
     }
   }
 
