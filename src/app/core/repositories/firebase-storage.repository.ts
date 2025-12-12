@@ -245,7 +245,7 @@ export class FirebaseStorageRepository {
           id: item.fullPath,
           updated_at: metadata.updated,
           created_at: metadata.timeCreated,
-          last_accessed_at: null,
+          last_accessed_at: undefined,
           metadata: {
             size: metadata.size,
             contentType: metadata.contentType,

@@ -232,7 +232,7 @@ export abstract class FirestoreBaseRepository<T> {
    */
   protected async queryDocuments(q: any): Promise<T[]> {
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(doc => this.toEntity(doc.data(), doc.id));
+    return snapshot.docs.map(doc => this.toEntity(doc.data() as DocumentData, doc.id));
   }
 
   /**
@@ -281,10 +281,12 @@ export abstract class FirestoreBaseRepository<T> {
     const docRef = doc(this.firebaseService.db, this.collectionName, id);
     const docData = this.toDocument(entity);
 
-    await updateDoc(docRef, {
+    const updateData = {
       ...docData,
       updated_at: Timestamp.now()
-    });
+    } as Record<string, any>;
+
+    await updateDoc(docRef, updateData);
 
     const snapshot = await getDoc(docRef);
     return this.toEntity(snapshot.data()!, snapshot.id);
@@ -303,10 +305,12 @@ export abstract class FirestoreBaseRepository<T> {
       await deleteDoc(docRef);
     } else {
       // Soft delete: set deleted_at timestamp
-      await updateDoc(docRef, {
+      const updateData = {
         deleted_at: Timestamp.now(),
         updated_at: Timestamp.now()
-      });
+      } as Record<string, any>;
+      
+      await updateDoc(docRef, updateData);
     }
   }
 

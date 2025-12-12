@@ -281,5 +281,51 @@ service cloud.firestore {
         allow write: if isAuthenticated();
       }
     }
+    
+    // ==========================================
+    // Tasks Collection Rules (Top-Level)
+    // ==========================================
+    
+    match /tasks/{taskId} {
+      // Allow read if user can read the associated blueprint
+      allow read: if isAuthenticated() 
+        && canReadBlueprint(resource.data.blueprint_id);
+      
+      // Allow create if user can edit the blueprint
+      allow create: if isAuthenticated()
+        && canEditBlueprint(request.resource.data.blueprint_id)
+        && request.resource.data.creator_id == getCurrentAccountId();
+      
+      // Allow update if user can edit the blueprint
+      allow update: if isAuthenticated()
+        && canEditBlueprint(resource.data.blueprint_id);
+      
+      // Allow delete if user can edit the blueprint
+      allow delete: if isAuthenticated()
+        && canDeleteBlueprint(resource.data.blueprint_id);
+    }
+    
+    // ==========================================
+    // Logs Collection Rules (Top-Level)
+    // ==========================================
+    
+    match /logs/{logId} {
+      // Allow read if user can read the associated blueprint
+      allow read: if isAuthenticated()
+        && canReadBlueprint(resource.data.blueprint_id);
+      
+      // Allow create if user can edit the blueprint
+      allow create: if isAuthenticated()
+        && canEditBlueprint(request.resource.data.blueprint_id)
+        && request.resource.data.creator_id == getCurrentAccountId();
+      
+      // Allow update if user can edit the blueprint
+      allow update: if isAuthenticated()
+        && canEditBlueprint(resource.data.blueprint_id);
+      
+      // Allow delete if user can edit the blueprint
+      allow delete: if isAuthenticated()
+        && canDeleteBlueprint(resource.data.blueprint_id);
+    }
   }
 }

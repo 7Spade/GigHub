@@ -22,3 +22,5 @@ export * from './log-supabase.repository';
 
 // Firestore Repositories (new)
 export * from './base/firestore-base.repository';
+export * from './task-firestore.repository';
+export * from './log-firestore.repository';

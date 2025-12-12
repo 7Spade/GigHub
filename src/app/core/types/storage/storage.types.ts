@@ -60,6 +60,8 @@ export interface UploadOptions {
   contentType?: string;
   /** Whether to upsert (overwrite if exists) */
   upsert?: boolean;
+  /** Custom metadata */
+  metadata?: Record<string, string>;
 }
 
 /**
