@@ -54,8 +54,8 @@ export interface TaskTreeNode {
   /** Icon name */
   icon?: string;
 
-  /** Additional data */
-  [key: string]: any;
+  /** Reference to the original task */
+  task?: any;
 }
 
 /**
