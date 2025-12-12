@@ -27,20 +27,39 @@ This directory contains database migrations for the GigHub construction site pro
 
 ## 🚀 How to Apply Migrations
 
-### Method 1: Using Supabase MCP (Recommended)
+### Method 1: Using Automated Deployment Script (Recommended) ✨
 
-如果您的環境已配置 Supabase MCP（在 `.github/copilot/mcp-servers.yml` 中），可以透過 GitHub Copilot 直接執行遷移。
+**最簡單的方法！** 使用專案提供的自動化腳本一鍵部署所有 migrations。
 
 **Requirements:**
-- GitHub Copilot with MCP enabled
-- Supabase MCP server configured with project credentials
+- PostgreSQL client (`psql`) installed
+- Database connection URL
 - Project Reference: `zecsbstjqjqoytwgjyct`
 
-**Steps via Copilot:**
-1. Open GitHub Copilot Chat
-2. Request: "Execute Supabase migration 20251212_04_task_quantity_expansion.sql using MCP"
-3. The MCP server will connect to your Supabase project and execute the SQL
-4. Verify the changes in Supabase Dashboard
+**Steps:**
+```bash
+# 1. Set database connection
+export DATABASE_URL='postgresql://postgres:YOUR_PASSWORD@db.zecsbstjqjqoytwgjyct.supabase.co:5432/postgres'
+
+# 2. Run deployment script
+cd /path/to/GigHub
+./supabase/deploy-migrations.sh
+
+# 3. Verify deployment
+psql "$DATABASE_URL" -f supabase/verify-deployment.sql
+```
+
+**Features:**
+- ✅ Automatic environment checks
+- ✅ Database connection testing
+- ✅ Sequential migration execution
+- ✅ Real-time progress display
+- ✅ Error handling and reporting
+- ✅ Post-deployment verification
+
+詳細說明請參考：
+- 完整指南：[../部署指南.md](../部署指南.md)
+- 快速參考：[../QUICK_DEPLOY.md](../QUICK_DEPLOY.md)
 
 ### Method 2: Using Supabase Dashboard (Manual)
 
