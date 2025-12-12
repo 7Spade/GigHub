@@ -13,16 +13,28 @@
   <!-- Azure Dragon Theme Preloader Styles -->
   <style type="text/css">
     /* ============================================
-     * Azure Dragon Theme - Construction Preloader
-     * 青龍主題 - 建築施工進度載入動畫
+     * 青龍主題載入動畫 (Azure Dragon Theme Preloader)
      * ============================================
-     * Design: Professional construction crane animation
-     * Colors: Azure Dragon gradient (#0EA5E9 → #14B8A6)
-     * Performance: GPU-accelerated (transform, opacity)
-     * Compatibility: Modern browsers (CSS3 animations)
+     * 設計概念 (Design Concept):
+     * - 青龍 (Qinglong/Azure Dragon) - 中國四聖獸之東方神獸
+     * - 象徵: 春季、生機、東方、木元素
+     * - 視覺: 蜿蜒飛舞、龍鱗閃爍、祥雲飄動
+     * 
+     * 顏色方案 (Color Scheme):
+     * - Primary: #0EA5E9 (Sky Blue) - 天空藍
+     * - Secondary: #14B8A6 (Teal) - 青綠色
+     * - Accent: #06B6D4 (Cyan) - 青藍色
+     * - Glow: rgba(14, 165, 233, 0.6) - 光暈效果
+     * 
+     * 效能 (Performance):
+     * - GPU 加速 (transform, opacity, filter)
+     * - 60fps 流暢動畫
+     * - 響應式設計支援所有設備
      * ============================================ */
     
-    /* Preloader Container */
+    /* ============================================
+     * 預載器容器 (Preloader Container)
+     * ============================================ */
     .preloader {
       position: fixed;
       top: 0;
@@ -31,7 +43,11 @@
       width: 100%;
       height: 100%;
       overflow: hidden;
-      background: linear-gradient(135deg, #0EA5E9 0%, #14B8A6 100%);
+      /* 東方天空漸變背景 (Eastern Sky Gradient) */
+      background: 
+        radial-gradient(ellipse at top, rgba(14, 165, 233, 0.3) 0%, transparent 50%),
+        radial-gradient(ellipse at bottom, rgba(20, 184, 166, 0.3) 0%, transparent 50%),
+        linear-gradient(135deg, #0EA5E9 0%, #14B8A6 50%, #06B6D4 100%);
       transition: opacity 0.65s cubic-bezier(0.4, 0, 0.2, 1);
     }
     
@@ -48,8 +64,22 @@
       display: none;
     }
     
-    /* Loader Container */
+    /* 主要載入器容器 (Main Loader Container) */
     .cs-loader {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 300px;
+      height: 300px;
+    }
+    
+    /* ============================================
+     * 青龍主體動畫元素 (Azure Dragon Main Elements)
+     * ============================================ */
+    
+    /* 青龍身體容器 (Dragon Body Container) */
+    .dragon-container {
       position: absolute;
       top: 50%;
       left: 50%;
@@ -58,219 +88,296 @@
       height: 200px;
     }
     
-    /* Construction Site Base */
-    .construction-base {
+    /* 青龍能量核心 (Dragon Energy Core) */
+    .dragon-orb {
       position: absolute;
-      bottom: 20px;
+      top: 50%;
       left: 50%;
-      transform: translateX(-50%);
-      width: 180px;
-      height: 4px;
-      background: rgba(255, 255, 255, 0.3);
-      border-radius: 2px;
-    }
-    
-    /* Crane Structure */
-    .crane {
-      position: absolute;
-      bottom: 24px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 4px;
-      height: 100px;
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.7) 100%);
-      border-radius: 2px;
-    }
-    
-    /* Crane Arm (Horizontal) */
-    .crane-arm {
-      position: absolute;
-      top: 0;
-      left: 50%;
-      transform-origin: left center;
-      width: 120px;
-      height: 3px;
-      background: linear-gradient(90deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 255, 255, 0.6) 100%);
-      border-radius: 2px;
-      animation: crane-swing 3s ease-in-out infinite;
-    }
-    
-    /* Hook Cable */
-    .crane-cable {
-      position: absolute;
-      right: 10px;
-      top: 0;
-      width: 2px;
-      height: 50px;
-      background: rgba(255, 255, 255, 0.5);
-      transform-origin: top center;
-      animation: cable-bounce 3s ease-in-out infinite;
-    }
-    
-    /* Construction Block */
-    .construction-block {
-      position: absolute;
-      right: -8px;
-      bottom: -16px;
-      width: 18px;
-      height: 18px;
-      background: linear-gradient(135deg, #FFFFFF 0%, #E6F7FF 100%);
-      border-radius: 2px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-      animation: block-lift 3s ease-in-out infinite;
-    }
-    
-    /* Progress Dots */
-    .progress-dots {
-      position: absolute;
-      bottom: -40px;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      gap: 8px;
-    }
-    
-    .progress-dot {
-      width: 8px;
-      height: 8px;
-      background: rgba(255, 255, 255, 0.4);
+      transform: translate(-50%, -50%);
+      width: 60px;
+      height: 60px;
+      background: 
+        radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.8) 0%, transparent 30%),
+        radial-gradient(circle, rgba(6, 182, 212, 0.9) 0%, rgba(14, 165, 233, 0.6) 50%, rgba(20, 184, 166, 0.4) 100%);
       border-radius: 50%;
-      animation: dot-pulse 1.5s ease-in-out infinite;
+      box-shadow: 
+        0 0 30px rgba(14, 165, 233, 0.8),
+        0 0 60px rgba(20, 184, 166, 0.6),
+        inset 0 0 20px rgba(255, 255, 255, 0.3);
+      animation: orb-pulse 2s ease-in-out infinite;
     }
     
-    .progress-dot:nth-child(1) { animation-delay: 0s; }
-    .progress-dot:nth-child(2) { animation-delay: 0.2s; }
-    .progress-dot:nth-child(3) { animation-delay: 0.4s; }
-    .progress-dot:nth-child(4) { animation-delay: 0.6s; }
-    .progress-dot:nth-child(5) { animation-delay: 0.8s; }
+    /* 青龍身體環 (Dragon Body Rings) */
+    .dragon-ring {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      border: 2px solid rgba(255, 255, 255, 0.6);
+      border-radius: 50%;
+      animation: dragon-spiral 4s linear infinite;
+    }
     
-    /* Loading Text */
+    .dragon-ring:nth-child(1) {
+      width: 80px;
+      height: 80px;
+      margin: -40px 0 0 -40px;
+      animation-delay: 0s;
+    }
+    
+    .dragon-ring:nth-child(2) {
+      width: 120px;
+      height: 120px;
+      margin: -60px 0 0 -60px;
+      animation-delay: -1s;
+      border-width: 3px;
+    }
+    
+    .dragon-ring:nth-child(3) {
+      width: 160px;
+      height: 160px;
+      margin: -80px 0 0 -80px;
+      animation-delay: -2s;
+      border-width: 2px;
+    }
+    
+    .dragon-ring:nth-child(4) {
+      width: 200px;
+      height: 200px;
+      margin: -100px 0 0 -100px;
+      animation-delay: -3s;
+      border-width: 1px;
+    }
+    
+    /* 龍鱗效果 (Dragon Scales) */
+    .dragon-scale {
+      position: absolute;
+      width: 8px;
+      height: 12px;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(14, 165, 233, 0.6) 100%);
+      border-radius: 50% 50% 0 0;
+      opacity: 0;
+      animation: scale-shimmer 3s ease-in-out infinite;
+    }
+    
+    .dragon-scale:nth-child(1) { top: 20%; left: 50%; animation-delay: 0s; }
+    .dragon-scale:nth-child(2) { top: 30%; left: 70%; animation-delay: 0.3s; }
+    .dragon-scale:nth-child(3) { top: 50%; left: 80%; animation-delay: 0.6s; }
+    .dragon-scale:nth-child(4) { top: 70%; left: 70%; animation-delay: 0.9s; }
+    .dragon-scale:nth-child(5) { top: 80%; left: 50%; animation-delay: 1.2s; }
+    .dragon-scale:nth-child(6) { top: 70%; left: 30%; animation-delay: 1.5s; }
+    .dragon-scale:nth-child(7) { top: 50%; left: 20%; animation-delay: 1.8s; }
+    .dragon-scale:nth-child(8) { top: 30%; left: 30%; animation-delay: 2.1s; }
+    
+    /* 祥雲元素 (Auspicious Clouds) */
+    .cloud {
+      position: absolute;
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 100px;
+      opacity: 0.6;
+      animation: cloud-float 8s ease-in-out infinite;
+    }
+    
+    .cloud:nth-child(1) {
+      top: 10%;
+      left: -10%;
+      width: 80px;
+      height: 30px;
+      animation-delay: 0s;
+    }
+    
+    .cloud:nth-child(2) {
+      top: 20%;
+      right: -10%;
+      width: 100px;
+      height: 35px;
+      animation-delay: -2s;
+    }
+    
+    .cloud:nth-child(3) {
+      bottom: 15%;
+      left: -5%;
+      width: 70px;
+      height: 25px;
+      animation-delay: -4s;
+    }
+    
+    .cloud:nth-child(4) {
+      bottom: 10%;
+      right: -5%;
+      width: 90px;
+      height: 32px;
+      animation-delay: -6s;
+    }
+    
+    /* ============================================
+     * 文字與進度條元素 (Text & Progress Elements)
+     * ============================================ */
+    
+    /* 載入文字 (Loading Text) */
     .loading-text {
       position: absolute;
-      bottom: -70px;
+      bottom: -110px;
       left: 50%;
       transform: translateX(-50%);
       color: rgba(255, 255, 255, 0.95);
-      font-size: 16px;
-      font-weight: 500;
-      letter-spacing: 2px;
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: 3px;
       white-space: nowrap;
-      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      text-shadow: 
+        0 2px 4px rgba(0, 0, 0, 0.2),
+        0 0 10px rgba(14, 165, 233, 0.5);
+      animation: text-glow 2s ease-in-out infinite;
     }
     
-    /* Progress Bar Container */
+    /* 進度條容器 (Progress Bar Container) */
     .progress-bar-container {
       position: absolute;
-      bottom: -100px;
+      bottom: -145px;
       left: 50%;
       transform: translateX(-50%);
-      width: 200px;
-      height: 6px;
+      width: 240px;
+      height: 8px;
       background: rgba(255, 255, 255, 0.2);
-      border-radius: 3px;
+      border-radius: 4px;
       overflow: hidden;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      box-shadow: 
+        0 2px 6px rgba(0, 0, 0, 0.15),
+        inset 0 1px 2px rgba(0, 0, 0, 0.1);
     }
     
-    /* Progress Bar Fill - Azure Dragon Theme */
+    /* 進度條填充 - 青龍主題 (Progress Bar Fill - Azure Dragon) */
     .progress-bar-fill {
       height: 100%;
       width: 0%;
       background: linear-gradient(90deg, 
         #0EA5E9 0%, 
-        #14B8A6 50%, 
+        #14B8A6 25%,
+        #06B6D4 50%,
+        #14B8A6 75%, 
         #0EA5E9 100%);
       background-size: 200% 100%;
-      border-radius: 3px;
-      box-shadow: 0 0 10px rgba(14, 165, 233, 0.5);
-      animation: progress-fill 3s ease-in-out infinite,
-                 progress-shimmer 2s linear infinite;
+      border-radius: 4px;
+      box-shadow: 
+        0 0 15px rgba(14, 165, 233, 0.6),
+        0 0 30px rgba(20, 184, 166, 0.4);
+      animation: progress-shimmer 2s linear infinite;
+      position: relative;
     }
     
-    /* Progress Percentage Text */
+    /* 進度條光點 (Progress Bar Glow) */
+    .progress-bar-fill::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 40px;
+      height: 100%;
+      background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.6) 100%);
+      border-radius: 0 4px 4px 0;
+    }
+    
+    /* 進度百分比文字 (Progress Percentage) */
     .progress-percentage {
       position: absolute;
-      bottom: -125px;
+      bottom: -175px;
       left: 50%;
       transform: translateX(-50%);
-      color: rgba(255, 255, 255, 0.8);
-      font-size: 12px;
-      font-weight: 400;
-      letter-spacing: 1px;
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 2px;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
     }
     
     /* ============================================
-     * Keyframe Animations
+     * 關鍵幀動畫 (Keyframe Animations)
      * ============================================ */
     
-    /* Crane Arm Swing Animation */
-    @keyframes crane-swing {
+    /* 能量核心脈動 (Energy Orb Pulse) */
+    @keyframes orb-pulse {
       0%, 100% {
-        transform: rotate(-5deg);
+        transform: translate(-50%, -50%) scale(1);
+        box-shadow: 
+          0 0 30px rgba(14, 165, 233, 0.8),
+          0 0 60px rgba(20, 184, 166, 0.6),
+          inset 0 0 20px rgba(255, 255, 255, 0.3);
       }
       50% {
-        transform: rotate(5deg);
+        transform: translate(-50%, -50%) scale(1.1);
+        box-shadow: 
+          0 0 40px rgba(14, 165, 233, 1),
+          0 0 80px rgba(20, 184, 166, 0.8),
+          inset 0 0 25px rgba(255, 255, 255, 0.5);
       }
     }
     
-    /* Cable Bounce Animation */
-    @keyframes cable-bounce {
-      0%, 100% {
-        height: 50px;
+    /* 青龍螺旋飛舞 (Dragon Spiral Flight) */
+    @keyframes dragon-spiral {
+      0% {
+        transform: rotate(0deg) scale(1);
+        opacity: 0.3;
+      }
+      25% {
+        opacity: 0.6;
       }
       50% {
-        height: 30px;
-      }
-    }
-    
-    /* Block Lift Animation */
-    @keyframes block-lift {
-      0%, 100% {
-        transform: translateY(0);
-        opacity: 1;
-      }
-      50% {
-        transform: translateY(-20px);
+        transform: rotate(180deg) scale(1.05);
         opacity: 0.8;
       }
-    }
-    
-    /* Dot Pulse Animation */
-    @keyframes dot-pulse {
-      0%, 100% {
-        background: rgba(255, 255, 255, 0.4);
-        transform: scale(1);
-      }
-      50% {
-        background: rgba(255, 255, 255, 0.9);
-        transform: scale(1.2);
-      }
-    }
-    
-    /* Glow Effect */
-    @keyframes glow-pulse {
-      0%, 100% {
-        box-shadow: 0 0 10px rgba(14, 165, 233, 0.3);
-      }
-      50% {
-        box-shadow: 0 0 20px rgba(20, 184, 166, 0.5);
-      }
-    }
-    
-    /* Progress Bar Fill Animation */
-    @keyframes progress-fill {
-      0% {
-        width: 0%;
-      }
-      50% {
-        width: 75%;
+      75% {
+        opacity: 0.6;
       }
       100% {
-        width: 100%;
+        transform: rotate(360deg) scale(1);
+        opacity: 0.3;
       }
     }
     
-    /* Progress Bar Shimmer - Azure Dragon Effect */
+    /* 龍鱗閃爍 (Dragon Scale Shimmer) */
+    @keyframes scale-shimmer {
+      0%, 100% {
+        opacity: 0;
+        transform: scale(0.5) translateY(0);
+      }
+      50% {
+        opacity: 1;
+        transform: scale(1) translateY(-5px);
+      }
+    }
+    
+    /* 祥雲飄動 (Cloud Float) */
+    @keyframes cloud-float {
+      0% {
+        transform: translateX(0) translateY(0);
+        opacity: 0.4;
+      }
+      50% {
+        transform: translateX(30px) translateY(-10px);
+        opacity: 0.7;
+      }
+      100% {
+        transform: translateX(0) translateY(0);
+        opacity: 0.4;
+      }
+    }
+    
+    /* 文字光暈 (Text Glow) */
+    @keyframes text-glow {
+      0%, 100% {
+        text-shadow: 
+          0 2px 4px rgba(0, 0, 0, 0.2),
+          0 0 10px rgba(14, 165, 233, 0.5);
+      }
+      50% {
+        text-shadow: 
+          0 2px 4px rgba(0, 0, 0, 0.2),
+          0 0 20px rgba(14, 165, 233, 0.8),
+          0 0 30px rgba(20, 184, 166, 0.6);
+      }
+    }
+    
+    /* 進度條流光 (Progress Shimmer) */
     @keyframes progress-shimmer {
       0% {
         background-position: 0% 50%;
@@ -281,32 +388,119 @@
     }
     
     /* ============================================
-     * Responsive Design
+     * 響應式設計 (Responsive Design)
      * ============================================ */
     @media (max-width: 768px) {
       .cs-loader {
-        width: 150px;
-        height: 150px;
+        width: 240px;
+        height: 240px;
       }
       
-      .crane {
-        height: 80px;
+      .dragon-orb {
+        width: 50px;
+        height: 50px;
       }
       
-      .crane-arm {
+      .dragon-ring:nth-child(1) {
+        width: 70px;
+        height: 70px;
+        margin: -35px 0 0 -35px;
+      }
+      
+      .dragon-ring:nth-child(2) {
         width: 100px;
+        height: 100px;
+        margin: -50px 0 0 -50px;
+      }
+      
+      .dragon-ring:nth-child(3) {
+        width: 130px;
+        height: 130px;
+        margin: -65px 0 0 -65px;
+      }
+      
+      .dragon-ring:nth-child(4) {
+        width: 160px;
+        height: 160px;
+        margin: -80px 0 0 -80px;
+      }
+      
+      .loading-text {
+        font-size: 16px;
+        letter-spacing: 2px;
+        bottom: -100px;
+      }
+      
+      .progress-bar-container {
+        width: 200px;
+        bottom: -130px;
+      }
+      
+      .progress-percentage {
+        font-size: 12px;
+        bottom: -155px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .cs-loader {
+        width: 200px;
+        height: 200px;
+      }
+      
+      .dragon-orb {
+        width: 40px;
+        height: 40px;
+      }
+      
+      .dragon-ring:nth-child(1) {
+        width: 60px;
+        height: 60px;
+        margin: -30px 0 0 -30px;
+      }
+      
+      .dragon-ring:nth-child(2) {
+        width: 85px;
+        height: 85px;
+        margin: -42.5px 0 0 -42.5px;
+      }
+      
+      .dragon-ring:nth-child(3) {
+        width: 110px;
+        height: 110px;
+        margin: -55px 0 0 -55px;
+      }
+      
+      .dragon-ring:nth-child(4) {
+        width: 135px;
+        height: 135px;
+        margin: -67.5px 0 0 -67.5px;
       }
       
       .loading-text {
         font-size: 14px;
+        letter-spacing: 1.5px;
+        bottom: -85px;
       }
       
       .progress-bar-container {
-        width: 150px;
+        width: 160px;
+        height: 6px;
+        bottom: -110px;
       }
       
       .progress-percentage {
         font-size: 11px;
+        bottom: -135px;
+      }
+    }
+    
+    /* 減少動態效果 (Reduced Motion Support) */
+    @media (prefers-reduced-motion: reduce) {
+      .preloader * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
       }
     }
   </style>
@@ -314,74 +508,108 @@
 
 <body>
   <app-root></app-root>
+  <!-- ============================================
+   * 青龍主題預載器 (Azure Dragon Theme Preloader)
+   * ============================================ -->
   <div class="preloader">
+    <!-- 祥雲背景層 (Auspicious Clouds Background) -->
+    <div class="cloud"></div>
+    <div class="cloud"></div>
+    <div class="cloud"></div>
+    <div class="cloud"></div>
+    
+    <!-- 主要載入動畫容器 (Main Loader Container) -->
     <div class="cs-loader">
-      <!-- Construction Site Base -->
-      <div class="construction-base"></div>
-      
-      <!-- Crane Structure -->
-      <div class="crane">
-        <!-- Crane Arm -->
-        <div class="crane-arm">
-          <!-- Hook Cable -->
-          <div class="crane-cable">
-            <!-- Construction Block -->
-            <div class="construction-block"></div>
-          </div>
-        </div>
+      <!-- 青龍身體容器 (Dragon Body Container) -->
+      <div class="dragon-container">
+        <!-- 青龍能量核心 (Dragon Energy Core) -->
+        <div class="dragon-orb"></div>
+        
+        <!-- 青龍身體環 - 螺旋飛舞效果 (Dragon Body Rings - Spiral Flight) -->
+        <div class="dragon-ring"></div>
+        <div class="dragon-ring"></div>
+        <div class="dragon-ring"></div>
+        <div class="dragon-ring"></div>
+        
+        <!-- 龍鱗閃爍效果 (Dragon Scales Shimmer) -->
+        <div class="dragon-scale"></div>
+        <div class="dragon-scale"></div>
+        <div class="dragon-scale"></div>
+        <div class="dragon-scale"></div>
+        <div class="dragon-scale"></div>
+        <div class="dragon-scale"></div>
+        <div class="dragon-scale"></div>
+        <div class="dragon-scale"></div>
       </div>
       
-      <!-- Progress Dots -->
-      <div class="progress-dots">
-        <div class="progress-dot"></div>
-        <div class="progress-dot"></div>
-        <div class="progress-dot"></div>
-        <div class="progress-dot"></div>
-        <div class="progress-dot"></div>
-      </div>
+      <!-- 載入文字 (Loading Text) -->
+      <div class="loading-text">正在喚醒青龍...</div>
       
-      <!-- Loading Text -->
-      <div class="loading-text">正在載入 GigHub...</div>
-      
-      <!-- Progress Bar with Azure Dragon Theme -->
+      <!-- 進度條 - 青龍主題 (Progress Bar - Azure Dragon Theme) -->
       <div class="progress-bar-container">
         <div class="progress-bar-fill"></div>
       </div>
       
-      <!-- Progress Percentage -->
+      <!-- 進度百分比 (Progress Percentage) -->
       <div class="progress-percentage">0%</div>
     </div>
   </div>
   
-  <!-- Progress Bar JavaScript - Simulated Loading -->
+  <!-- ============================================
+   * 進度條 JavaScript - 模擬載入進度
+   * Progress Bar JavaScript - Simulated Loading
+   * ============================================ -->
   <script>
     (function() {
       'use strict';
       
-      // Simulate progress bar loading
+      // 獲取元素 (Get elements)
       var progressFill = document.querySelector('.progress-bar-fill');
       var progressText = document.querySelector('.progress-percentage');
+      var loadingText = document.querySelector('.loading-text');
+      
+      // 青龍喚醒階段文字 (Azure Dragon awakening phase texts)
+      var phaseTexts = [
+        '正在喚醒青龍...',
+        '青龍甦醒中...',
+        '龍鱗閃耀...',
+        '能量凝聚...',
+        '青龍降臨！'
+      ];
+      
       var progress = 0;
       var targetProgress = 100;
-      var duration = 3000; // 3 seconds to match animation
+      var duration = 4000; // 4 seconds for smooth animation
       var startTime = Date.now();
+      var currentPhase = 0;
       
       function updateProgress() {
         var elapsed = Date.now() - startTime;
         var percentage = Math.min((elapsed / duration) * 100, targetProgress);
         progress = Math.floor(percentage);
         
+        // 更新進度條 (Update progress bar)
         if (progressFill && progressText) {
           progressFill.style.width = progress + '%';
           progressText.textContent = progress + '%';
         }
         
+        // 更新載入文字階段 (Update loading text phase)
+        if (loadingText) {
+          var newPhase = Math.floor(progress / 20); // Change text every 20%
+          if (newPhase !== currentPhase && newPhase < phaseTexts.length) {
+            currentPhase = newPhase;
+            loadingText.textContent = phaseTexts[currentPhase];
+          }
+        }
+        
+        // 繼續動畫 (Continue animation)
         if (progress < targetProgress) {
           requestAnimationFrame(updateProgress);
         }
       }
       
-      // Start progress animation
+      // 啟動進度動畫 (Start progress animation)
       requestAnimationFrame(updateProgress);
     })();
   </script>
