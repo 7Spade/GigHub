@@ -158,6 +158,47 @@
       text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
     
+    /* Progress Bar Container */
+    .progress-bar-container {
+      position: absolute;
+      bottom: -100px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 200px;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 3px;
+      overflow: hidden;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Progress Bar Fill - Azure Dragon Theme */
+    .progress-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, 
+        #0EA5E9 0%, 
+        #14B8A6 50%, 
+        #0EA5E9 100%);
+      background-size: 200% 100%;
+      border-radius: 3px;
+      box-shadow: 0 0 10px rgba(14, 165, 233, 0.5);
+      animation: progress-fill 3s ease-in-out infinite,
+                 progress-shimmer 2s linear infinite;
+    }
+    
+    /* Progress Percentage Text */
+    .progress-percentage {
+      position: absolute;
+      bottom: -125px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 12px;
+      font-weight: 400;
+      letter-spacing: 1px;
+    }
+    
     /* ============================================
      * Keyframe Animations
      * ============================================ */
@@ -216,6 +257,29 @@
       }
     }
     
+    /* Progress Bar Fill Animation */
+    @keyframes progress-fill {
+      0% {
+        width: 0%;
+      }
+      50% {
+        width: 75%;
+      }
+      100% {
+        width: 100%;
+      }
+    }
+    
+    /* Progress Bar Shimmer - Azure Dragon Effect */
+    @keyframes progress-shimmer {
+      0% {
+        background-position: 0% 50%;
+      }
+      100% {
+        background-position: 200% 50%;
+      }
+    }
+    
     /* ============================================
      * Responsive Design
      * ============================================ */
@@ -235,6 +299,14 @@
       
       .loading-text {
         font-size: 14px;
+      }
+      
+      .progress-bar-container {
+        width: 150px;
+      }
+      
+      .progress-percentage {
+        font-size: 11px;
       }
     }
   </style>
@@ -270,8 +342,49 @@
       
       <!-- Loading Text -->
       <div class="loading-text">正在載入 GigHub...</div>
+      
+      <!-- Progress Bar with Azure Dragon Theme -->
+      <div class="progress-bar-container">
+        <div class="progress-bar-fill"></div>
+      </div>
+      
+      <!-- Progress Percentage -->
+      <div class="progress-percentage">0%</div>
     </div>
   </div>
+  
+  <!-- Progress Bar JavaScript - Simulated Loading -->
+  <script>
+    (function() {
+      'use strict';
+      
+      // Simulate progress bar loading
+      var progressFill = document.querySelector('.progress-bar-fill');
+      var progressText = document.querySelector('.progress-percentage');
+      var progress = 0;
+      var targetProgress = 100;
+      var duration = 3000; // 3 seconds to match animation
+      var startTime = Date.now();
+      
+      function updateProgress() {
+        var elapsed = Date.now() - startTime;
+        var percentage = Math.min((elapsed / duration) * 100, targetProgress);
+        progress = Math.floor(percentage);
+        
+        if (progressFill && progressText) {
+          progressFill.style.width = progress + '%';
+          progressText.textContent = progress + '%';
+        }
+        
+        if (progress < targetProgress) {
+          requestAnimationFrame(updateProgress);
+        }
+      }
+      
+      // Start progress animation
+      requestAnimationFrame(updateProgress);
+    })();
+  </script>
 </body>
 
 </html>
