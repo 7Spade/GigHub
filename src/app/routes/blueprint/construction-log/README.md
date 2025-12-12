@@ -177,20 +177,73 @@ interface LogPhoto {
 
 ## Database Setup
 
-### Required Tables
+⚠️ **IMPORTANT**: This module requires database setup before use!
 
-Execute the SQL script located at `docs/database/construction_logs.sql` to create:
-- `construction_logs` table with all required fields and indexes
-- RLS policies for secure access
-- Triggers for automatic timestamp updates
+### Quick Setup (Recommended)
 
-### Required Storage Bucket
+Execute the complete setup script in Supabase SQL Editor:
 
-Create a Supabase Storage bucket named `construction-photos`:
-1. Navigate to Supabase Dashboard → Storage
-2. Create new bucket: `construction-photos`
-3. Set to **private** (not public)
-4. Apply RLS policies (included in SQL script comments)
+```bash
+# Location: docs/database/construction_logs_complete.sql
+```
+
+This script will:
+- ✅ Create `construction_logs` table with all fields
+- ✅ Create 5 indexes for optimal performance
+- ✅ Enable Row Level Security (RLS)
+- ✅ Create 4 RLS policies for secure access
+- ✅ Add automatic timestamp update trigger
+- ✅ Add storage bucket policies
+- ✅ Run verification queries
+
+### Detailed Setup Guide
+
+For step-by-step instructions, see:
+```
+docs/database/SETUP_CONSTRUCTION_LOGS.md
+```
+
+This guide includes:
+- Complete SQL setup commands
+- Storage bucket configuration
+- RLS policy explanations
+- Verification steps
+- Troubleshooting tips
+- Rollback instructions
+
+### Manual Setup Steps
+
+1. **Create Table**:
+   - Execute: `docs/database/construction_logs.sql`
+   - Or use complete script: `docs/database/construction_logs_complete.sql`
+
+2. **Create Storage Bucket**:
+   - Navigate to Supabase Dashboard → Storage
+   - Click "New bucket"
+   - Name: `construction-photos`
+   - Set to **Public** (for photo viewing)
+   - Click "Create bucket"
+
+3. **Verify Setup**:
+   ```sql
+   -- Check table exists
+   SELECT * FROM public.construction_logs LIMIT 1;
+   
+   -- Check RLS is enabled
+   SELECT tablename, rowsecurity FROM pg_tables 
+   WHERE tablename = 'construction_logs';
+   
+   -- Check storage bucket
+   SELECT * FROM storage.buckets WHERE name = 'construction-photos';
+   ```
+
+### First Time Setup Checklist
+
+- [ ] Execute `construction_logs_complete.sql` in Supabase SQL Editor
+- [ ] Create storage bucket `construction-photos` in Supabase Dashboard
+- [ ] Verify table creation with test query
+- [ ] Verify RLS is enabled
+- [ ] Test feature in application
 
 ## Development Guidelines
 
