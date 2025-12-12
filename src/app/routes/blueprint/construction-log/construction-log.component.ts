@@ -16,10 +16,9 @@
  * @date 2025-12-11
  */
 
-import { Component, OnInit, inject, signal, computed, input } from '@angular/core';
-import { Log, CreateLogRequest, UpdateLogRequest } from '@core/types/log/log.types';
-import { STColumn, STData, STChange } from '@delon/abc/st';
-import { SFSchema } from '@delon/form';
+import { Component, OnInit, inject, input } from '@angular/core';
+import { Log } from '@core/types/log/log.types';
+import { STColumn, STChange } from '@delon/abc/st';
 import { SHARED_IMPORTS } from '@shared';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzModalService } from 'ng-zorro-antd/modal';

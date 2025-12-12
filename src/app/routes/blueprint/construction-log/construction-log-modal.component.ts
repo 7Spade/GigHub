@@ -306,7 +306,7 @@ export class ConstructionLogModalComponent implements OnInit {
       equipment: formValue.equipment,
       weather: formValue.weather,
       temperature: formValue.temperature,
-      creatorId: 'current-user' // TODO: Get from auth service
+      creatorId: '' // Will be set by store using FirebaseService
     };
 
     const newLog = await this.logStore.createLog(request);
