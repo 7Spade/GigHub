@@ -11,13 +11,13 @@
 import { Component, OnInit, inject, signal, computed, input, effect } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { STColumn, STData } from '@delon/abc/st';
-import { NzModalService } from 'ng-zorro-antd/modal';
-import { NzMessageService } from 'ng-zorro-antd/message';
 import { SHARED_IMPORTS } from '@shared';
+import { NzMessageService } from 'ng-zorro-antd/message';
+import { NzModalService } from 'ng-zorro-antd/modal';
 
+import { TaskModalComponent } from './task-modal.component';
 import { TaskStatus, TaskPriority, CreateTaskData } from './tasks.repository';
 import { TasksService } from './tasks.service';
-import { TaskModalComponent } from './task-modal.component';
 
 @Component({
   selector: 'app-tasks',
@@ -214,7 +214,7 @@ export class TasksComponent implements OnInit {
       nzMaskClosable: false
     });
 
-    modalRef.afterClose.subscribe((result) => {
+    modalRef.afterClose.subscribe(result => {
       if (result?.success) {
         this.message.success('任務新增成功');
         // Task is already added to service state by the service
@@ -242,7 +242,7 @@ export class TasksComponent implements OnInit {
       nzMaskClosable: false
     });
 
-    modalRef.afterClose.subscribe((result) => {
+    modalRef.afterClose.subscribe(result => {
       if (result?.success) {
         this.message.success('任務更新成功');
         // Task is already updated in service state
