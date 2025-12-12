@@ -4,6 +4,8 @@ import { TasksRepository } from '@core/blueprint/modules/implementations/tasks/t
 import { AuditLogRepository, CreateAuditLogData } from '@core/blueprint/repositories/audit-log.repository';
 import { AuditEventType, AuditCategory, AuditSeverity, ActorType, AuditStatus } from '@core/models/audit-log.model';
 import { Task, TaskStatus, TaskPriority, CreateTaskRequest, UpdateTaskRequest } from '@core/types/task';
+import { EventBus } from '@core/blueprint/events/event-bus';
+import { TASKS_MODULE_EVENTS } from '@core/blueprint/modules/implementations/tasks/module.metadata';
 import { firstValueFrom } from 'rxjs';
 
 /**
@@ -26,6 +28,7 @@ export class TaskStore {
   private readonly repository = inject(TasksRepository);
   private readonly auditLogRepository = inject(AuditLogRepository);
   private readonly logger = inject(LoggerService);
+  private readonly eventBus = inject(EventBus);
 
   // Private state
   private _tasks = signal<Task[]>([]);
@@ -112,6 +115,17 @@ export class TaskStore {
       // Update local state
       this._tasks.update(tasks => [newTask, ...tasks]);
 
+      // Emit event to EventBus
+      this.eventBus.emit(
+        TASKS_MODULE_EVENTS.TASK_CREATED,
+        {
+          taskId: newTask.id,
+          blueprintId,
+          task: newTask
+        },
+        'tasks-module'
+      );
+
       // Log audit event
       await this.logAuditEvent(blueprintId, {
         blueprintId,
@@ -148,6 +162,17 @@ export class TaskStore {
       // Update local state
       this._tasks.update(tasks => tasks.map(task => (task.id === taskId ? { ...task, ...data, updatedAt: new Date() } : task)));
 
+      // Emit event to EventBus
+      this.eventBus.emit(
+        TASKS_MODULE_EVENTS.TASK_UPDATED,
+        {
+          taskId,
+          blueprintId,
+          updates: data
+        },
+        'tasks-module'
+      );
+
       // Log audit event
       await this.logAuditEvent(blueprintId, {
         blueprintId,
@@ -183,6 +208,16 @@ export class TaskStore {
       // Remove from local state
       this._tasks.update(tasks => tasks.filter(task => task.id !== taskId));
 
+      // Emit event to EventBus
+      this.eventBus.emit(
+        TASKS_MODULE_EVENTS.TASK_DELETED,
+        {
+          taskId,
+          blueprintId
+        },
+        'tasks-module'
+      );
+
       // Log audit event
       await this.logAuditEvent(blueprintId, {
         blueprintId,
@@ -216,9 +251,31 @@ export class TaskStore {
 
     if (status === TaskStatus.COMPLETED) {
       updateData.completedDate = new Date();
+      updateData.progress = 100;
+
+      // Emit task completed event
+      this.eventBus.emit(
+        TASKS_MODULE_EVENTS.TASK_COMPLETED,
+        {
+          taskId,
+          blueprintId
+        },
+        'tasks-module'
+      );
     }
 
     await this.updateTask(blueprintId, taskId, updateData, actorId);
+
+    // Emit status changed event
+    this.eventBus.emit(
+      TASKS_MODULE_EVENTS.TASK_STATUS_CHANGED,
+      {
+        taskId,
+        blueprintId,
+        status
+      },
+      'tasks-module'
+    );
   }
 
   /**
@@ -233,13 +290,25 @@ export class TaskStore {
     actorId: string
   ): Promise<void> {
     await this.updateTask(blueprintId, taskId, { assigneeId, assigneeName }, actorId);
+
+    // Emit task assigned event
+    this.eventBus.emit(
+      TASKS_MODULE_EVENTS.TASK_ASSIGNED,
+      {
+        taskId,
+        blueprintId,
+        assigneeId,
+        assigneeName
+      },
+      'tasks-module'
+    );
   }
 
   /**
    * Get task statistics
    * 獲取任務統計
    */
-  async getTaskStatistics(blueprintId: string): Promise<Record<TaskStatus, number>> {
+  async getTaskStatistics(blueprintId: string): Promise<Record<string, number>> {
     try {
       return await this.repository.getCountByStatus(blueprintId);
     } catch (err) {
