@@ -1,33 +1,235 @@
-chunk-TB47VUZM.js:1  [ERROR] Object
-log @ chunk-TB47VUZM.js:1
-chunk-JVFA2J6E.js:4  ERROR TypeError: Cannot read properties of undefined (reading 'auth')
-    at di.setupAuthListener (chunk-YT6WAOGX.js:64:66743)
-    at new di (chunk-YT6WAOGX.js:64:65905)
-    at di.ɵfac [as factory] (chunk-YT6WAOGX.js:64:68817)
-    at qi.hydrate (chunk-JVFA2J6E.js:4:7974)
-    at qi.get (chunk-JVFA2J6E.js:4:7213)
-    at qi.get (chunk-JVFA2J6E.js:4:7285)
-    at td.get (chunk-JVFA2J6E.js:4:67249)
-    at w9 (chunk-JVFA2J6E.js:4:24109)
-    at C9 (chunk-JVFA2J6E.js:4:24314)
-    at je (chunk-JVFA2J6E.js:4:67624)
-handleError @ chunk-JVFA2J6E.js:4
-chunk-JZB7RSWJ.js:1 [MenuManagementService] Config loaded: Object
-chunk-CRIVEGDL.js:8 [LayoutBasicComponent] Menu config loaded, setting initial menu
-chunk-JZB7RSWJ.js:1 [MenuManagementService] Menu updated successfully: Object
-Tracking Prevention blocked access to storage for <URL>.
-Tracking Prevention blocked access to storage for <URL>.
-Tracking Prevention blocked access to storage for <URL>.
-Tracking Prevention blocked access to storage for <URL>.
-Tracking Prevention blocked access to storage for <URL>.
-Tracking Prevention blocked access to storage for <URL>.
-Tracking Prevention blocked access to storage for <URL>.
-Tracking Prevention blocked access to storage for <URL>.
-Tracking Prevention blocked access to storage for <URL>.
-Tracking Prevention blocked access to storage for <URL>.
-chunk-JZB7RSWJ.js:1 [WorkspaceContextService] 👤 User authenticated: 7s.i@pm.me
-chunk-JZB7RSWJ.js:1 [WorkspaceContextService] ✅ Organizations loaded: 1
-chunk-JZB7RSWJ.js:1 [WorkspaceContextService] ✅ Teams loaded: 1
-chunk-JZB7RSWJ.js:1 [WorkspaceContextService] 🔄 Auto-restoring context...
-chunk-JZB7RSWJ.js:1 [WorkspaceContextService] 💾 Restoring context from localStorage: {"type":"user","id":"HJBFUFruzyNxVz9IoAbNoSJBfcx2"}
-chunk-JZB7RSWJ.js:1 [WorkspaceContextService] ✅ Context restored: Object
+debug_node.mjs:18311 Angular is running in development mode.
+angular-fire.mjs:114  Calling Firebase APIs outside of an Injection context may destabilize your application leading to subtle change-detection and hydration bugs. Find more at https://github.com/angular/angularfire/blob/main/docs/zones.md
+warnOutsideInjectionContext @ angular-fire.mjs:114
+angular-fire.mjs:117  Firebase API called outside injection context: getDoc
+warnOutsideInjectionContext @ angular-fire.mjs:117
+browser.mjs:1628  Warning: The animation trigger "tabSwitchMotion" is attempting to animate the following not animatable properties: display
+(to check the list of all animatable properties visit https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_animated_properties)
+checkNonAnimatableInTimelines @ browser.mjs:1628
+menu-management.service.ts:65 [MenuManagementService] Config loaded: Object
+basic.component.ts:176 [LayoutBasicComponent] Menu config loaded, setting initial menu
+menu-management.service.ts:102 [MenuManagementService] Menu updated successfully: Object
+:4200/assets/outline/reload.svg:1   Failed to load resource: the server responded with a status of 404 (Not Found)
+:4200/assets/outline/export.svg:1   Failed to load resource: the server responded with a status of 404 (Not Found)
+zone.js:165  Uncaught Error: [@ant-design/icons-angular]:the icon reload-o does not exist or is not registered.
+    at IconNotFoundError (ant-design-icons-angular.mjs:90:10)
+    at ant-design-icons-angular.mjs:233:15
+    at map.js:7:37
+    at OperatorSubscriber2._this._next (OperatorSubscriber.js:15:21)
+    at Subscriber2.next (Subscriber.js:34:18)
+    at Subject.js:41:34
+    at errorContext (errorContext.js:19:9)
+    at Subject2.next (Subject.js:31:9)
+    at Object.next (share.js:46:58)
+    at ConsumerObserver2.next (Subscriber.js:96:33)
+zone.js:165  Uncaught Error: [@ant-design/icons-angular]:the icon export-o does not exist or is not registered.
+    at IconNotFoundError (ant-design-icons-angular.mjs:90:10)
+    at ant-design-icons-angular.mjs:233:15
+    at map.js:7:37
+    at OperatorSubscriber2._this._next (OperatorSubscriber.js:15:21)
+    at Subscriber2.next (Subscriber.js:34:18)
+    at Subject.js:41:34
+    at errorContext (errorContext.js:19:9)
+    at Subject2.next (Subject.js:31:9)
+    at Object.next (share.js:46:58)
+    at ConsumerObserver2.next (Subscriber.js:96:33)
+index.esm2017.js:1498 App Check debug token: 10d6c727-90c6-4776-bcb8-0f682bb4b9ac. You will need to add it to your app's App Check settings in the Firebase console for it to work.
+workspace-context.service.ts:72 [WorkspaceContextService] 👤 User authenticated: 7s.i@pm.me
+console-transport.ts:23 [INFO] Object
+angular-fire.mjs:117  Firebase API called outside injection context: getDocs
+warnOutsideInjectionContext @ angular-fire.mjs:117
+:4200/assets/outline/reload.svg:1   Failed to load resource: the server responded with a status of 404 (Not Found)
+zone.js:165  Uncaught Error: [@ant-design/icons-angular]:the icon reload-o does not exist or is not registered.
+    at IconNotFoundError (ant-design-icons-angular.mjs:90:10)
+    at ant-design-icons-angular.mjs:233:15
+    at map.js:7:37
+    at OperatorSubscriber2._this._next (OperatorSubscriber.js:15:21)
+    at Subscriber2.next (Subscriber.js:34:18)
+    at Subject.js:41:34
+    at errorContext (errorContext.js:19:9)
+    at Subject2.next (Subject.js:31:9)
+    at Object.next (share.js:46:58)
+    at ConsumerObserver2.next (Subscriber.js:96:33)
+console-transport.ts:23 [INFO] Object
+workspace-context.service.ts:87 [WorkspaceContextService] ✅ Organizations loaded: 1
+console-transport.ts:23 [INFO] Object
+:4200/assets/outline/block.svg:1   Failed to load resource: the server responded with a status of 404 (Not Found)
+zone.js:165  Uncaught Error: [@ant-design/icons-angular]:the icon block-o does not exist or is not registered.
+    at IconNotFoundError (ant-design-icons-angular.mjs:90:10)
+    at ant-design-icons-angular.mjs:233:15
+    at map.js:7:37
+    at OperatorSubscriber2._this._next (OperatorSubscriber.js:15:21)
+    at Subscriber2.next (Subscriber.js:34:18)
+    at Subject.js:41:34
+    at errorContext (errorContext.js:19:9)
+    at Subject2.next (Subject.js:31:9)
+    at Object.next (share.js:46:58)
+    at ConsumerObserver2.next (Subscriber.js:96:33)
+workspace-context.service.ts:99 [WorkspaceContextService] ✅ Teams loaded: 1
+workspace-context.service.ts:279 [WorkspaceContextService] 🔄 Auto-restoring context...
+workspace-context.service.ts:409 [WorkspaceContextService] 💾 Restoring context from localStorage: {"type":"user","id":"HJBFUFruzyNxVz9IoAbNoSJBfcx2"}
+workspace-context.service.ts:415 [WorkspaceContextService] ✅ Context restored: Object
+angular-fire.mjs:117  Firebase API called outside injection context: getDocs
+warnOutsideInjectionContext @ angular-fire.mjs:117
+console-transport.ts:23 [INFO] Object
+:4200/assets/outline/block.svg:1   Failed to load resource: the server responded with a status of 404 (Not Found)
+zone.js:165  Uncaught Error: [@ant-design/icons-angular]:the icon block-o does not exist or is not registered.
+    at IconNotFoundError (ant-design-icons-angular.mjs:90:10)
+    at ant-design-icons-angular.mjs:233:15
+    at map.js:7:37
+    at OperatorSubscriber2._this._next (OperatorSubscriber.js:15:21)
+    at Subscriber2.next (Subscriber.js:34:18)
+    at Subject.js:41:34
+    at errorContext (errorContext.js:19:9)
+    at Subject2.next (Subject.js:31:9)
+    at Object.next (share.js:46:58)
+    at ConsumerObserver2.next (Subscriber.js:96:33)
+blueprint.repository.ts:159 [BlueprintRepository] ✅ Document created with ID: 9pkctCzgsYmqIdyb4Vr6
+angular-fire.mjs:117  Firebase API called outside injection context: getDoc
+warnOutsideInjectionContext @ angular-fire.mjs:117
+blueprint.repository.ts:164 [BlueprintRepository] ✅ Document verified in Firestore: 9pkctCzgsYmqIdyb4Vr6
+console-transport.ts:23 [INFO] Object
+angular-fire.mjs:117  Firebase API called outside injection context: getDocs
+warnOutsideInjectionContext @ angular-fire.mjs:117
+console-transport.ts:23 [INFO] Object
+:4200/assets/outline/block.svg:1   Failed to load resource: the server responded with a status of 404 (Not Found)
+zone.js:165  Uncaught Error: [@ant-design/icons-angular]:the icon block-o does not exist or is not registered.
+    at IconNotFoundError (ant-design-icons-angular.mjs:90:10)
+    at ant-design-icons-angular.mjs:233:15
+    at map.js:7:37
+    at OperatorSubscriber2._this._next (OperatorSubscriber.js:15:21)
+    at Subscriber2.next (Subscriber.js:34:18)
+    at Subject.js:41:34
+    at errorContext (errorContext.js:19:9)
+    at Subject2.next (Subject.js:31:9)
+    at Object.next (share.js:46:58)
+    at ConsumerObserver2.next (Subscriber.js:96:33)
+zone.js:165  Uncaught Error: [@ant-design/icons-angular]:the icon block-o does not exist or is not registered.
+    at IconNotFoundError (ant-design-icons-angular.mjs:90:10)
+    at ant-design-icons-angular.mjs:233:15
+    at map.js:7:37
+    at OperatorSubscriber2._this._next (OperatorSubscriber.js:15:21)
+    at Subscriber2.next (Subscriber.js:34:18)
+    at Subject.js:41:34
+    at errorContext (errorContext.js:19:9)
+    at Subject2.next (Subject.js:31:9)
+    at Object.next (share.js:46:58)
+    at ConsumerObserver2.next (Subscriber.js:96:33)
+angular-fire.mjs:117  Firebase API called outside injection context: getDoc
+warnOutsideInjectionContext @ angular-fire.mjs:117
+:4200/assets/outline/reload.svg:1   Failed to load resource: the server responded with a status of 404 (Not Found)
+:4200/assets/outline/export.svg:1   Failed to load resource: the server responded with a status of 404 (Not Found)
+zone.js:165  Uncaught Error: [@ant-design/icons-angular]:the icon reload-o does not exist or is not registered.
+    at IconNotFoundError (ant-design-icons-angular.mjs:90:10)
+    at ant-design-icons-angular.mjs:233:15
+    at map.js:7:37
+    at OperatorSubscriber2._this._next (OperatorSubscriber.js:15:21)
+    at Subscriber2.next (Subscriber.js:34:18)
+    at Subject.js:41:34
+    at errorContext (errorContext.js:19:9)
+    at Subject2.next (Subject.js:31:9)
+    at Object.next (share.js:46:58)
+    at ConsumerObserver2.next (Subscriber.js:96:33)
+zone.js:165  Uncaught Error: [@ant-design/icons-angular]:the icon export-o does not exist or is not registered.
+    at IconNotFoundError (ant-design-icons-angular.mjs:90:10)
+    at ant-design-icons-angular.mjs:233:15
+    at map.js:7:37
+    at OperatorSubscriber2._this._next (OperatorSubscriber.js:15:21)
+    at Subscriber2.next (Subscriber.js:34:18)
+    at Subject.js:41:34
+    at errorContext (errorContext.js:19:9)
+    at Subject2.next (Subject.js:31:9)
+    at Object.next (share.js:46:58)
+    at ConsumerObserver2.next (Subscriber.js:96:33)
+console-transport.ts:23 [INFO] Object
+ng-zorro-antd-core-logger.mjs:26  [NG-ZORRO]: [NG-ZORRO]: <nz-tabset> is deprecated, please use <nz-tabs> instead.
+(匿名) @ ng-zorro-antd-core-logger.mjs:26
+browser.mjs:1628  Warning: The animation trigger "tabSwitchMotion" is attempting to animate the following not animatable properties: display
+(to check the list of all animatable properties visit https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_animated_properties)
+checkNonAnimatableInTimelines @ browser.mjs:1628
+:4200/assets/outline/file-text.svg:1   Failed to load resource: the server responded with a status of 404 (Not Found)
+:4200/assets/outline/check-square.svg:1   Failed to load resource: the server responded with a status of 404 (Not Found)
+zone.js:165  Uncaught Error: [@ant-design/icons-angular]:the icon file-text-o does not exist or is not registered.
+    at IconNotFoundError (ant-design-icons-angular.mjs:90:10)
+    at ant-design-icons-angular.mjs:233:15
+    at map.js:7:37
+    at OperatorSubscriber2._this._next (OperatorSubscriber.js:15:21)
+    at Subscriber2.next (Subscriber.js:34:18)
+    at Subject.js:41:34
+    at errorContext (errorContext.js:19:9)
+    at Subject2.next (Subject.js:31:9)
+    at Object.next (share.js:46:58)
+    at ConsumerObserver2.next (Subscriber.js:96:33)
+zone.js:165  Uncaught Error: [@ant-design/icons-angular]:the icon file-text-o does not exist or is not registered.
+    at IconNotFoundError (ant-design-icons-angular.mjs:90:10)
+    at ant-design-icons-angular.mjs:233:15
+    at map.js:7:37
+    at OperatorSubscriber2._this._next (OperatorSubscriber.js:15:21)
+    at Subscriber2.next (Subscriber.js:34:18)
+    at Subject.js:41:34
+    at errorContext (errorContext.js:19:9)
+    at Subject2.next (Subject.js:31:9)
+    at Object.next (share.js:46:58)
+    at ConsumerObserver2.next (Subscriber.js:96:33)
+zone.js:165  Uncaught Error: [@ant-design/icons-angular]:the icon check-square-o does not exist or is not registered.
+    at IconNotFoundError (ant-design-icons-angular.mjs:90:10)
+    at ant-design-icons-angular.mjs:233:15
+    at map.js:7:37
+    at OperatorSubscriber2._this._next (OperatorSubscriber.js:15:21)
+    at Subscriber2.next (Subscriber.js:34:18)
+    at Subject.js:41:34
+    at errorContext (errorContext.js:19:9)
+    at Subject2.next (Subject.js:31:9)
+    at Object.next (share.js:46:58)
+    at ConsumerObserver2.next (Subscriber.js:96:33)
+angular-fire.mjs:117  Firebase API called outside injection context: getDocs
+warnOutsideInjectionContext @ angular-fire.mjs:117
+browser.mjs:1628  Warning: The animation trigger "tabSwitchMotion" is attempting to animate the following not animatable properties: display
+(to check the list of all animatable properties visit https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_animated_properties)
+checkNonAnimatableInTimelines @ browser.mjs:1628
+browser.mjs:1628  Warning: The animation trigger "tabSwitchMotion" is attempting to animate the following not animatable properties: display
+(to check the list of all animatable properties visit https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_animated_properties)
+checkNonAnimatableInTimelines @ browser.mjs:1628
+:4200/assets/outline/reload.svg:1   Failed to load resource: the server responded with a status of 404 (Not Found)
+:4200/assets/outline/file-text.svg:1   Failed to load resource: the server responded with a status of 404 (Not Found)
+:4200/assets/outline/picture.svg:1   Failed to load resource: the server responded with a status of 404 (Not Found)
+zone.js:165  Uncaught Error: [@ant-design/icons-angular]:the icon reload-o does not exist or is not registered.
+    at IconNotFoundError (ant-design-icons-angular.mjs:90:10)
+    at ant-design-icons-angular.mjs:233:15
+    at map.js:7:37
+    at OperatorSubscriber2._this._next (OperatorSubscriber.js:15:21)
+    at Subscriber2.next (Subscriber.js:34:18)
+    at Subject.js:41:34
+    at errorContext (errorContext.js:19:9)
+    at Subject2.next (Subject.js:31:9)
+    at Object.next (share.js:46:58)
+    at ConsumerObserver2.next (Subscriber.js:96:33)
+zone.js:165  Uncaught Error: [@ant-design/icons-angular]:the icon file-text-o does not exist or is not registered.
+    at IconNotFoundError (ant-design-icons-angular.mjs:90:10)
+    at ant-design-icons-angular.mjs:233:15
+    at map.js:7:37
+    at OperatorSubscriber2._this._next (OperatorSubscriber.js:15:21)
+    at Subscriber2.next (Subscriber.js:34:18)
+    at Subject.js:41:34
+    at errorContext (errorContext.js:19:9)
+    at Subject2.next (Subject.js:31:9)
+    at Object.next (share.js:46:58)
+    at ConsumerObserver2.next (Subscriber.js:96:33)
+zone.js:165  Uncaught Error: [@ant-design/icons-angular]:the icon picture-o does not exist or is not registered.
+    at IconNotFoundError (ant-design-icons-angular.mjs:90:10)
+    at ant-design-icons-angular.mjs:233:15
+    at map.js:7:37
+    at OperatorSubscriber2._this._next (OperatorSubscriber.js:15:21)
+    at Subscriber2.next (Subscriber.js:34:18)
+    at Subject.js:41:34
+    at errorContext (errorContext.js:19:9)
+    at Subject2.next (Subject.js:31:9)
+    at Object.next (share.js:46:58)
+    at ConsumerObserver2.next (Subscriber.js:96:33)
+www.googletagmanager.com/gtag/js?l=dataLayer&id=G-5KJJ3DD2G7:1   Failed to load resource: the server responded with a status of 403 (Forbidden)
+console-transport.ts:30  [ERROR] Object
+log @ console-transport.ts:30
+console-transport.ts:30  [ERROR] Object
+log @ console-transport.ts:30
+console-transport.ts:30  [ERROR] Object
+log @ console-transport.ts:30
