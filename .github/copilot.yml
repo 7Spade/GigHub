@@ -114,9 +114,20 @@ mcp-servers:
 # Configuration Notes:
 #
 # 1. HTTP MCP Servers (context7, supabase):
-#    - Require secrets to be configured in GitHub repository settings
-#    - Go to: https://github.com/7Spade/GigHub/settings/secrets/codespaces
-#    - Add secrets: COPILOT_MCP_CONTEXT7, SUPABASE_PROJECT_REF, SUPABASE_MCP_TOKEN
+#    ⚠️ IMPORTANT: Secrets must be in COPILOT ENVIRONMENT, not Actions/Codespaces!
+#    
+#    How to configure:
+#    Step 1: Create Copilot environment
+#      - Go to: https://github.com/7Spade/GigHub/settings/environments
+#      - Create environment named: "copilot"
+#    
+#    Step 2: Add secrets to copilot environment
+#      - In copilot environment settings → Environment secrets
+#      - Add: COPILOT_MCP_CONTEXT7, SUPABASE_PROJECT_REF, SUPABASE_MCP_TOKEN
+#    
+#    ❌ Actions secrets (/settings/secrets/actions) - NOT used by Copilot Agent
+#    ❌ Codespaces secrets (/settings/secrets/codespaces) - NOT used by Copilot Agent
+#    ✅ Copilot environment secrets - THIS is what you need!
 #
 # 2. Local MCP Servers:
 #    - Use npx to run on-demand without global installation

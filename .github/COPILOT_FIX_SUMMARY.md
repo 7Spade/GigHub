@@ -67,19 +67,47 @@ All YAML files validated successfully:
 
 ## Required GitHub Secrets
 
-To fully enable the MCP servers, the following secrets must be configured at:
-https://github.com/7Spade/GigHub/settings/secrets/codespaces
+⚠️ **IMPORTANT**: GitHub Copilot Coding Agent has different secret requirements than GitHub Actions!
 
-### Required Secrets:
-1. **COPILOT_MCP_CONTEXT7** - Context7 API key for documentation queries
-2. **SUPABASE_PROJECT_REF** - Supabase project reference ID
-3. **SUPABASE_MCP_TOKEN** - Supabase MCP authentication token
+### Understanding Secret Scopes
 
-### How to Configure:
-1. Go to repository settings → Secrets → Codespaces
-2. Click "New repository secret"
-3. Add each secret with its value
-4. GitHub Copilot will automatically inject these at runtime
+GitHub has multiple secret scopes, and **they do not automatically share**:
+
+1. **Actions Secrets** (`/settings/secrets/actions`) ✅ 您已配置
+   - For GitHub Actions workflows only
+   - ❌ Copilot Coding Agent **cannot** access these
+
+2. **Codespaces Secrets** (`/settings/secrets/codespaces`)
+   - For GitHub Codespaces development environments
+   - ❌ Copilot Coding Agent **cannot** access these
+
+3. **Copilot Environment Secrets** (⚠️ **需要配置**)
+   - For GitHub Copilot Coding Agent (Web)
+   - ✅ This is what you need!
+
+### How to Configure Copilot Environment Secrets:
+
+**Step 1: Create Copilot Environment**
+1. Go to: https://github.com/7Spade/GigHub/settings/environments
+2. Click "New environment"
+3. Name: `copilot` (must be exactly this name)
+4. Click "Configure environment"
+
+**Step 2: Add Secrets to Copilot Environment**
+1. In the `copilot` environment settings
+2. Under "Environment secrets", click "Add secret"
+3. Add these secrets:
+   - **COPILOT_MCP_CONTEXT7** - Context7 API key for documentation queries
+   - **SUPABASE_PROJECT_REF** - Supabase project reference ID
+   - **SUPABASE_MCP_TOKEN** - Supabase MCP authentication token
+
+### Why This Matters:
+
+The `.github/copilot.yml` file references secrets using `${{ secrets.SECRET_NAME }}` syntax, but:
+- ❌ It does **NOT** use Actions secrets (even though they exist)
+- ✅ It uses **Copilot environment secrets** only
+
+This is by design for security - Copilot has its own isolated secret scope.
 
 ## Testing
 
