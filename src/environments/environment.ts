@@ -16,7 +16,15 @@ export const environment = {
   },
   providers: [provideMockConfig({ data: MOCKDATA })],
   interceptorFns: [mockInterceptor],
-  // Supabase configuration (read from .env or use placeholders)
+  // ============================================
+  // Supabase Configuration (Optional)
+  // ============================================
+  // If left empty, Supabase features will be gracefully disabled
+  // To enable Supabase features, configure these values:
+  // 1. Get credentials from: https://supabase.com/dashboard/project/_/settings/api
+  // 2. Set NG_APP_SUPABASE_URL to your project URL
+  // 3. Set NG_APP_SUPABASE_ANON_KEY to your anon/public key
+  // See .env.example for detailed setup instructions
   NG_APP_SUPABASE_URL: '',
   NG_APP_SUPABASE_ANON_KEY: ''
 } as Environment;
