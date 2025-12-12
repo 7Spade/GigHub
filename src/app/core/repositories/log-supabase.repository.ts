@@ -70,7 +70,7 @@ export class LogSupabaseRepository extends SupabaseBaseRepository<Log> {
   /**
    * Convert Log entity to database record
    */
-  protected toRecord(log: Partial<Log>): any {
+  protected override toRecord(log: Partial<Log>): any {
     const record: any = {};
 
     if (log.blueprintId) record.blueprint_id = log.blueprintId;
@@ -364,7 +364,9 @@ export class LogSupabaseRepository extends SupabaseBaseRepository<Log> {
         .remove([photoToDelete.url]);
 
       if (storageError) {
-        this.logger.warn('[LogSupabaseRepository]', 'Failed to delete photo from storage', storageError);
+        this.logger.warn('[LogSupabaseRepository]', 'Failed to delete photo from storage', {
+          message: storageError.message
+        });
       }
 
       // Update log photos array
