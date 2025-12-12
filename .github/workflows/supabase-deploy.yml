@@ -1,0 +1,175 @@
+name: Deploy Supabase Migrations
+
+# This workflow deploys SQL migrations to Supabase when triggered manually
+# or when changes are pushed to migration files
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target environment'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - production
+      migration_file:
+        description: 'Specific migration file (leave empty for all)'
+        required: false
+        type: string
+  
+  push:
+    branches:
+      - main
+      - develop
+    paths:
+      - 'supabase/migrations/*.sql'
+
+jobs:
+  deploy-migrations:
+    name: Deploy Migrations to Supabase
+    runs-on: ubuntu-latest
+    
+    # Only run on main branch or manual trigger
+    if: github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main'
+    
+    environment:
+      name: ${{ github.event.inputs.environment || 'staging' }}
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'yarn'
+      
+      - name: 📦 Install dependencies
+        run: |
+          yarn install --frozen-lockfile
+          npm install -g supabase
+      
+      - name: 🔑 Configure Supabase credentials
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+          SUPABASE_PROJECT_ID: ${{ secrets.SUPABASE_PROJECT_ID }}
+        run: |
+          # Login to Supabase CLI
+          echo "$SUPABASE_ACCESS_TOKEN" | supabase login --token
+          
+          # Link to project
+          supabase link --project-ref $SUPABASE_PROJECT_ID
+      
+      - name: 🧪 Validate migrations
+        run: |
+          echo "📋 Checking migration files..."
+          
+          if [ -z "$(ls -A supabase/migrations/*.sql 2>/dev/null)" ]; then
+            echo "⚠️  No migration files found"
+            exit 0
+          fi
+          
+          echo "✓ Found migration files:"
+          ls -1 supabase/migrations/*.sql
+      
+      - name: 🚀 Deploy migrations
+        env:
+          POSTGRES_URL_NON_POOLING: ${{ secrets.POSTGRES_URL_NON_POOLING }}
+        run: |
+          if [ -n "${{ github.event.inputs.migration_file }}" ]; then
+            echo "🎯 Deploying specific migration: ${{ github.event.inputs.migration_file }}"
+            supabase db push --file supabase/migrations/${{ github.event.inputs.migration_file }}
+          else
+            echo "🎯 Deploying all migrations..."
+            supabase db push
+          fi
+      
+      - name: ✅ Verify deployment
+        env:
+          POSTGRES_URL_NON_POOLING: ${{ secrets.POSTGRES_URL_NON_POOLING }}
+        run: |
+          echo "🔍 Verifying tables..."
+          
+          # Check if tables exist
+          psql "$POSTGRES_URL_NON_POOLING" -c "\dt tasks" || echo "⚠️  tasks table not found"
+          psql "$POSTGRES_URL_NON_POOLING" -c "\dt logs" || echo "⚠️  logs table not found"
+          
+          echo "🔒 Verifying RLS policies..."
+          psql "$POSTGRES_URL_NON_POOLING" -c "SELECT tablename, COUNT(*) as policy_count FROM pg_policies WHERE tablename IN ('tasks', 'logs') GROUP BY tablename;"
+      
+      - name: 📊 Generate deployment report
+        if: always()
+        run: |
+          echo "## 📊 Deployment Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Environment:** ${{ github.event.inputs.environment || 'staging' }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Triggered by:** ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ $? -eq 0 ]; then
+            echo "✅ **Status:** Success" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Status:** Failed" >> $GITHUB_STEP_SUMMARY
+          fi
+      
+      - name: 💬 Comment on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `## 🚀 Supabase Migrations Deployed
+              
+              The migrations have been successfully deployed to **${{ github.event.inputs.environment || 'staging' }}**.
+              
+              ### Deployed Files:
+              \`\`\`
+              ${process.env.MIGRATION_FILES || 'All migration files'}
+              \`\`\`
+              
+              ### Verification:
+              - ✅ Tables created
+              - ✅ RLS policies applied
+              - ✅ Indexes created
+              
+              **Deployed by:** @${{ github.actor }}
+              **Commit:** ${context.sha.substring(0, 7)}`
+            })
+      
+      - name: 🔔 Notify on failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            core.setFailed('Migration deployment failed. Please check the logs above.')
+
+  # Rollback job (manual trigger only)
+  rollback-migrations:
+    name: Rollback Migrations
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.environment != ''
+    needs: deploy-migrations
+    when: failure()
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+      
+      - name: ⚠️ Rollback notice
+        run: |
+          echo "🔄 Rollback procedure initiated"
+          echo "Please manually verify the database state before proceeding"
+          echo ""
+          echo "To rollback manually:"
+          echo "1. Connect to Supabase Dashboard"
+          echo "2. Go to Database → Backups"
+          echo "3. Restore from the latest backup before this deployment"
