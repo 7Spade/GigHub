@@ -8,16 +8,17 @@
  * @date 2025-12-10
  */
 
-import { Component, OnInit, inject, signal, computed, input, effect } from '@angular/core';
+import { Component, OnInit, inject, signal, effect, input } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { STColumn, STData } from '@delon/abc/st';
+import { STColumn } from '@delon/abc/st';
 import { SHARED_IMPORTS } from '@shared';
+import { LoggerService } from '@core';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzModalService } from 'ng-zorro-antd/modal';
+import { TaskStore } from '@core/stores/task.store';
+import { TaskStatus, TaskPriority } from '@core/types/task';
 
 import { TaskModalComponent } from './task-modal.component';
-import { TaskStatus, TaskPriority, CreateTaskData } from './tasks.repository';
-import { TasksService } from './tasks.service';
 
 @Component({
   selector: 'app-tasks',
@@ -53,12 +54,12 @@ import { TasksService } from './tasks.service';
     </nz-card>
 
     <nz-card [nzTitle]="'任務列表'" style="margin-top: 16px;">
-      @if (tasksService.loading()) {
+      @if (loading()) {
         <nz-spin nzSimple />
-      } @else if (tasksService.error()) {
-        <nz-alert nzType="error" [nzMessage]="tasksService.error()" nzShowIcon> </nz-alert>
+      } @else if (error()) {
+        <nz-alert nzType="error" [nzMessage]="error()" nzShowIcon> </nz-alert>
       } @else {
-        <st [data]="tasksService.tasks()" [columns]="columns" [page]="{ show: true, showSize: true }" [loading]="tasksService.loading()">
+        <st [data]="tasks()" [columns]="columns" [page]="{ show: true, showSize: true }" [loading]="loading()">
         </st>
       }
     </nz-card>
@@ -75,7 +76,8 @@ export class TasksComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private modal = inject(NzModalService);
   private message = inject(NzMessageService);
-  readonly tasksService = inject(TasksService);
+  private logger = inject(LoggerService);
+  private taskStore = inject(TaskStore);
 
   // Input from parent (Angular 19+ input() function)
   blueprintId = input<string>();
@@ -83,6 +85,12 @@ export class TasksComponent implements OnInit {
   // Internal state
   private _blueprintId = signal<string>('');
   blueprintName = signal<string>('任務管理');
+
+  // Expose store signals to template
+  readonly tasks = this.taskStore.tasks;
+  readonly loading = this.taskStore.loading;
+  readonly error = this.taskStore.error;
+  readonly taskStats = this.taskStore.taskStats;
 
   constructor() {
     // Watch for blueprintId input changes
@@ -94,9 +102,6 @@ export class TasksComponent implements OnInit {
       }
     });
   }
-
-  // Computed from service
-  taskStats = this.tasksService.taskStats;
 
   // ST Table columns
   columns: STColumn[] = [
@@ -192,7 +197,7 @@ export class TasksComponent implements OnInit {
   }
 
   loadTasks(blueprintId: string): void {
-    this.tasksService.loadTasks(blueprintId);
+    this.taskStore.loadTasks(blueprintId);
   }
 
   showCreateTaskModal(): void {
@@ -254,10 +259,12 @@ export class TasksComponent implements OnInit {
     try {
       const blueprintId = this._blueprintId();
       if (blueprintId && task.id) {
-        await this.tasksService.deleteTask(blueprintId, task.id, 'current-user');
+        await this.taskStore.deleteTask(blueprintId, task.id, 'current-user');
+        this.message.success('任務刪除成功');
       }
     } catch (error) {
-      console.error('Delete task failed:', error);
+      this.logger.error('Delete task failed:', error);
+      this.message.error('任務刪除失敗');
     }
   }
 }
