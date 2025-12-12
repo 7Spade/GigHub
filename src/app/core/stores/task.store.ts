@@ -95,7 +95,7 @@ export class TaskStore {
     } catch (err) {
       const error = err instanceof Error ? err.message : 'Unknown error';
       this._error.set(error);
-      this.logger.error('[TaskStore]', 'Failed to load tasks', err);
+      this.logger.error('[TaskStore]', 'Failed to load tasks', err instanceof Error ? err : undefined);
     } finally {
       this._loading.set(false);
     }
@@ -278,7 +278,7 @@ export class TaskStore {
       await this.auditLogRepository.create({ ...data, blueprintId });
     } catch (err) {
       // Don't fail the main operation if audit logging fails
-      this.logger.warn('[TaskStore]', 'Audit logging failed', err as Error);
+      this.logger.warn('[TaskStore]', 'Audit logging failed');
     }
   }
 }

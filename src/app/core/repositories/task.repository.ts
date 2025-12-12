@@ -170,7 +170,7 @@ export class TaskRepository {
     const now = Timestamp.now();
     const docData = {
       ...payload,
-      status: payload.status || TaskStatus.TODO,
+      status: payload.status || TaskStatus.PENDING,
       tags: payload.tags || [],
       attachments: [],
       metadata: {},

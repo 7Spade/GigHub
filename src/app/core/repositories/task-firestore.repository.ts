@@ -95,15 +95,17 @@ export class TaskFirestoreRepository extends FirestoreBaseRepository<Task> {
    */
   private mapStatus(status: string): TaskStatus {
     const statusMap: Record<string, TaskStatus> = {
-      TODO: TaskStatus.TODO,
+      TODO: TaskStatus.PENDING,
+      PENDING: TaskStatus.PENDING,
       IN_PROGRESS: TaskStatus.IN_PROGRESS,
-      IN_REVIEW: TaskStatus.IN_REVIEW,
-      REVIEW: TaskStatus.IN_REVIEW,
+      IN_REVIEW: TaskStatus.ON_HOLD,
+      REVIEW: TaskStatus.ON_HOLD,
+      ON_HOLD: TaskStatus.ON_HOLD,
       COMPLETED: TaskStatus.COMPLETED,
       CANCELLED: TaskStatus.CANCELLED
     };
 
-    return statusMap[status?.toUpperCase()] || TaskStatus.TODO;
+    return statusMap[status?.toUpperCase()] || TaskStatus.PENDING;
   }
 
   /**
@@ -202,13 +204,14 @@ export class TaskFirestoreRepository extends FirestoreBaseRepository<Task> {
    * Create a new task
    * 創建新任務
    */
-  async create(payload: CreateTaskRequest): Promise<Task> {
+  async create(blueprintId: string, payload: CreateTaskRequest): Promise<Task> {
     return this.executeWithRetry(async () => {
       const doc: DocumentData = {
-        blueprint_id: payload.blueprintId,
+        // Note: blueprintId removed from CreateTaskRequest, passed as parameter
+        blueprint_id: blueprintId,
         title: payload.title,
         description: payload.description || '',
-        status: (payload.status || TaskStatus.TODO).toUpperCase(),
+        status: (payload.status || TaskStatus.PENDING).toUpperCase(),
         assignee_id: payload.assigneeId || null,
         creator_id: payload.creatorId,
         due_date: payload.dueDate ? Timestamp.fromDate(payload.dueDate) : null,
@@ -308,9 +311,9 @@ export class TaskFirestoreRepository extends FirestoreBaseRepository<Task> {
 
       // Initialize counts
       const counts: Record<TaskStatus, number> = {
-        [TaskStatus.TODO]: 0,
+        [TaskStatus.PENDING]: 0,
         [TaskStatus.IN_PROGRESS]: 0,
-        [TaskStatus.IN_REVIEW]: 0,
+        [TaskStatus.ON_HOLD]: 0,
         [TaskStatus.COMPLETED]: 0,
         [TaskStatus.CANCELLED]: 0
       };

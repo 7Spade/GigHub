@@ -49,7 +49,7 @@ export type CreateTaskData = CreateTaskRequest;
 export type UpdateTaskData = UpdateTaskRequest;
 
 /** @deprecated Import from @core/types/task */
-export { TaskStatus, TaskPriority, TaskQueryOptions };
+export type { TaskStatus, TaskPriority, TaskQueryOptions };
 
 /**
  * Tasks Repository Service

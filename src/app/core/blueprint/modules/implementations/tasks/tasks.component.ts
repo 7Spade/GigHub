@@ -263,7 +263,7 @@ export class TasksComponent implements OnInit {
         this.message.success('任務刪除成功');
       }
     } catch (error) {
-      this.logger.error('Delete task failed:', error);
+      this.logger.error('[TasksComponent]', 'Delete task failed', error instanceof Error ? error : undefined);
       this.message.error('任務刪除失敗');
     }
   }
