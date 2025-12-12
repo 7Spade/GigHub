@@ -2,18 +2,21 @@
 
 ## Overview
 
-The Construction Log module provides a comprehensive solution for managing daily construction site logs with photo attachments. It follows modern Angular 20 patterns with Signals and integrates seamlessly with Supabase backend.
+The Construction Log module provides a comprehensive solution for managing daily construction site logs with photo attachments. It follows modern Angular 20 patterns with Signals and integrates seamlessly with **Firebase Firestore** backend.
+
+**Status**: ✅ **Fully Functional** - Migrated from Supabase to Firebase (2025-12-12)
 
 ## Features
 
 - ✅ **Daily Log Management**: Create, view, edit, and delete construction logs
-- ✅ **Photo Upload**: Upload and manage multiple photos per log with Supabase Storage
+- ✅ **Photo Upload**: Upload and manage multiple photos per log with Firebase Storage
 - ✅ **Weather Tracking**: Record weather conditions and temperature
 - ✅ **Work Details**: Track work hours, worker count, and equipment used
-- ✅ **Real-time Updates**: Automatic sync with Supabase Realtime (ready for future implementation)
-- ✅ **Row Level Security**: Secure data access with Supabase RLS policies
+- ✅ **Real-time Updates**: Ready for Firestore Realtime listeners (future implementation)
+- ✅ **Security Rules**: Secure data access with Firestore Security Rules
 - ✅ **Statistics**: View total logs, monthly logs, daily logs, and photo counts
 - ✅ **Responsive UI**: Built with ng-zorro-antd components
+- ✅ **Authentication**: Automatic user tracking via Firebase Auth
 
 ## Architecture
 
@@ -24,7 +27,8 @@ Construction Log Module
 ├── construction-log.component.ts      # Presentation Layer (UI)
 ├── construction-log-modal.component.ts # Modal for create/edit/view
 ├── construction-log.store.ts          # Business Logic Layer (Signals Store)
-└── construction-log.repository.ts     # Data Access Layer (Supabase)
+└── @core/repositories/               # Data Access Layer
+    └── log-firestore.repository.ts    # Firebase Firestore Repository
 ```
 
 ### Layer Responsibilities
@@ -35,17 +39,19 @@ Construction Log Module
    - Manage modal dialogs
    - Use Angular Signals for reactive updates
 
-2. **Business Logic Layer** (`*.store.ts`)
+2. **Business Logic Layer** (`construction-log.store.ts`)
    - Manage application state with Angular Signals
    - Provide computed statistics
-   - Coordinate data operations
-   - Handle error states
+   - Coordinate data operations with LogFirestoreRepository
+   - Handle error states and logging
+   - Automatic user authentication via FirebaseService
 
-3. **Data Access Layer** (`*.repository.ts`)
-   - Interact with Supabase database
-   - Handle file uploads to Supabase Storage
-   - Map database models to domain entities
-   - Implement query filtering
+3. **Data Access Layer** (`log-firestore.repository.ts`)
+   - Interact with Firebase Firestore database
+   - Handle file uploads to Firebase Storage
+   - Map Firestore documents to domain entities
+   - Implement query filtering and indexing
+   - Automatic retry on failures
 
 ## Usage
 
@@ -175,22 +181,67 @@ interface LogPhoto {
 }
 ```
 
-## Database Setup
+## Firebase Setup
 
-### Required Tables
+### Required Firestore Collection
 
-Execute the SQL script located at `docs/database/construction_logs.sql` to create:
-- `construction_logs` table with all required fields and indexes
-- RLS policies for secure access
-- Triggers for automatic timestamp updates
+The `logs` collection is automatically created by `LogFirestoreRepository`. Ensure Firestore Security Rules are configured:
+
+```javascript
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /logs/{logId} {
+      // Allow authenticated users to read logs they have access to
+      allow read: if request.auth != null;
+      
+      // Allow authenticated users to create logs
+      allow create: if request.auth != null 
+                    && request.resource.data.creator_id == request.auth.uid;
+      
+      // Allow creators to update their own logs
+      allow update: if request.auth != null 
+                    && resource.data.creator_id == request.auth.uid;
+      
+      // Allow creators to delete their own logs
+      allow delete: if request.auth != null 
+                    && resource.data.creator_id == request.auth.uid;
+    }
+  }
+}
+```
 
 ### Required Storage Bucket
 
-Create a Supabase Storage bucket named `construction-photos`:
-1. Navigate to Supabase Dashboard → Storage
-2. Create new bucket: `construction-photos`
-3. Set to **private** (not public)
-4. Apply RLS policies (included in SQL script comments)
+Create a Firebase Storage bucket for log photos:
+1. Navigate to Firebase Console → Storage
+2. Bucket `log-photos` is automatically created by FirebaseStorageRepository
+3. Configure Storage Security Rules:
+
+```javascript
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /log-photos/{logId}/{fileName} {
+      // Allow authenticated users to read
+      allow read: if request.auth != null;
+      
+      // Allow authenticated users to upload (max 5MB)
+      allow write: if request.auth != null
+                   && request.resource.size < 5 * 1024 * 1024;
+    }
+  }
+}
+```
+
+### Firestore Indexes
+
+Add these composite indexes in Firebase Console → Firestore → Indexes:
+
+1. **logs** collection:
+   - `blueprint_id` (Ascending) + `date` (Descending)
+   - `blueprint_id` (Ascending) + `deleted_at` (Ascending) + `date` (Descending)
+   - `creator_id` (Ascending) + `date` (Descending)
 
 ## Development Guidelines
 
@@ -199,19 +250,20 @@ Create a Supabase Storage bucket named `construction-photos`:
 To add new fields to logs:
 
 1. Update type definition in `@core/types/log/log.types.ts`
-2. Add database column in `construction_logs.sql`
-3. Update repository mapping in `construction-log.repository.ts`
-4. Add form field in `construction-log-modal.component.ts`
-5. Update ST column in `construction-log.component.ts`
+2. Update Firestore document mapping in `@core/repositories/log-firestore.repository.ts` (both `toEntity` and `toDocument`)
+3. Add form field in `construction-log-modal.component.ts`
+4. Update ST column in `construction-log.component.ts`
+5. Update Firestore indexes if filtering/sorting on new field
 
 ### Extending Functionality
 
 The module is designed for easy extension:
 
 - **Voice Records**: Reserved fields and interfaces already defined
-- **Documents**: Ready for implementation with Supabase Storage
-- **Realtime Updates**: Repository structure supports Supabase Realtime subscriptions
+- **Documents**: Ready for implementation with Firebase Storage
+- **Realtime Updates**: Use Firestore's `onSnapshot()` for live updates
 - **Export**: Can easily add PDF/Excel export functionality
+- **Offline Support**: Firestore provides built-in offline persistence
 
 ## Best Practices
 
@@ -238,21 +290,30 @@ The module is designed for easy extension:
 ## Troubleshooting
 
 ### Photos not uploading
-- Check Supabase Storage bucket exists: `construction-photos`
-- Verify RLS policies are applied correctly
+- Check Firebase Storage bucket `log-photos` exists (auto-created by FirebaseStorageRepository)
+- Verify Storage Security Rules are configured correctly
 - Ensure file size is under 5MB
 - Check browser console for errors
+- Verify user is authenticated (check FirebaseService.currentUser)
 
 ### Logs not appearing
 - Verify blueprint ID is correct
-- Check RLS policies allow user access
-- Ensure user has required permissions in blueprint_members
-- Check network tab for API errors
+- Check Firestore Security Rules allow user access
+- Ensure user is authenticated (FirebaseService.getCurrentUserId() returns valid UID)
+- Check browser console and network tab for errors
+- Verify Firestore indexes are created for complex queries
 
 ### Permission denied errors
-- User must be blueprint owner or member with appropriate role
-- Check `blueprint_members` table for user's role
-- Verify RLS policies in `construction_logs` table
+- User must be authenticated via Firebase Auth
+- Check Firestore Security Rules configuration
+- Verify `creator_id` matches authenticated user UID
+- Check Firebase Console → Authentication for user status
+
+### "User not authenticated" error
+- Ensure user is logged in via FirebaseAuthService
+- Check FirebaseService.currentUser signal
+- Verify Firebase Auth is properly initialized
+- Check browser console for authentication errors
 
 ## Support
 
