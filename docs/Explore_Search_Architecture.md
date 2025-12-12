@@ -2462,6 +2462,10 @@ export class ExploreSearchFacade {
     sortOrder: 'desc'
   };
 
+  // Configuration constants
+  private readonly SEARCH_BATCH_LIMIT = 50;
+  private readonly CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
   /**
    * Execute search query
    */
@@ -2515,7 +2519,7 @@ export class ExploreSearchFacade {
       this.cache.set(cacheKey, {
         results: aggregatedResults,
         pagination: this._pagination()
-      }, 5 * 60 * 1000); // 5 minute TTL
+      }, this.CACHE_TTL_MS);
 
     } catch (error) {
       this.logger.error('[ExploreSearch] Search failed:', error);
@@ -2590,7 +2594,7 @@ export class ExploreSearchFacade {
     
     const { data } = await this.accountRepo.search(query, this._filters(), {
       offset: 0,
-      limit: 50
+      limit: this.SEARCH_BATCH_LIMIT
     });
     
     return data.map(account => this.transformAccountToResult(account, query));
@@ -2601,7 +2605,7 @@ export class ExploreSearchFacade {
     
     const { data } = await this.orgRepo.search(query, this._filters(), {
       offset: 0,
-      limit: 50
+      limit: this.SEARCH_BATCH_LIMIT
     });
     
     return data.map(org => this.transformOrganizationToResult(org, query));
@@ -2612,7 +2616,7 @@ export class ExploreSearchFacade {
     
     const { data } = await this.blueprintRepo.search(query, this._filters(), {
       offset: 0,
-      limit: 50
+      limit: this.SEARCH_BATCH_LIMIT
     });
     
     return data.map(bp => this.transformBlueprintToResult(bp, query));
