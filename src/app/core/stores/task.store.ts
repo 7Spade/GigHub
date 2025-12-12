@@ -1,10 +1,10 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { LoggerService } from '@core';
 import { TasksRepository } from '@core/blueprint/modules/implementations/tasks/tasks.repository';
 import { AuditLogRepository, CreateAuditLogData } from '@core/blueprint/repositories/audit-log.repository';
 import { AuditEventType, AuditCategory, AuditSeverity, ActorType, AuditStatus } from '@core/models/audit-log.model';
 import { Task, TaskStatus, TaskPriority, CreateTaskRequest, UpdateTaskRequest } from '@core/types/task';
+import { firstValueFrom } from 'rxjs';
 
 /**
  * Task Store
@@ -83,27 +83,22 @@ export class TaskStore {
    * Load tasks for a blueprint
    * 載入藍圖的任務
    */
-  loadTasks(blueprintId: string): void {
+  async loadTasks(blueprintId: string): Promise<void> {
     this._currentBlueprintId.set(blueprintId);
     this._loading.set(true);
     this._error.set(null);
 
-    this.repository
-      .findByBlueprintId(blueprintId)
-      .pipe(takeUntilDestroyed())
-      .subscribe({
-        next: tasks => {
-          this._tasks.set(tasks);
-          this._loading.set(false);
-          this.logger.info('[TaskStore]', `Loaded ${tasks.length} tasks for blueprint: ${blueprintId}`);
-        },
-        error: err => {
-          const error = err instanceof Error ? err.message : 'Unknown error';
-          this._error.set(error);
-          this._loading.set(false);
-          this.logger.error('[TaskStore]', 'Failed to load tasks', err);
-        }
-      });
+    try {
+      const tasks = await firstValueFrom(this.repository.findByBlueprintId(blueprintId));
+      this._tasks.set(tasks);
+      this.logger.info('[TaskStore]', `Loaded ${tasks.length} tasks for blueprint: ${blueprintId}`);
+    } catch (err) {
+      const error = err instanceof Error ? err.message : 'Unknown error';
+      this._error.set(error);
+      this.logger.error('[TaskStore]', 'Failed to load tasks', err);
+    } finally {
+      this._loading.set(false);
+    }
   }
 
   /**

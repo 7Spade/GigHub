@@ -211,7 +211,6 @@ export class TaskModalComponent implements OnInit {
 
   private async createTask(formValue: any): Promise<void> {
     const createData: CreateTaskRequest = {
-      blueprintId: this.modalData.blueprintId,
       title: formValue.title,
       description: formValue.description,
       priority: formValue.priority || TaskPriority.MEDIUM,

@@ -116,11 +116,9 @@ export interface Task {
  * 創建任務請求
  *
  * Unified interface for task creation
+ * Note: blueprintId is passed as a method parameter, not in the request object
  */
 export interface CreateTaskRequest {
-  /** Blueprint ID */
-  blueprintId: string;
-
   /** Task title */
   title: string;
 
