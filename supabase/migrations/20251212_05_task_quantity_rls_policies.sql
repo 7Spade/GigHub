@@ -27,7 +27,7 @@ USING (
   EXISTS (
     SELECT 1 FROM public.logs l
     JOIN public.blueprints b ON l.blueprint_id = b.id
-    JOIN public.accounts a ON a.id = auth.uid()
+    JOIN public.accounts a ON a.id = public.get_user_id()
     WHERE l.id = log_tasks.log_id
     AND b.organization_id = a.organization_id
   )
@@ -42,7 +42,7 @@ WITH CHECK (
   EXISTS (
     SELECT 1 FROM public.logs l
     WHERE l.id = log_tasks.log_id
-    AND l.creator_id = auth.uid()
+    AND l.creator_id = public.get_user_id()
   )
 );
 
@@ -55,14 +55,14 @@ USING (
   EXISTS (
     SELECT 1 FROM public.logs l
     WHERE l.id = log_tasks.log_id
-    AND l.creator_id = auth.uid()
+    AND l.creator_id = public.get_user_id()
   )
 )
 WITH CHECK (
   EXISTS (
     SELECT 1 FROM public.logs l
     WHERE l.id = log_tasks.log_id
-    AND l.creator_id = auth.uid()
+    AND l.creator_id = public.get_user_id()
   )
 );
 
@@ -75,7 +75,7 @@ USING (
   EXISTS (
     SELECT 1 FROM public.logs l
     WHERE l.id = log_tasks.log_id
-    AND l.creator_id = auth.uid()
+    AND l.creator_id = public.get_user_id()
   )
 );
 
@@ -98,7 +98,7 @@ TO authenticated
 USING (
   EXISTS (
     SELECT 1 FROM public.blueprints b
-    JOIN public.accounts a ON a.id = auth.uid()
+    JOIN public.accounts a ON a.id = public.get_user_id()
     WHERE b.id = quality_controls.blueprint_id
     AND b.organization_id = a.organization_id
   )
@@ -112,7 +112,7 @@ TO authenticated
 WITH CHECK (
   EXISTS (
     SELECT 1 FROM public.accounts a
-    WHERE a.id = auth.uid()
+    WHERE a.id = public.get_user_id()
     AND (
       a.role = 'admin' 
       OR a.role = 'qc_inspector'
@@ -127,18 +127,18 @@ ON public.quality_controls
 FOR UPDATE
 TO authenticated
 USING (
-  inspector_id = auth.uid()
+  inspector_id = public.get_user_id()
   OR EXISTS (
     SELECT 1 FROM public.accounts a
-    WHERE a.id = auth.uid()
+    WHERE a.id = public.get_user_id()
     AND a.role = 'admin'
   )
 )
 WITH CHECK (
-  inspector_id = auth.uid()
+  inspector_id = public.get_user_id()
   OR EXISTS (
     SELECT 1 FROM public.accounts a
-    WHERE a.id = auth.uid()
+    WHERE a.id = public.get_user_id()
     AND a.role = 'admin'
   )
 );
@@ -151,7 +151,7 @@ TO authenticated
 USING (
   EXISTS (
     SELECT 1 FROM public.accounts a
-    WHERE a.id = auth.uid()
+    WHERE a.id = public.get_user_id()
     AND a.role = 'admin'
   )
 );
@@ -178,7 +178,7 @@ USING (
   EXISTS (
     SELECT 1 FROM public.tasks t
     JOIN public.blueprints b ON t.blueprint_id = b.id
-    JOIN public.accounts a ON a.id = auth.uid()
+    JOIN public.accounts a ON a.id = public.get_user_id()
     WHERE t.id = task_progress.task_id
     AND b.organization_id = a.organization_id
   )
@@ -194,7 +194,7 @@ WITH CHECK (
   -- Only allow if user has admin role or if it's triggered by system functions
   EXISTS (
     SELECT 1 FROM public.accounts a
-    WHERE a.id = auth.uid()
+    WHERE a.id = public.get_user_id()
     AND (
       a.role = 'admin'
       OR a.role = 'system'
@@ -212,14 +212,14 @@ TO authenticated
 USING (
   EXISTS (
     SELECT 1 FROM public.accounts a
-    WHERE a.id = auth.uid()
+    WHERE a.id = public.get_user_id()
     AND a.role = 'admin'
   )
 )
 WITH CHECK (
   EXISTS (
     SELECT 1 FROM public.accounts a
-    WHERE a.id = auth.uid()
+    WHERE a.id = public.get_user_id()
     AND a.role = 'admin'
   )
 );
@@ -233,7 +233,7 @@ TO authenticated
 USING (
   EXISTS (
     SELECT 1 FROM public.accounts a
-    WHERE a.id = auth.uid()
+    WHERE a.id = public.get_user_id()
     AND a.role = 'admin'
   )
 );
@@ -263,7 +263,7 @@ DECLARE
 BEGIN
   SELECT EXISTS (
     SELECT 1 FROM public.blueprints b
-    JOIN public.accounts a ON a.id = auth.uid()
+    JOIN public.accounts a ON a.id = public.get_user_id()
     WHERE b.id = p_blueprint_id
     AND b.organization_id = a.organization_id
   ) INTO v_can_access;
@@ -286,7 +286,7 @@ DECLARE
 BEGIN
   SELECT EXISTS (
     SELECT 1 FROM public.accounts
-    WHERE id = auth.uid()
+    WHERE id = public.get_user_id()
     AND (
       role = 'admin'
       OR role = 'qc_inspector'
@@ -312,7 +312,7 @@ DECLARE
 BEGIN
   SELECT EXISTS (
     SELECT 1 FROM public.accounts
-    WHERE id = auth.uid()
+    WHERE id = public.get_user_id()
     AND role = 'admin'
   ) INTO v_is_admin;
   

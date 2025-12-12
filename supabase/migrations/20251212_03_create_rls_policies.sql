@@ -14,7 +14,10 @@ ALTER TABLE public.tasks ENABLE ROW LEVEL SECURITY;
 -- Enable RLS on logs table
 ALTER TABLE public.logs ENABLE ROW LEVEL SECURITY;
 
-RAISE NOTICE 'RLS enabled on tasks and logs tables';
+DO $$
+BEGIN
+    RAISE NOTICE 'RLS enabled on tasks and logs tables';
+END $$;
 
 -- ============================================
 -- Part 2: Helper Functions for RLS
@@ -58,20 +61,35 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- Function to check if blueprint belongs to user's organization
+-- Note: This function will always return TRUE for now until blueprints table is created
+-- TODO: Update this function once blueprints table with organization_id is created
 CREATE OR REPLACE FUNCTION public.is_blueprint_in_user_organization(blueprint_uuid UUID)
 RETURNS BOOLEAN AS $$
 DECLARE
     user_org_id UUID;
     blueprint_org_id UUID;
+    blueprints_exists BOOLEAN;
 BEGIN
+    -- Check if blueprints table exists
+    SELECT EXISTS (
+        SELECT 1 FROM information_schema.tables 
+        WHERE table_schema = 'public' 
+        AND table_name = 'blueprints'
+    ) INTO blueprints_exists;
+    
+    -- If blueprints table doesn't exist yet, return TRUE to allow access
+    -- This will be updated once the blueprints table is created
+    IF NOT blueprints_exists THEN
+        RETURN TRUE;
+    END IF;
+    
     user_org_id := public.get_user_organization_id();
     
     IF user_org_id IS NULL THEN
         RETURN FALSE;
     END IF;
     
-    -- Note: This assumes blueprints table exists with organization_id column
-    -- Adjust based on actual schema
+    -- Get blueprint's organization_id
     SELECT organization_id INTO blueprint_org_id
     FROM public.blueprints
     WHERE id = blueprint_uuid;
@@ -83,7 +101,10 @@ EXCEPTION
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
-RAISE NOTICE 'Helper functions for RLS created successfully';
+DO $$
+BEGIN
+    RAISE NOTICE 'Helper functions for RLS created successfully';
+END $$;
 
 -- ============================================
 -- Part 3: Tasks Table RLS Policies
@@ -143,7 +164,10 @@ USING (
     AND public.get_user_role() = 'admin'
 );
 
-RAISE NOTICE 'RLS policies for tasks table created successfully';
+DO $$
+BEGIN
+    RAISE NOTICE 'RLS policies for tasks table created successfully';
+END $$;
 
 -- ============================================
 -- Part 4: Logs Table RLS Policies
@@ -222,7 +246,10 @@ USING (
     AND public.get_user_role() = 'admin'
 );
 
-RAISE NOTICE 'RLS policies for logs table created successfully';
+DO $$
+BEGIN
+    RAISE NOTICE 'RLS policies for logs table created successfully';
+END $$;
 
 -- ============================================
 -- Part 5: Storage Bucket Policies
@@ -253,7 +280,10 @@ RAISE NOTICE 'RLS policies for logs table created successfully';
 -- INSERT Policy: Users can upload photos to their organization's logs
 -- DELETE Policy: Log creators can delete their photos
 
-RAISE NOTICE 'Storage bucket policies need to be configured via Supabase Dashboard';
+DO $$
+BEGIN
+    RAISE NOTICE 'Storage bucket policies need to be configured via Supabase Dashboard';
+END $$;
 
 -- ============================================
 -- Part 6: Anonymous Access Policies
@@ -266,7 +296,10 @@ RAISE NOTICE 'Storage bucket policies need to be configured via Supabase Dashboa
 -- If you need to allow anonymous read access to specific data,
 -- create separate policies for the anon role with strict conditions
 
-RAISE NOTICE 'Anonymous access denied by default (secure by design)';
+DO $$
+BEGIN
+    RAISE NOTICE 'Anonymous access denied by default (secure by design)';
+END $$;
 
 -- ============================================
 -- Part 7: Testing and Verification
