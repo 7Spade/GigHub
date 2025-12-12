@@ -15,5 +15,8 @@ export const environment = {
     refreshTokenType: 'auth-refresh'
   },
   providers: [provideMockConfig({ data: MOCKDATA })],
-  interceptorFns: [mockInterceptor]
+  interceptorFns: [mockInterceptor],
+  // Supabase configuration (read from .env or use placeholders)
+  NG_APP_SUPABASE_URL: '',
+  NG_APP_SUPABASE_ANON_KEY: ''
 } as Environment;

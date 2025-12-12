@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, Injector, runInInjectionContext } from '@angular/core';
 import { Auth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, User, authState } from '@angular/fire/auth';
 import { Router } from '@angular/router';
 import { AccountRepository } from '@core/repositories';
@@ -23,6 +23,7 @@ export class FirebaseAuthService {
   private readonly settingsService = inject(SettingsService);
   private readonly router = inject(Router);
   private readonly accountRepository = inject(AccountRepository);
+  private readonly injector = inject(Injector);
 
   /**
    * Get the current Firebase user as an Observable
@@ -64,7 +65,7 @@ export class FirebaseAuthService {
    */
   async signInWithEmailAndPassword(email: string, password: string): Promise<User> {
     try {
-      const credential = await signInWithEmailAndPassword(this.auth, email, password);
+      const credential = await runInInjectionContext(this.injector, () => signInWithEmailAndPassword(this.auth, email, password));
       await this.syncUserToServices(credential.user);
       return credential.user;
     } catch (error: any) {
@@ -78,7 +79,7 @@ export class FirebaseAuthService {
    */
   async signUpWithEmailAndPassword(email: string, password: string): Promise<User> {
     try {
-      const credential = await createUserWithEmailAndPassword(this.auth, email, password);
+      const credential = await runInInjectionContext(this.injector, () => createUserWithEmailAndPassword(this.auth, email, password));
 
       // Create account document in Firestore
       await this.accountRepository.create({

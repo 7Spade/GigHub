@@ -1,8 +1,8 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit, DestroyRef } from '@angular/core';
+import { SupabaseService } from '@core/services/supabase.service';
+import { NotificationStore } from '@core/stores/notification.store';
 import { NoticeIconModule, NoticeIconSelect } from '@delon/abc/notice-icon';
 import { NzMessageService } from 'ng-zorro-antd/message';
-import { NotificationStore } from '@core/stores/notification.store';
-import { SupabaseService } from '@core/services/supabase.service';
 
 /**
  * Header Notify Component

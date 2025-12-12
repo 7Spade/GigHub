@@ -1,8 +1,7 @@
 import { Injectable, inject } from '@angular/core';
-import { SupabaseClient } from '@supabase/supabase-js';
 import { Notification, CreateNotificationData, UpdateNotificationData } from '@core/models/notification.model';
 import { SupabaseService } from '@core/services/supabase.service';
-import { RealtimeChannel } from '@supabase/supabase-js';
+import { SupabaseClient, RealtimeChannel } from '@supabase/supabase-js';
 
 /**
  * Notification Repository
@@ -109,7 +108,7 @@ export class NotificationRepository {
    * Update a notification
    */
   async update(id: string, data: UpdateNotificationData): Promise<void> {
-    const { error} = await this.supabase.from('notifications').update(data).eq('id', id);
+    const { error } = await this.supabase.from('notifications').update(data).eq('id', id);
 
     if (error) {
       throw new Error(`Failed to update notification: ${error.message}`);
