@@ -1,14 +1,12 @@
 import { TestBed } from '@angular/core/testing';
 
 import { LoggerService, LogLevel } from './logger.service';
-import { ConsoleTransport } from './console-transport';
 
 describe('LoggerService', () => {
   let service: LoggerService;
   let consoleErrorSpy: jasmine.Spy;
   let consoleWarnSpy: jasmine.Spy;
   let consoleInfoSpy: jasmine.Spy;
-  let consoleLogSpy: jasmine.Spy;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -35,15 +33,15 @@ describe('LoggerService', () => {
       service.error('[TestSource]', 'Failed to initialize client', testError);
 
       expect(consoleErrorSpy).toHaveBeenCalledTimes(1);
-      
+
       const loggedPayload = consoleErrorSpy.calls.mostRecent().args[1];
-      
+
       // Verify the error field is populated (not undefined)
       expect(loggedPayload.error).toBeDefined();
       expect(loggedPayload.error.name).toBe('Error');
       expect(loggedPayload.error.message).toBe('Test error message');
       expect(loggedPayload.error.stack).toContain('testFunction');
-      
+
       // Verify other fields
       expect(loggedPayload.source).toBe('[TestSource]');
       expect(loggedPayload.message).toBe('Failed to initialize client');
@@ -54,9 +52,9 @@ describe('LoggerService', () => {
       service.error('[TestSource]', 'Error without Error object');
 
       expect(consoleErrorSpy).toHaveBeenCalledTimes(1);
-      
+
       const loggedPayload = consoleErrorSpy.calls.mostRecent().args[1];
-      
+
       // Error field should be undefined when no Error object provided
       expect(loggedPayload.error).toBeUndefined();
       expect(loggedPayload.source).toBe('[TestSource]');
@@ -70,14 +68,14 @@ describe('LoggerService', () => {
       service.error('[TestSource]', 'Error with context', testError, context);
 
       expect(consoleErrorSpy).toHaveBeenCalledTimes(1);
-      
+
       const loggedPayload = consoleErrorSpy.calls.mostRecent().args[1];
-      
+
       // Verify error field is populated
       expect(loggedPayload.error).toBeDefined();
       expect(loggedPayload.error.name).toBe('Error');
       expect(loggedPayload.error.message).toBe('Context error');
-      
+
       // Verify context is preserved
       expect(loggedPayload.context).toBeDefined();
       expect(loggedPayload.context.userId).toBe(123);
@@ -96,13 +94,13 @@ describe('LoggerService', () => {
       }
 
       const customError = new CustomError('Custom error message', 'ERR_CUSTOM');
-      
+
       service.error('[TestSource]', 'Custom error occurred', customError);
 
       expect(consoleErrorSpy).toHaveBeenCalledTimes(1);
-      
+
       const loggedPayload = consoleErrorSpy.calls.mostRecent().args[1];
-      
+
       expect(loggedPayload.error).toBeDefined();
       expect(loggedPayload.error.name).toBe('CustomError');
       expect(loggedPayload.error.message).toBe('Custom error message');
@@ -114,7 +112,7 @@ describe('LoggerService', () => {
       service.info('[TestSource]', 'Info message', { key: 'value' });
 
       expect(consoleInfoSpy).toHaveBeenCalledTimes(1);
-      
+
       const loggedPayload = consoleInfoSpy.calls.mostRecent().args[1];
       expect(loggedPayload.source).toBe('[TestSource]');
       expect(loggedPayload.message).toBe('Info message');
@@ -126,7 +124,7 @@ describe('LoggerService', () => {
       service.warn('[TestSource]', 'Warning message');
 
       expect(consoleWarnSpy).toHaveBeenCalledTimes(1);
-      
+
       const loggedPayload = consoleWarnSpy.calls.mostRecent().args[1];
       expect(loggedPayload.source).toBe('[TestSource]');
       expect(loggedPayload.message).toBe('Warning message');
@@ -136,13 +134,13 @@ describe('LoggerService', () => {
   describe('log level filtering', () => {
     it('should not log messages below the set log level', () => {
       service.setLevel(LogLevel.ERROR);
-      
+
       service.info('[TestSource]', 'This should not be logged');
       service.warn('[TestSource]', 'This should not be logged');
-      
+
       expect(consoleInfoSpy).not.toHaveBeenCalled();
       expect(consoleWarnSpy).not.toHaveBeenCalled();
-      
+
       service.error('[TestSource]', 'This should be logged');
       expect(consoleErrorSpy).toHaveBeenCalledTimes(1);
     });
