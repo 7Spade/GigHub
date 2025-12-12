@@ -6,26 +6,26 @@ runConfig:
 
 # Environment variables and secrets
 env:
-  - variable: STORAGE_BUCKET
-    value: mybucket.firebasestorage.app
-    availability:
-      - BUILD
-      - RUNTIME
+  # Example configuration for Firebase Storage bucket
+  # Uncomment and configure as needed
+  # - variable: STORAGE_BUCKET
+  #   value: mybucket.firebasestorage.app
+  #   availability:
+  #     - BUILD
+  #     - RUNTIME
 
-  - variable: API_KEY
-    secret: myApiKeySecret
-
-    # Same as API_KEY above but with a pinned version.
-  - variable: PINNED_API_KEY
-    secret: myApiKeySecret@5
-
-    # Same as API_KEY above but with the long form secret reference as defined by Cloud Secret Manager.
-  - variable: VERBOSE_API_KEY
-    secret: projects/test-project/secrets/secretID
-
-    # Same as API_KEY above but with the long form secret reference with pinned version.
-  - variable: PINNED_VERBOSE_API_KEY
-    secret: projects/test-project/secrets/secretID/versions/5
+  # Example secret configurations (uncomment and configure as needed)
+  # - variable: API_KEY
+  #   secret: myApiKeySecret
+  #
+  # - variable: PINNED_API_KEY
+  #   secret: myApiKeySecret@5
+  #
+  # - variable: VERBOSE_API_KEY
+  #   secret: projects/test-project/secrets/secretID
+  #
+  # - variable: PINNED_VERBOSE_API_KEY
+  #   secret: projects/test-project/secrets/secretID/versions/5
 
   - variable: NG_PUBLIC_SUPABASE_ANON_KEY
     value: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InplY3Nic3RqcWpxb3l0d2dqeWN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU0OTk5MzcsImV4cCI6MjA4MTA3NTkzN30.GQSslGa2ujmjdR-DeqXwPiAUr0RPe2O3lwb37wnJQeE'
