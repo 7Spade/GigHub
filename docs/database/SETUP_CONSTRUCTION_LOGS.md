@@ -5,7 +5,7 @@ This document provides step-by-step instructions for setting up the `constructio
 
 ## Prerequisites
 - Access to Supabase Dashboard (https://supabase.com/dashboard)
-- Project: `edfxrqgadtlnfhqqmgjw.supabase.co`
+- Project: `zecsbstjqjqoytwgjyct.supabase.co`
 - Admin or Owner permissions
 
 ## Setup Steps

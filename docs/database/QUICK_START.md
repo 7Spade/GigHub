@@ -7,7 +7,7 @@ Your construction logs feature is **complete and ready** - it just needs databas
 ### Step 1: Execute SQL (2 minutes)
 
 1. **Open Supabase Dashboard**
-   - URL: https://supabase.com/dashboard/project/edfxrqgadtlnfhqqmgjw
+   - URL: https://supabase.com/dashboard/project/zecsbstjqjqoytwgjyct
 
 2. **Navigate to SQL Editor**
    - Left sidebar → SQL Editor → New query
