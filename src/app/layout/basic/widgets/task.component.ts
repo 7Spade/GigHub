@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit, DestroyRef } from '@angular/core';
 import { NzAvatarModule } from 'ng-zorro-antd/avatar';
 import { NzBadgeModule } from 'ng-zorro-antd/badge';
 import { NzCardModule } from 'ng-zorro-antd/card';
@@ -6,7 +6,16 @@ import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
 import { NzGridModule } from 'ng-zorro-antd/grid';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
+import { NzEmptyModule } from 'ng-zorro-antd/empty';
+import { NotificationStore } from '@core/stores/notification.store';
+import { SupabaseService } from '@core/services/supabase.service';
 
+/**
+ * Header Task Component
+ *
+ * Displays todo-type notifications in a dropdown
+ * Shares NotificationStore with notify.component
+ */
 @Component({
   selector: 'header-task',
   template: `
@@ -16,83 +25,88 @@ import { NzSpinModule } from 'ng-zorro-antd/spin';
       [nzDropdownMenu]="taskMenu"
       nzTrigger="click"
       nzPlacement="bottomRight"
-      (nzVisibleChange)="change()"
+      (nzVisibleChange)="loadData()"
     >
-      <nz-badge [nzDot]="true">
+      <nz-badge [nzCount]="notificationStore.unreadTodoCount()">
         <i nz-icon nzType="bell" class="alain-default__nav-item-icon"></i>
       </nz-badge>
     </div>
     <nz-dropdown-menu #taskMenu="nzDropdownMenu">
       <div nz-menu class="wd-lg">
-        @if (loading) {
+        @if (notificationStore.loading()) {
           <div class="mx-lg p-lg"><nz-spin /></div>
         } @else {
-          <nz-card nzTitle="Notifications" nzBordered="false" class="ant-card__body-nopadding">
-            <ng-template #extra><i nz-icon nzType="plus"></i></ng-template>
-            <div nz-row [nzJustify]="'center'" [nzAlign]="'middle'" class="py-sm pr-md point bg-grey-lighter-h">
-              <div nz-col [nzSpan]="4" class="text-center">
-                <nz-avatar [nzSrc]="'./assets/tmp/img/1.png'" />
+          <nz-card nzTitle="待辦事項" nzBordered="false" class="ant-card__body-nopadding">
+            @if (notificationStore.todoNotifications().length === 0) {
+              <div class="p-lg text-center">
+                <nz-empty nzNotFoundContent="暫無待辦事項" />
               </div>
-              <div nz-col [nzSpan]="20">
-                <strong>cipchk</strong>
-                <p class="mb0">Please tell me what happened in a few words, don't go into details.</p>
+            } @else {
+              @for (task of notificationStore.todoNotifications(); track task.id) {
+                <div
+                  nz-row
+                  [nzJustify]="'center'"
+                  [nzAlign]="'middle'"
+                  class="py-sm pr-md point bg-grey-lighter-h"
+                  (click)="handleTaskClick(task)"
+                >
+                  <div nz-col [nzSpan]="4" class="text-center">
+                    @if (task.avatar) {
+                      <nz-avatar [nzSrc]="task.avatar" />
+                    } @else {
+                      <nz-avatar nzIcon="user" />
+                    }
+                  </div>
+                  <div nz-col [nzSpan]="20">
+                    <strong>{{ task.title }}</strong>
+                    @if (task.description) {
+                      <p class="mb0">{{ task.description }}</p>
+                    }
+                    @if (task.extra) {
+                      <p class="mb0 text-grey">{{ task.extra }}</p>
+                    }
+                  </div>
+                </div>
+              }
+              <div nz-row>
+                <div nz-col [nzSpan]="24" class="pt-md border-top-1 text-center text-grey point">查看全部</div>
               </div>
-            </div>
-            <div nz-row [nzJustify]="'center'" [nzAlign]="'middle'" class="py-sm pr-md point bg-grey-lighter-h">
-              <div nz-col [nzSpan]="4" class="text-center">
-                <nz-avatar [nzSrc]="'./assets/tmp/img/2.png'" />
-              </div>
-              <div nz-col [nzSpan]="20">
-                <strong>はなさき</strong>
-                <p class="mb0">ハルカソラトキヘダツヒカリ</p>
-              </div>
-            </div>
-            <div nz-row [nzJustify]="'center'" [nzAlign]="'middle'" class="py-sm pr-md point bg-grey-lighter-h">
-              <div nz-col [nzSpan]="4" class="text-center">
-                <nz-avatar [nzSrc]="'./assets/tmp/img/3.png'" />
-              </div>
-              <div nz-col [nzSpan]="20">
-                <strong>苏先生</strong>
-                <p class="mb0">请告诉我，我应该说点什么好？</p>
-              </div>
-            </div>
-            <div nz-row [nzJustify]="'center'" [nzAlign]="'middle'" class="py-sm pr-md point bg-grey-lighter-h">
-              <div nz-col [nzSpan]="4" class="text-center">
-                <nz-avatar [nzSrc]="'./assets/tmp/img/4.png'" />
-              </div>
-              <div nz-col [nzSpan]="20">
-                <strong>Kent</strong>
-                <p class="mb0">Please tell me what happened in a few words, don't go into details.</p>
-              </div>
-            </div>
-            <div nz-row [nzJustify]="'center'" [nzAlign]="'middle'" class="py-sm pr-md point bg-grey-lighter-h">
-              <div nz-col [nzSpan]="4" class="text-center">
-                <nz-avatar [nzSrc]="'./assets/tmp/img/5.png'" />
-              </div>
-              <div nz-col [nzSpan]="20">
-                <strong>Jefferson</strong>
-                <p class="mb0">Please tell me what happened in a few words, don't go into details.</p>
-              </div>
-            </div>
-            <div nz-row>
-              <div nz-col [nzSpan]="24" class="pt-md border-top-1 text-center text-grey point">See All</div>
-            </div>
+            }
           </nz-card>
         }
       </div>
     </nz-dropdown-menu>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [NzDropDownModule, NzBadgeModule, NzIconModule, NzSpinModule, NzGridModule, NzAvatarModule, NzCardModule]
+  imports: [NzDropDownModule, NzBadgeModule, NzIconModule, NzSpinModule, NzGridModule, NzAvatarModule, NzCardModule, NzEmptyModule]
 })
-export class HeaderTaskComponent {
-  private readonly cdr = inject(ChangeDetectorRef);
-  loading = true;
+export class HeaderTaskComponent implements OnInit {
+  private readonly supabase = inject(SupabaseService);
+  private readonly destroyRef = inject(DestroyRef);
+  protected readonly notificationStore = inject(NotificationStore);
 
-  change(): void {
-    setTimeout(() => {
-      this.loading = false;
-      this.cdr.detectChanges();
-    }, 500);
+  async ngOnInit(): Promise<void> {
+    const user = await this.supabase.getCurrentUser();
+    if (user) {
+      // Subscribe to realtime updates (shared with notify.component)
+      this.notificationStore.subscribeToRealtimeUpdates(user.id, this.destroyRef);
+    }
+  }
+
+  async loadData(): Promise<void> {
+    const user = await this.supabase.getCurrentUser();
+    if (user) {
+      await this.notificationStore.loadNotifications(user.id);
+    }
+  }
+
+  async handleTaskClick(task: any): Promise<void> {
+    // Mark as read when clicked
+    await this.notificationStore.markAsRead(task.id);
+
+    // Navigate to task link if available
+    if (task.link) {
+      window.location.href = task.link;
+    }
   }
 }
