@@ -10,13 +10,15 @@
 
 import { Component, input, computed, inject } from '@angular/core';
 import { SHARED_IMPORTS } from '@shared';
+import { NzTimelineModule } from 'ng-zorro-antd/timeline';
+import { NzEmptyModule } from 'ng-zorro-antd/empty';
 import { Task, TimelineItem } from '@core/types/task';
 import { TaskStore } from '@core/stores/task.store';
 
 @Component({
   selector: 'app-task-timeline-view',
   standalone: true,
-  imports: [SHARED_IMPORTS],
+  imports: [SHARED_IMPORTS, NzTimelineModule, NzEmptyModule],
   template: `
     <div class="timeline-container">
       @if (loading()) {
@@ -28,7 +30,7 @@ import { TaskStore } from '@core/stores/task.store';
           @for (item of timelineItems(); track item.id) {
             <nz-timeline-item 
               [nzColor]="item.color"
-              [nzLabel]="item.date | date: 'yyyy-MM-dd'"
+              [nzLabel]="(item.date | date: 'yyyy-MM-dd') || ''"
             >
               <div class="timeline-content">
                 <div class="timeline-header">

@@ -20,6 +20,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { SHARED_IMPORTS } from '@shared';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NZ_MODAL_DATA, NzModalRef } from 'ng-zorro-antd/modal';
+import { NzSliderModule } from 'ng-zorro-antd/slider';
 import { TaskStore } from '@core/stores/task.store';
 import { Task, TaskStatus, TaskPriority, CreateTaskRequest, UpdateTaskRequest } from '@core/types/task';
 
@@ -32,7 +33,7 @@ interface ModalData {
 @Component({
   selector: 'app-task-modal',
   standalone: true,
-  imports: [SHARED_IMPORTS],
+  imports: [SHARED_IMPORTS, NzSliderModule],
   template: `
     <form nz-form [formGroup]="form" (ngSubmit)="submit()">
       <!-- Title -->

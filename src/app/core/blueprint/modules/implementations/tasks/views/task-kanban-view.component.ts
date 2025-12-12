@@ -9,7 +9,7 @@
  */
 
 import { Component, input, computed, inject } from '@angular/core';
-import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
+import { CdkDragDrop, DragDropModule, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { SHARED_IMPORTS } from '@shared';
 import { Task, TaskStatus, KanbanColumn } from '@core/types/task';
 import { TaskStore } from '@core/stores/task.store';
@@ -18,7 +18,7 @@ import { NzMessageService } from 'ng-zorro-antd/message';
 @Component({
   selector: 'app-task-kanban-view',
   standalone: true,
-  imports: [SHARED_IMPORTS],
+  imports: [SHARED_IMPORTS, DragDropModule],
   template: `
     <div class="kanban-container">
       @if (loading()) {

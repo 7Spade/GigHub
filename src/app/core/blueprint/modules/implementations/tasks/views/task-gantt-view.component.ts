@@ -10,13 +10,14 @@
 
 import { Component, input, computed, inject } from '@angular/core';
 import { SHARED_IMPORTS } from '@shared';
+import { NzEmptyModule } from 'ng-zorro-antd/empty';
 import { Task, GanttTask } from '@core/types/task';
 import { TaskStore } from '@core/stores/task.store';
 
 @Component({
   selector: 'app-task-gantt-view',
   standalone: true,
-  imports: [SHARED_IMPORTS],
+  imports: [SHARED_IMPORTS, NzEmptyModule],
   template: `
     <div class="gantt-container">
       @if (loading()) {

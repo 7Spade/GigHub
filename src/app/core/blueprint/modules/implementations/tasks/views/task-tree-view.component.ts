@@ -10,7 +10,7 @@
 
 import { Component, input, signal, computed, inject } from '@angular/core';
 import { FlatTreeControl } from '@angular/cdk/tree';
-import { NzTreeFlatDataSource, NzTreeFlattener } from 'ng-zorro-antd/tree-view';
+import { NzTreeFlatDataSource, NzTreeFlattener, NzTreeViewModule } from 'ng-zorro-antd/tree-view';
 import { SHARED_IMPORTS } from '@shared';
 import { Task, TaskTreeNode } from '@core/types/task';
 import { TaskStore } from '@core/stores/task.store';
@@ -27,7 +27,7 @@ interface FlatNode {
 @Component({
   selector: 'app-task-tree-view',
   standalone: true,
-  imports: [SHARED_IMPORTS],
+  imports: [SHARED_IMPORTS, NzTreeViewModule],
   template: `
     <div class="tree-view-container">
       @if (loading()) {
