@@ -62,13 +62,22 @@ export class LoggerService {
   }
 
   error(source: string, message: string, error?: Error, context?: Record<string, unknown>): void {
-    this.log(LogLevel.ERROR, source, message, {
-      ...context,
-      error: error ? { name: error.name, message: error.message, stack: error.stack } : undefined
-    });
+    this.log(
+      LogLevel.ERROR,
+      source,
+      message,
+      context,
+      error ? { name: error.name, message: error.message, stack: error.stack } : undefined
+    );
   }
 
-  private log(level: LogLevel, source: string, message: string, context?: Record<string, unknown>): void {
+  private log(
+    level: LogLevel,
+    source: string,
+    message: string,
+    context?: Record<string, unknown>,
+    error?: { name: string; message: string; stack?: string }
+  ): void {
     if (level < this.logLevel) return;
 
     const entry: LogEntry = {
@@ -76,7 +85,8 @@ export class LoggerService {
       level,
       source,
       message,
-      context
+      context,
+      error
     };
 
     this.transports.forEach(transport => transport.log(entry));
