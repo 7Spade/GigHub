@@ -14,7 +14,7 @@
  * @date 2025-12-11
  */
 
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Log, CreateLogRequest, UpdateLogRequest } from '@core/types/log/log.types';
 import { SHARED_IMPORTS } from '@shared';
@@ -120,7 +120,9 @@ interface ModalData {
               [nzMultiple]="true"
               [nzAccept]="'image/*'"
               [nzBeforeUpload]="beforeUpload"
+              [nzFileList]="uploadFileList()"
               [nzShowUploadList]="{ showPreviewIcon: true, showRemoveIcon: true }"
+              (nzRemove)="handleRemove($event)"
             >
               <p class="ant-upload-drag-icon">
                 <span nz-icon nzType="inbox"></span>
@@ -186,7 +188,7 @@ interface ModalData {
     `
   ]
 })
-export class ConstructionLogModalComponent implements OnInit {
+export class ConstructionLogModalComponent implements OnInit, OnDestroy {
   private fb = inject(FormBuilder);
   private modalRef = inject(NzModalRef);
   private message = inject(NzMessageService);
@@ -201,9 +203,19 @@ export class ConstructionLogModalComponent implements OnInit {
   // State
   submitting = signal(false);
   fileList = signal<File[]>([]);
+  uploadFileList = signal<NzUploadFile[]>([]);
 
   ngOnInit(): void {
     this.initForm();
+  }
+
+  ngOnDestroy(): void {
+    // Cleanup object URLs
+    this.uploadFileList().forEach(file => {
+      if (file.url) {
+        URL.revokeObjectURL(file.url);
+      }
+    });
   }
 
   private initForm(): void {
@@ -273,8 +285,35 @@ export class ConstructionLogModalComponent implements OnInit {
       return false;
     }
 
+    // Add to file lists
     this.fileList.update(list => [...list, file as any]);
-    return false;
+
+    // Add to upload file list for display
+    const uploadFile: NzUploadFile = {
+      uid: `${Date.now()}-${file.name}`,
+      name: file.name,
+      status: 'done',
+      url: URL.createObjectURL(file as any),
+      originFileObj: file as any
+    };
+    this.uploadFileList.update(list => [...list, uploadFile]);
+
+    return false; // Prevent automatic upload
+  };
+
+  handleRemove = (file: NzUploadFile): boolean => {
+    // Remove from file list
+    this.fileList.update(list => list.filter(f => f.name !== file.name));
+
+    // Remove from upload file list
+    this.uploadFileList.update(list => list.filter(f => f.uid !== file.uid));
+
+    // Revoke object URL to free memory
+    if (file.url) {
+      URL.revokeObjectURL(file.url);
+    }
+
+    return true;
   };
 
   async deletePhoto(photoId: string): Promise<void> {

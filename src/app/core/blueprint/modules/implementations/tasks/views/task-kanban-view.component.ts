@@ -8,11 +8,11 @@
  * @date 2025-12-12
  */
 
-import { Component, input, computed, inject } from '@angular/core';
 import { CdkDragDrop, DragDropModule, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
-import { SHARED_IMPORTS } from '@shared';
-import { Task, TaskStatus, KanbanColumn } from '@core/types/task';
+import { Component, input, computed, inject } from '@angular/core';
 import { TaskStore } from '@core/stores/task.store';
+import { Task, TaskStatus, KanbanColumn } from '@core/types/task';
+import { SHARED_IMPORTS } from '@shared';
 import { NzMessageService } from 'ng-zorro-antd/message';
 
 @Component({
@@ -33,8 +33,8 @@ import { NzMessageService } from 'ng-zorro-antd/message';
                 <h3>{{ column.title }}</h3>
                 <nz-badge [nzCount]="column.tasks.length" [nzStyle]="{ backgroundColor: column.color }" />
               </div>
-              
-              <div 
+
+              <div
                 class="column-content"
                 cdkDropList
                 [id]="column.id"
@@ -50,17 +50,17 @@ import { NzMessageService } from 'ng-zorro-antd/message';
                         {{ getPriorityText(task.priority) }}
                       </nz-tag>
                     </div>
-                    
+
                     @if (task.description) {
                       <div class="task-description">{{ task.description }}</div>
                     }
-                    
+
                     @if (task.progress !== undefined) {
                       <div class="task-progress">
                         <nz-progress [nzPercent]="task.progress" nzSize="small" />
                       </div>
                     }
-                    
+
                     <div class="task-meta">
                       @if (task.assigneeName) {
                         <nz-avatar [nzText]="task.assigneeName.charAt(0)" nzSize="small" />
@@ -214,7 +214,7 @@ export class TaskKanbanViewComponent {
   // Kanban columns
   readonly columns = computed(() => {
     const tasks = this.taskStore.tasks();
-    
+
     const columnDefs = [
       { id: TaskStatus.PENDING, title: '待處理', status: TaskStatus.PENDING, color: '#d9d9d9' },
       { id: TaskStatus.IN_PROGRESS, title: '進行中', status: TaskStatus.IN_PROGRESS, color: '#1890ff' },
@@ -228,9 +228,7 @@ export class TaskKanbanViewComponent {
     }));
   });
 
-  readonly connectedDropLists = computed(() => 
-    this.columns().map(col => col.id)
-  );
+  readonly connectedDropLists = computed(() => this.columns().map(col => col.id));
 
   /**
    * Handle card drop event
@@ -242,13 +240,8 @@ export class TaskKanbanViewComponent {
     } else {
       // Different column - move and update status
       const task = event.previousContainer.data[event.previousIndex];
-      
-      transferArrayItem(
-        event.previousContainer.data,
-        event.container.data,
-        event.previousIndex,
-        event.currentIndex
-      );
+
+      transferArrayItem(event.previousContainer.data, event.container.data, event.previousIndex, event.currentIndex);
 
       // Update task status
       try {
@@ -262,12 +255,7 @@ export class TaskKanbanViewComponent {
       } catch (error) {
         this.message.error('更新任務狀態失敗');
         // Revert the move
-        transferArrayItem(
-          event.container.data,
-          event.previousContainer.data,
-          event.currentIndex,
-          event.previousIndex
-        );
+        transferArrayItem(event.container.data, event.previousContainer.data, event.currentIndex, event.previousIndex);
       }
     }
   }

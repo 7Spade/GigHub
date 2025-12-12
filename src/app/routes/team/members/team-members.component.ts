@@ -196,8 +196,6 @@ export class TeamMembersComponent implements OnInit {
     return '組織';
   }
 
-
-
   readonly currentTeamId = computed(() =>
     this.workspaceContext.contextType() === ContextType.TEAM ? this.workspaceContext.contextId() : null
   );

@@ -9,10 +9,10 @@
  */
 
 import { Component, input, output, inject } from '@angular/core';
+import { TaskStore } from '@core/stores/task.store';
+import { Task, TaskStatus, TaskPriority } from '@core/types/task';
 import { STColumn } from '@delon/abc/st';
 import { SHARED_IMPORTS } from '@shared';
-import { Task, TaskStatus, TaskPriority } from '@core/types/task';
-import { TaskStore } from '@core/stores/task.store';
 
 @Component({
   selector: 'app-task-list-view',
@@ -25,12 +25,7 @@ import { TaskStore } from '@core/stores/task.store';
       } @else if (error()) {
         <nz-alert nzType="error" [nzMessage]="error()" nzShowIcon />
       } @else {
-        <st 
-          [data]="tasks()" 
-          [columns]="columns" 
-          [page]="{ show: true, showSize: true }" 
-          [loading]="loading()"
-        />
+        <st [data]="tasks()" [columns]="columns" [page]="{ show: true, showSize: true }" [loading]="loading()" />
       }
     </div>
   `,

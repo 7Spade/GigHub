@@ -9,10 +9,10 @@
  */
 
 import { Component, input, computed, inject } from '@angular/core';
+import { TaskStore } from '@core/stores/task.store';
+import { Task, GanttTask } from '@core/types/task';
 import { SHARED_IMPORTS } from '@shared';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
-import { Task, GanttTask } from '@core/types/task';
-import { TaskStore } from '@core/stores/task.store';
 
 @Component({
   selector: 'app-task-gantt-view',
@@ -27,12 +27,7 @@ import { TaskStore } from '@core/stores/task.store';
       } @else {
         <div class="gantt-header">
           <h3>甘特圖視圖</h3>
-          <nz-alert 
-            nzType="info" 
-            nzMessage="基礎甘特圖實現" 
-            nzDescription="顯示任務起始日期與持續時間的簡化視圖"
-            nzShowIcon
-          />
+          <nz-alert nzType="info" nzMessage="基礎甘特圖實現" nzDescription="顯示任務起始日期與持續時間的簡化視圖" nzShowIcon />
         </div>
 
         <div class="gantt-chart">
@@ -52,21 +47,17 @@ import { TaskStore } from '@core/stores/task.store';
               <div class="gantt-row">
                 <div class="task-name">
                   {{ ganttTask.name }}
-                  <nz-tag [nzColor]="getPriorityColor(ganttTask)">
-                    {{ ganttTask.progress }}%
-                  </nz-tag>
+                  <nz-tag [nzColor]="getPriorityColor(ganttTask)"> {{ ganttTask.progress }}% </nz-tag>
                 </div>
                 <div class="task-timeline">
-                  <div 
+                  <div
                     class="task-bar"
                     [style.left.%]="getTaskPosition(ganttTask)"
                     [style.width.%]="getTaskWidth(ganttTask)"
                     [style.background-color]="ganttTask.color"
                   >
                     <div class="task-bar-progress" [style.width.%]="ganttTask.progress"></div>
-                    <span class="task-bar-label">
-                      {{ ganttTask.start | date: 'MM/dd' }} - {{ ganttTask.end | date: 'MM/dd' }}
-                    </span>
+                    <span class="task-bar-label"> {{ ganttTask.start | date: 'MM/dd' }} - {{ ganttTask.end | date: 'MM/dd' }} </span>
                   </div>
                 </div>
               </div>
@@ -215,13 +206,13 @@ export class TaskGanttViewComponent {
   // Convert tasks to gantt format
   readonly ganttTasks = computed(() => {
     const tasks = this.taskStore.tasks();
-    
+
     return tasks
       .filter(task => task.startDate || task.dueDate)
       .map(task => {
         const start = task.startDate ? new Date(task.startDate) : new Date();
         const end = task.dueDate ? new Date(task.dueDate) : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-        
+
         return {
           id: task.id!,
           name: task.title,
@@ -252,7 +243,7 @@ export class TaskGanttViewComponent {
     const start = this.timelineStart().getTime();
     const end = this.timelineEnd().getTime();
     const taskStart = ganttTask.start.getTime();
-    
+
     const position = ((taskStart - start) / (end - start)) * 100;
     return Math.max(0, Math.min(100, position));
   }
@@ -265,7 +256,7 @@ export class TaskGanttViewComponent {
     const end = this.timelineEnd().getTime();
     const taskStart = ganttTask.start.getTime();
     const taskEnd = ganttTask.end.getTime();
-    
+
     const width = ((taskEnd - taskStart) / (end - start)) * 100;
     return Math.max(1, Math.min(100, width));
   }
