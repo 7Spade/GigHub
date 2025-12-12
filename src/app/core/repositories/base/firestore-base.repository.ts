@@ -18,8 +18,8 @@ import {
   Timestamp
 } from '@angular/fire/firestore';
 import { ErrorTrackingService } from '@core/services/error-tracking.service';
-import { LoggerService } from '@core/services/logger';
 import { FirebaseService } from '@core/services/firebase.service';
+import { LoggerService } from '@core/services/logger';
 
 /**
  * Firestore Base Repository
@@ -83,7 +83,7 @@ export abstract class FirestoreBaseRepository<T> {
     // Default: spread entity as document
     // Remove undefined values and convert dates
     const doc: DocumentData = {};
-    
+
     for (const [key, value] of Object.entries(entity)) {
       if (value !== undefined) {
         // Convert Date to Firestore Timestamp
@@ -94,7 +94,7 @@ export abstract class FirestoreBaseRepository<T> {
         }
       }
     }
-    
+
     return doc;
   }
 
@@ -244,11 +244,11 @@ export abstract class FirestoreBaseRepository<T> {
   protected async getDocument(id: string): Promise<T | null> {
     const docRef = doc(this.firebaseService.db, this.collectionName, id);
     const snapshot = await getDoc(docRef);
-    
+
     if (!snapshot.exists()) {
       return null;
     }
-    
+
     return this.toEntity(snapshot.data(), snapshot.id);
   }
 
@@ -265,7 +265,7 @@ export abstract class FirestoreBaseRepository<T> {
       created_at: Timestamp.now(),
       updated_at: Timestamp.now()
     });
-    
+
     const snapshot = await getDoc(docRef);
     return this.toEntity(snapshot.data()!, snapshot.id);
   }
@@ -280,12 +280,12 @@ export abstract class FirestoreBaseRepository<T> {
   protected async updateDocument(id: string, entity: Partial<T>): Promise<T> {
     const docRef = doc(this.firebaseService.db, this.collectionName, id);
     const docData = this.toDocument(entity);
-    
+
     await updateDoc(docRef, {
       ...docData,
       updated_at: Timestamp.now()
     });
-    
+
     const snapshot = await getDoc(docRef);
     return this.toEntity(snapshot.data()!, snapshot.id);
   }
@@ -298,7 +298,7 @@ export abstract class FirestoreBaseRepository<T> {
    */
   protected async deleteDocument(id: string, hard = false): Promise<void> {
     const docRef = doc(this.firebaseService.db, this.collectionName, id);
-    
+
     if (hard) {
       await deleteDoc(docRef);
     } else {
@@ -340,7 +340,7 @@ export abstract class FirestoreBaseRepository<T> {
       'not-found': 'error.not-found',
       'already-exists': 'error.already-exists',
       'failed-precondition': 'error.failed-precondition',
-      'unauthenticated': 'error.unauthenticated',
+      unauthenticated: 'error.unauthenticated',
       'resource-exhausted': 'error.resource-exhausted',
       unavailable: 'error.service-unavailable'
     };

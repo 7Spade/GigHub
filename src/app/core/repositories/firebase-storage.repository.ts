@@ -59,7 +59,7 @@ export class FirebaseStorageRepository {
       this.logger.info('[FirebaseStorageRepository]', `Uploading file to ${fullPath}`);
 
       const storageRef = ref(this.firebaseService.storageInstance, fullPath);
-      
+
       const metadata: UploadMetadata = {
         contentType: options?.contentType || file.type,
         cacheControl: options?.cacheControl || 'public, max-age=3600',
@@ -109,7 +109,7 @@ export class FirebaseStorageRepository {
       this.logger.info('[FirebaseStorageRepository]', `Uploading file with progress tracking to ${fullPath}`);
 
       const storageRef = ref(this.firebaseService.storageInstance, fullPath);
-      
+
       const metadata: UploadMetadata = {
         contentType: options?.contentType || file.type,
         cacheControl: options?.cacheControl || 'public, max-age=3600',
@@ -137,7 +137,7 @@ export class FirebaseStorageRepository {
           async () => {
             // Upload completed successfully
             const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
-            
+
             const result: UploadResult = {
               path: path,
               fullPath: fullPath,
@@ -238,7 +238,7 @@ export class FirebaseStorageRepository {
       const filePromises = listResult.items.map(async item => {
         const metadata = await getMetadata(item);
         const downloadUrl = await getDownloadURL(item);
-        
+
         return {
           name: item.name,
           path: item.fullPath,
@@ -259,7 +259,7 @@ export class FirebaseStorageRepository {
 
       // Apply options
       let filteredFiles = files;
-      
+
       if (options?.limit) {
         filteredFiles = filteredFiles.slice(options.offset || 0, (options.offset || 0) + options.limit);
       }
@@ -312,7 +312,7 @@ export class FirebaseStorageRepository {
    */
   private mapStorageError(error: any): StorageError {
     const errorCode = error?.code || '';
-    
+
     const errorMessages: Record<string, string> = {
       'storage/object-not-found': 'File not found',
       'storage/unauthorized': 'Unauthorized access',
