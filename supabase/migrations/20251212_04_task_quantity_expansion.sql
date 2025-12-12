@@ -8,6 +8,60 @@
 -- Description: 擴展任務系統以支援數量追蹤、工作流自動化和品管功能
 -- ============================================================================
 
+-- SECTION 0: Create Required Referenced Tables (Stubs for now)
+-- 建立必需的參考表格（暫時為存根）
+
+-- Create accounts table if it doesn't exist
+CREATE TABLE IF NOT EXISTS public.accounts (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    email VARCHAR(255) UNIQUE NOT NULL,
+    name VARCHAR(255),
+    role VARCHAR(50) DEFAULT 'member',
+    organization_id UUID,
+    permissions JSONB DEFAULT '{}'::jsonb,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    deleted_at TIMESTAMPTZ,
+    
+    CONSTRAINT accounts_role_check CHECK (role IN ('admin', 'member', 'viewer', 'qc_inspector', 'system'))
+);
+
+-- Create indexes on accounts
+CREATE INDEX IF NOT EXISTS idx_accounts_email ON public.accounts(email);
+CREATE INDEX IF NOT EXISTS idx_accounts_organization_id ON public.accounts(organization_id);
+CREATE INDEX IF NOT EXISTS idx_accounts_role ON public.accounts(role);
+
+COMMENT ON TABLE public.accounts IS '帳號表格：用於用戶管理（暫時存根）';
+
+-- Create blueprints table if it doesn't exist
+CREATE TABLE IF NOT EXISTS public.blueprints (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    organization_id UUID NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    description TEXT,
+    status VARCHAR(50) DEFAULT 'active',
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    deleted_at TIMESTAMPTZ,
+    
+    CONSTRAINT blueprints_status_check CHECK (status IN ('active', 'archived', 'deleted'))
+);
+
+-- Create indexes on blueprints
+CREATE INDEX IF NOT EXISTS idx_blueprints_organization_id ON public.blueprints(organization_id);
+CREATE INDEX IF NOT EXISTS idx_blueprints_status ON public.blueprints(status);
+
+COMMENT ON TABLE public.blueprints IS '藍圖表格：用於項目管理（暫時存根）';
+
+-- Grant permissions
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.accounts TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.blueprints TO authenticated;
+
+DO $$
+BEGIN
+    RAISE NOTICE 'Created stub tables: accounts, blueprints';
+END $$;
+
 -- SECTION 1: Extend Tasks Table with Quantity Fields
 -- 擴展任務表格，增加數量追蹤欄位
 ALTER TABLE public.tasks 
