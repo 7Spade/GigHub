@@ -444,6 +444,8 @@ export class LogFirestoreRepository extends FirestoreBaseRepository<Log> {
   /**
    * Get logs statistics
    * 取得日誌統計
+   *
+   * Note: Deleted logs filtered in-memory to avoid complex index requirement.
    */
   async getStatistics(
     blueprintId: string,
@@ -456,10 +458,7 @@ export class LogFirestoreRepository extends FirestoreBaseRepository<Log> {
     averageWorkers: number;
   }> {
     return this.executeWithRetry(async () => {
-      const constraints: any[] = [
-        where('blueprint_id', '==', blueprintId),
-        where('deleted_at', '==', null)
-      ];
+      const constraints: any[] = [where('blueprint_id', '==', blueprintId)];
 
       if (startDate) {
         constraints.push(where('date', '>=', Timestamp.fromDate(startDate)));
@@ -470,7 +469,10 @@ export class LogFirestoreRepository extends FirestoreBaseRepository<Log> {
       }
 
       const q = query(this.collectionRef, ...constraints);
-      const logs = await this.queryDocuments(q);
+      let logs = await this.queryDocuments(q);
+
+      // Filter deleted logs in-memory (consistent with other methods)
+      logs = logs.filter(log => !log.deletedAt);
 
       const totalLogs = logs.length;
       const totalWorkHours = logs.reduce((sum, log) => sum + (log.workHours || 0), 0);
