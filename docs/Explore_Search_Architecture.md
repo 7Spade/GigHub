@@ -2,9 +2,10 @@
 
 > **Document Purpose**: Comprehensive architectural design for GitHub-like Explore search feature for Users, Organizations, and Blueprints  
 > **Design Date**: 2025-12-12  
-> **Document Version**: 1.0.0  
+> **Document Version**: 1.1.0  
 > **Target**: GigHub v20.1.0 (Angular 20.3.0)  
-> **Architect**: Senior Cloud Architect Agent
+> **Architect**: Senior Cloud Architect Agent  
+> **Last Updated**: 2025-12-12
 
 ---
 
@@ -1628,6 +1629,1779 @@ src/app/routes/explore/
 
 ---
 
+## API Specification
+
+### Search API Endpoints
+
+This section defines the internal service API contracts for the Explore Search feature.
+
+#### ExploreSearchFacade API
+
+The `ExploreSearchFacade` provides a unified interface for all search operations.
+
+```typescript
+/**
+ * ExploreSearchFacade - Unified Search Interface
+ * 
+ * @description Provides a single entry point for all explore search operations,
+ * coordinating multiple entity searches and managing search state.
+ */
+@Injectable({ providedIn: 'root' })
+export class ExploreSearchFacade {
+  // ============ Public Signals (State) ============
+  
+  /** Current search query */
+  readonly query: Signal<string>;
+  
+  /** Current search filters */
+  readonly filters: Signal<SearchFilters>;
+  
+  /** Search results aggregated from all entity types */
+  readonly results: Signal<SearchResult[]>;
+  
+  /** Loading state indicator */
+  readonly loading: Signal<boolean>;
+  
+  /** Error state if search fails */
+  readonly error: Signal<string | null>;
+  
+  /** Pagination state */
+  readonly pagination: Signal<PaginationState>;
+  
+  /** Whether more results are available */
+  readonly hasMore: Signal<boolean>;
+
+  // ============ Public Methods ============
+  
+  /**
+   * Execute a search query across all enabled entity types
+   * @param query - Search query string (min 1 char, max 100 chars)
+   * @param options - Optional search configuration
+   * @returns Promise that resolves when search completes
+   */
+  search(query: string, options?: SearchOptions): Promise<void>;
+  
+  /**
+   * Update search filters and re-execute search
+   * @param filters - Partial filter updates
+   */
+  updateFilters(filters: Partial<SearchFilters>): Promise<void>;
+  
+  /**
+   * Load next page of results (infinite scroll)
+   */
+  loadNextPage(): Promise<void>;
+  
+  /**
+   * Clear all search state and reset to initial
+   */
+  clearSearch(): void;
+  
+  /**
+   * Get search suggestions for autocomplete
+   * @param partial - Partial query string
+   * @returns Array of search suggestions
+   */
+  getSuggestions(partial: string): Promise<SearchSuggestion[]>;
+}
+```
+
+#### Data Type Definitions
+
+```typescript
+/**
+ * Search Filter Configuration
+ */
+interface SearchFilters {
+  /** Entity types to include in search */
+  entityTypes: ('account' | 'organization' | 'blueprint')[];
+  
+  /** Filter by visibility (public/private) */
+  visibility?: 'public' | 'private' | 'all';
+  
+  /** Filter by status (for blueprints) */
+  status?: 'draft' | 'active' | 'archived' | 'all';
+  
+  /** Filter by date range */
+  dateRange?: {
+    start: Date;
+    end: Date;
+  };
+  
+  /** Sort configuration */
+  sortBy: 'relevance' | 'created' | 'updated' | 'name';
+  sortOrder: 'asc' | 'desc';
+}
+
+/**
+ * Search Result - Unified result type for all entities
+ */
+interface SearchResult {
+  /** Unique identifier */
+  id: string;
+  
+  /** Entity type discriminator */
+  type: 'account' | 'organization' | 'blueprint';
+  
+  /** Display title (name) */
+  title: string;
+  
+  /** Secondary text (description excerpt) */
+  subtitle: string;
+  
+  /** Avatar or cover image URL */
+  avatarUrl: string | null;
+  
+  /** Relevance score (0-100) */
+  relevanceScore: number;
+  
+  /** Entity-specific metadata */
+  metadata: AccountMetadata | OrganizationMetadata | BlueprintMetadata;
+  
+  /** Highlighted text matches */
+  highlights: {
+    field: string;
+    matches: string[];
+  }[];
+  
+  /** Creation timestamp */
+  createdAt: Date;
+  
+  /** Last update timestamp */
+  updatedAt: Date;
+}
+
+/**
+ * Account-specific metadata
+ */
+interface AccountMetadata {
+  email: string;
+  organizationCount: number;
+  blueprintCount: number;
+}
+
+/**
+ * Organization-specific metadata
+ */
+interface OrganizationMetadata {
+  memberCount: number;
+  blueprintCount: number;
+  isPublic: boolean;
+}
+
+/**
+ * Blueprint-specific metadata
+ */
+interface BlueprintMetadata {
+  ownerName: string;
+  ownerType: 'user' | 'organization' | 'team';
+  status: 'draft' | 'active' | 'archived';
+  taskCount: number;
+  memberCount: number;
+  enabledModules: string[];
+  isPublic: boolean;
+}
+
+/**
+ * Pagination state
+ */
+interface PaginationState {
+  currentPage: number;
+  pageSize: number;
+  totalCount: number;
+  totalPages: number;
+}
+
+/**
+ * Search suggestion for autocomplete
+ */
+interface SearchSuggestion {
+  text: string;
+  type: 'recent' | 'popular' | 'entity';
+  entityType?: 'account' | 'organization' | 'blueprint';
+  entityId?: string;
+}
+```
+
+#### Repository API Contracts
+
+```typescript
+/**
+ * Base Search Repository Interface
+ */
+interface ISearchRepository<T> {
+  /**
+   * Search entities by query
+   * @param query - Search query string
+   * @param filters - Filter configuration
+   * @param pagination - Pagination options
+   * @returns Search results with metadata
+   */
+  search(
+    query: string,
+    filters: SearchFilters,
+    pagination: PaginationOptions
+  ): Promise<SearchResponse<T>>;
+  
+  /**
+   * Get entity by ID
+   */
+  getById(id: string): Promise<T | null>;
+  
+  /**
+   * Count matching entities
+   */
+  count(query: string, filters: SearchFilters): Promise<number>;
+}
+
+/**
+ * Account Repository - Firestore Implementation
+ */
+@Injectable({ providedIn: 'root' })
+export class AccountSearchRepository implements ISearchRepository<Account> {
+  private firestore = inject(Firestore);
+  
+  async search(
+    query: string,
+    filters: SearchFilters,
+    pagination: PaginationOptions
+  ): Promise<SearchResponse<Account>> {
+    const accountsRef = collection(this.firestore, 'accounts');
+    const searchEnd = query + '\uf8ff';
+    
+    // Firestore range query for prefix matching
+    const q = firestoreQuery(
+      accountsRef,
+      where('name', '>=', query),
+      where('name', '<=', searchEnd),
+      orderBy('name', 'asc'),
+      limit(pagination.limit)
+    );
+    
+    const snapshot = await getDocs(q);
+    const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Account));
+    
+    return { data, totalCount: data.length };
+  }
+}
+
+/**
+ * Blueprint Repository - Firestore Implementation
+ */
+@Injectable({ providedIn: 'root' })
+export class BlueprintSearchRepository implements ISearchRepository<Blueprint> {
+  private firestore = inject(Firestore);
+  
+  async search(
+    query: string,
+    filters: SearchFilters,
+    pagination: PaginationOptions
+  ): Promise<SearchResponse<Blueprint>> {
+    const blueprintsRef = collection(this.firestore, 'blueprints');
+    const searchEnd = query + '\uf8ff';
+    const constraints: QueryConstraint[] = [];
+    
+    // Range query for name search (uses composite index)
+    constraints.push(
+      where('name', '>=', query),
+      where('name', '<=', searchEnd)
+    );
+    
+    // Apply filters
+    if (filters.visibility === 'public') {
+      constraints.push(where('is_public', '==', true));
+    }
+    if (filters.status && filters.status !== 'all') {
+      constraints.push(where('status', '==', filters.status));
+    }
+    
+    // Sort and pagination
+    constraints.push(orderBy('name', 'asc'));
+    constraints.push(orderBy('created_at', 'desc'));
+    constraints.push(limit(pagination.limit));
+    
+    if (pagination.startAfter) {
+      constraints.push(startAfter(pagination.startAfter));
+    }
+    
+    const q = firestoreQuery(blueprintsRef, ...constraints);
+    const snapshot = await getDocs(q);
+    const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Blueprint));
+    
+    return { data, totalCount: data.length };
+  }
+}
+```
+
+### Event Bus Integration
+
+The Explore Search feature integrates with GigHub's Event Bus for real-time updates:
+
+```typescript
+/**
+ * Search-related events
+ */
+enum SearchEvents {
+  SEARCH_EXECUTED = 'explore:search:executed',
+  SEARCH_RESULT_CLICKED = 'explore:search:result_clicked',
+  SEARCH_FILTERS_CHANGED = 'explore:search:filters_changed',
+  SEARCH_CACHE_INVALIDATED = 'explore:search:cache_invalidated',
+}
+
+/**
+ * Event payloads
+ */
+interface SearchExecutedPayload {
+  query: string;
+  filters: SearchFilters;
+  resultCount: number;
+  duration: number;
+  source: 'cache' | 'server';
+}
+
+interface SearchResultClickedPayload {
+  resultId: string;
+  resultType: 'account' | 'organization' | 'blueprint';
+  position: number;
+  query: string;
+}
+```
+
+---
+
+## Testing Strategy
+
+### Overview
+
+The Explore Search feature requires comprehensive testing across unit, integration, and end-to-end levels to ensure reliability and performance.
+
+### Testing Pyramid
+
+```mermaid
+flowchart TD
+    subgraph E2E ["E2E Tests (10%)"]
+        e1[User Search Flow]
+        e2[Filter Application]
+        e3[Pagination Flow]
+    end
+    
+    subgraph Integration ["Integration Tests (30%)"]
+        i1[Facade + Repositories]
+        i2[Cache Invalidation]
+        i3[Search Strategy Selection]
+        i4[Firestore Queries]
+    end
+    
+    subgraph Unit ["Unit Tests (60%)"]
+        u1[SearchFacade]
+        u2[SearchCache]
+        u3[ResultAggregator]
+        u4[RelevanceCalculator]
+        u5[Components]
+    end
+    
+    E2E --> Integration --> Unit
+```
+
+### Unit Tests
+
+#### Component Tests
+
+```typescript
+// search-bar.component.spec.ts
+describe('SearchBarComponent', () => {
+  let component: SearchBarComponent;
+  let fixture: ComponentFixture<SearchBarComponent>;
+  let searchFacadeSpy: jasmine.SpyObj<ExploreSearchFacade>;
+
+  beforeEach(async () => {
+    searchFacadeSpy = jasmine.createSpyObj('ExploreSearchFacade', ['search', 'clearSearch']);
+    
+    await TestBed.configureTestingModule({
+      imports: [SearchBarComponent],
+      providers: [
+        { provide: ExploreSearchFacade, useValue: searchFacadeSpy }
+      ]
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(SearchBarComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('should debounce search input by 300ms', fakeAsync(() => {
+    const input = fixture.nativeElement.querySelector('input');
+    
+    input.value = 'test';
+    input.dispatchEvent(new Event('input'));
+    
+    // Search should not be called immediately
+    expect(searchFacadeSpy.search).not.toHaveBeenCalled();
+    
+    tick(300);
+    
+    // Search should be called after debounce
+    expect(searchFacadeSpy.search).toHaveBeenCalledWith('test', jasmine.any(Object));
+  }));
+
+  it('should not search for queries shorter than minimum length', fakeAsync(() => {
+    const input = fixture.nativeElement.querySelector('input');
+    
+    input.value = '';
+    input.dispatchEvent(new Event('input'));
+    tick(300);
+    
+    expect(searchFacadeSpy.search).not.toHaveBeenCalled();
+  }));
+
+  it('should sanitize search input', fakeAsync(() => {
+    const input = fixture.nativeElement.querySelector('input');
+    
+    input.value = '<script>alert("xss")</script>test';
+    input.dispatchEvent(new Event('input'));
+    tick(300);
+    
+    expect(searchFacadeSpy.search).toHaveBeenCalledWith('test', jasmine.any(Object));
+  }));
+});
+```
+
+#### Service Tests
+
+```typescript
+// explore-search.facade.spec.ts
+describe('ExploreSearchFacade', () => {
+  let facade: ExploreSearchFacade;
+  let accountRepoSpy: jasmine.SpyObj<AccountSearchRepository>;
+  let orgRepoSpy: jasmine.SpyObj<OrganizationSearchRepository>;
+  let blueprintRepoSpy: jasmine.SpyObj<BlueprintSearchRepository>;
+  let cacheServiceSpy: jasmine.SpyObj<SearchCacheService>;
+
+  beforeEach(() => {
+    accountRepoSpy = jasmine.createSpyObj('AccountSearchRepository', ['search']);
+    orgRepoSpy = jasmine.createSpyObj('OrganizationSearchRepository', ['search']);
+    blueprintRepoSpy = jasmine.createSpyObj('BlueprintSearchRepository', ['search']);
+    cacheServiceSpy = jasmine.createSpyObj('SearchCacheService', ['get', 'set', 'invalidate']);
+
+    TestBed.configureTestingModule({
+      providers: [
+        ExploreSearchFacade,
+        { provide: AccountSearchRepository, useValue: accountRepoSpy },
+        { provide: OrganizationSearchRepository, useValue: orgRepoSpy },
+        { provide: BlueprintSearchRepository, useValue: blueprintRepoSpy },
+        { provide: SearchCacheService, useValue: cacheServiceSpy },
+      ]
+    });
+
+    facade = TestBed.inject(ExploreSearchFacade);
+  });
+
+  it('should return cached results when available', async () => {
+    const cachedResults: SearchResult[] = [
+      { id: '1', type: 'blueprint', title: 'Test', /* ... */ }
+    ];
+    cacheServiceSpy.get.and.returnValue(cachedResults);
+
+    await facade.search('test');
+
+    expect(cacheServiceSpy.get).toHaveBeenCalledWith('search:test:*');
+    expect(accountRepoSpy.search).not.toHaveBeenCalled();
+    expect(facade.results()).toEqual(cachedResults);
+  });
+
+  it('should execute parallel searches for all entity types', async () => {
+    cacheServiceSpy.get.and.returnValue(null);
+    accountRepoSpy.search.and.resolveTo({ data: [], totalCount: 0 });
+    orgRepoSpy.search.and.resolveTo({ data: [], totalCount: 0 });
+    blueprintRepoSpy.search.and.resolveTo({ data: [], totalCount: 0 });
+
+    await facade.search('test');
+
+    expect(accountRepoSpy.search).toHaveBeenCalled();
+    expect(orgRepoSpy.search).toHaveBeenCalled();
+    expect(blueprintRepoSpy.search).toHaveBeenCalled();
+  });
+
+  it('should sort results by relevance score', async () => {
+    cacheServiceSpy.get.and.returnValue(null);
+    
+    accountRepoSpy.search.and.resolveTo({
+      data: [{ id: 'a1', name: 'test user' }],
+      totalCount: 1
+    });
+    blueprintRepoSpy.search.and.resolveTo({
+      data: [{ id: 'b1', name: 'Test Blueprint' }],
+      totalCount: 1
+    });
+    orgRepoSpy.search.and.resolveTo({ data: [], totalCount: 0 });
+
+    await facade.search('test');
+
+    const results = facade.results();
+    // Blueprint should rank higher due to exact name match
+    expect(results[0].type).toBe('blueprint');
+  });
+
+  it('should handle errors gracefully', async () => {
+    cacheServiceSpy.get.and.returnValue(null);
+    accountRepoSpy.search.and.rejectWith(new Error('Network error'));
+
+    await facade.search('test');
+
+    expect(facade.error()).toBe('Search failed. Please try again.');
+    expect(facade.loading()).toBe(false);
+  });
+});
+```
+
+#### Cache Service Tests
+
+```typescript
+// search-cache.service.spec.ts
+describe('SearchCacheService', () => {
+  let service: SearchCacheService;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [SearchCacheService]
+    });
+    service = TestBed.inject(SearchCacheService);
+  });
+
+  it('should store and retrieve cached results', () => {
+    const results: SearchResult[] = [{ id: '1', /* ... */ }];
+    
+    service.set('query:test', results, 300000);
+    
+    expect(service.get('query:test')).toEqual(results);
+  });
+
+  it('should return null for expired cache entries', fakeAsync(() => {
+    const results: SearchResult[] = [{ id: '1', /* ... */ }];
+    
+    service.set('query:test', results, 100); // 100ms TTL
+    tick(150);
+    
+    expect(service.get('query:test')).toBeNull();
+  }));
+
+  it('should evict oldest entries when max size exceeded', () => {
+    // Fill cache to max capacity (50 entries)
+    for (let i = 0; i < 55; i++) {
+      service.set(`query:${i}`, [{ id: `${i}` }], 300000);
+    }
+    
+    // First 5 entries should be evicted
+    expect(service.get('query:0')).toBeNull();
+    expect(service.get('query:4')).toBeNull();
+    expect(service.get('query:5')).not.toBeNull();
+  });
+});
+```
+
+### Integration Tests
+
+```typescript
+// explore-search.integration.spec.ts
+describe('Explore Search Integration', () => {
+  let facade: ExploreSearchFacade;
+  let firestoreService: FirestoreService;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [HttpClientTestingModule],
+      providers: [
+        ExploreSearchFacade,
+        AccountSearchRepository,
+        OrganizationSearchRepository,
+        BlueprintSearchRepository,
+        SearchCacheService,
+        { provide: FirestoreService, useClass: MockFirestoreService }
+      ]
+    }).compileComponents();
+
+    facade = TestBed.inject(ExploreSearchFacade);
+    firestoreService = TestBed.inject(FirestoreService);
+  });
+
+  it('should complete full search flow', async () => {
+    // Setup mock data
+    MockFirestoreService.setMockData('blueprints', [
+      { id: 'bp1', name: 'Construction Site A', status: 'active', is_public: true }
+    ]);
+
+    // Execute search
+    await facade.search('Construction');
+
+    // Verify results
+    expect(facade.results().length).toBe(1);
+    expect(facade.results()[0].title).toBe('Construction Site A');
+    expect(facade.loading()).toBe(false);
+    expect(facade.error()).toBeNull();
+  });
+
+  it('should apply filters correctly', async () => {
+    MockFirestoreService.setMockData('blueprints', [
+      { id: 'bp1', name: 'Project A', status: 'active', is_public: true },
+      { id: 'bp2', name: 'Project B', status: 'draft', is_public: true },
+      { id: 'bp3', name: 'Project C', status: 'active', is_public: false }
+    ]);
+
+    await facade.search('Project');
+    await facade.updateFilters({ status: 'active', visibility: 'public' });
+
+    // Only bp1 should match (active + public)
+    expect(facade.results().length).toBe(1);
+    expect(facade.results()[0].id).toBe('bp1');
+  });
+
+  it('should handle pagination correctly', async () => {
+    // Setup 50 mock blueprints
+    const mockBlueprints = Array.from({ length: 50 }, (_, i) => ({
+      id: `bp${i}`,
+      name: `Blueprint ${i}`,
+      status: 'active',
+      is_public: true
+    }));
+    MockFirestoreService.setMockData('blueprints', mockBlueprints);
+
+    await facade.search('Blueprint');
+    
+    // First page (20 results)
+    expect(facade.results().length).toBe(20);
+    expect(facade.hasMore()).toBe(true);
+
+    await facade.loadNextPage();
+    
+    // Second page (40 results total)
+    expect(facade.results().length).toBe(40);
+    expect(facade.hasMore()).toBe(true);
+
+    await facade.loadNextPage();
+    
+    // All results loaded
+    expect(facade.results().length).toBe(50);
+    expect(facade.hasMore()).toBe(false);
+  });
+});
+```
+
+### End-to-End Tests
+
+```typescript
+// explore-search.e2e.spec.ts
+describe('Explore Search E2E', () => {
+  beforeEach(() => {
+    cy.login('test@example.com', 'password');
+    cy.visit('/explore');
+  });
+
+  it('should search and display results', () => {
+    // Type in search box
+    cy.get('[data-testid="search-input"]').type('Construction');
+    
+    // Wait for results
+    cy.get('[data-testid="search-results"]', { timeout: 5000 })
+      .should('be.visible');
+    
+    // Verify results appear
+    cy.get('[data-testid="result-card"]')
+      .should('have.length.at.least', 1);
+  });
+
+  it('should filter results by entity type', () => {
+    cy.get('[data-testid="search-input"]').type('Test');
+    
+    // Click Blueprints filter
+    cy.get('[data-testid="filter-blueprints"]').click();
+    
+    // All results should be blueprints
+    cy.get('[data-testid="result-card"]').each(($card) => {
+      cy.wrap($card).should('have.attr', 'data-entity-type', 'blueprint');
+    });
+  });
+
+  it('should navigate to entity detail on click', () => {
+    cy.get('[data-testid="search-input"]').type('Test Blueprint');
+    
+    cy.get('[data-testid="result-card"]').first().click();
+    
+    cy.url().should('include', '/blueprints/');
+  });
+
+  it('should show empty state for no results', () => {
+    cy.get('[data-testid="search-input"]').type('xyznonexistent123');
+    
+    cy.get('[data-testid="empty-results"]')
+      .should('be.visible')
+      .and('contain', 'No results found');
+  });
+
+  it('should handle errors gracefully', () => {
+    // Simulate network error
+    cy.intercept('POST', '**/rest/v1/*', { forceNetworkError: true });
+    
+    cy.get('[data-testid="search-input"]').type('Test');
+    
+    cy.get('[data-testid="error-message"]')
+      .should('be.visible')
+      .and('contain', 'Search failed');
+  });
+});
+```
+
+### Performance Tests
+
+```typescript
+// search-performance.spec.ts
+describe('Search Performance', () => {
+  it('should respond within 300ms for cached queries', async () => {
+    const facade = TestBed.inject(ExploreSearchFacade);
+    
+    // Prime the cache
+    await facade.search('test');
+    
+    // Measure cached response time
+    const start = performance.now();
+    await facade.search('test');
+    const duration = performance.now() - start;
+    
+    expect(duration).toBeLessThan(50); // Should be near-instant
+  });
+
+  it('should handle 1000 results without performance degradation', async () => {
+    const results = generateMockResults(1000);
+    const aggregator = TestBed.inject(ResultAggregatorService);
+    
+    const start = performance.now();
+    aggregator.aggregate(results);
+    const duration = performance.now() - start;
+    
+    expect(duration).toBeLessThan(100); // Should process quickly
+  });
+});
+```
+
+### Test Coverage Goals
+
+| Component | Unit | Integration | E2E | Target |
+|-----------|------|-------------|-----|--------|
+| ExploreSearchFacade | 90% | 80% | N/A | 85% |
+| SearchBarComponent | 85% | 70% | 60% | 75% |
+| ResultGridComponent | 80% | 70% | 50% | 70% |
+| FilterPanelComponent | 85% | 75% | 60% | 75% |
+| SearchCacheService | 95% | N/A | N/A | 95% |
+| Repositories | 90% | 85% | N/A | 87% |
+| **Overall** | 88% | 76% | 55% | **80%** |
+
+---
+
+## Appendix
+
+### A. Code Examples
+
+#### A.1 Complete ExploreSearchFacade Implementation
+
+```typescript
+import { Injectable, signal, computed, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Subject, debounceTime, distinctUntilChanged, switchMap, catchError } from 'rxjs';
+
+@Injectable({ providedIn: 'root' })
+export class ExploreSearchFacade {
+  // Dependencies
+  private accountRepo = inject(AccountSearchRepository);
+  private orgRepo = inject(OrganizationSearchRepository);
+  private blueprintRepo = inject(BlueprintSearchRepository);
+  private cache = inject(SearchCacheService);
+  private logger = inject(LoggerService);
+
+  // Private state
+  private _query = signal('');
+  private _filters = signal<SearchFilters>(this.defaultFilters);
+  private _results = signal<SearchResult[]>([]);
+  private _loading = signal(false);
+  private _error = signal<string | null>(null);
+  private _pagination = signal<PaginationState>({
+    currentPage: 1,
+    pageSize: 20,
+    totalCount: 0,
+    totalPages: 0
+  });
+
+  // Public read-only signals
+  readonly query = this._query.asReadonly();
+  readonly filters = this._filters.asReadonly();
+  readonly results = this._results.asReadonly();
+  readonly loading = this._loading.asReadonly();
+  readonly error = this._error.asReadonly();
+  readonly pagination = this._pagination.asReadonly();
+
+  // Computed signals
+  readonly hasMore = computed(() => {
+    const p = this._pagination();
+    return p.currentPage < p.totalPages;
+  });
+
+  readonly resultCount = computed(() => this._results().length);
+
+  readonly resultsByType = computed(() => {
+    const results = this._results();
+    return {
+      accounts: results.filter(r => r.type === 'account'),
+      organizations: results.filter(r => r.type === 'organization'),
+      blueprints: results.filter(r => r.type === 'blueprint')
+    };
+  });
+
+  private readonly defaultFilters: SearchFilters = {
+    entityTypes: ['account', 'organization', 'blueprint'],
+    visibility: 'all',
+    status: 'all',
+    sortBy: 'relevance',
+    sortOrder: 'desc'
+  };
+
+  // Configuration constants
+  private readonly SEARCH_BATCH_LIMIT = 50;
+  private readonly CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
+  /**
+   * Execute search query
+   */
+  async search(query: string, options?: SearchOptions): Promise<void> {
+    // Validate query
+    const sanitizedQuery = this.sanitizeQuery(query);
+    if (sanitizedQuery.length < 1) {
+      this.clearSearch();
+      return;
+    }
+
+    this._query.set(sanitizedQuery);
+    this._loading.set(true);
+    this._error.set(null);
+
+    try {
+      // Check cache first
+      const cacheKey = this.getCacheKey(sanitizedQuery, this._filters());
+      const cached = this.cache.get(cacheKey);
+      
+      if (cached) {
+        this.logger.debug('[ExploreSearch] Cache hit:', cacheKey);
+        this._results.set(cached.results);
+        this._pagination.set(cached.pagination);
+        this._loading.set(false);
+        return;
+      }
+
+      // Execute parallel searches
+      const [accounts, organizations, blueprints] = await Promise.all([
+        this.searchAccounts(sanitizedQuery),
+        this.searchOrganizations(sanitizedQuery),
+        this.searchBlueprints(sanitizedQuery)
+      ]);
+
+      // Aggregate and sort results
+      const aggregatedResults = this.aggregateResults(
+        [...accounts, ...organizations, ...blueprints],
+        sanitizedQuery
+      );
+
+      // Update state
+      this._results.set(aggregatedResults.slice(0, this._pagination().pageSize));
+      this._pagination.update(p => ({
+        ...p,
+        totalCount: aggregatedResults.length,
+        totalPages: Math.ceil(aggregatedResults.length / p.pageSize)
+      }));
+
+      // Cache results
+      this.cache.set(cacheKey, {
+        results: aggregatedResults,
+        pagination: this._pagination()
+      }, this.CACHE_TTL_MS);
+
+    } catch (error) {
+      this.logger.error('[ExploreSearch] Search failed:', error);
+      this._error.set('Search failed. Please try again.');
+    } finally {
+      this._loading.set(false);
+    }
+  }
+
+  /**
+   * Update filters and re-search
+   */
+  async updateFilters(filters: Partial<SearchFilters>): Promise<void> {
+    this._filters.update(f => ({ ...f, ...filters }));
+    
+    if (this._query()) {
+      await this.search(this._query());
+    }
+  }
+
+  /**
+   * Load next page
+   */
+  async loadNextPage(): Promise<void> {
+    if (!this.hasMore()) return;
+
+    this._pagination.update(p => ({
+      ...p,
+      currentPage: p.currentPage + 1
+    }));
+
+    // For client-side pagination, just slice more results
+    const allResults = this.cache.get(
+      this.getCacheKey(this._query(), this._filters())
+    )?.results || [];
+
+    const endIndex = this._pagination().currentPage * this._pagination().pageSize;
+    this._results.set(allResults.slice(0, endIndex));
+  }
+
+  /**
+   * Clear search state
+   */
+  clearSearch(): void {
+    this._query.set('');
+    this._results.set([]);
+    this._error.set(null);
+    this._filters.set(this.defaultFilters);
+    this._pagination.set({
+      currentPage: 1,
+      pageSize: 20,
+      totalCount: 0,
+      totalPages: 0
+    });
+  }
+
+  // Private methods
+  private sanitizeQuery(query: string): string {
+    return query
+      .trim()
+      .replace(/<[^>]*>/g, '') // Remove HTML tags
+      .replace(/[<>'"]/g, '')  // Remove dangerous characters
+      .substring(0, 100);       // Limit length
+  }
+
+  private getCacheKey(query: string, filters: SearchFilters): string {
+    return `search:${query}:${JSON.stringify(filters)}`;
+  }
+
+  private async searchAccounts(query: string): Promise<SearchResult[]> {
+    if (!this._filters().entityTypes.includes('account')) return [];
+    
+    const { data } = await this.accountRepo.search(query, this._filters(), {
+      offset: 0,
+      limit: this.SEARCH_BATCH_LIMIT
+    });
+    
+    return data.map(account => this.transformAccountToResult(account, query));
+  }
+
+  private async searchOrganizations(query: string): Promise<SearchResult[]> {
+    if (!this._filters().entityTypes.includes('organization')) return [];
+    
+    const { data } = await this.orgRepo.search(query, this._filters(), {
+      offset: 0,
+      limit: this.SEARCH_BATCH_LIMIT
+    });
+    
+    return data.map(org => this.transformOrganizationToResult(org, query));
+  }
+
+  private async searchBlueprints(query: string): Promise<SearchResult[]> {
+    if (!this._filters().entityTypes.includes('blueprint')) return [];
+    
+    const { data } = await this.blueprintRepo.search(query, this._filters(), {
+      offset: 0,
+      limit: this.SEARCH_BATCH_LIMIT
+    });
+    
+    return data.map(bp => this.transformBlueprintToResult(bp, query));
+  }
+
+  private aggregateResults(results: SearchResult[], query: string): SearchResult[] {
+    // Calculate relevance scores
+    const scored = results.map(result => ({
+      ...result,
+      relevanceScore: this.calculateRelevance(result, query)
+    }));
+
+    // Sort by relevance
+    return scored.sort((a, b) => b.relevanceScore - a.relevanceScore);
+  }
+
+  private calculateRelevance(result: SearchResult, query: string): number {
+    const normalizedQuery = query.toLowerCase();
+    const normalizedTitle = result.title.toLowerCase();
+
+    // Exact match: 100 points
+    if (normalizedTitle === normalizedQuery) return 100;
+
+    // Starts with: 80 points
+    if (normalizedTitle.startsWith(normalizedQuery)) return 80;
+
+    // Contains as word: 60 points
+    if (new RegExp(`\\b${normalizedQuery}`, 'i').test(normalizedTitle)) return 60;
+
+    // Contains anywhere: 40 points
+    if (normalizedTitle.includes(normalizedQuery)) return 40;
+
+    // Subtitle match: 20 points
+    if (result.subtitle.toLowerCase().includes(normalizedQuery)) return 20;
+
+    return 0;
+  }
+
+  private transformBlueprintToResult(bp: Blueprint, query: string): SearchResult {
+    return {
+      id: bp.id,
+      type: 'blueprint',
+      title: bp.name,
+      subtitle: `${bp.status} • ${bp.is_public ? 'Public' : 'Private'}`,
+      avatarUrl: bp.cover_url,
+      relevanceScore: 0, // Calculated later
+      metadata: {
+        ownerName: bp.owner_name || 'Unknown',
+        ownerType: bp.owner_type,
+        status: bp.status,
+        taskCount: bp.task_count || 0,
+        memberCount: bp.member_count || 0,
+        enabledModules: bp.enabled_modules || [],
+        isPublic: bp.is_public
+      },
+      highlights: this.extractHighlights(bp, query),
+      createdAt: new Date(bp.created_at),
+      updatedAt: new Date(bp.updated_at)
+    };
+  }
+
+  private extractHighlights(entity: any, query: string): { field: string; matches: string[] }[] {
+    const highlights: { field: string; matches: string[] }[] = [];
+    const regex = new RegExp(`(${query})`, 'gi');
+
+    for (const [field, value] of Object.entries(entity)) {
+      if (typeof value === 'string' && regex.test(value)) {
+        highlights.push({
+          field,
+          matches: value.match(regex) || []
+        });
+      }
+    }
+
+    return highlights;
+  }
+}
+```
+
+#### A.2 Firestore Composite Indexes Configuration
+
+```json
+// firestore.indexes.json
+{
+  "indexes": [
+    {
+      "collectionGroup": "accounts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "name", "order": "ASCENDING" },
+        { "fieldPath": "created_at", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "accounts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "email", "order": "ASCENDING" },
+        { "fieldPath": "created_at", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "organizations",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "is_public", "order": "ASCENDING" },
+        { "fieldPath": "name", "order": "ASCENDING" },
+        { "fieldPath": "created_at", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "organizations",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "name", "order": "ASCENDING" },
+        { "fieldPath": "created_at", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "blueprints",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "is_public", "order": "ASCENDING" },
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "name", "order": "ASCENDING" },
+        { "fieldPath": "created_at", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "blueprints",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "owner_id", "order": "ASCENDING" },
+        { "fieldPath": "owner_type", "order": "ASCENDING" },
+        { "fieldPath": "name", "order": "ASCENDING" },
+        { "fieldPath": "created_at", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "blueprints",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "name", "order": "ASCENDING" },
+        { "fieldPath": "created_at", "order": "DESCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}
+```
+
+**Deploy Command**:
+```bash
+firebase deploy --only firestore:indexes
+```
+
+#### A.3 Firestore Security Rules for Search
+
+```javascript
+// firestore.rules
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper function: Check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Helper function: Get user data
+    function getUserData() {
+      return get(/databases/$(database)/documents/accounts/$(request.auth.uid)).data;
+    }
+    
+    // Helper function: Check if user is member of organization
+    function isMember(orgId) {
+      return exists(/databases/$(database)/documents/organization_members/$(orgId + '_' + request.auth.uid));
+    }
+    
+    // Helper function: Check if user is admin of organization
+    function isAdmin(orgId) {
+      let member = get(/databases/$(database)/documents/organization_members/$(orgId + '_' + request.auth.uid));
+      return member.data.role in ['owner', 'admin'];
+    }
+    
+    // Accounts Collection - Searchable
+    match /accounts/{accountId} {
+      // Anyone authenticated can read account data (for search)
+      allow read: if isAuthenticated();
+      
+      // Users can only update their own account
+      allow write: if isAuthenticated() && request.auth.uid == accountId;
+    }
+    
+    // Organizations Collection - Searchable
+    match /organizations/{orgId} {
+      // Public organizations visible to all authenticated users
+      // Private organizations only to members
+      allow read: if isAuthenticated() && 
+        (resource.data.is_public == true || isMember(orgId));
+      
+      // Only org admins can write
+      allow write: if isAuthenticated() && isAdmin(orgId);
+    }
+    
+    // Blueprints Collection - Searchable
+    match /blueprints/{blueprintId} {
+      // Public blueprints visible to all authenticated users
+      // Private blueprints only to members of owner organization
+      allow read: if isAuthenticated() && 
+        (resource.data.is_public == true || 
+         request.auth.uid == resource.data.created_by ||
+         isMember(resource.data.owner_id));
+      
+      // Only blueprint owner or org admins can write
+      allow write: if isAuthenticated() && 
+        (resource.data.created_by == request.auth.uid ||
+         isAdmin(resource.data.owner_id));
+    }
+    
+    // Search Analytics Collection
+    match /search_analytics/{docId} {
+      // Users can read their own search analytics
+      allow read: if isAuthenticated() && 
+        resource.data.user_id == request.auth.uid;
+      
+      // Users can create search analytics for themselves
+      allow create: if isAuthenticated() && 
+        request.resource.data.user_id == request.auth.uid;
+    }
+  }
+}
+```
+
+#### A.3 SearchBarComponent with Signals
+
+```typescript
+import { Component, signal, computed, inject, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
+import { SHARED_IMPORTS } from '@shared';
+import { ExploreSearchFacade } from '../services/explore-search.facade';
+
+@Component({
+  selector: 'app-search-bar',
+  standalone: true,
+  imports: [SHARED_IMPORTS],
+  template: `
+    <div class="search-bar">
+      <nz-input-group [nzPrefix]="prefixIcon" [nzSuffix]="loading() ? loadingIcon : null">
+        <input
+          nz-input
+          type="text"
+          [placeholder]="placeholder"
+          [value]="inputValue()"
+          (input)="onInput($event)"
+          (keydown.enter)="onEnter()"
+          data-testid="search-input"
+        />
+      </nz-input-group>
+      
+      <ng-template #prefixIcon>
+        <span nz-icon nzType="search" nzTheme="outline"></span>
+      </ng-template>
+      
+      <ng-template #loadingIcon>
+        <span nz-icon nzType="loading" nzTheme="outline"></span>
+      </ng-template>
+      
+      <!-- Recent Searches Dropdown -->
+      @if (showRecentSearches() && recentSearches().length > 0) {
+        <div class="recent-searches" data-testid="recent-searches">
+          <div class="recent-header">
+            <span>Recent Searches</span>
+            <button nz-button nzType="link" nzSize="small" (click)="clearRecentSearches()">
+              Clear
+            </button>
+          </div>
+          @for (search of recentSearches(); track search) {
+            <div class="recent-item" (click)="selectRecentSearch(search)">
+              <span nz-icon nzType="history" nzTheme="outline"></span>
+              <span>{{ search }}</span>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  `,
+  styles: [`
+    .search-bar {
+      position: relative;
+      width: 100%;
+      max-width: 600px;
+    }
+    
+    .recent-searches {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: white;
+      border: 1px solid #d9d9d9;
+      border-radius: 4px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      z-index: 1000;
+    }
+    
+    .recent-header {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 12px;
+      border-bottom: 1px solid #f0f0f0;
+      font-weight: 500;
+    }
+    
+    .recent-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      cursor: pointer;
+      
+      &:hover {
+        background: #f5f5f5;
+      }
+    }
+  `]
+})
+export class SearchBarComponent {
+  private searchFacade = inject(ExploreSearchFacade);
+  private destroyRef = inject(DestroyRef);
+  
+  placeholder = 'Search users, organizations, and blueprints...';
+  
+  // Local state
+  inputValue = signal('');
+  showRecentSearches = signal(false);
+  recentSearches = signal<string[]>(this.loadRecentSearches());
+  
+  // Facade state
+  loading = this.searchFacade.loading;
+  
+  // Search subject for debouncing
+  private searchSubject = new Subject<string>();
+  
+  constructor() {
+    // Setup debounced search
+    this.searchSubject.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(query => {
+      if (query.length >= 1) {
+        this.searchFacade.search(query);
+        this.addToRecentSearches(query);
+      }
+    });
+  }
+  
+  onInput(event: Event): void {
+    const value = (event.target as HTMLInputElement).value;
+    this.inputValue.set(value);
+    this.searchSubject.next(value);
+  }
+  
+  onEnter(): void {
+    const query = this.inputValue();
+    if (query.length >= 1) {
+      this.searchFacade.search(query);
+      this.addToRecentSearches(query);
+      this.showRecentSearches.set(false);
+    }
+  }
+  
+  selectRecentSearch(search: string): void {
+    this.inputValue.set(search);
+    this.searchFacade.search(search);
+    this.showRecentSearches.set(false);
+  }
+  
+  clearRecentSearches(): void {
+    this.recentSearches.set([]);
+    localStorage.removeItem('explore-recent-searches');
+    this.showRecentSearches.set(false);
+  }
+  
+  private addToRecentSearches(query: string): void {
+    const current = this.recentSearches();
+    const updated = [query, ...current.filter(s => s !== query)].slice(0, 10);
+    this.recentSearches.set(updated);
+    localStorage.setItem('explore-recent-searches', JSON.stringify(updated));
+  }
+  
+  private loadRecentSearches(): string[] {
+    try {
+      const stored = localStorage.getItem('explore-recent-searches');
+      return stored ? JSON.parse(stored) : [];
+    } catch {
+      return [];
+    }
+  }
+}
+```
+
+### B. Firestore Data Structure
+
+#### B.1 Collection Schema Definitions
+
+Since Firestore is a NoSQL database, there's no SQL migration. Instead, we define the expected document structures:
+
+```typescript
+// Collection: accounts
+interface AccountDocument {
+  uid: string;           // Firebase Auth UID
+  name: string;
+  email: string;
+  avatar_url: string | null;
+  created_at: Timestamp;
+  updated_at: Timestamp;
+  
+  // Search-optimized fields
+  name_lowercase: string;  // For case-insensitive search
+}
+
+// Collection: organizations
+interface OrganizationDocument {
+  id: string;
+  name: string;
+  description: string;
+  logo_url: string | null;
+  created_by: string;      // Account UID
+  created_at: Timestamp;
+  is_public: boolean;
+  member_count: number;    // Denormalized for search display
+  blueprint_count: number; // Denormalized for search display
+  
+  // Search-optimized fields
+  name_lowercase: string;  // For case-insensitive search
+}
+
+// Collection: blueprints
+interface BlueprintDocument {
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+  cover_url: string | null;
+  owner_id: string;
+  owner_type: 'user' | 'organization' | 'team';
+  owner_name: string;      // Denormalized for search display
+  is_public: boolean;
+  status: 'draft' | 'active' | 'archived';
+  enabled_modules: string[];
+  created_by: string;
+  created_at: Timestamp;
+  updated_at: Timestamp;
+  task_count: number;      // Denormalized for search display
+  member_count: number;    // Denormalized for search display
+  
+  // Search-optimized fields
+  name_lowercase: string;  // For case-insensitive search
+}
+
+// Collection: search_analytics (optional - for tracking)
+interface SearchAnalyticsDocument {
+  query: string;
+  user_id: string;
+  result_count: number;
+  duration_ms: number;
+  filters: {
+    entityTypes: string[];
+    visibility?: string;
+    status?: string;
+  };
+  clicked_result_id?: string;
+  clicked_result_type?: string;
+  created_at: Timestamp;
+}
+```
+
+#### B.2 Firestore Cloud Functions for Search Optimization
+
+```typescript
+// functions/src/search-optimization.ts
+import * as functions from 'firebase-functions';
+import * as admin from 'firebase-admin';
+
+const db = admin.firestore();
+
+/**
+ * Automatically update name_lowercase field for case-insensitive search
+ */
+export const onAccountWrite = functions.firestore
+  .document('accounts/{accountId}')
+  .onWrite(async (change, context) => {
+    const after = change.after.data();
+    if (!after) return; // Document deleted
+    
+    const name = after.name || '';
+    const name_lowercase = name.toLowerCase();
+    
+    if (after.name_lowercase !== name_lowercase) {
+      await change.after.ref.update({ name_lowercase });
+    }
+  });
+
+export const onOrganizationWrite = functions.firestore
+  .document('organizations/{orgId}')
+  .onWrite(async (change, context) => {
+    const after = change.after.data();
+    if (!after) return;
+    
+    const name = after.name || '';
+    const name_lowercase = name.toLowerCase();
+    
+    if (after.name_lowercase !== name_lowercase) {
+      await change.after.ref.update({ name_lowercase });
+    }
+  });
+
+export const onBlueprintWrite = functions.firestore
+  .document('blueprints/{blueprintId}')
+  .onWrite(async (change, context) => {
+    const after = change.after.data();
+    if (!after) return;
+    
+    const name = after.name || '';
+    const name_lowercase = name.toLowerCase();
+    
+    if (after.name_lowercase !== name_lowercase) {
+      await change.after.ref.update({ name_lowercase });
+    }
+  });
+
+/**
+ * Update denormalized counts when organization membership changes
+ */
+export const onMembershipChange = functions.firestore
+  .document('organization_members/{membershipId}')
+  .onWrite(async (change, context) => {
+    const before = change.before.data();
+    const after = change.after.data();
+    
+    // Handle member count updates
+    if (!before && after) {
+      // New membership added
+      await db.doc(`organizations/${after.organization_id}`).update({
+        member_count: admin.firestore.FieldValue.increment(1)
+      });
+    } else if (before && !after) {
+      // Membership removed
+      await db.doc(`organizations/${before.organization_id}`).update({
+        member_count: admin.firestore.FieldValue.increment(-1)
+      });
+    }
+  });
+
+/**
+ * Log search analytics (optional)
+ */
+export const logSearchAnalytics = functions.https.onCall(async (data, context) => {
+  if (!context.auth) {
+    throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated');
+  }
+  
+  await db.collection('search_analytics').add({
+    ...data,
+    user_id: context.auth.uid,
+    created_at: admin.firestore.FieldValue.serverTimestamp()
+  });
+  
+  return { success: true };
+});
+```
+
+#### B.3 Backfill Script for Existing Data
+
+```typescript
+// scripts/backfill-search-fields.ts
+import * as admin from 'firebase-admin';
+
+admin.initializeApp();
+const db = admin.firestore();
+
+async function backfillSearchFields() {
+  console.log('Starting backfill of search-optimized fields...');
+  
+  // Backfill accounts
+  const accountsSnapshot = await db.collection('accounts').get();
+  const accountBatch = db.batch();
+  let accountCount = 0;
+  
+  for (const doc of accountsSnapshot.docs) {
+    const data = doc.data();
+    if (!data.name_lowercase) {
+      accountBatch.update(doc.ref, {
+        name_lowercase: (data.name || '').toLowerCase()
+      });
+      accountCount++;
+    }
+  }
+  await accountBatch.commit();
+  console.log(`Updated ${accountCount} accounts`);
+  
+  // Backfill organizations
+  const orgsSnapshot = await db.collection('organizations').get();
+  const orgBatch = db.batch();
+  let orgCount = 0;
+  
+  for (const doc of orgsSnapshot.docs) {
+    const data = doc.data();
+    if (!data.name_lowercase) {
+      orgBatch.update(doc.ref, {
+        name_lowercase: (data.name || '').toLowerCase()
+      });
+      orgCount++;
+    }
+  }
+  await orgBatch.commit();
+  console.log(`Updated ${orgCount} organizations`);
+  
+  // Backfill blueprints
+  const blueprintsSnapshot = await db.collection('blueprints').get();
+  const blueprintBatch = db.batch();
+  let blueprintCount = 0;
+  
+  for (const doc of blueprintsSnapshot.docs) {
+    const data = doc.data();
+    if (!data.name_lowercase) {
+      blueprintBatch.update(doc.ref, {
+        name_lowercase: (data.name || '').toLowerCase()
+      });
+      blueprintCount++;
+    }
+  }
+  await blueprintBatch.commit();
+  console.log(`Updated ${blueprintCount} blueprints`);
+  
+  console.log('Backfill complete!');
+}
+
+backfillSearchFields().catch(console.error);
+```
+
+### C. Environment Configuration
+
+#### C.1 Angular Environment Files
+
+```typescript
+// src/environments/environment.ts (Development)
+export const environment = {
+  production: false,
+  firebase: {
+    apiKey: 'YOUR_API_KEY',
+    authDomain: 'gighub-dev.firebaseapp.com',
+    projectId: 'gighub-dev',
+    storageBucket: 'gighub-dev.appspot.com',
+    messagingSenderId: 'YOUR_SENDER_ID',
+    appId: 'YOUR_APP_ID'
+  },
+  search: {
+    debounceMs: 300,
+    maxResults: 100,
+    cacheTimeMs: 5 * 60 * 1000, // 5 minutes
+    pageSize: 20
+  },
+  algolia: {
+    enabled: false, // Enable in Phase 2
+    appId: '',
+    searchKey: ''
+  }
+};
+
+// src/environments/environment.prod.ts (Production)
+export const environment = {
+  production: true,
+  firebase: {
+    apiKey: 'PROD_API_KEY',
+    authDomain: 'gighub-prod.firebaseapp.com',
+    projectId: 'gighub-prod',
+    storageBucket: 'gighub-prod.appspot.com',
+    messagingSenderId: 'PROD_SENDER_ID',
+    appId: 'PROD_APP_ID'
+  },
+  search: {
+    debounceMs: 300,
+    maxResults: 100,
+    cacheTimeMs: 5 * 60 * 1000,
+    pageSize: 20
+  },
+  algolia: {
+    enabled: true, // Enabled for production
+    appId: 'ALGOLIA_APP_ID',
+    searchKey: 'ALGOLIA_SEARCH_KEY'
+  }
+};
+```
+
+#### C.2 Firebase Configuration
+
+```json
+// firebase.json
+{
+  "hosting": {
+    "public": "dist/gighub/browser",
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  },
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "functions": {
+    "source": "functions",
+    "predeploy": ["npm --prefix functions run build"]
+  }
+}
+```
+
+### D. Glossary
+
+| Term | Definition |
+|------|------------|
+| **Blueprint** | A project container in GigHub that holds modular business functions (Tasks, Logs, Quality, etc.) |
+| **FTS** | Full-Text Search - Feature for efficient text searching (Algolia for Phase 2) |
+| **LRU Cache** | Least Recently Used cache eviction policy |
+| **RLS** | Row Level Security - Database-level access control |
+| **TTL** | Time To Live - Cache expiration time |
+| **tsvector** | PostgreSQL data type for text search documents |
+| **Facade** | Design pattern providing simplified interface to complex subsystem |
+| **Signal** | Angular's reactive primitive for state management |
+
+---
+
+## Changelog
+
+### Version History
+
+| Version | Date | Author | Changes |
+|---------|------|--------|---------|
+| 1.0.0 | 2025-12-12 | Senior Cloud Architect Agent | Initial architecture document |
+| 1.1.0 | 2025-12-12 | Senior Cloud Architect Agent | Added API Specification, Testing Strategy, Appendix, and Changelog sections |
+
+### Change Log
+
+#### [1.1.0] - 2025-12-12
+
+**Added**:
+- API Specification section with complete interface definitions
+- Testing Strategy section with unit, integration, and E2E test examples
+- Appendix with code examples, Firestore indexes, and security rules
+- Changelog section for version tracking
+- Firestore search implementation details
+- Angular Signals implementation examples
+
+**Changed**:
+- Updated document status to reflect completion
+- Ensured all examples use Firestore (not Supabase)
+
+#### [1.0.0] - 2025-12-12
+
+**Added**:
+- Initial architecture document
+- Executive Summary
+- System Context and Diagrams
+- Component Architecture
+- Deployment Architecture
+- Data Flow Diagrams
+- Database Schema Design
+- Search Algorithm Design
+- Phased Development Plan
+- Non-Functional Requirements Analysis
+- Risks and Mitigations
+- Technology Stack Recommendations
+- Next Steps and Roadmap
+- Conclusion
+
+---
+
 ## Conclusion
 
 This architecture document provides a comprehensive blueprint for implementing a GitHub-like Explore search feature in GigHub. The design emphasizes:
@@ -1658,7 +3432,8 @@ This architecture is designed to evolve with GigHub's growth while maintaining c
 
 ---
 
-**Document Status**: ✅ Ready for Review  
+**Document Status**: ✅ Complete  
+**Document Version**: 1.1.0  
 **Next Review Date**: 2025-12-19 (1 week)  
 **Approved By**: _Pending stakeholder approval_  
 **Implementation Start**: _TBD after approval_
