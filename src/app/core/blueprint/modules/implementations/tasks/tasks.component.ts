@@ -207,7 +207,7 @@ export class TasksComponent implements OnInit {
       return;
     }
 
-    const modalRef = this.modal.create({
+    this.modal.create({
       nzTitle: '新增任務',
       nzContent: TaskModalComponent,
       nzData: {
@@ -218,13 +218,7 @@ export class TasksComponent implements OnInit {
       nzFooter: null,
       nzMaskClosable: false
     });
-
-    modalRef.afterClose.subscribe(result => {
-      if (result?.success) {
-        this.message.success('任務新增成功');
-        // Task is already added to service state by the service
-      }
-    });
+    // Success message shown in modal, task added to store by modal
   }
 
   editTask(task: any): void {
@@ -234,7 +228,7 @@ export class TasksComponent implements OnInit {
       return;
     }
 
-    const modalRef = this.modal.create({
+    this.modal.create({
       nzTitle: '編輯任務',
       nzContent: TaskModalComponent,
       nzData: {
@@ -246,13 +240,7 @@ export class TasksComponent implements OnInit {
       nzFooter: null,
       nzMaskClosable: false
     });
-
-    modalRef.afterClose.subscribe(result => {
-      if (result?.success) {
-        this.message.success('任務更新成功');
-        // Task is already updated in service state
-      }
-    });
+    // Success message shown in modal, task updated in store by modal
   }
 
   async deleteTask(task: any): Promise<void> {
