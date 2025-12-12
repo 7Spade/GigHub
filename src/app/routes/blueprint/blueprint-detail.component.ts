@@ -252,7 +252,7 @@ import { BlueprintMembersComponent } from './members/blueprint-members.component
                   配置模組
                 </button>
               </nz-card>
-              
+
               <!-- Container Dashboard (Embedded) -->
               <app-container-dashboard />
             </ng-template>
@@ -329,7 +329,7 @@ export class BlueprintDetailComponent implements OnInit {
     try {
       // Use AsyncState.load() to automatically manage loading state
       await this.blueprintState.load(firstValueFrom(this.blueprintService.getById(id)));
-      
+
       const data = this.blueprintState.data();
       if (data) {
         this.logger.info('[BlueprintDetailComponent]', `Loaded blueprint: ${data.name}`);

@@ -47,6 +47,12 @@ export const routes: Routes = [
         path: 'monitoring',
         loadChildren: () => import('./monitoring/routes').then(m => m.routes),
         data: { title: '系統監控' }
+      },
+      // Explore search module - lazy loaded
+      {
+        path: 'explore',
+        loadChildren: () => import('./explore/routes').then(m => m.routes),
+        data: { title: '探索' }
       }
     ]
   },
