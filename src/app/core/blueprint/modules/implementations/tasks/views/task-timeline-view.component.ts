@@ -9,11 +9,11 @@
  */
 
 import { Component, input, computed, inject } from '@angular/core';
-import { SHARED_IMPORTS } from '@shared';
-import { NzTimelineModule } from 'ng-zorro-antd/timeline';
-import { NzEmptyModule } from 'ng-zorro-antd/empty';
-import { Task, TimelineItem } from '@core/types/task';
 import { TaskStore } from '@core/stores/task.store';
+import { Task, TimelineItem } from '@core/types/task';
+import { SHARED_IMPORTS } from '@shared';
+import { NzEmptyModule } from 'ng-zorro-antd/empty';
+import { NzTimelineModule } from 'ng-zorro-antd/timeline';
 
 @Component({
   selector: 'app-task-timeline-view',
@@ -28,10 +28,7 @@ import { TaskStore } from '@core/stores/task.store';
       } @else {
         <nz-timeline [nzMode]="'left'">
           @for (item of timelineItems(); track item.id) {
-            <nz-timeline-item 
-              [nzColor]="item.color"
-              [nzLabel]="(item.date | date: 'yyyy-MM-dd') || ''"
-            >
+            <nz-timeline-item [nzColor]="item.color" [nzLabel]="(item.date | date: 'yyyy-MM-dd') || ''">
               <div class="timeline-content">
                 <div class="timeline-header">
                   <h4>{{ item.title }}</h4>
@@ -39,11 +36,11 @@ import { TaskStore } from '@core/stores/task.store';
                     {{ getStatusText(item.task.status) }}
                   </nz-tag>
                 </div>
-                
+
                 @if (item.description) {
                   <p class="timeline-description">{{ item.description }}</p>
                 }
-                
+
                 <div class="timeline-meta">
                   @if (item.task.assigneeName) {
                     <span>
@@ -57,16 +54,14 @@ import { TaskStore } from '@core/stores/task.store';
                     </nz-tag>
                   }
                   @if (item.task.progress !== undefined) {
-                    <span class="progress-info">
-                      進度: {{ item.task.progress }}%
-                    </span>
+                    <span class="progress-info"> 進度: {{ item.task.progress }}% </span>
                   }
                 </div>
               </div>
             </nz-timeline-item>
           }
         </nz-timeline>
-        
+
         @if (timelineItems().length === 0) {
           <nz-empty nzNotFoundContent="暫無任務" />
         }
@@ -140,11 +135,9 @@ export class TaskTimelineViewComponent {
   // Convert tasks to timeline items
   readonly timelineItems = computed(() => {
     const tasks = this.taskStore.tasks();
-    
+
     // Sort by creation date (newest first)
-    const sortedTasks = [...tasks].sort((a, b) => 
-      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    );
+    const sortedTasks = [...tasks].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
     return sortedTasks.map(task => ({
       id: task.id!,

@@ -13,10 +13,10 @@
  */
 
 import { Component, input, computed, inject, signal } from '@angular/core';
+import { TaskStore } from '@core/stores/task.store';
+import { Task, GanttTask } from '@core/types/task';
 import { SHARED_IMPORTS } from '@shared';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
-import { Task, GanttTask } from '@core/types/task';
-import { TaskStore } from '@core/stores/task.store';
 
 /** Zoom level enum */
 enum ZoomLevel {
@@ -45,16 +45,13 @@ enum ZoomLevel {
                 <label nz-radio-button [nzValue]="'week'">週視圖</label>
                 <label nz-radio-button [nzValue]="'month'">月視圖</label>
               </nz-radio-group>
-              <nz-tag *nzSpaceItem [nzColor]="'blue'">
-                共 {{ ganttTasks().length }} 個任務
-              </nz-tag>
+              <nz-tag *nzSpaceItem [nzColor]="'blue'"> 共 {{ ganttTasks().length }} 個任務 </nz-tag>
             </nz-space>
           </div>
         </div>
 
         @if (ganttTasks().length === 0) {
-          <nz-empty nzNotFoundContent="暫無包含日期的任務" 
-                    nzNotFoundImage="simple" />
+          <nz-empty nzNotFoundContent="暫無包含日期的任務" nzNotFoundImage="simple" />
         } @else {
           <div class="gantt-chart">
             <div class="gantt-timeline">
@@ -79,29 +76,27 @@ enum ZoomLevel {
                         <span nz-icon nzType="flag" nzTheme="filled" class="milestone-icon"></span>
                       }
                       <span class="task-title">{{ ganttTask.name }}</span>
-                      <nz-tag [nzColor]="getPriorityColor(ganttTask)" nzSize="small">
-                        {{ ganttTask.progress }}%
-                      </nz-tag>
+                      <nz-tag [nzColor]="getPriorityColor(ganttTask)" nzSize="small"> {{ ganttTask.progress }}% </nz-tag>
                     </div>
                   </div>
                   <div class="task-timeline">
                     <!-- Dependencies lines -->
                     @for (depId of ganttTask.dependencies || []; track depId) {
-                      <div class="dependency-line" 
-                           [style.left.%]="getDependencyLinePosition(ganttTask, depId)"
-                           [style.width.%]="getDependencyLineWidth(ganttTask, depId)">
+                      <div
+                        class="dependency-line"
+                        [style.left.%]="getDependencyLinePosition(ganttTask, depId)"
+                        [style.width.%]="getDependencyLineWidth(ganttTask, depId)"
+                      >
                       </div>
                     }
-                    
+
                     <!-- Task bar -->
                     @if (ganttTask.milestone) {
-                      <div class="milestone-marker"
-                           [style.left.%]="getTaskPosition(ganttTask)"
-                           [title]="ganttTask.name">
+                      <div class="milestone-marker" [style.left.%]="getTaskPosition(ganttTask)" [title]="ganttTask.name">
                         <span nz-icon nzType="flag" nzTheme="filled"></span>
                       </div>
                     } @else {
-                      <div 
+                      <div
                         class="task-bar"
                         [class.has-dependencies]="ganttTask.dependencies && ganttTask.dependencies.length > 0"
                         [style.left.%]="getTaskPosition(ganttTask)"
@@ -344,7 +339,7 @@ export class TaskGanttViewComponent {
       for (let i = -15; i < 45; i++) {
         const date = new Date(today);
         date.setDate(today.getDate() + i);
-        periods.push({ 
+        periods.push({
           label: date.toLocaleDateString('zh-TW', { month: 'numeric', day: 'numeric' })
         });
       }
@@ -354,15 +349,15 @@ export class TaskGanttViewComponent {
         const date = new Date(today);
         date.setDate(today.getDate() + i * 7);
         const weekNum = this.getWeekNumber(date);
-        periods.push({ 
-          label: `W${weekNum}` 
+        periods.push({
+          label: `W${weekNum}`
         });
       }
     } else {
       // Show 12 months (1 year)
       for (let i = -3; i < 9; i++) {
         const date = new Date(today.getFullYear(), today.getMonth() + i, 1);
-        periods.push({ 
+        periods.push({
           label: date.toLocaleDateString('zh-TW', { year: 'numeric', month: 'short' })
         });
       }
@@ -374,17 +369,16 @@ export class TaskGanttViewComponent {
   // Convert tasks to gantt format
   readonly ganttTasks = computed(() => {
     const tasks = this.taskStore.tasks();
-    
+
     return tasks
       .filter(task => task.startDate || task.dueDate)
       .map(task => {
         const start = task.startDate ? new Date(task.startDate) : new Date();
         const end = task.dueDate ? new Date(task.dueDate) : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-        
+
         // Check if milestone (task with same start and end date, or marked as milestone)
-        const isMilestone = task.metadata?.['milestone'] === true || 
-          (start.getTime() === end.getTime());
-        
+        const isMilestone = task.metadata?.['milestone'] === true || start.getTime() === end.getTime();
+
         return {
           id: task.id!,
           name: task.title,
@@ -403,7 +397,7 @@ export class TaskGanttViewComponent {
   private timelineStart = computed(() => {
     const today = new Date();
     const zoom = this.zoomLevel();
-    
+
     if (zoom === ZoomLevel.DAY) {
       const start = new Date(today);
       start.setDate(today.getDate() - 15);
@@ -420,7 +414,7 @@ export class TaskGanttViewComponent {
   private timelineEnd = computed(() => {
     const today = new Date();
     const zoom = this.zoomLevel();
-    
+
     if (zoom === ZoomLevel.DAY) {
       const end = new Date(today);
       end.setDate(today.getDate() + 45);
@@ -441,7 +435,7 @@ export class TaskGanttViewComponent {
     const start = this.timelineStart().getTime();
     const end = this.timelineEnd().getTime();
     const taskStart = ganttTask.start.getTime();
-    
+
     const position = ((taskStart - start) / (end - start)) * 100;
     return Math.max(0, Math.min(100, position));
   }
@@ -458,7 +452,7 @@ export class TaskGanttViewComponent {
     const end = this.timelineEnd().getTime();
     const taskStart = ganttTask.start.getTime();
     const taskEnd = ganttTask.end.getTime();
-    
+
     const width = ((taskEnd - taskStart) / (end - start)) * 100;
     return Math.max(1, Math.min(100, width));
   }
@@ -469,7 +463,7 @@ export class TaskGanttViewComponent {
   getDependencyLinePosition(task: GanttTask, depId: string): number {
     const depTask = this.ganttTasks().find(t => t.id === depId);
     if (!depTask) return 0;
-    
+
     return this.getTaskPosition(depTask);
   }
 
@@ -479,10 +473,10 @@ export class TaskGanttViewComponent {
   getDependencyLineWidth(task: GanttTask, depId: string): number {
     const depTask = this.ganttTasks().find(t => t.id === depId);
     if (!depTask) return 0;
-    
+
     const depEnd = this.getTaskPosition(depTask) + this.getTaskWidth(depTask);
     const taskStart = this.getTaskPosition(task);
-    
+
     return Math.max(0, taskStart - depEnd);
   }
 
@@ -510,7 +504,7 @@ export class TaskGanttViewComponent {
     const dayNum = d.getUTCDay() || 7;
     d.setUTCDate(d.getUTCDate() + 4 - dayNum);
     const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-    return Math.ceil((((d.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
+    return Math.ceil(((d.getTime() - yearStart.getTime()) / 86400000 + 1) / 7);
   }
 
   /**

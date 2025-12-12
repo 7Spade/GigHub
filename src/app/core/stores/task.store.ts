@@ -1,11 +1,11 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
 import { LoggerService } from '@core';
+import { EventBus } from '@core/blueprint/events/event-bus';
+import { TASKS_MODULE_EVENTS } from '@core/blueprint/modules/implementations/tasks/module.metadata';
 import { TasksRepository } from '@core/blueprint/modules/implementations/tasks/tasks.repository';
 import { AuditLogRepository, CreateAuditLogData } from '@core/blueprint/repositories/audit-log.repository';
 import { AuditEventType, AuditCategory, AuditSeverity, ActorType, AuditStatus } from '@core/models/audit-log.model';
 import { Task, TaskStatus, TaskPriority, CreateTaskRequest, UpdateTaskRequest } from '@core/types/task';
-import { EventBus } from '@core/blueprint/events/event-bus';
-import { TASKS_MODULE_EVENTS } from '@core/blueprint/modules/implementations/tasks/module.metadata';
 import { firstValueFrom } from 'rxjs';
 
 /**

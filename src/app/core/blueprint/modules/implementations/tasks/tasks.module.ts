@@ -136,11 +136,7 @@ export class TasksModule implements IBlueprintModule {
     try {
       // Emit module ready event
       if (this.context?.eventBus) {
-        this.context.eventBus.emit(
-          TASKS_MODULE_EVENTS.TASK_CREATED,
-          { status: 'ready' },
-          this.id
-        );
+        this.context.eventBus.emit(TASKS_MODULE_EVENTS.TASK_CREATED, { status: 'ready' }, this.id);
       }
 
       this.status.set(ModuleStatus.RUNNING);

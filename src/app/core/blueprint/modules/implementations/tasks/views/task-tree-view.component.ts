@@ -8,13 +8,13 @@
  * @date 2025-12-12
  */
 
-import { Component, input, signal, computed, inject } from '@angular/core';
 import { FlatTreeControl } from '@angular/cdk/tree';
-import { NzTreeFlatDataSource, NzTreeFlattener, NzTreeViewModule } from 'ng-zorro-antd/tree-view';
-import { SHARED_IMPORTS } from '@shared';
-import { Task, TaskTreeNode } from '@core/types/task';
+import { Component, input, signal, computed, inject } from '@angular/core';
 import { TaskStore } from '@core/stores/task.store';
+import { Task, TaskTreeNode } from '@core/types/task';
 import { buildTaskHierarchy, calculateAggregatedProgress } from '@core/utils/task-hierarchy.util';
+import { SHARED_IMPORTS } from '@shared';
+import { NzTreeFlatDataSource, NzTreeFlattener, NzTreeViewModule } from 'ng-zorro-antd/tree-view';
 
 /** Flat node structure for CDK tree */
 interface FlatNode {
@@ -43,9 +43,7 @@ interface FlatNode {
             <span nz-icon nzType="minus-square" nzTheme="outline"></span>
             全部收合
           </button>
-          <nz-tag *nzSpaceItem [nzColor]="'blue'">
-            共 {{ tasks().length }} 個任務
-          </nz-tag>
+          <nz-tag *nzSpaceItem [nzColor]="'blue'"> 共 {{ tasks().length }} 個任務 </nz-tag>
         </nz-space>
       </div>
 
@@ -67,9 +65,7 @@ interface FlatNode {
               </nz-tag>
               <nz-badge [nzStatus]="getStatusBadge(node.task.status)" style="margin-left: 8px;" />
               @if (node.task.progress !== undefined) {
-                <span style="margin-left: 8px; color: #888; font-size: 12px;">
-                  {{ node.task.progress }}%
-                </span>
+                <span style="margin-left: 8px; color: #888; font-size: 12px;"> {{ node.task.progress }}% </span>
               }
             </nz-tree-node-option>
           </nz-tree-node>
@@ -84,13 +80,11 @@ interface FlatNode {
                 {{ getPriorityLabel(node.task.priority) }}
               </nz-tag>
               <nz-badge [nzStatus]="getStatusBadge(node.task.status)" style="margin-left: 8px;" />
-              <span style="margin-left: 8px; color: #888; font-size: 12px;">
-                ({{ node.childrenCount }} 個子任務)
-              </span>
+              <span style="margin-left: 8px; color: #888; font-size: 12px;"> ({{ node.childrenCount }} 個子任務) </span>
               @if (node.aggregatedProgress !== undefined) {
-                <nz-progress 
-                  [nzPercent]="node.aggregatedProgress" 
-                  nzSize="small" 
+                <nz-progress
+                  [nzPercent]="node.aggregatedProgress"
+                  nzSize="small"
                   [nzShowInfo]="true"
                   [nzFormat]="formatProgress"
                   style="width: 120px; margin-left: 12px;"

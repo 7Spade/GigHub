@@ -8,8 +8,8 @@
  * @date 2025-12-12
  */
 
-import { Task } from '@core/types/task/task.types';
 import { TaskTreeNode } from '@core/types/task/task-view.types';
+import { Task } from '@core/types/task/task.types';
 
 /**
  * Build hierarchical tree structure from flat task list
@@ -129,7 +129,7 @@ export function calculateAggregatedProgress(node: TaskTreeNode): number {
  */
 export function getDescendantIds(taskId: string, tasks: Task[]): string[] {
   const descendants: string[] = [];
-  
+
   const findChildren = (parentId: string) => {
     tasks.forEach(task => {
       if (task.parentId === parentId) {
@@ -180,11 +180,7 @@ export function getAncestorIds(taskId: string, tasks: Task[]): string[] {
  * @param tasks - All tasks
  * @returns True if relationship is valid
  */
-export function isValidParentChild(
-  childId: string,
-  parentId: string | null | undefined,
-  tasks: Task[]
-): boolean {
+export function isValidParentChild(childId: string, parentId: string | null | undefined, tasks: Task[]): boolean {
   if (!parentId) {
     return true; // No parent is always valid
   }
@@ -225,7 +221,7 @@ export function getTaskDepth(taskId: string, tasks: Task[]): number {
 export function sortTasksHierarchically(tasks: Task[]): Task[] {
   const hierarchy = buildTaskHierarchy(tasks);
   const flat = flattenTaskTree(hierarchy);
-  
+
   // Map back to original tasks
   const taskMap = new Map(tasks.map(t => [t.id!, t]));
   return flat.map(node => taskMap.get(node.taskId)!).filter(Boolean);
