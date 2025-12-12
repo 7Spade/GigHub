@@ -225,13 +225,7 @@ export class TaskStore {
    * Assign task to user
    * 分配任務給使用者
    */
-  async assignTask(
-    blueprintId: string,
-    taskId: string,
-    assigneeId: string,
-    assigneeName: string,
-    actorId: string
-  ): Promise<void> {
+  async assignTask(blueprintId: string, taskId: string, assigneeId: string, assigneeName: string, actorId: string): Promise<void> {
     await this.updateTask(blueprintId, taskId, { assigneeId, assigneeName }, actorId);
   }
 
