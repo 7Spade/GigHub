@@ -11,16 +11,14 @@
 
 import { Injectable, inject, signal } from '@angular/core';
 
-import { IBlueprintModule } from '../blueprint/modules/module.interface';
-import { ModuleStatus } from '../blueprint/modules/module-status.enum';
-import type { IExecutionContext } from '../blueprint/context/execution-context.interface';
-
-import { CwbWeatherService } from './services/cwb-weather.service';
-import { ClimateCacheService } from './services/climate-cache.service';
-import { ClimateRepository } from './repositories/climate.repository';
-
 import { IClimateConfig, DEFAULT_CLIMATE_CONFIG, CLIMATE_CONSTANTS } from './config/climate.config';
 import { createClimateModuleApi, IClimateModuleApi } from './exports/climate-api.exports';
+import { ClimateRepository } from './repositories/climate.repository';
+import { ClimateCacheService } from './services/climate-cache.service';
+import { CwbWeatherService } from './services/cwb-weather.service';
+import type { IExecutionContext } from '../blueprint/context/execution-context.interface';
+import { ModuleStatus } from '../blueprint/modules/module-status.enum';
+import { IBlueprintModule } from '../blueprint/modules/module.interface';
 
 /**
  * 氣候模組
@@ -52,7 +50,7 @@ export class ClimateModule implements IBlueprintModule {
   readonly name = CLIMATE_CONSTANTS.MODULE_NAME;
   readonly version = CLIMATE_CONSTANTS.MODULE_VERSION;
   readonly description = CLIMATE_CONSTANTS.MODULE_DESCRIPTION;
-  readonly dependencies = CLIMATE_CONSTANTS.MODULE_DEPENDENCIES;
+  readonly dependencies: string[] = [...CLIMATE_CONSTANTS.MODULE_DEPENDENCIES];
 
   // 模組狀態（使用 Signal）
   readonly status = signal<ModuleStatus>(ModuleStatus.UNINITIALIZED);
@@ -223,7 +221,7 @@ export class ClimateModule implements IBlueprintModule {
 
     // 從共享上下文載入其他配置（如果有）
     if (this.context?.sharedContext) {
-      const customConfig = this.context.sharedContext.get<Partial<IClimateConfig>>('climate.config');
+      const customConfig = this.context.sharedContext.getState<Partial<IClimateConfig>>('climate.config');
       if (customConfig) {
         this.config = { ...this.config, ...customConfig };
       }
@@ -290,7 +288,12 @@ export class ClimateModule implements IBlueprintModule {
 
     try {
       // 預載入台北市天氣預報
-      await this.weatherService.getCityWeatherForecast('臺北市').toPromise();
+      await new Promise<void>((resolve, reject) => {
+        this.weatherService.getCityWeatherForecast('臺北市').subscribe({
+          next: () => resolve(),
+          error: (err) => reject(err)
+        });
+      });
       console.log('[ClimateModule] Cache warmed up successfully');
     } catch (error) {
       console.warn('[ClimateModule] Cache warmup failed:', error);

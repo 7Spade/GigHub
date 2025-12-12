@@ -142,13 +142,13 @@ export enum WeatherElementCode {
   // 天氣現象
   Wx = 'Wx',
   WeatherDescription = 'WeatherDescription',
-  
+
   // 降雨
   PoP = 'PoP',
   PoP6h = 'PoP6h',
   PoP12h = 'PoP12h',
   Rain = 'Rain',
-  
+
   // 溫度
   T = 'T',
   MinT = 'MinT',
@@ -156,18 +156,18 @@ export enum WeatherElementCode {
   MinAT = 'MinAT',
   MaxAT = 'MaxAT',
   Td = 'Td',
-  
+
   // 濕度與氣壓
   RH = 'RH',
   MinRH = 'MinRH',
   MaxRH = 'MaxRH',
   PRES = 'PRES',
-  
+
   // 風力
   WD = 'WD',
   WS = 'WS',
   WSGust = 'WSGust',
-  
+
   // 其他
   CI = 'CI',
   UVI = 'UVI',
@@ -178,28 +178,28 @@ export enum WeatherElementCode {
  * 縣市代碼對照
  */
 export const COUNTY_CODES = {
-  '臺北市': '063',
-  '新北市': '071',
-  '桃園市': '007',
-  '臺中市': '075',
-  '臺南市': '079',
-  '高雄市': '067',
-  '基隆市': '011',
-  '新竹市': '019',
-  '新竹縣': '015',
-  '苗栗縣': '023',
-  '彰化縣': '027',
-  '南投縣': '031',
-  '雲林縣': '035',
-  '嘉義市': '043',
-  '嘉義縣': '039',
-  '屏東縣': '047',
-  '宜蘭縣': '003',
-  '花蓮縣': '051',
-  '臺東縣': '055',
-  '澎湖縣': '059',
-  '金門縣': '083',
-  '連江縣': '087'
+  臺北市: '063',
+  新北市: '071',
+  桃園市: '007',
+  臺中市: '075',
+  臺南市: '079',
+  高雄市: '067',
+  基隆市: '011',
+  新竹市: '019',
+  新竹縣: '015',
+  苗栗縣: '023',
+  彰化縣: '027',
+  南投縣: '031',
+  雲林縣: '035',
+  嘉義市: '043',
+  嘉義縣: '039',
+  屏東縣: '047',
+  宜蘭縣: '003',
+  花蓮縣: '051',
+  臺東縣: '055',
+  澎湖縣: '059',
+  金門縣: '083',
+  連江縣: '087'
 } as const;
 
 /**
@@ -209,16 +209,16 @@ export enum DatasetId {
   // 天氣預報
   CITY_FORECAST = 'F-C0032-001',
   TOWNSHIP_FORECAST_PREFIX = 'F-D0047-',
-  
+
   // 觀測資料
   AUTO_STATION = 'O-A0003-001',
   BUREAU_STATION = 'O-A0001-001',
-  
+
   // 特殊天氣
   EARTHQUAKE = 'E-A0016-001',
   TYPHOON_WARNING = 'W-C0033-001',
   HEAVY_RAIN = 'W-C0033-002',
-  
+
   // 生活氣象
   UV_INDEX = 'O-A0005-001'
 }

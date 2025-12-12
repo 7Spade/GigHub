@@ -40,12 +40,7 @@ export {
 } from './models/cwb-api-response.model';
 
 // Configuration
-export {
-  type IClimateConfig,
-  DEFAULT_CLIMATE_CONFIG,
-  CLIMATE_CONSTANTS,
-  CONSTRUCTION_SUITABILITY_WEIGHTS
-} from './config/climate.config';
+export { type IClimateConfig, DEFAULT_CLIMATE_CONFIG, CLIMATE_CONSTANTS, CONSTRUCTION_SUITABILITY_WEIGHTS } from './config/climate.config';
 
 export {
   CWB_API_ENDPOINTS,
@@ -62,7 +57,4 @@ export {
 } from './config/cwb-api.constants';
 
 // Exports API
-export {
-  type IClimateModuleApi,
-  createClimateModuleApi
-} from './exports/climate-api.exports';
+export { type IClimateModuleApi, createClimateModuleApi } from './exports/climate-api.exports';

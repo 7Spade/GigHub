@@ -9,15 +9,11 @@
  */
 
 import { Observable } from 'rxjs';
-import { CwbWeatherService } from '../services/cwb-weather.service';
-import { ClimateRepository } from '../repositories/climate.repository';
-import { 
-  WeatherForecast, 
-  WeatherObservation, 
-  EarthquakeInfo,
-  ConstructionSuitability 
-} from '../models/weather-forecast.model';
+
 import { CwbApiResponse } from '../models/cwb-api-response.model';
+import { WeatherForecast, WeatherObservation, EarthquakeInfo, ConstructionSuitability } from '../models/weather-forecast.model';
+import { ClimateRepository } from '../repositories/climate.repository';
+import { CwbWeatherService } from '../services/cwb-weather.service';
 
 /**
  * 氣候模組公開 API 介面
@@ -31,6 +27,7 @@ export interface IClimateModuleApi {
   weather: {
     /**
      * 取得縣市天氣預報
+     *
      * @param locationName - 縣市名稱
      * @param useCache - 是否使用快取
      */
@@ -38,18 +35,16 @@ export interface IClimateModuleApi {
 
     /**
      * 取得鄉鎮天氣預報
+     *
      * @param countyCode - 縣市代碼
      * @param townshipName - 鄉鎮名稱
      * @param useCache - 是否使用快取
      */
-    getTownshipForecast(
-      countyCode: string,
-      townshipName?: string,
-      useCache?: boolean
-    ): Observable<CwbApiResponse>;
+    getTownshipForecast(countyCode: string, townshipName?: string, useCache?: boolean): Observable<CwbApiResponse>;
 
     /**
      * 取得氣象站觀測資料
+     *
      * @param stationName - 測站名稱
      * @param useCache - 是否使用快取
      */
@@ -57,6 +52,7 @@ export interface IClimateModuleApi {
 
     /**
      * 取得地震報告
+     *
      * @param limit - 筆數限制
      * @param useCache - 是否使用快取
      */
@@ -64,6 +60,7 @@ export interface IClimateModuleApi {
 
     /**
      * 計算施工適宜度
+     *
      * @param forecast - 天氣預報資料
      */
     calculateConstructionSuitability(forecast: WeatherForecast): ConstructionSuitability;
@@ -85,42 +82,34 @@ export interface IClimateModuleApi {
   storage: {
     /**
      * 儲存天氣預報
+     *
      * @param forecast - 預報資料
      * @param sourceModule - 來源模組 ID
      * @param metadata - 元資料
      */
-    saveForecast(
-      forecast: WeatherForecast,
-      sourceModule: string,
-      metadata?: Record<string, any>
-    ): Promise<string>;
+    saveForecast(forecast: WeatherForecast, sourceModule: string, metadata?: Record<string, any>): Promise<string>;
 
     /**
      * 儲存觀測資料
+     *
      * @param observation - 觀測資料
      * @param sourceModule - 來源模組 ID
      * @param metadata - 元資料
      */
-    saveObservation(
-      observation: WeatherObservation,
-      sourceModule: string,
-      metadata?: Record<string, any>
-    ): Promise<string>;
+    saveObservation(observation: WeatherObservation, sourceModule: string, metadata?: Record<string, any>): Promise<string>;
 
     /**
      * 儲存地震資訊
+     *
      * @param earthquake - 地震資訊
      * @param sourceModule - 來源模組 ID
      * @param metadata - 元資料
      */
-    saveEarthquake(
-      earthquake: EarthquakeInfo,
-      sourceModule: string,
-      metadata?: Record<string, any>
-    ): Promise<string>;
+    saveEarthquake(earthquake: EarthquakeInfo, sourceModule: string, metadata?: Record<string, any>): Promise<string>;
 
     /**
      * 關聯專案與氣候資料
+     *
      * @param projectId - 專案 ID
      * @param locationName - 地點名稱
      * @param forecasts - 預報陣列
@@ -137,21 +126,19 @@ export interface IClimateModuleApi {
 
     /**
      * 取得專案氣候資料
+     *
      * @param projectId - 專案 ID
      */
     getProjectClimate(projectId: string): Observable<any>;
 
     /**
      * 批次儲存預報
+     *
      * @param forecasts - 預報陣列
      * @param sourceModule - 來源模組 ID
      * @param metadata - 元資料
      */
-    batchSaveForecasts(
-      forecasts: WeatherForecast[],
-      sourceModule: string,
-      metadata?: Record<string, any>
-    ): Promise<string[]>;
+    batchSaveForecasts(forecasts: WeatherForecast[], sourceModule: string, metadata?: Record<string, any>): Promise<string[]>;
   };
 }
 
@@ -169,29 +156,19 @@ export interface IClimateModuleApi {
  * this.exports = api;
  * ```
  */
-export function createClimateModuleApi(
-  weatherService: CwbWeatherService,
-  repository: ClimateRepository
-): IClimateModuleApi {
+export function createClimateModuleApi(weatherService: CwbWeatherService, repository: ClimateRepository): IClimateModuleApi {
   return {
     weather: {
-      getCityForecast: (locationName?: string, useCache: boolean = true) =>
-        weatherService.getCityWeatherForecast(locationName, useCache),
+      getCityForecast: (locationName?: string, useCache = true) => weatherService.getCityWeatherForecast(locationName, useCache),
 
-      getTownshipForecast: (
-        countyCode: string,
-        townshipName?: string,
-        useCache: boolean = true
-      ) => weatherService.getTownshipWeatherForecast(countyCode, townshipName, useCache),
+      getTownshipForecast: (countyCode: string, townshipName?: string, useCache = true) =>
+        weatherService.getTownshipWeatherForecast(countyCode, townshipName, useCache),
 
-      getStationData: (stationName?: string, useCache: boolean = true) =>
-        weatherService.getWeatherStationData(stationName, useCache),
+      getStationData: (stationName?: string, useCache = true) => weatherService.getWeatherStationData(stationName, useCache),
 
-      getEarthquakeReport: (limit: number = 10, useCache: boolean = true) =>
-        weatherService.getEarthquakeReport(limit, useCache),
+      getEarthquakeReport: (limit = 10, useCache = true) => weatherService.getEarthquakeReport(limit, useCache),
 
-      calculateConstructionSuitability: (forecast: WeatherForecast) =>
-        weatherService.calculateConstructionSuitability(forecast),
+      calculateConstructionSuitability: (forecast: WeatherForecast) => weatherService.calculateConstructionSuitability(forecast),
 
       clearCache: () => weatherService.clearCache(),
 
@@ -199,23 +176,14 @@ export function createClimateModuleApi(
     },
 
     storage: {
-      saveForecast: (
-        forecast: WeatherForecast,
-        sourceModule: string,
-        metadata?: Record<string, any>
-      ) => repository.saveWeatherForecast(forecast, sourceModule, metadata),
+      saveForecast: (forecast: WeatherForecast, sourceModule: string, metadata?: Record<string, any>) =>
+        repository.saveWeatherForecast(forecast, sourceModule, metadata),
 
-      saveObservation: (
-        observation: WeatherObservation,
-        sourceModule: string,
-        metadata?: Record<string, any>
-      ) => repository.saveWeatherObservation(observation, sourceModule, metadata),
+      saveObservation: (observation: WeatherObservation, sourceModule: string, metadata?: Record<string, any>) =>
+        repository.saveWeatherObservation(observation, sourceModule, metadata),
 
-      saveEarthquake: (
-        earthquake: EarthquakeInfo,
-        sourceModule: string,
-        metadata?: Record<string, any>
-      ) => repository.saveEarthquakeInfo(earthquake, sourceModule, metadata),
+      saveEarthquake: (earthquake: EarthquakeInfo, sourceModule: string, metadata?: Record<string, any>) =>
+        repository.saveEarthquakeInfo(earthquake, sourceModule, metadata),
 
       linkToProject: (
         projectId: string,
@@ -227,11 +195,8 @@ export function createClimateModuleApi(
 
       getProjectClimate: (projectId: string) => repository.getProjectClimate(projectId),
 
-      batchSaveForecasts: (
-        forecasts: WeatherForecast[],
-        sourceModule: string,
-        metadata?: Record<string, any>
-      ) => repository.batchSaveForecasts(forecasts, sourceModule, metadata)
+      batchSaveForecasts: (forecasts: WeatherForecast[], sourceModule: string, metadata?: Record<string, any>) =>
+        repository.batchSaveForecasts(forecasts, sourceModule, metadata)
     }
   };
 }

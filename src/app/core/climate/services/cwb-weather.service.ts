@@ -6,26 +6,17 @@
  * @module ClimateServices
  */
 
-import { Injectable, inject, signal, DestroyRef } from '@angular/core';
 import { HttpClient, HttpParams, HttpErrorResponse } from '@angular/common/http';
+import { Injectable, inject, signal, DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Observable, throwError, of } from 'rxjs';
 import { catchError, map, retry, timeout, tap } from 'rxjs/operators';
 
 import { ClimateCacheService } from './climate-cache.service';
 import { IClimateConfig } from '../config/climate.config';
-import { CWB_API_ENDPOINTS, getErrorMessage } from '../config/cwb-api.constants';
-import {
-  CwbApiResponse,
-  DatasetId,
-  WeatherElementCode
-} from '../models/cwb-api-response.model';
-import {
-  WeatherForecast,
-  WeatherObservation,
-  EarthquakeInfo,
-  ConstructionSuitability
-} from '../models/weather-forecast.model';
+import { getErrorMessage } from '../config/cwb-api.constants';
+import { CwbApiResponse, DatasetId, WeatherElementCode } from '../models/cwb-api-response.model';
+import { WeatherForecast, ConstructionSuitability } from '../models/weather-forecast.model';
 
 /**
  * 中央氣象署天氣服務
@@ -53,6 +44,7 @@ export class CwbWeatherService {
 
   /**
    * 初始化服務
+   *
    * @param config - 氣候模組配置
    */
   initialize(config: IClimateConfig): void {
@@ -64,7 +56,7 @@ export class CwbWeatherService {
     this.config = config;
     this.cache.initialize(config);
     this._isInitialized.set(true);
-    
+
     console.log('[CwbWeatherService] Initialized with config:', {
       baseUrl: config.apiBaseUrl,
       cacheEnabled: true,
@@ -74,14 +66,12 @@ export class CwbWeatherService {
 
   /**
    * 取得縣市天氣預報（36小時）
+   *
    * @param locationName - 縣市名稱（可選）
    * @param useCache - 是否使用快取（預設 true）
    * @returns Observable<WeatherForecast[]>
    */
-  getCityWeatherForecast(
-    locationName?: string,
-    useCache: boolean = true
-  ): Observable<WeatherForecast[]> {
+  getCityWeatherForecast(locationName?: string, useCache = true): Observable<WeatherForecast[]> {
     this.ensureInitialized();
 
     const cacheKey = `forecast_city_${locationName || 'all'}`;
@@ -105,38 +95,33 @@ export class CwbWeatherService {
     this._loading.set(true);
     this._error.set(null);
 
-    return this.http
-      .get<CwbApiResponse>(`${this.config!.apiBaseUrl}/${datasetId}`, { params })
-      .pipe(
-        timeout(this.config!.http.timeout),
-        retry({
-          count: this.config!.retry.maxAttempts,
-          delay: this.config!.retry.initialDelay
-        }),
-        map(response => this.transformWeatherData(response)),
-        tap(data => {
-          if (useCache) {
-            this.cache.set(cacheKey, data);
-          }
-          this._loading.set(false);
-        }),
-        catchError(error => this.handleError(error)),
-        takeUntilDestroyed(this.destroyRef)
-      );
+    return this.http.get<CwbApiResponse>(`${this.config!.apiBaseUrl}/${datasetId}`, { params }).pipe(
+      timeout(this.config!.http.timeout),
+      retry({
+        count: this.config!.retry.maxAttempts,
+        delay: this.config!.retry.initialDelay
+      }),
+      map(response => this.transformWeatherData(response)),
+      tap(data => {
+        if (useCache) {
+          this.cache.set(cacheKey, data);
+        }
+        this._loading.set(false);
+      }),
+      catchError(error => this.handleError(error)),
+      takeUntilDestroyed(this.destroyRef)
+    );
   }
 
   /**
    * 取得鄉鎮天氣預報
+   *
    * @param countyCode - 縣市代碼（例如：'063' 為台北市）
    * @param townshipName - 鄉鎮市區名稱（可選）
    * @param useCache - 是否使用快取（預設 true）
    * @returns Observable<CwbApiResponse>
    */
-  getTownshipWeatherForecast(
-    countyCode: string,
-    townshipName?: string,
-    useCache: boolean = true
-  ): Observable<CwbApiResponse> {
+  getTownshipWeatherForecast(countyCode: string, townshipName?: string, useCache = true): Observable<CwbApiResponse> {
     this.ensureInitialized();
 
     const cacheKey = `forecast_township_${countyCode}_${townshipName || 'all'}`;
@@ -158,35 +143,31 @@ export class CwbWeatherService {
 
     this._loading.set(true);
 
-    return this.http
-      .get<CwbApiResponse>(`${this.config!.apiBaseUrl}/${datasetId}`, { params })
-      .pipe(
-        timeout(this.config!.http.timeout),
-        retry({
-          count: this.config!.retry.maxAttempts,
-          delay: this.config!.retry.initialDelay
-        }),
-        tap(data => {
-          if (useCache) {
-            this.cache.set(cacheKey, data);
-          }
-          this._loading.set(false);
-        }),
-        catchError(error => this.handleError(error)),
-        takeUntilDestroyed(this.destroyRef)
-      );
+    return this.http.get<CwbApiResponse>(`${this.config!.apiBaseUrl}/${datasetId}`, { params }).pipe(
+      timeout(this.config!.http.timeout),
+      retry({
+        count: this.config!.retry.maxAttempts,
+        delay: this.config!.retry.initialDelay
+      }),
+      tap(data => {
+        if (useCache) {
+          this.cache.set(cacheKey, data);
+        }
+        this._loading.set(false);
+      }),
+      catchError(error => this.handleError(error)),
+      takeUntilDestroyed(this.destroyRef)
+    );
   }
 
   /**
    * 取得自動氣象站觀測資料
+   *
    * @param stationName - 測站名稱（可選）
    * @param useCache - 是否使用快取（預設 true）
    * @returns Observable<CwbApiResponse>
    */
-  getWeatherStationData(
-    stationName?: string,
-    useCache: boolean = true
-  ): Observable<CwbApiResponse> {
+  getWeatherStationData(stationName?: string, useCache = true): Observable<CwbApiResponse> {
     this.ensureInitialized();
 
     const cacheKey = `observation_station_${stationName || 'all'}`;
@@ -207,35 +188,31 @@ export class CwbWeatherService {
 
     this._loading.set(true);
 
-    return this.http
-      .get<CwbApiResponse>(`${this.config!.apiBaseUrl}/${datasetId}`, { params })
-      .pipe(
-        timeout(this.config!.http.timeout),
-        retry({
-          count: this.config!.retry.maxAttempts,
-          delay: this.config!.retry.initialDelay
-        }),
-        tap(data => {
-          if (useCache) {
-            this.cache.set(cacheKey, data);
-          }
-          this._loading.set(false);
-        }),
-        catchError(error => this.handleError(error)),
-        takeUntilDestroyed(this.destroyRef)
-      );
+    return this.http.get<CwbApiResponse>(`${this.config!.apiBaseUrl}/${datasetId}`, { params }).pipe(
+      timeout(this.config!.http.timeout),
+      retry({
+        count: this.config!.retry.maxAttempts,
+        delay: this.config!.retry.initialDelay
+      }),
+      tap(data => {
+        if (useCache) {
+          this.cache.set(cacheKey, data);
+        }
+        this._loading.set(false);
+      }),
+      catchError(error => this.handleError(error)),
+      takeUntilDestroyed(this.destroyRef)
+    );
   }
 
   /**
    * 取得地震報告
+   *
    * @param limit - 回傳筆數限制（預設 10）
    * @param useCache - 是否使用快取（預設 true）
    * @returns Observable<CwbApiResponse>
    */
-  getEarthquakeReport(
-    limit: number = 10,
-    useCache: boolean = true
-  ): Observable<CwbApiResponse> {
+  getEarthquakeReport(limit = 10, useCache = true): Observable<CwbApiResponse> {
     this.ensureInitialized();
 
     const cacheKey = `earthquake_report_${limit}`;
@@ -248,33 +225,30 @@ export class CwbWeatherService {
     }
 
     const datasetId = DatasetId.EARTHQUAKE;
-    const params = new HttpParams()
-      .set('Authorization', this.config!.apiKey)
-      .set('limit', limit.toString());
+    const params = new HttpParams().set('Authorization', this.config!.apiKey).set('limit', limit.toString());
 
     this._loading.set(true);
 
-    return this.http
-      .get<CwbApiResponse>(`${this.config!.apiBaseUrl}/${datasetId}`, { params })
-      .pipe(
-        timeout(this.config!.http.timeout),
-        retry({
-          count: this.config!.retry.maxAttempts,
-          delay: this.config!.retry.initialDelay
-        }),
-        tap(data => {
-          if (useCache) {
-            this.cache.set(cacheKey, data);
-          }
-          this._loading.set(false);
-        }),
-        catchError(error => this.handleError(error)),
-        takeUntilDestroyed(this.destroyRef)
-      );
+    return this.http.get<CwbApiResponse>(`${this.config!.apiBaseUrl}/${datasetId}`, { params }).pipe(
+      timeout(this.config!.http.timeout),
+      retry({
+        count: this.config!.retry.maxAttempts,
+        delay: this.config!.retry.initialDelay
+      }),
+      tap(data => {
+        if (useCache) {
+          this.cache.set(cacheKey, data);
+        }
+        this._loading.set(false);
+      }),
+      catchError(error => this.handleError(error)),
+      takeUntilDestroyed(this.destroyRef)
+    );
   }
 
   /**
    * 計算施工適宜度評估
+   *
    * @param forecast - 天氣預報資料
    * @returns 施工適宜度評估
    */
@@ -313,7 +287,7 @@ export class CwbWeatherService {
     const maxTemp = forecast.temperature.max;
     const minTemp = forecast.temperature.min;
     factors.temperature.value = maxTemp;
-    
+
     if (maxTemp > 35) {
       factors.temperature.impact = -20;
       factors.temperature.description = '高溫酷熱';
@@ -326,7 +300,7 @@ export class CwbWeatherService {
       score -= 10;
       recommendations.push('注意防曬與補充水分');
     }
-    
+
     if (minTemp < 10) {
       factors.temperature.impact -= 15;
       factors.temperature.description = '低溫寒冷';
@@ -352,8 +326,7 @@ export class CwbWeatherService {
 
     // 天氣現象影響
     factors.weather.value = forecast.weatherDescription;
-    if (forecast.weatherDescription.includes('雨') || 
-        forecast.weatherDescription.includes('雷')) {
+    if (forecast.weatherDescription.includes('雨') || forecast.weatherDescription.includes('雷')) {
       factors.weather.impact = -20;
       factors.weather.description = '不穩定天氣';
       score -= 20;
@@ -399,6 +372,7 @@ export class CwbWeatherService {
 
   /**
    * 清除過期快取
+   *
    * @returns 清除的項目數量
    */
   clearExpiredCache(): number {
@@ -407,6 +381,7 @@ export class CwbWeatherService {
 
   /**
    * 取得快取統計資訊
+   *
    * @returns 快取統計
    */
   getCacheStats() {
@@ -435,9 +410,8 @@ export class CwbWeatherService {
       const wxElement = location.weatherElement.find(el => el.elementName === WeatherElementCode.Wx);
       const minTElement = location.weatherElement.find(el => el.elementName === WeatherElementCode.MinT);
       const maxTElement = location.weatherElement.find(el => el.elementName === WeatherElementCode.MaxT);
-      const popElement = location.weatherElement.find(el => 
-        el.elementName === WeatherElementCode.PoP || 
-        el.elementName === WeatherElementCode.PoP12h
+      const popElement = location.weatherElement.find(
+        el => el.elementName === WeatherElementCode.PoP || el.elementName === WeatherElementCode.PoP12h
       );
 
       if (wxElement && wxElement.time.length > 0) {

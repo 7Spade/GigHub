@@ -7,6 +7,7 @@
  */
 
 import { Injectable, signal } from '@angular/core';
+
 import { IClimateConfig } from '../config/climate.config';
 
 /**
@@ -39,7 +40,7 @@ export interface CacheStats {
 })
 export class ClimateCacheService {
   private cache = new Map<string, CacheEntry<any>>();
-  
+
   // 快取統計（使用 Signal）
   private _stats = signal<CacheStats>({
     hits: 0,
@@ -48,13 +49,14 @@ export class ClimateCacheService {
     maxSize: 100,
     hitRate: 0
   });
-  
+
   readonly stats = this._stats.asReadonly();
-  
+
   private config?: IClimateConfig;
 
   /**
    * 初始化快取服務
+   *
    * @param config - 氣候模組配置
    */
   initialize(config: IClimateConfig): void {
@@ -67,13 +69,14 @@ export class ClimateCacheService {
 
   /**
    * 從快取取得資料
+   *
    * @param key - 快取鍵
    * @param ttl - 存活時間（毫秒），若未提供則使用預設值
    * @returns 快取資料或 null
    */
   get<T>(key: string, ttl?: number): T | null {
     const entry = this.cache.get(key);
-    
+
     if (!entry) {
       this.recordMiss();
       return null;
@@ -81,7 +84,7 @@ export class ClimateCacheService {
 
     const age = Date.now() - entry.timestamp;
     const maxAge = ttl || this.getDefaultTTL(key);
-    
+
     if (age > maxAge) {
       this.cache.delete(key);
       this.recordMiss();
@@ -95,6 +98,7 @@ export class ClimateCacheService {
 
   /**
    * 將資料存入快取
+   *
    * @param key - 快取鍵
    * @param data - 要快取的資料
    */
@@ -109,12 +113,13 @@ export class ClimateCacheService {
       timestamp: Date.now(),
       key
     });
-    
+
     this.updateSize();
   }
 
   /**
    * 檢查快取中是否存在指定鍵
+   *
    * @param key - 快取鍵
    * @param ttl - 存活時間（毫秒）
    * @returns true 如果快取有效
@@ -125,6 +130,7 @@ export class ClimateCacheService {
 
   /**
    * 刪除指定快取項目
+   *
    * @param key - 快取鍵
    * @returns true 如果刪除成功
    */
@@ -149,6 +155,7 @@ export class ClimateCacheService {
 
   /**
    * 清除過期的快取項目
+   *
    * @returns 清除的項目數量
    */
   clearExpired(): number {
@@ -158,7 +165,7 @@ export class ClimateCacheService {
     for (const [key, entry] of this.cache.entries()) {
       const ttl = this.getDefaultTTL(key);
       const age = now - entry.timestamp;
-      
+
       if (age > ttl) {
         this.cache.delete(key);
         cleared++;
@@ -174,6 +181,7 @@ export class ClimateCacheService {
 
   /**
    * 取得所有快取鍵
+   *
    * @returns 快取鍵陣列
    */
   keys(): string[] {
@@ -182,6 +190,7 @@ export class ClimateCacheService {
 
   /**
    * 取得快取項目數量
+   *
    * @returns 快取項目數量
    */
   size(): number {
@@ -221,6 +230,7 @@ export class ClimateCacheService {
 
   /**
    * 取得預設 TTL
+   *
    * @param key - 快取鍵
    * @returns TTL（毫秒）
    */

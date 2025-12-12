@@ -54,7 +54,7 @@ export interface ProjectClimateData {
  * // 在任務模組中儲存天氣預報
  * const climateRepo = inject(ClimateRepository);
  * const forecast = await cwbService.getCityWeatherForecast('臺北市');
- * 
+ *
  * await climateRepo.saveWeatherForecast(
  *   forecast[0],
  *   'tasks-module',
@@ -92,11 +92,7 @@ export class ClimateRepository {
    * );
    * ```
    */
-  async saveWeatherForecast(
-    forecast: WeatherForecast,
-    sourceModule: string,
-    metadata?: Record<string, any>
-  ): Promise<string> {
+  async saveWeatherForecast(forecast: WeatherForecast, sourceModule: string, metadata?: Record<string, any>): Promise<string> {
     const colRef = collection(this.firestore, this.COLLECTIONS.CLIMATE_DATA);
     const docRef = doc(colRef);
 
@@ -121,11 +117,7 @@ export class ClimateRepository {
    * @param metadata - 額外的元資料
    * @returns Promise<string> - 文件 ID
    */
-  async saveWeatherObservation(
-    observation: WeatherObservation,
-    sourceModule: string,
-    metadata?: Record<string, any>
-  ): Promise<string> {
+  async saveWeatherObservation(observation: WeatherObservation, sourceModule: string, metadata?: Record<string, any>): Promise<string> {
     const colRef = collection(this.firestore, this.COLLECTIONS.CLIMATE_DATA);
     const docRef = doc(colRef);
 
@@ -150,11 +142,7 @@ export class ClimateRepository {
    * @param metadata - 額外的元資料
    * @returns Promise<string> - 文件 ID
    */
-  async saveEarthquakeInfo(
-    earthquake: EarthquakeInfo,
-    sourceModule: string,
-    metadata?: Record<string, any>
-  ): Promise<string> {
+  async saveEarthquakeInfo(earthquake: EarthquakeInfo, sourceModule: string, metadata?: Record<string, any>): Promise<string> {
     const colRef = collection(this.firestore, this.COLLECTIONS.CLIMATE_DATA);
     const docRef = doc(colRef);
 
@@ -260,10 +248,7 @@ export class ClimateRepository {
    * });
    * ```
    */
-  getDataByModule(
-    sourceModule: string,
-    type?: ClimateDataRecord['type']
-  ): Observable<ClimateDataRecord[]> {
+  getDataByModule(sourceModule: string, type?: ClimateDataRecord['type']): Observable<ClimateDataRecord[]> {
     const colRef = collection(this.firestore, this.COLLECTIONS.CLIMATE_DATA);
     let q = query(colRef, where('sourceModule', '==', sourceModule));
 
@@ -301,10 +286,7 @@ export class ClimateRepository {
    * });
    * ```
    */
-  async updateProjectClimate(
-    projectId: string,
-    updates: Partial<ProjectClimateData>
-  ): Promise<void> {
+  async updateProjectClimate(projectId: string, updates: Partial<ProjectClimateData>): Promise<void> {
     const docRef = doc(this.firestore, this.COLLECTIONS.PROJECT_CLIMATE, projectId);
     await setDoc(docRef, updates, { merge: true });
   }
@@ -331,11 +313,7 @@ export class ClimateRepository {
    * @param metadata - 共用元資料
    * @returns Promise<string[]> - 文件 ID 陣列
    */
-  async batchSaveForecasts(
-    forecasts: WeatherForecast[],
-    sourceModule: string,
-    metadata?: Record<string, any>
-  ): Promise<string[]> {
+  async batchSaveForecasts(forecasts: WeatherForecast[], sourceModule: string, metadata?: Record<string, any>): Promise<string[]> {
     const ids: string[] = [];
 
     for (const forecast of forecasts) {
