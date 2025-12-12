@@ -92,6 +92,9 @@ export interface Task {
   /** Actual hours (optional) */
   actualHours?: number;
 
+  /** Progress percentage (0-100) */
+  progress?: number;
+
   /** Tags (optional) */
   tags?: string[];
 
@@ -149,6 +152,9 @@ export interface CreateTaskRequest {
   /** Estimated hours (optional) */
   estimatedHours?: number;
 
+  /** Progress percentage (0-100) (optional) */
+  progress?: number;
+
   /** Initial status (defaults to PENDING) */
   status?: TaskStatus;
 
@@ -199,6 +205,9 @@ export interface UpdateTaskRequest {
 
   /** Actual hours */
   actualHours?: number;
+
+  /** Progress percentage (0-100) */
+  progress?: number;
 
   /** Tags */
   tags?: string[];
