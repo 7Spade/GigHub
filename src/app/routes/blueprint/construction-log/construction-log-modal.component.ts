@@ -14,7 +14,7 @@
  * @date 2025-12-11
  */
 
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Log, CreateLogRequest, UpdateLogRequest } from '@core/types/log/log.types';
 import { SHARED_IMPORTS } from '@shared';
@@ -120,7 +120,9 @@ interface ModalData {
               [nzMultiple]="true"
               [nzAccept]="'image/*'"
               [nzBeforeUpload]="beforeUpload"
+              [nzFileList]="uploadFileList()"
               [nzShowUploadList]="{ showPreviewIcon: true, showRemoveIcon: true }"
+              (nzRemove)="handleRemove($event)"
             >
               <p class="ant-upload-drag-icon">
                 <span nz-icon nzType="inbox"></span>
@@ -186,7 +188,7 @@ interface ModalData {
     `
   ]
 })
-export class ConstructionLogModalComponent implements OnInit {
+export class ConstructionLogModalComponent implements OnInit, OnDestroy {
   private fb = inject(FormBuilder);
   private modalRef = inject(NzModalRef);
   private message = inject(NzMessageService);
@@ -201,17 +203,30 @@ export class ConstructionLogModalComponent implements OnInit {
   // State
   submitting = signal(false);
   fileList = signal<File[]>([]);
+  uploadFileList = signal<NzUploadFile[]>([]);
 
   ngOnInit(): void {
     this.initForm();
+  }
+
+  ngOnDestroy(): void {
+    // Cleanup object URLs
+    this.uploadFileList().forEach(file => {
+      if (file.url) {
+        URL.revokeObjectURL(file.url);
+      }
+    });
   }
 
   private initForm(): void {
     const log = this.modalData.log;
     const isView = this.modalData.mode === 'view';
 
+    // Safely convert log.date to Date object
+    const logDate = log?.date ? this.ensureValidDate(log.date) : new Date();
+
     this.form = this.fb.group({
-      date: [log?.date || new Date(), [Validators.required]],
+      date: [logDate, [Validators.required]],
       title: [{ value: log?.title || '', disabled: isView }, [Validators.required, Validators.maxLength(100)]],
       description: [{ value: log?.description || '', disabled: isView }, [Validators.maxLength(1000)]],
       workHours: [{ value: log?.workHours || null, disabled: isView }],
@@ -220,6 +235,42 @@ export class ConstructionLogModalComponent implements OnInit {
       weather: [{ value: log?.weather || null, disabled: isView }],
       temperature: [{ value: log?.temperature || null, disabled: isView }]
     });
+  }
+
+  /**
+   * Ensure date is a valid Date object
+   * Handles Firestore Timestamp, ISO string, and Date objects
+   */
+  private ensureValidDate(date: any): Date {
+    // If already a valid Date object
+    if (date instanceof Date && !isNaN(date.getTime())) {
+      return date;
+    }
+
+    // If Firestore Timestamp
+    if (date?.toDate && typeof date.toDate === 'function') {
+      return date.toDate();
+    }
+
+    // If string (ISO format)
+    if (typeof date === 'string') {
+      const parsed = new Date(date);
+      if (!isNaN(parsed.getTime())) {
+        return parsed;
+      }
+    }
+
+    // If number (timestamp in ms)
+    if (typeof date === 'number') {
+      const parsed = new Date(date);
+      if (!isNaN(parsed.getTime())) {
+        return parsed;
+      }
+    }
+
+    // Fallback to current date
+    console.warn('[ConstructionLogModal] Invalid date value, using current date:', date);
+    return new Date();
   }
 
   beforeUpload = (file: NzUploadFile): boolean => {
@@ -234,8 +285,35 @@ export class ConstructionLogModalComponent implements OnInit {
       return false;
     }
 
+    // Add to file lists
     this.fileList.update(list => [...list, file as any]);
-    return false;
+
+    // Add to upload file list for display
+    const uploadFile: NzUploadFile = {
+      uid: `${Date.now()}-${file.name}`,
+      name: file.name,
+      status: 'done',
+      url: URL.createObjectURL(file as any),
+      originFileObj: file as any
+    };
+    this.uploadFileList.update(list => [...list, uploadFile]);
+
+    return false; // Prevent automatic upload
+  };
+
+  handleRemove = (file: NzUploadFile): boolean => {
+    // Remove from file list
+    this.fileList.update(list => list.filter(f => f.name !== file.name));
+
+    // Remove from upload file list
+    this.uploadFileList.update(list => list.filter(f => f.uid !== file.uid));
+
+    // Revoke object URL to free memory
+    if (file.url) {
+      URL.revokeObjectURL(file.url);
+    }
+
+    return true;
   };
 
   async deletePhoto(photoId: string): Promise<void> {
@@ -282,16 +360,21 @@ export class ConstructionLogModalComponent implements OnInit {
 
       this.modalRef.close({ success: true, log });
     } catch (error) {
-      this.message.error('操作失敗');
+      const errorMessage = error instanceof Error ? error.message : '操作失敗';
+      console.error('[ConstructionLogModal] Submit error:', error);
+      this.message.error(errorMessage);
     } finally {
       this.submitting.set(false);
     }
   }
 
   private async createLog(formValue: any): Promise<Log | null> {
+    // Ensure date is a valid Date object
+    const date = this.ensureValidDate(formValue.date);
+
     const request: CreateLogRequest = {
       blueprintId: this.modalData.blueprintId,
-      date: formValue.date,
+      date: date,
       title: formValue.title,
       description: formValue.description,
       workHours: formValue.workHours,
@@ -309,8 +392,11 @@ export class ConstructionLogModalComponent implements OnInit {
     const logId = this.modalData.log?.id;
     if (!logId) return null;
 
+    // Ensure date is a valid Date object
+    const date = this.ensureValidDate(formValue.date);
+
     const request: UpdateLogRequest = {
-      date: formValue.date,
+      date: date,
       title: formValue.title,
       description: formValue.description,
       workHours: formValue.workHours,

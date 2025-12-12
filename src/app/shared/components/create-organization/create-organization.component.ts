@@ -133,8 +133,8 @@ export class CreateOrganizationComponent {
         created_by: currentUser.uid
       });
 
-      // Add to workspace context
-      this.workspaceContext.addOrganization(newOrg);
+      // Reload workspace data to include new organization
+      this.workspaceContext.reloadData();
 
       // Switch to new organization context
       this.workspaceContext.switchToOrganization(newOrg.id);

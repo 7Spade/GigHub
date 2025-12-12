@@ -28,7 +28,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { ContextType, Account, Organization, Team, Bot, FirebaseAuthService } from '@core';
 import { OrganizationRepository, TeamRepository } from '@core/repositories';
 import { SettingsService } from '@delon/theme';
-import { combineLatest, of, switchMap, map, shareReplay, catchError } from 'rxjs';
+import { combineLatest, of, switchMap, map, shareReplay, catchError, BehaviorSubject } from 'rxjs';
 
 const STORAGE_KEY = 'workspace_context';
 
@@ -56,14 +56,19 @@ export class WorkspaceContextService {
   // ============================================================================
 
   /**
+   * Reload trigger - use BehaviorSubject to manually trigger data reload
+   */
+  private readonly reloadTrigger$ = new BehaviorSubject<void>(undefined);
+
+  /**
    * Main data pipeline using RxJS operators (Angular 20 best practice)
    * - switchMap: Automatically cancels previous requests
    * - combineLatest: Load multiple resources in parallel
    * - shareReplay(1): Cache result, prevent duplicate requests
    * - catchError: Handle errors gracefully
    */
-  private readonly userData$ = this.firebaseAuth.user$.pipe(
-    switchMap(user => {
+  private readonly userData$ = combineLatest([this.firebaseAuth.user$, this.reloadTrigger$]).pipe(
+    switchMap(([user]) => {
       if (!user) {
         console.log('[WorkspaceContextService] 👤 No user authenticated');
         return of({ user: null, organizations: [], teams: [], bots: [] });
@@ -378,13 +383,11 @@ export class WorkspaceContextService {
 
   /**
    * Reload data from Firebase
-   * Forces the userData$ pipeline to re-execute
+   * Forces the userData$ pipeline to re-execute by emitting on reloadTrigger$
    */
   reloadData(): void {
-    // userData$ is driven by firebaseAuth.user$ which is already reactive
-    // If we need to force reload, we'd need to add a trigger subject
-    // For now, this is a placeholder that would require additional implementation
-    console.log('[WorkspaceContextService] 🔄 Data reload requested (pipeline will re-execute on auth changes)');
+    console.log('[WorkspaceContextService] 🔄 Triggering data reload...');
+    this.reloadTrigger$.next();
   }
 
   /**

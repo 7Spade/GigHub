@@ -64,10 +64,6 @@ import { BlueprintMembersComponent } from './members/blueprint-members.component
             <span nz-icon nzType="reload"></span>
             同步
           </button>
-          <button *nzSpaceItem nz-button (click)="exportData()">
-            <span nz-icon nzType="export"></span>
-            匯出
-          </button>
           <button *nzSpaceItem nz-button (click)="edit()">
             <span nz-icon nzType="edit"></span>
             編輯
@@ -186,8 +182,26 @@ import { BlueprintMembersComponent } from './members/blueprint-members.component
                   <!-- Basic Info -->
                   <nz-card nzTitle="基本資訊">
                     <nz-descriptions [nzColumn]="1" [nzColon]="false">
+                      <nz-descriptions-item nzTitle="藍圖 ID">
+                        <nz-tag nzColor="blue">{{ blueprint()!.id }}</nz-tag>
+                      </nz-descriptions-item>
                       <nz-descriptions-item nzTitle="Slug">
                         <nz-tag>{{ blueprint()!.slug }}</nz-tag>
+                      </nz-descriptions-item>
+                      <nz-descriptions-item nzTitle="名稱">
+                        <strong>{{ blueprint()!.name }}</strong>
+                      </nz-descriptions-item>
+                      <nz-descriptions-item nzTitle="描述">
+                        {{ blueprint()!.description || '無描述' }}
+                      </nz-descriptions-item>
+                      <nz-descriptions-item nzTitle="擁有者類型">
+                        <nz-tag [nzColor]="getOwnerTypeColor(blueprint()!.ownerType)">
+                          <span nz-icon [nzType]="getOwnerTypeIcon(blueprint()!.ownerType)"></span>
+                          {{ getOwnerTypeName(blueprint()!.ownerType) }}
+                        </nz-tag>
+                      </nz-descriptions-item>
+                      <nz-descriptions-item nzTitle="擁有者 ID">
+                        <code>{{ blueprint()!.ownerId }}</code>
                       </nz-descriptions-item>
                       <nz-descriptions-item nzTitle="可見性">
                         @if (blueprint()!.isPublic) {
@@ -202,8 +216,20 @@ import { BlueprintMembersComponent } from './members/blueprint-members.component
                           </nz-tag>
                         }
                       </nz-descriptions-item>
+                      <nz-descriptions-item nzTitle="啟用模組">
+                        @if (blueprint()!.enabledModules && blueprint()!.enabledModules.length > 0) {
+                          @for (module of blueprint()!.enabledModules; track module) {
+                            <nz-tag class="mr-xs">{{ module }}</nz-tag>
+                          }
+                        } @else {
+                          <span class="text-muted">無啟用模組</span>
+                        }
+                      </nz-descriptions-item>
+                      <nz-descriptions-item nzTitle="建立時間">
+                        {{ blueprint()!.createdAt | date: 'yyyy-MM-dd HH:mm:ss' }}
+                      </nz-descriptions-item>
                       <nz-descriptions-item nzTitle="更新時間">
-                        {{ blueprint()!.updatedAt | date: 'yyyy-MM-dd HH:mm' }}
+                        {{ blueprint()!.updatedAt | date: 'yyyy-MM-dd HH:mm:ss' }}
                       </nz-descriptions-item>
                     </nz-descriptions>
                   </nz-card>
@@ -469,19 +495,50 @@ export class BlueprintDetailComponent implements OnInit {
   }
 
   /**
-   * Export blueprint data
-   * 匯出藍圖資料
-   */
-  exportData(): void {
-    this.message.info('匯出功能待實作');
-  }
-
-  /**
    * Configure modules
    * 配置模組
    */
   configureModules(): void {
     this.message.info('模組配置功能待實作');
+  }
+
+  /**
+   * Get owner type display name
+   * 取得擁有者類型顯示名稱
+   */
+  getOwnerTypeName(type: string): string {
+    const typeMap: Record<string, string> = {
+      user: '個人',
+      organization: '組織',
+      team: '團隊'
+    };
+    return typeMap[type] || type;
+  }
+
+  /**
+   * Get owner type icon
+   * 取得擁有者類型圖示
+   */
+  getOwnerTypeIcon(type: string): string {
+    const iconMap: Record<string, string> = {
+      user: 'user',
+      organization: 'team',
+      team: 'usergroup-add'
+    };
+    return iconMap[type] || 'question-circle';
+  }
+
+  /**
+   * Get owner type color
+   * 取得擁有者類型顏色
+   */
+  getOwnerTypeColor(type: string): string {
+    const colorMap: Record<string, string> = {
+      user: 'blue',
+      organization: 'green',
+      team: 'orange'
+    };
+    return colorMap[type] || 'default';
   }
 
   /**
