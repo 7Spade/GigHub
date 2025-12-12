@@ -245,6 +245,42 @@ export class ErrorTrackingService {
     // Default to medium
     return ErrorSeverity.MEDIUM;
   }
+
+  /**
+   * Track Firestore-specific error
+   * 追蹤 Firestore 特定錯誤
+   */
+  trackFirestoreError(collectionName: string, error: any, metadata?: Record<string, any>): void {
+    const severity = this.determineFirestoreSeverity(error);
+
+    this.logError(error, ErrorType.HTTP, severity, {
+      ...metadata,
+      collectionName,
+      errorCode: error?.code,
+      errorMessage: error?.message
+    });
+  }
+
+  /**
+   * Determine severity for Firestore errors
+   * 判斷 Firestore 錯誤的嚴重性
+   */
+  private determineFirestoreSeverity(error: any): ErrorSeverity {
+    const code = error?.code || '';
+
+    // Critical errors
+    if (['permission-denied', 'unauthenticated'].includes(code)) {
+      return ErrorSeverity.CRITICAL;
+    }
+
+    // High severity errors
+    if (['failed-precondition', 'invalid-argument', 'resource-exhausted'].includes(code)) {
+      return ErrorSeverity.HIGH;
+    }
+
+    // Default to medium
+    return ErrorSeverity.MEDIUM;
+  }
 }
 
 /**

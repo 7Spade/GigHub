@@ -12,9 +12,13 @@ export * from './team-member.repository';
 export * from './log.repository';
 export * from './task.repository';
 export * from './storage.repository';
+export * from './firebase-storage.repository';
 export * from './notification.repository';
 
-// Supabase Repositories
+// Supabase Repositories (to be deprecated)
 export * from './base/supabase-base.repository';
 export * from './task-supabase.repository';
 export * from './log-supabase.repository';
+
+// Firestore Repositories (new)
+export * from './base/firestore-base.repository';

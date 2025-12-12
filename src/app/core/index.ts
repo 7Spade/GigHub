@@ -8,6 +8,7 @@ export * from './errors/index';
 export * from './i18n/i18n.service';
 export * from './net/index';
 export * from './services/supabase.service';
+export * from './services/firebase.service';
 export * from './services/firebase-auth.service';
 export * from './services/firebase-analytics.service';
 export * from './services/logger/logger.service';
