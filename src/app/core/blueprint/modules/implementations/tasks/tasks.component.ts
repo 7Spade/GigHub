@@ -11,10 +11,13 @@
 import { Component, OnInit, inject, signal, computed, input, effect } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { STColumn, STData } from '@delon/abc/st';
+import { NzModalService } from 'ng-zorro-antd/modal';
+import { NzMessageService } from 'ng-zorro-antd/message';
 import { SHARED_IMPORTS } from '@shared';
 
 import { TaskStatus, TaskPriority, CreateTaskData } from './tasks.repository';
 import { TasksService } from './tasks.service';
+import { TaskModalComponent } from './task-modal.component';
 
 @Component({
   selector: 'app-tasks',
@@ -70,6 +73,8 @@ import { TasksService } from './tasks.service';
 })
 export class TasksComponent implements OnInit {
   private route = inject(ActivatedRoute);
+  private modal = inject(NzModalService);
+  private message = inject(NzMessageService);
   readonly tasksService = inject(TasksService);
 
   // Input from parent (Angular 19+ input() function)
@@ -191,13 +196,58 @@ export class TasksComponent implements OnInit {
   }
 
   showCreateTaskModal(): void {
-    // TODO: Implement create task modal
-    console.log('Show create task modal');
+    const blueprintId = this._blueprintId();
+    if (!blueprintId) {
+      this.message.warning('請先選擇藍圖');
+      return;
+    }
+
+    const modalRef = this.modal.create({
+      nzTitle: '新增任務',
+      nzContent: TaskModalComponent,
+      nzData: {
+        blueprintId: blueprintId,
+        mode: 'create'
+      },
+      nzWidth: 800,
+      nzFooter: null,
+      nzMaskClosable: false
+    });
+
+    modalRef.afterClose.subscribe((result) => {
+      if (result?.success) {
+        this.message.success('任務新增成功');
+        // Task is already added to service state by the service
+      }
+    });
   }
 
   editTask(task: any): void {
-    // TODO: Implement edit task
-    console.log('Edit task:', task);
+    const blueprintId = this._blueprintId();
+    if (!blueprintId) {
+      this.message.warning('請先選擇藍圖');
+      return;
+    }
+
+    const modalRef = this.modal.create({
+      nzTitle: '編輯任務',
+      nzContent: TaskModalComponent,
+      nzData: {
+        blueprintId: blueprintId,
+        task: task,
+        mode: 'edit'
+      },
+      nzWidth: 800,
+      nzFooter: null,
+      nzMaskClosable: false
+    });
+
+    modalRef.afterClose.subscribe((result) => {
+      if (result?.success) {
+        this.message.success('任務更新成功');
+        // Task is already updated in service state
+      }
+    });
   }
 
   async deleteTask(task: any): Promise<void> {
