@@ -23,9 +23,6 @@ import { SHARED_IMPORTS } from '@shared';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NZ_MODAL_DATA, NzModalRef } from 'ng-zorro-antd/modal';
 import { NzSliderModule } from 'ng-zorro-antd/slider';
-import { TaskStore } from '@core/stores/task.store';
-import { Task, TaskStatus, TaskPriority, CreateTaskRequest, UpdateTaskRequest } from '@core/types/task';
-
 interface ModalData {
   blueprintId: string;
   task?: Task;

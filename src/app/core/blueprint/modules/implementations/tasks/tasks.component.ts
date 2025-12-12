@@ -10,6 +10,7 @@
 
 import { Component, OnInit, inject, signal, effect, input } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { LoggerService } from '@core';
 import { SHARED_IMPORTS } from '@shared';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzModalService } from 'ng-zorro-antd/modal';
