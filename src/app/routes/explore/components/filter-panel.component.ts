@@ -1,7 +1,7 @@
 import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { SHARED_IMPORTS } from '@shared';
 
-import { SearchEntityType, SearchFilters } from '../models';
+import { SearchEntityType } from '../models';
 import { ExploreSearchFacade } from '../services';
 
 /**

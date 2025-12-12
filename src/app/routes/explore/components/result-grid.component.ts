@@ -262,7 +262,7 @@ export class ResultGridComponent {
   private readonly router = inject(Router);
 
   // Outputs
-  resultClicked = output<SearchResult>();
+  readonly resultClicked = output<SearchResult>();
 
   // Facade state
   readonly results = this.searchFacade.results;

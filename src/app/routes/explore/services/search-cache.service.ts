@@ -78,9 +78,8 @@ export class SearchCacheService {
    *
    * @param key Cache key
    * @param result Cached result data
-   * @param ttl Optional custom TTL in milliseconds
    */
-  set(key: string, result: CachedSearchResult, ttl?: number): void {
+  set(key: string, result: CachedSearchResult): void {
     // Evict oldest entries if at capacity
     while (this.cache.size >= this.MAX_CACHE_SIZE) {
       const oldest = this.accessOrder.shift();

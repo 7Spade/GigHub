@@ -148,7 +148,7 @@ export class SearchBarComponent {
   placeholder = input('搜尋使用者、組織、藍圖...');
 
   // Outputs
-  searchTriggered = output<string>();
+  readonly searchTriggered = output<string>();
 
   // Local state
   inputValue = signal('');

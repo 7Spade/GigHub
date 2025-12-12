@@ -1,6 +1,6 @@
 import { Injectable, signal, computed, inject, Injector, runInInjectionContext } from '@angular/core';
 import { Firestore, collection, query, where, orderBy, limit, getDocs, Timestamp, QueryConstraint } from '@angular/fire/firestore';
-import { LoggerService, Account, Organization, Blueprint, OwnerType } from '@core';
+import { LoggerService } from '@core';
 
 import {
   SearchResult,
@@ -11,8 +11,7 @@ import {
   OrganizationMetadata,
   BlueprintMetadata,
   DEFAULT_SEARCH_FILTERS,
-  DEFAULT_PAGINATION_STATE,
-  CachedSearchResult
+  DEFAULT_PAGINATION_STATE
 } from '../models';
 import { SearchCacheService } from './search-cache.service';
 
@@ -227,13 +226,27 @@ export class ExploreSearchFacade {
 
   /**
    * Sanitize search query input
+   * Removes all HTML-related characters and limits length
    */
   private sanitizeQuery(queryInput: string): string {
-    return queryInput
-      .trim()
-      .replace(/<[^>]*>/g, '') // Remove HTML tags
-      .replace(/[<>'"]/g, '') // Remove dangerous characters
-      .substring(0, 100); // Limit length
+    // First, remove all angle brackets and quotes in a loop until stable
+    // This prevents bypass attempts like "<scr<script>ipt>"
+    let sanitized = queryInput.trim();
+    let previousLength: number;
+
+    do {
+      previousLength = sanitized.length;
+      sanitized = sanitized
+        .replace(/</g, '') // Remove all < characters
+        .replace(/>/g, '') // Remove all > characters
+        .replace(/"/g, '') // Remove double quotes
+        .replace(/'/g, '') // Remove single quotes
+        .replace(/`/g, '') // Remove backticks
+        .replace(/&/g, ''); // Remove ampersands (prevent HTML entities)
+    } while (sanitized.length !== previousLength);
+
+    // Limit length
+    return sanitized.substring(0, 100);
   }
 
   /**
@@ -249,8 +262,6 @@ export class ExploreSearchFacade {
   private async searchAccounts(searchQuery: string): Promise<SearchResult[]> {
     try {
       const accountsRef = collection(this.firestore, 'accounts');
-      const searchLower = searchQuery.toLowerCase();
-      const searchEnd = `${searchLower}\uf8ff`;
 
       // Note: Firestore doesn't support case-insensitive search
       // We fetch by name range and filter client-side
