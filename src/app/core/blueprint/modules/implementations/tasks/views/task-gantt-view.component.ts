@@ -2,17 +2,28 @@
  * Task Gantt View Component
  * 任務甘特圖視圖元件
  *
- * Displays tasks in Gantt chart format (basic implementation)
+ * Displays tasks in Gantt chart format with enhanced features:
+ * - Multiple zoom levels (day/week/month)
+ * - Task dependencies visualization
+ * - Milestone markers
+ * - Progress indicators
  *
  * @author GigHub Development Team
  * @date 2025-12-12
  */
 
-import { Component, input, computed, inject } from '@angular/core';
+import { Component, input, computed, inject, signal } from '@angular/core';
 import { SHARED_IMPORTS } from '@shared';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
 import { Task, GanttTask } from '@core/types/task';
 import { TaskStore } from '@core/stores/task.store';
+
+/** Zoom level enum */
+enum ZoomLevel {
+  DAY = 'day',
+  WEEK = 'week',
+  MONTH = 'month'
+}
 
 @Component({
   selector: 'app-task-gantt-view',
@@ -26,57 +37,96 @@ import { TaskStore } from '@core/stores/task.store';
         <nz-alert nzType="error" [nzMessage]="error()" nzShowIcon />
       } @else {
         <div class="gantt-header">
-          <h3>甘特圖視圖</h3>
-          <nz-alert 
-            nzType="info" 
-            nzMessage="基礎甘特圖實現" 
-            nzDescription="顯示任務起始日期與持續時間的簡化視圖"
-            nzShowIcon
-          />
+          <div class="header-row">
+            <h3>甘特圖視圖</h3>
+            <nz-space>
+              <nz-radio-group *nzSpaceItem [(ngModel)]="zoomLevel">
+                <label nz-radio-button [nzValue]="'day'">日視圖</label>
+                <label nz-radio-button [nzValue]="'week'">週視圖</label>
+                <label nz-radio-button [nzValue]="'month'">月視圖</label>
+              </nz-radio-group>
+              <nz-tag *nzSpaceItem [nzColor]="'blue'">
+                共 {{ ganttTasks().length }} 個任務
+              </nz-tag>
+            </nz-space>
+          </div>
         </div>
 
-        <div class="gantt-chart">
-          <div class="gantt-timeline">
-            <div class="timeline-header">
-              <div class="task-names">任務名稱</div>
-              <div class="timeline-dates">
-                @for (date of timelineMonths(); track date) {
-                  <div class="date-cell">{{ date }}</div>
-                }
+        @if (ganttTasks().length === 0) {
+          <nz-empty nzNotFoundContent="暫無包含日期的任務" 
+                    nzNotFoundImage="simple" />
+        } @else {
+          <div class="gantt-chart">
+            <div class="gantt-timeline">
+              <div class="timeline-header">
+                <div class="task-names-header">任務名稱</div>
+                <div class="timeline-dates">
+                  @for (period of timelinePeriods(); track period.label) {
+                    <div class="date-cell" [style.flex]="period.flex || 1">
+                      {{ period.label }}
+                    </div>
+                  }
+                </div>
               </div>
             </div>
-          </div>
 
-          <div class="gantt-tasks">
-            @for (ganttTask of ganttTasks(); track ganttTask.id) {
-              <div class="gantt-row">
-                <div class="task-name">
-                  {{ ganttTask.name }}
-                  <nz-tag [nzColor]="getPriorityColor(ganttTask)">
-                    {{ ganttTask.progress }}%
-                  </nz-tag>
-                </div>
-                <div class="task-timeline">
-                  <div 
-                    class="task-bar"
-                    [style.left.%]="getTaskPosition(ganttTask)"
-                    [style.width.%]="getTaskWidth(ganttTask)"
-                    [style.background-color]="ganttTask.color"
-                  >
-                    <div class="task-bar-progress" [style.width.%]="ganttTask.progress"></div>
-                    <span class="task-bar-label">
-                      {{ ganttTask.start | date: 'MM/dd' }} - {{ ganttTask.end | date: 'MM/dd' }}
-                    </span>
+            <div class="gantt-tasks">
+              @for (ganttTask of ganttTasks(); track ganttTask.id) {
+                <div class="gantt-row" [class.milestone]="ganttTask.milestone">
+                  <div class="task-name">
+                    <div class="task-info">
+                      @if (ganttTask.milestone) {
+                        <span nz-icon nzType="flag" nzTheme="filled" class="milestone-icon"></span>
+                      }
+                      <span class="task-title">{{ ganttTask.name }}</span>
+                      <nz-tag [nzColor]="getPriorityColor(ganttTask)" nzSize="small">
+                        {{ ganttTask.progress }}%
+                      </nz-tag>
+                    </div>
+                  </div>
+                  <div class="task-timeline">
+                    <!-- Dependencies lines -->
+                    @for (depId of ganttTask.dependencies || []; track depId) {
+                      <div class="dependency-line" 
+                           [style.left.%]="getDependencyLinePosition(ganttTask, depId)"
+                           [style.width.%]="getDependencyLineWidth(ganttTask, depId)">
+                      </div>
+                    }
+                    
+                    <!-- Task bar -->
+                    @if (ganttTask.milestone) {
+                      <div class="milestone-marker"
+                           [style.left.%]="getTaskPosition(ganttTask)"
+                           [title]="ganttTask.name">
+                        <span nz-icon nzType="flag" nzTheme="filled"></span>
+                      </div>
+                    } @else {
+                      <div 
+                        class="task-bar"
+                        [class.has-dependencies]="ganttTask.dependencies && ganttTask.dependencies.length > 0"
+                        [style.left.%]="getTaskPosition(ganttTask)"
+                        [style.width.%]="getTaskWidth(ganttTask)"
+                        [style.background-color]="ganttTask.color"
+                        [title]="getTaskTooltip(ganttTask)"
+                      >
+                        <div class="task-bar-progress" [style.width.%]="ganttTask.progress"></div>
+                        <span class="task-bar-label">
+                          @if (zoomLevel() === 'day') {
+                            {{ ganttTask.start | date: 'M/d' }} - {{ ganttTask.end | date: 'M/d' }}
+                          } @else if (zoomLevel() === 'week') {
+                            {{ ganttTask.start | date: 'M/d' }}
+                          } @else {
+                            {{ getDurationDays(ganttTask) }}d
+                          }
+                        </span>
+                      </div>
+                    }
                   </div>
                 </div>
-              </div>
-            }
+              }
+            </div>
           </div>
-
-          @if (ganttTasks().length === 0) {
-            <nz-empty nzNotFoundContent="暫無任務" />
-          }
-        </div>
+        }
       }
     </div>
   `,
@@ -90,10 +140,18 @@ import { TaskStore } from '@core/stores/task.store';
 
       .gantt-header {
         margin-bottom: 16px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid #f0f0f0;
+      }
+
+      .header-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
       }
 
       .gantt-header h3 {
-        margin-bottom: 8px;
+        margin: 0;
       }
 
       .gantt-chart {
@@ -112,7 +170,7 @@ import { TaskStore } from '@core/stores/task.store';
         background: #fafafa;
       }
 
-      .task-names {
+      .task-names-header {
         width: 200px;
         padding: 12px;
         font-weight: 600;
@@ -126,10 +184,10 @@ import { TaskStore } from '@core/stores/task.store';
 
       .date-cell {
         flex: 1;
-        padding: 12px;
+        padding: 12px 4px;
         text-align: center;
         border-right: 1px solid #f0f0f0;
-        font-size: 12px;
+        font-size: 11px;
         font-weight: 500;
       }
 
@@ -141,20 +199,42 @@ import { TaskStore } from '@core/stores/task.store';
       .gantt-row {
         display: flex;
         border-bottom: 1px solid #f0f0f0;
+        min-height: 40px;
       }
 
       .gantt-row:hover {
         background: #fafafa;
       }
 
+      .gantt-row.milestone {
+        background: #fff7e6;
+      }
+
       .task-name {
         width: 200px;
-        padding: 12px;
+        padding: 8px 12px;
         border-right: 1px solid #e8e8e8;
         display: flex;
-        justify-content: space-between;
         align-items: center;
+      }
+
+      .task-info {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        width: 100%;
+      }
+
+      .task-title {
+        flex: 1;
         font-size: 13px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .milestone-icon {
+        color: #faad14;
       }
 
       .task-timeline {
@@ -171,9 +251,20 @@ import { TaskStore } from '@core/stores/task.store';
         align-items: center;
         justify-content: center;
         color: white;
-        font-size: 11px;
+        font-size: 10px;
         font-weight: 500;
         overflow: hidden;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .task-bar:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+      }
+
+      .task-bar.has-dependencies {
+        border: 2px solid #1890ff;
       }
 
       .task-bar-progress {
@@ -182,11 +273,49 @@ import { TaskStore } from '@core/stores/task.store';
         top: 0;
         height: 100%;
         background: rgba(255, 255, 255, 0.3);
+        border-right: 2px solid rgba(255, 255, 255, 0.5);
       }
 
       .task-bar-label {
         position: relative;
         z-index: 1;
+        padding: 0 8px;
+      }
+
+      .milestone-marker {
+        position: absolute;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 20px;
+        color: #faad14;
+        cursor: pointer;
+        z-index: 10;
+      }
+
+      .milestone-marker:hover {
+        color: #ff7a00;
+        transform: translate(-50%, -50%) scale(1.2);
+      }
+
+      .dependency-line {
+        position: absolute;
+        top: 50%;
+        height: 2px;
+        background: #1890ff;
+        opacity: 0.5;
+        z-index: 1;
+      }
+
+      .dependency-line::after {
+        content: '';
+        position: absolute;
+        right: 0;
+        top: -3px;
+        width: 0;
+        height: 0;
+        border-left: 6px solid #1890ff;
+        border-top: 4px solid transparent;
+        border-bottom: 4px solid transparent;
       }
     `
   ]
@@ -197,19 +326,49 @@ export class TaskGanttViewComponent {
   // Inputs
   blueprintId = input.required<string>();
 
+  // Zoom level signal
+  zoomLevel = signal<ZoomLevel>(ZoomLevel.MONTH);
+
   // Expose store state
   readonly loading = this.taskStore.loading;
   readonly error = this.taskStore.error;
 
-  // Timeline range (6 months)
-  readonly timelineMonths = computed(() => {
-    const months = [];
+  // Timeline periods based on zoom level
+  readonly timelinePeriods = computed(() => {
+    const zoom = this.zoomLevel();
     const today = new Date();
-    for (let i = -2; i < 4; i++) {
-      const date = new Date(today.getFullYear(), today.getMonth() + i, 1);
-      months.push(date.toLocaleDateString('zh-TW', { year: 'numeric', month: 'short' }));
+    const periods: Array<{ label: string; flex?: number }> = [];
+
+    if (zoom === ZoomLevel.DAY) {
+      // Show 60 days (2 months)
+      for (let i = -15; i < 45; i++) {
+        const date = new Date(today);
+        date.setDate(today.getDate() + i);
+        periods.push({ 
+          label: date.toLocaleDateString('zh-TW', { month: 'numeric', day: 'numeric' })
+        });
+      }
+    } else if (zoom === ZoomLevel.WEEK) {
+      // Show 24 weeks (6 months)
+      for (let i = -8; i < 16; i++) {
+        const date = new Date(today);
+        date.setDate(today.getDate() + i * 7);
+        const weekNum = this.getWeekNumber(date);
+        periods.push({ 
+          label: `W${weekNum}` 
+        });
+      }
+    } else {
+      // Show 12 months (1 year)
+      for (let i = -3; i < 9; i++) {
+        const date = new Date(today.getFullYear(), today.getMonth() + i, 1);
+        periods.push({ 
+          label: date.toLocaleDateString('zh-TW', { year: 'numeric', month: 'short' })
+        });
+      }
     }
-    return months;
+
+    return periods;
   });
 
   // Convert tasks to gantt format
@@ -222,6 +381,10 @@ export class TaskGanttViewComponent {
         const start = task.startDate ? new Date(task.startDate) : new Date();
         const end = task.dueDate ? new Date(task.dueDate) : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
         
+        // Check if milestone (task with same start and end date, or marked as milestone)
+        const isMilestone = task.metadata?.['milestone'] === true || 
+          (start.getTime() === end.getTime());
+        
         return {
           id: task.id!,
           name: task.title,
@@ -229,20 +392,46 @@ export class TaskGanttViewComponent {
           end,
           progress: task.progress ?? 0,
           color: this.getStatusColor(task.status),
+          dependencies: task.dependencies || [],
+          milestone: isMilestone,
           task
         } as GanttTask & { task: Task };
       });
   });
 
-  // Timeline start and end dates
+  // Timeline start and end dates based on zoom
   private timelineStart = computed(() => {
     const today = new Date();
-    return new Date(today.getFullYear(), today.getMonth() - 2, 1);
+    const zoom = this.zoomLevel();
+    
+    if (zoom === ZoomLevel.DAY) {
+      const start = new Date(today);
+      start.setDate(today.getDate() - 15);
+      return start;
+    } else if (zoom === ZoomLevel.WEEK) {
+      const start = new Date(today);
+      start.setDate(today.getDate() - 8 * 7);
+      return start;
+    } else {
+      return new Date(today.getFullYear(), today.getMonth() - 3, 1);
+    }
   });
 
   private timelineEnd = computed(() => {
     const today = new Date();
-    return new Date(today.getFullYear(), today.getMonth() + 4, 0);
+    const zoom = this.zoomLevel();
+    
+    if (zoom === ZoomLevel.DAY) {
+      const end = new Date(today);
+      end.setDate(today.getDate() + 45);
+      return end;
+    } else if (zoom === ZoomLevel.WEEK) {
+      const end = new Date(today);
+      end.setDate(today.getDate() + 16 * 7);
+      return end;
+    } else {
+      return new Date(today.getFullYear(), today.getMonth() + 9, 0);
+    }
   });
 
   /**
@@ -261,6 +450,10 @@ export class TaskGanttViewComponent {
    * Calculate task width on timeline (%)
    */
   getTaskWidth(ganttTask: GanttTask): number {
+    if (ganttTask.milestone) {
+      return 0; // Milestones have no width
+    }
+
     const start = this.timelineStart().getTime();
     const end = this.timelineEnd().getTime();
     const taskStart = ganttTask.start.getTime();
@@ -268,6 +461,56 @@ export class TaskGanttViewComponent {
     
     const width = ((taskEnd - taskStart) / (end - start)) * 100;
     return Math.max(1, Math.min(100, width));
+  }
+
+  /**
+   * Get dependency line position
+   */
+  getDependencyLinePosition(task: GanttTask, depId: string): number {
+    const depTask = this.ganttTasks().find(t => t.id === depId);
+    if (!depTask) return 0;
+    
+    return this.getTaskPosition(depTask);
+  }
+
+  /**
+   * Get dependency line width
+   */
+  getDependencyLineWidth(task: GanttTask, depId: string): number {
+    const depTask = this.ganttTasks().find(t => t.id === depId);
+    if (!depTask) return 0;
+    
+    const depEnd = this.getTaskPosition(depTask) + this.getTaskWidth(depTask);
+    const taskStart = this.getTaskPosition(task);
+    
+    return Math.max(0, taskStart - depEnd);
+  }
+
+  /**
+   * Get task tooltip
+   */
+  getTaskTooltip(ganttTask: GanttTask): string {
+    const duration = this.getDurationDays(ganttTask);
+    return `${ganttTask.name}\n開始: ${ganttTask.start.toLocaleDateString('zh-TW')}\n結束: ${ganttTask.end.toLocaleDateString('zh-TW')}\n持續: ${duration} 天\n進度: ${ganttTask.progress}%`;
+  }
+
+  /**
+   * Get duration in days
+   */
+  getDurationDays(ganttTask: GanttTask): number {
+    const diff = ganttTask.end.getTime() - ganttTask.start.getTime();
+    return Math.ceil(diff / (1000 * 60 * 60 * 24));
+  }
+
+  /**
+   * Get week number
+   */
+  private getWeekNumber(date: Date): number {
+    const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+    const dayNum = d.getUTCDay() || 7;
+    d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+    const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+    return Math.ceil((((d.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
   }
 
   /**

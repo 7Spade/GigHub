@@ -14,6 +14,7 @@ import { NzTreeFlatDataSource, NzTreeFlattener, NzTreeViewModule } from 'ng-zorr
 import { SHARED_IMPORTS } from '@shared';
 import { Task, TaskTreeNode } from '@core/types/task';
 import { TaskStore } from '@core/stores/task.store';
+import { buildTaskHierarchy, calculateAggregatedProgress } from '@core/utils/task-hierarchy.util';
 
 /** Flat node structure for CDK tree */
 interface FlatNode {
@@ -22,6 +23,8 @@ interface FlatNode {
   level: number;
   taskId: string;
   task: Task;
+  aggregatedProgress?: number;
+  childrenCount?: number;
 }
 
 @Component({
@@ -30,36 +33,69 @@ interface FlatNode {
   imports: [SHARED_IMPORTS, NzTreeViewModule],
   template: `
     <div class="tree-view-container">
+      <div class="tree-view-header">
+        <nz-space>
+          <button *nzSpaceItem nz-button nzType="default" nzSize="small" (click)="expandAll()">
+            <span nz-icon nzType="plus-square" nzTheme="outline"></span>
+            全部展開
+          </button>
+          <button *nzSpaceItem nz-button nzType="default" nzSize="small" (click)="collapseAll()">
+            <span nz-icon nzType="minus-square" nzTheme="outline"></span>
+            全部收合
+          </button>
+          <nz-tag *nzSpaceItem [nzColor]="'blue'">
+            共 {{ tasks().length }} 個任務
+          </nz-tag>
+        </nz-space>
+      </div>
+
       @if (loading()) {
         <nz-spin nzSimple />
       } @else if (error()) {
         <nz-alert nzType="error" [nzMessage]="error()" nzShowIcon />
+      } @else if (treeData().length === 0) {
+        <nz-empty nzNotFoundContent="暫無任務" />
       } @else {
         <nz-tree-view [nzTreeControl]="treeControl" [nzDataSource]="dataSource">
-          <nz-tree-node *nzTreeNodeDef="let node" nzTreeNodePadding>
+          <nz-tree-node *nzTreeNodeDef="let node" nzTreeNodePadding nzTreeNodeIndentLine>
             <nz-tree-node-toggle nzTreeNodeNoopToggle></nz-tree-node-toggle>
             <nz-tree-node-option [nzDisabled]="node.disabled">
-              <span nz-icon nzType="file" nzTheme="outline"></span>
-              {{ node.name }}
+              <span nz-icon nzType="file" nzTheme="outline" style="margin-right: 8px;"></span>
+              <span class="task-title">{{ node.name }}</span>
+              <nz-tag [nzColor]="getPriorityColor(node.task)" style="margin-left: 8px;" nzSize="small">
+                {{ getPriorityLabel(node.task.priority) }}
+              </nz-tag>
               <nz-badge [nzStatus]="getStatusBadge(node.task.status)" style="margin-left: 8px;" />
               @if (node.task.progress !== undefined) {
-                <nz-progress 
-                  [nzPercent]="node.task.progress" 
-                  nzSize="small" 
-                  [nzShowInfo]="false"
-                  style="width: 100px; margin-left: 8px;"
-                />
+                <span style="margin-left: 8px; color: #888; font-size: 12px;">
+                  {{ node.task.progress }}%
+                </span>
               }
             </nz-tree-node-option>
           </nz-tree-node>
 
-          <nz-tree-node *nzTreeNodeDef="let node; when: hasChild" nzTreeNodePadding>
+          <nz-tree-node *nzTreeNodeDef="let node; when: hasChild" nzTreeNodePadding nzTreeNodeIndentLine>
             <nz-tree-node-toggle>
               <span nz-icon [nzType]="treeControl.isExpanded(node) ? 'folder-open' : 'folder'" nzTheme="outline"></span>
             </nz-tree-node-toggle>
             <nz-tree-node-option [nzDisabled]="node.disabled">
-              {{ node.name }}
+              <span class="task-title" style="font-weight: 500;">{{ node.name }}</span>
+              <nz-tag [nzColor]="getPriorityColor(node.task)" style="margin-left: 8px;" nzSize="small">
+                {{ getPriorityLabel(node.task.priority) }}
+              </nz-tag>
               <nz-badge [nzStatus]="getStatusBadge(node.task.status)" style="margin-left: 8px;" />
+              <span style="margin-left: 8px; color: #888; font-size: 12px;">
+                ({{ node.childrenCount }} 個子任務)
+              </span>
+              @if (node.aggregatedProgress !== undefined) {
+                <nz-progress 
+                  [nzPercent]="node.aggregatedProgress" 
+                  nzSize="small" 
+                  [nzShowInfo]="true"
+                  [nzFormat]="formatProgress"
+                  style="width: 120px; margin-left: 12px;"
+                />
+              }
             </nz-tree-node-option>
           </nz-tree-node>
         </nz-tree-view>
@@ -73,6 +109,26 @@ interface FlatNode {
         height: 100%;
         overflow: auto;
       }
+
+      .tree-view-header {
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid #f0f0f0;
+      }
+
+      .task-title {
+        font-size: 14px;
+      }
+
+      :host ::ng-deep .nz-tree-node-content-wrapper {
+        display: flex;
+        align-items: center;
+        padding: 4px 8px;
+      }
+
+      :host ::ng-deep .nz-tree-node-content-wrapper:hover {
+        background-color: #f5f5f5;
+      }
     `
   ]
 })
@@ -85,6 +141,7 @@ export class TaskTreeViewComponent {
   // Expose store state
   readonly loading = this.taskStore.loading;
   readonly error = this.taskStore.error;
+  readonly tasks = this.taskStore.tasks;
 
   // Tree control and data source
   readonly treeControl = new FlatTreeControl<FlatNode>(
@@ -92,13 +149,20 @@ export class TaskTreeViewComponent {
     node => node.expandable
   );
 
-  private readonly transformer = (node: TaskTreeNode, level: number): FlatNode => ({
-    expandable: !!node.children && node.children.length > 0,
-    name: node.title,
-    level,
-    taskId: node.taskId,
-    task: node as any
-  });
+  private readonly transformer = (node: TaskTreeNode, level: number): FlatNode => {
+    const aggregatedProgress = calculateAggregatedProgress(node);
+    const childrenCount = node.children?.length || 0;
+
+    return {
+      expandable: !!node.children && node.children.length > 0,
+      name: node.title,
+      level,
+      taskId: node.taskId,
+      task: node.task,
+      aggregatedProgress,
+      childrenCount
+    };
+  };
 
   private readonly treeFlattener = new NzTreeFlattener(
     this.transformer,
@@ -110,9 +174,9 @@ export class TaskTreeViewComponent {
   readonly dataSource = new NzTreeFlatDataSource(this.treeControl, this.treeFlattener);
 
   // Convert tasks to tree structure
-  private treeData = computed(() => {
+  readonly treeData = computed(() => {
     const tasks = this.taskStore.tasks();
-    const treeNodes = this.buildTreeNodes(tasks);
+    const treeNodes = buildTaskHierarchy(tasks);
     this.dataSource.setData(treeNodes);
     return treeNodes;
   });
@@ -120,19 +184,25 @@ export class TaskTreeViewComponent {
   readonly hasChild = (_: number, node: FlatNode): boolean => node.expandable;
 
   /**
-   * Build tree nodes from flat task list
+   * Expand all nodes
    */
-  private buildTreeNodes(tasks: Task[]): TaskTreeNode[] {
-    // For now, create a simple flat list as tree nodes
-    // TODO: Implement parent-child relationship when Task model includes parentId
-    return tasks.map(task => ({
-      key: task.id!,
-      title: task.title,
-      taskId: task.id!,
-      isLeaf: true,
-      task
-    }));
+  expandAll(): void {
+    this.treeControl.expandAll();
   }
+
+  /**
+   * Collapse all nodes
+   */
+  collapseAll(): void {
+    this.treeControl.collapseAll();
+  }
+
+  /**
+   * Format progress display
+   */
+  formatProgress = (percent: number): string => {
+    return `${percent}%`;
+  };
 
   /**
    * Get status badge color
@@ -146,5 +216,31 @@ export class TaskTreeViewComponent {
       cancelled: 'error'
     };
     return statusMap[status] || 'default';
+  }
+
+  /**
+   * Get priority color
+   */
+  getPriorityColor(task: Task): string {
+    const colorMap: Record<string, string> = {
+      critical: 'red',
+      high: 'orange',
+      medium: 'blue',
+      low: 'default'
+    };
+    return colorMap[task.priority] || 'default';
+  }
+
+  /**
+   * Get priority label
+   */
+  getPriorityLabel(priority: string): string {
+    const labelMap: Record<string, string> = {
+      critical: '緊急',
+      high: '高',
+      medium: '中',
+      low: '低'
+    };
+    return labelMap[priority] || priority;
   }
 }
