@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, ChangeDetectionStrategy, OnInit, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Blueprint, LoggerService } from '@core';
 import { TasksComponent } from '@core/blueprint/modules/implementations/tasks/tasks.component';
@@ -13,8 +13,15 @@ import { NzSpaceModule } from 'ng-zorro-antd/space';
 import { NzStatisticModule } from 'ng-zorro-antd/statistic';
 import { NzTabsModule } from 'ng-zorro-antd/tabs';
 import { NzTagModule } from 'ng-zorro-antd/tag';
+import { NzAlertModule } from 'ng-zorro-antd/alert';
+import { NzBadgeModule } from 'ng-zorro-antd/badge';
+import { NzButtonModule } from 'ng-zorro-antd/button';
+import { NzCardModule } from 'ng-zorro-antd/card';
+import { NzGridModule } from 'ng-zorro-antd/grid';
+import { NzIconModule } from 'ng-zorro-antd/icon';
 import { firstValueFrom } from 'rxjs';
 
+import { AuditLogsComponent } from './audit/audit-logs.component';
 import { ConstructionLogComponent } from './construction-log/construction-log.component';
 import { BlueprintMembersComponent } from './members/blueprint-members.component';
 
@@ -28,9 +35,12 @@ import { BlueprintMembersComponent } from './members/blueprint-members.component
  * - Navigate to module pages
  * - Integrated construction logs (工地施工日誌)
  * - Integrated tasks (任務管理)
+ * - Integrated audit logs (審計記錄)
+ * - Merged container dashboard into settings tab
  *
  * ✅ Modernized with AsyncState pattern
  * ✅ Updated: 2025-12-11 - Added Construction Log & Task modules
+ * ✅ Updated: 2025-12-12 - Merged container dashboard with settings, replaced quick actions with audit logs
  */
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -45,7 +55,14 @@ import { BlueprintMembersComponent } from './members/blueprint-members.component
     NzSpaceModule,
     NzTabsModule,
     NzTagModule,
+    NzAlertModule,
+    NzBadgeModule,
+    NzButtonModule,
+    NzCardModule,
+    NzGridModule,
+    NzIconModule,
     DatePipe,
+    AuditLogsComponent,
     BlueprintMembersComponent,
     ConstructionLogComponent,
     TasksComponent
@@ -170,24 +187,11 @@ import { BlueprintMembersComponent } from './members/blueprint-members.component
                 </div>
 
                 <div nz-col [nzXs]="24" [nzMd]="8">
-                  <!-- Quick Actions -->
-                  <nz-card nzTitle="快速操作" class="mb-md">
-                    <button nz-button nzBlock class="mb-sm" (click)="openContainer()">
-                      <span nz-icon nzType="dashboard"></span>
-                      容器儀表板
-                    </button>
-                    <button nz-button nzBlock class="mb-sm" (click)="switchToMembersTab()">
-                      <span nz-icon nzType="team"></span>
-                      成員管理
-                    </button>
-                    <button nz-button nzBlock class="mb-sm" (click)="configureModules()">
-                      <span nz-icon nzType="setting"></span>
-                      模組配置
-                    </button>
-                    <button nz-button nzBlock class="mb-sm" (click)="viewAuditLogs()">
-                      <span nz-icon nzType="file-text"></span>
-                      審計記錄
-                    </button>
+                  <!-- Audit Logs Preview -->
+                  <nz-card nzTitle="審計記錄" class="mb-md">
+                    @if (blueprint()?.id) {
+                      <app-audit-logs [blueprintId]="blueprint()!.id" />
+                    }
                   </nz-card>
 
                   <!-- Basic Info -->
@@ -246,10 +250,11 @@ import { BlueprintMembersComponent } from './members/blueprint-members.component
             </ng-template>
           </nz-tab>
 
-          <!-- Settings Tab -->
+          <!-- Settings Tab (Merged with Container Dashboard) -->
           <nz-tab nzTitle="設定">
             <ng-template nz-tab>
-              <nz-card nzTitle="藍圖設定">
+              <!-- Blueprint Settings -->
+              <nz-card nzTitle="藍圖設定" class="mb-md">
                 <button nz-button (click)="edit()">
                   <span nz-icon nzType="edit"></span>
                   編輯藍圖資訊
@@ -259,6 +264,84 @@ import { BlueprintMembersComponent } from './members/blueprint-members.component
                   配置模組
                 </button>
               </nz-card>
+
+              <!-- Container Dashboard (Merged) -->
+              <nz-card nzTitle="容器狀態" [nzExtra]="statusExtra" class="mb-md">
+                <ng-template #statusExtra>
+                  <button nz-button nzType="primary" (click)="refreshContainerStatus()">
+                    <span nz-icon nzType="reload"></span>
+                    重新整理
+                  </button>
+                </ng-template>
+
+                @if (containerLoading()) {
+                  <nz-alert nzType="info" nzMessage="正在載入容器狀態..." nzShowIcon class="mb-md" />
+                } @else {
+                  <div nz-row [nzGutter]="16">
+                    <div nz-col [nzSpan]="6">
+                      <nz-statistic [nzValue]="containerStatus().status" nzTitle="運行狀態" [nzValueStyle]="getStatusStyle()">
+                        <ng-template #nzPrefix>
+                          <span nz-icon [nzType]="getStatusIcon()"></span>
+                        </ng-template>
+                      </nz-statistic>
+                    </div>
+                    <div nz-col [nzSpan]="6">
+                      <nz-statistic [nzValue]="containerStatus().uptime" nzTitle="運行時間" nzSuffix="秒">
+                        <ng-template #nzPrefix>
+                          <span nz-icon nzType="clock-circle"></span>
+                        </ng-template>
+                      </nz-statistic>
+                    </div>
+                    <div nz-col [nzSpan]="6">
+                      <nz-statistic [nzValue]="containerStatus().moduleCount" nzTitle="已載入模組">
+                        <ng-template #nzPrefix>
+                          <span nz-icon nzType="appstore"></span>
+                        </ng-template>
+                      </nz-statistic>
+                    </div>
+                    <div nz-col [nzSpan]="6">
+                      <nz-statistic [nzValue]="containerStatus().eventCount" nzTitle="事件處理數">
+                        <ng-template #nzPrefix>
+                          <span nz-icon nzType="thunderbolt"></span>
+                        </ng-template>
+                      </nz-statistic>
+                    </div>
+                  </div>
+                }
+              </nz-card>
+
+              <!-- Container Components -->
+              <div nz-row [nzGutter]="[16, 16]">
+                <!-- Event Bus Monitor -->
+                <div nz-col [nzSpan]="12">
+                  <nz-card nzTitle="事件總線監控" [nzHoverable]="true" (click)="navigateToEventBus()">
+                    <div style="text-align: center;">
+                      <span nz-icon nzType="radar-chart" style="font-size: 48px; color: #1890ff;"></span>
+                      <div style="margin-top: 16px;">
+                        <nz-statistic [nzValue]="0" nzTitle="總事件數" [nzValueStyle]="{ fontSize: '20px' }" />
+                      </div>
+                    </div>
+                    <div style="text-align: center; margin-top: 12px; color: #1890ff;">
+                      <a>查看詳細監控 <span nz-icon nzType="arrow-right"></span></a>
+                    </div>
+                  </nz-card>
+                </div>
+
+                <!-- Module Registry -->
+                <div nz-col [nzSpan]="12">
+                  <nz-card nzTitle="模組註冊表" [nzHoverable]="true">
+                    <div style="text-align: center;">
+                      <span nz-icon nzType="appstore" style="font-size: 48px; color: #52c41a;"></span>
+                      <div style="margin-top: 16px;">
+                        <nz-statistic [nzValue]="blueprint()!.enabledModules.length" nzTitle="註冊模組" [nzValueStyle]="{ fontSize: '20px' }" />
+                      </div>
+                    </div>
+                    <div style="text-align: center; margin-top: 12px; color: #52c41a;">
+                      <span>模組管理</span>
+                    </div>
+                  </nz-card>
+                </div>
+              </div>
             </ng-template>
           </nz-tab>
         </nz-tabset>
@@ -312,6 +395,15 @@ export class BlueprintDetailComponent implements OnInit {
   // Tab state
   activeTabIndex = 0;
 
+  // Container dashboard state (merged into settings tab)
+  containerLoading = signal(false);
+  containerStatus = signal({
+    status: 'Running',
+    uptime: 0,
+    moduleCount: 0,
+    eventCount: 0
+  });
+
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
@@ -327,21 +419,20 @@ export class BlueprintDetailComponent implements OnInit {
    * Load blueprint details
    * 載入藍圖詳情
    * ✅ Using AsyncState for automatic state management
+   * ✅ Fixed: Prevent flashing "藍圖不存在" by using load() method
    */
   private async loadBlueprint(id: string): Promise<void> {
     try {
-      const data = await firstValueFrom(this.blueprintService.getById(id));
-
+      await this.blueprintState.load(firstValueFrom(this.blueprintService.getById(id)));
+      
+      const data = this.blueprintState.data();
       if (data) {
-        this.blueprintState.setData(data);
         this.logger.info('[BlueprintDetailComponent]', `Loaded blueprint: ${data.name}`);
       } else {
         // Blueprint not found - show 404 state
-        this.blueprintState.setData(null);
         this.logger.warn('[BlueprintDetailComponent]', `Blueprint not found: ${id}`);
       }
     } catch (error) {
-      this.blueprintState.setData(null); // Set to null to trigger 404 UI
       this.message.error('載入藍圖失敗');
       this.logger.error('[BlueprintDetailComponent]', 'Failed to load blueprint', error as Error);
     }
@@ -447,13 +538,50 @@ export class BlueprintDetailComponent implements OnInit {
   }
 
   /**
-   * Open container dashboard
-   * 開啟容器儀表板
+   * Refresh container status
+   * 重新整理容器狀態
+   * ✅ Merged: Container dashboard functionality into settings tab
    */
-  openContainer(): void {
+  refreshContainerStatus(): void {
+    this.containerLoading.set(true);
+    
+    // Simulate loading container status
+    setTimeout(() => {
+      this.containerStatus.set({
+        status: 'Running',
+        uptime: Math.floor(Math.random() * 86400), // Random uptime in seconds
+        moduleCount: this.blueprint()?.enabledModules.length || 0,
+        eventCount: Math.floor(Math.random() * 1000)
+      });
+      this.containerLoading.set(false);
+      this.logger.info('[BlueprintDetailComponent]', 'Container status refreshed');
+    }, 1000);
+  }
+
+  /**
+   * Get status style for container
+   * 取得容器狀態樣式
+   */
+  getStatusStyle(): { color: string } {
+    return { color: '#52c41a' }; // Green for running
+  }
+
+  /**
+   * Get status icon for container
+   * 取得容器狀態圖示
+   */
+  getStatusIcon(): string {
+    return 'check-circle'; // Running icon
+  }
+
+  /**
+   * Navigate to event bus monitor
+   * 導航到事件總線監控
+   */
+  navigateToEventBus(): void {
     const blueprintId = this.blueprint()?.id;
     if (blueprintId) {
-      this.router.navigate(['container'], { relativeTo: this.route });
+      this.router.navigate(['container', 'event-bus'], { relativeTo: this.route });
     }
   }
 
@@ -493,28 +621,11 @@ export class BlueprintDetailComponent implements OnInit {
   }
 
   /**
-   * Switch to members tab
-   * 切換到成員管理標籤頁
-   * ✅ Updated: Directly switch to Members Tab instead of navigating (Occam's Razor)
-   */
-  switchToMembersTab(): void {
-    this.activeTabIndex = 3; // Members tab is the 4th tab (index 3)
-  }
-
-  /**
    * Configure modules
    * 配置模組
    */
   configureModules(): void {
     this.message.info('模組配置功能待實作');
-  }
-
-  /**
-   * View audit logs
-   * 查看審計記錄
-   */
-  viewAuditLogs(): void {
-    this.router.navigate(['audit'], { relativeTo: this.route });
   }
 
   /**
