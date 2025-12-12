@@ -43,7 +43,7 @@ handoffs:
   - `resolve-library-id`: 解析庫 ID
   - `get-library-docs`: 獲取庫文檔
 - **github**: 查詢 GitHub 倉庫資訊
-- **supabase**: 查詢 Supabase 專案資訊 (project_ref: obwyowvbsnqsxsnlsbhl)
+- **supabase**: 查詢 Supabase 專案資訊 (project_ref: zecsbstjqjqoytwgjyct)
 
 ### 開發工具
 - **sequential-thinking**: 序列化思考工具（用於複雜推理）
@@ -254,7 +254,7 @@ get-library-docs({
 - Realtime 訂閱（資料即時更新）
 
 ### Supabase MCP
-**專案資訊**: project_ref: obwyowvbsnqsxsnlsbhl
+**專案資訊**: project_ref: zecsbstjqjqoytwgjyct
 
 **使用時機**: 查詢資料庫結構、RLS 政策、Realtime 設定
 
