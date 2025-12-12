@@ -53,7 +53,7 @@ climate/
 
 ```typescript
 import { BlueprintContainer } from '@core/blueprint/container/blueprint-container';
-import { ClimateModule } from '@core/climate';
+import { ClimateModule } from '@core/blueprint/modules/implementations/climate';
 
 // 初始化容器
 const container = new BlueprintContainer(config);
@@ -72,7 +72,7 @@ await container.start();
 ```typescript
 import { IBlueprintModule } from '@core/blueprint/modules/module.interface';
 import { IExecutionContext } from '@core/blueprint/context/execution-context.interface';
-import { IClimateModuleApi } from '@core/climate';
+import { IClimateModuleApi } from '@core/blueprint/modules/implementations/climate';
 
 export class TasksModule implements IBlueprintModule {
   private context?: IExecutionContext;
@@ -192,7 +192,7 @@ CWB_API_KEY=your_api_key_here
 ### Module Configuration
 
 ```typescript
-import { IClimateConfig, DEFAULT_CLIMATE_CONFIG } from '@core/climate';
+import { IClimateConfig, DEFAULT_CLIMATE_CONFIG } from '@core/blueprint/modules/implementations/climate';
 
 const customConfig: IClimateConfig = {
   ...DEFAULT_CLIMATE_CONFIG,

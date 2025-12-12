@@ -209,7 +209,7 @@ export function createClimateModuleApi(weatherService: CwbWeatherService, reposi
  * // 在任務模組中使用氣候模組 API
  * import { inject } from '@angular/core';
  * import { IExecutionContext } from '@core/blueprint/context/execution-context.interface';
- * import { IClimateModuleApi } from '@core/climate/exports/climate-api.exports';
+ * import { IClimateModuleApi } from '@core/blueprint/modules/implementations/climate/exports/climate-api.exports';
  *
  * export class TasksModule implements IBlueprintModule {
  *   private context?: IExecutionContext;

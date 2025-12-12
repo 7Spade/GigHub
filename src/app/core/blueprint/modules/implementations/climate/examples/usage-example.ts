@@ -10,9 +10,9 @@
 
 import { Injectable, signal } from '@angular/core';
 
-import type { IExecutionContext } from '../../blueprint/context/execution-context.interface';
-import { IBlueprintModule } from '../../blueprint/modules/module.interface';
-import { ModuleStatus } from '../../blueprint/modules/module-status.enum';
+import type { IExecutionContext } from '../../../../context/execution-context.interface';
+import { ModuleStatus } from '../../../module-status.enum';
+import { IBlueprintModule } from '../../../module.interface';
 import type { IClimateModuleApi } from '../exports/climate-api.exports';
 
 /**
@@ -88,7 +88,7 @@ export class TasksModuleExample implements IBlueprintModule {
           });
 
           // 2. 計算施工適宜度
-          const suitability = this.climateApi.weather.calculateConstructionSuitability(forecast);
+          const suitability = this.climateApi!.weather.calculateConstructionSuitability(forecast);
           console.log('[TasksModuleExample] Construction suitability:', {
             score: suitability.score,
             level: suitability.level,
@@ -97,13 +97,12 @@ export class TasksModuleExample implements IBlueprintModule {
           });
 
           // 3. 儲存到 Firestore（由任務模組負責）
-          this.climateApi.storage
-            .saveForecast(forecast, 'tasks-example', {
-              taskId,
-              suitabilityScore: suitability.score,
-              suitabilityLevel: suitability.level,
-              timestamp: new Date().toISOString()
-            })
+          this.climateApi!.storage.saveForecast(forecast, 'tasks-example', {
+            taskId,
+            suitabilityScore: suitability.score,
+            suitabilityLevel: suitability.level,
+            timestamp: new Date().toISOString()
+          })
             .then(docId => {
               console.log('[TasksModuleExample] Weather forecast saved:', docId);
             })
@@ -161,13 +160,14 @@ export class DashboardWeatherWidget {
    */
   async getMultiCityForecast(cities: string[]): Promise<any[]> {
     const forecasts = await Promise.all(
-      cities.map(city =>
-        new Promise((resolve, reject) => {
-          this.climateApi.weather.getCityForecast(city).subscribe({
-            next: data => resolve({ city, forecasts: data }),
-            error: err => reject(err)
-          });
-        })
+      cities.map(
+        city =>
+          new Promise((resolve, reject) => {
+            this.climateApi.weather.getCityForecast(city).subscribe({
+              next: data => resolve({ city, forecasts: data }),
+              error: err => reject(err)
+            });
+          })
       )
     );
 

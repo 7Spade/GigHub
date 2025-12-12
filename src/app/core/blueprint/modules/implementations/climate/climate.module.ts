@@ -16,9 +16,9 @@ import { createClimateModuleApi, IClimateModuleApi } from './exports/climate-api
 import { ClimateRepository } from './repositories/climate.repository';
 import { ClimateCacheService } from './services/climate-cache.service';
 import { CwbWeatherService } from './services/cwb-weather.service';
-import type { IExecutionContext } from '../blueprint/context/execution-context.interface';
-import { ModuleStatus } from '../blueprint/modules/module-status.enum';
-import { IBlueprintModule } from '../blueprint/modules/module.interface';
+import type { IExecutionContext } from '../../../context/execution-context.interface';
+import { ModuleStatus } from '../../module-status.enum';
+import { IBlueprintModule } from '../../module.interface';
 
 /**
  * 氣候模組
@@ -291,7 +291,7 @@ export class ClimateModule implements IBlueprintModule {
       await new Promise<void>((resolve, reject) => {
         this.weatherService.getCityWeatherForecast('臺北市').subscribe({
           next: () => resolve(),
-          error: (err) => reject(err)
+          error: err => reject(err)
         });
       });
       console.log('[ClimateModule] Cache warmed up successfully');
