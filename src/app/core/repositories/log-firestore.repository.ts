@@ -137,6 +137,9 @@ export class LogFirestoreRepository extends FirestoreBaseRepository<Log> {
   /**
    * Find logs by blueprint
    * 根據藍圖查找日誌
+   *
+   * Note: Simplified query to avoid complex Firestore indexes.
+   * Deleted logs are filtered in-memory instead of at query level.
    */
   async findByBlueprint(blueprintId: string, options?: LogQueryOptions): Promise<Log[]> {
     return this.executeWithRetry(async () => {
@@ -157,27 +160,39 @@ export class LogFirestoreRepository extends FirestoreBaseRepository<Log> {
         constraints.push(where('creator_id', '==', options.creatorId));
       }
 
-      // Handle deleted filter
-      if (!options?.includeDeleted) {
-        constraints.push(where('deleted_at', '==', null));
-      }
-
       // Sort by date descending
       constraints.push(orderBy('date', 'desc'));
 
-      // Apply limit
+      // Apply limit (before filtering deleted items to ensure we get enough results)
       if (options?.limit) {
-        constraints.push(firestoreLimit(options.limit));
+        // Fetch more to account for deleted items that will be filtered out
+        const fetchLimit = options.includeDeleted ? options.limit : options.limit * 2;
+        constraints.push(firestoreLimit(fetchLimit));
       }
 
       const q = query(this.collectionRef, ...constraints);
-      return this.queryDocuments(q);
+      let results = await this.queryDocuments(q);
+
+      // Filter deleted items in-memory (simpler than complex Firestore index)
+      if (!options?.includeDeleted) {
+        results = results.filter(log => !log.deletedAt);
+      }
+
+      // Apply limit after filtering if needed
+      if (options?.limit && results.length > options.limit) {
+        results = results.slice(0, options.limit);
+      }
+
+      return results;
     });
   }
 
   /**
    * Find logs with options
    * 使用選項查找日誌
+   *
+   * Note: Simplified query to avoid complex Firestore indexes.
+   * Deleted logs are filtered in-memory instead of at query level.
    */
   async findWithOptions(options: LogQueryOptions): Promise<Log[]> {
     return this.executeWithRetry(async () => {
@@ -202,21 +217,30 @@ export class LogFirestoreRepository extends FirestoreBaseRepository<Log> {
         constraints.push(where('creator_id', '==', options.creatorId));
       }
 
-      // Handle deleted filter
-      if (!options.includeDeleted) {
-        constraints.push(where('deleted_at', '==', null));
-      }
-
       // Sort by date descending
       constraints.push(orderBy('date', 'desc'));
 
-      // Apply limit
+      // Apply limit (before filtering deleted items to ensure we get enough results)
       if (options.limit) {
-        constraints.push(firestoreLimit(options.limit));
+        // Fetch more to account for deleted items that will be filtered out
+        const fetchLimit = options.includeDeleted ? options.limit : options.limit * 2;
+        constraints.push(firestoreLimit(fetchLimit));
       }
 
       const q = query(this.collectionRef, ...constraints);
-      return this.queryDocuments(q);
+      let results = await this.queryDocuments(q);
+
+      // Filter deleted items in-memory (simpler than complex Firestore index)
+      if (!options.includeDeleted) {
+        results = results.filter(log => !log.deletedAt);
+      }
+
+      // Apply limit after filtering if needed
+      if (options.limit && results.length > options.limit) {
+        results = results.slice(0, options.limit);
+      }
+
+      return results;
     });
   }
 

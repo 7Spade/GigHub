@@ -240,8 +240,9 @@ Add these composite indexes in Firebase Console → Firestore → Indexes:
 
 1. **logs** collection:
    - `blueprint_id` (Ascending) + `date` (Descending)
-   - `blueprint_id` (Ascending) + `deleted_at` (Ascending) + `date` (Descending)
    - `creator_id` (Ascending) + `date` (Descending)
+
+**Note**: Deleted logs are filtered in-memory instead of at the query level to simplify index requirements (following Occam's Razor principle). The complex `blueprint_id + deleted_at + date` index is not needed.
 
 ## Development Guidelines
 

@@ -227,8 +227,9 @@ service firebase.storage {
 **Firestore Indexes**:
 Create these composite indexes in Firebase Console:
 1. `logs`: `blueprint_id` (ASC) + `date` (DESC)
-2. `logs`: `blueprint_id` (ASC) + `deleted_at` (ASC) + `date` (DESC)
-3. `logs`: `creator_id` (ASC) + `date` (DESC)
+2. `logs`: `creator_id` (ASC) + `date` (DESC)
+
+**Note**: The complex `blueprint_id + deleted_at + date` index is not needed. Deleted logs are filtered in-memory for simplicity (Occam's Razor principle).
 
 ### 2. Authentication
 - User must be authenticated via Firebase Auth
