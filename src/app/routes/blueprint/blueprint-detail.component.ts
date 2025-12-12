@@ -1,18 +1,12 @@
 import { DatePipe } from '@angular/common';
-import { Component, ChangeDetectionStrategy, OnInit, inject, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Blueprint, LoggerService } from '@core';
 import { TasksComponent } from '@core/blueprint/modules/implementations/tasks/tasks.component';
 import { BlueprintService } from '@core/blueprint/services';
 import { SHARED_IMPORTS, createAsyncState } from '@shared';
-import { NzAlertModule } from 'ng-zorro-antd/alert';
-import { NzBadgeModule } from 'ng-zorro-antd/badge';
-import { NzButtonModule } from 'ng-zorro-antd/button';
-import { NzCardModule } from 'ng-zorro-antd/card';
 import { NzDescriptionsModule } from 'ng-zorro-antd/descriptions';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
-import { NzGridModule } from 'ng-zorro-antd/grid';
-import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzResultModule } from 'ng-zorro-antd/result';
 import { NzSpaceModule } from 'ng-zorro-antd/space';
@@ -35,12 +29,11 @@ import { BlueprintMembersComponent } from './members/blueprint-members.component
  * - Navigate to module pages
  * - Integrated construction logs (工地施工日誌)
  * - Integrated tasks (任務管理)
- * - Integrated audit logs (審計記錄)
- * - Merged container dashboard into settings tab
+ * - Integrated audit logs (審計記錄) in overview sidebar
  *
  * ✅ Modernized with AsyncState pattern
  * ✅ Updated: 2025-12-11 - Added Construction Log & Task modules
- * ✅ Updated: 2025-12-12 - Merged container dashboard with settings, replaced quick actions with audit logs
+ * ✅ Updated: 2025-12-12 - Simplified design, added audit logs to overview
  */
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -55,12 +48,6 @@ import { BlueprintMembersComponent } from './members/blueprint-members.component
     NzSpaceModule,
     NzTabsModule,
     NzTagModule,
-    NzAlertModule,
-    NzBadgeModule,
-    NzButtonModule,
-    NzCardModule,
-    NzGridModule,
-    NzIconModule,
     DatePipe,
     AuditLogsComponent,
     BlueprintMembersComponent,
@@ -187,7 +174,7 @@ import { BlueprintMembersComponent } from './members/blueprint-members.component
                 </div>
 
                 <div nz-col [nzXs]="24" [nzMd]="8">
-                  <!-- Audit Logs Preview -->
+                  <!-- Audit Logs (Simplified - Direct Display) -->
                   <nz-card nzTitle="審計記錄" class="mb-md">
                     @if (blueprint()?.id) {
                       <app-audit-logs [blueprintId]="blueprint()!.id" />
@@ -250,11 +237,10 @@ import { BlueprintMembersComponent } from './members/blueprint-members.component
             </ng-template>
           </nz-tab>
 
-          <!-- Settings Tab (Merged with Container Dashboard) -->
+          <!-- Settings Tab -->
           <nz-tab nzTitle="設定">
             <ng-template nz-tab>
-              <!-- Blueprint Settings -->
-              <nz-card nzTitle="藍圖設定" class="mb-md">
+              <nz-card nzTitle="藍圖設定">
                 <button nz-button (click)="edit()">
                   <span nz-icon nzType="edit"></span>
                   編輯藍圖資訊
@@ -264,88 +250,6 @@ import { BlueprintMembersComponent } from './members/blueprint-members.component
                   配置模組
                 </button>
               </nz-card>
-
-              <!-- Container Dashboard (Merged) -->
-              <nz-card nzTitle="容器狀態" [nzExtra]="statusExtra" class="mb-md">
-                <ng-template #statusExtra>
-                  <button nz-button nzType="primary" (click)="refreshContainerStatus()">
-                    <span nz-icon nzType="reload"></span>
-                    重新整理
-                  </button>
-                </ng-template>
-
-                @if (containerLoading()) {
-                  <nz-alert nzType="info" nzMessage="正在載入容器狀態..." nzShowIcon class="mb-md" />
-                } @else {
-                  <div nz-row [nzGutter]="16">
-                    <div nz-col [nzSpan]="6">
-                      <nz-statistic [nzValue]="containerStatus().status" nzTitle="運行狀態" [nzValueStyle]="getStatusStyle()">
-                        <ng-template #nzPrefix>
-                          <span nz-icon [nzType]="getStatusIcon()"></span>
-                        </ng-template>
-                      </nz-statistic>
-                    </div>
-                    <div nz-col [nzSpan]="6">
-                      <nz-statistic [nzValue]="containerStatus().uptime" nzTitle="運行時間" nzSuffix="秒">
-                        <ng-template #nzPrefix>
-                          <span nz-icon nzType="clock-circle"></span>
-                        </ng-template>
-                      </nz-statistic>
-                    </div>
-                    <div nz-col [nzSpan]="6">
-                      <nz-statistic [nzValue]="containerStatus().moduleCount" nzTitle="已載入模組">
-                        <ng-template #nzPrefix>
-                          <span nz-icon nzType="appstore"></span>
-                        </ng-template>
-                      </nz-statistic>
-                    </div>
-                    <div nz-col [nzSpan]="6">
-                      <nz-statistic [nzValue]="containerStatus().eventCount" nzTitle="事件處理數">
-                        <ng-template #nzPrefix>
-                          <span nz-icon nzType="thunderbolt"></span>
-                        </ng-template>
-                      </nz-statistic>
-                    </div>
-                  </div>
-                }
-              </nz-card>
-
-              <!-- Container Components -->
-              <div nz-row [nzGutter]="[16, 16]">
-                <!-- Event Bus Monitor -->
-                <div nz-col [nzSpan]="12">
-                  <nz-card nzTitle="事件總線監控" [nzHoverable]="true" (click)="navigateToEventBus()">
-                    <div style="text-align: center;">
-                      <span nz-icon nzType="radar-chart" style="font-size: 48px; color: #1890ff;"></span>
-                      <div style="margin-top: 16px;">
-                        <nz-statistic [nzValue]="0" nzTitle="總事件數" [nzValueStyle]="{ fontSize: '20px' }" />
-                      </div>
-                    </div>
-                    <div style="text-align: center; margin-top: 12px; color: #1890ff;">
-                      <a>查看詳細監控 <span nz-icon nzType="arrow-right"></span></a>
-                    </div>
-                  </nz-card>
-                </div>
-
-                <!-- Module Registry -->
-                <div nz-col [nzSpan]="12">
-                  <nz-card nzTitle="模組註冊表" [nzHoverable]="true">
-                    <div style="text-align: center;">
-                      <span nz-icon nzType="appstore" style="font-size: 48px; color: #52c41a;"></span>
-                      <div style="margin-top: 16px;">
-                        <nz-statistic
-                          [nzValue]="blueprint()!.enabledModules.length"
-                          nzTitle="註冊模組"
-                          [nzValueStyle]="{ fontSize: '20px' }"
-                        />
-                      </div>
-                    </div>
-                    <div style="text-align: center; margin-top: 12px; color: #52c41a;">
-                      <span>模組管理</span>
-                    </div>
-                  </nz-card>
-                </div>
-              </div>
             </ng-template>
           </nz-tab>
         </nz-tabset>
@@ -399,15 +303,6 @@ export class BlueprintDetailComponent implements OnInit {
   // Tab state
   activeTabIndex = 0;
 
-  // Container dashboard state (merged into settings tab)
-  containerLoading = signal(false);
-  containerStatus = signal({
-    status: 'Running',
-    uptime: 0,
-    moduleCount: 0,
-    eventCount: 0
-  });
-
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
@@ -423,17 +318,17 @@ export class BlueprintDetailComponent implements OnInit {
    * Load blueprint details
    * 載入藍圖詳情
    * ✅ Using AsyncState for automatic state management
-   * ✅ Fixed: Prevent flashing "藍圖不存在" by using load() method
+   * ✅ Fixed: Use load() method to prevent flash of "Blueprint not found"
    */
   private async loadBlueprint(id: string): Promise<void> {
     try {
+      // Use AsyncState.load() to automatically manage loading state
       await this.blueprintState.load(firstValueFrom(this.blueprintService.getById(id)));
-
+      
       const data = this.blueprintState.data();
       if (data) {
         this.logger.info('[BlueprintDetailComponent]', `Loaded blueprint: ${data.name}`);
       } else {
-        // Blueprint not found - show 404 state
         this.logger.warn('[BlueprintDetailComponent]', `Blueprint not found: ${id}`);
       }
     } catch (error) {
@@ -538,54 +433,6 @@ export class BlueprintDetailComponent implements OnInit {
     if (blueprintId) {
       // Navigate relative to current detail page
       this.router.navigate([module], { relativeTo: this.route });
-    }
-  }
-
-  /**
-   * Refresh container status
-   * 重新整理容器狀態
-   * ✅ Merged: Container dashboard functionality into settings tab
-   */
-  refreshContainerStatus(): void {
-    this.containerLoading.set(true);
-
-    // Simulate loading container status
-    setTimeout(() => {
-      this.containerStatus.set({
-        status: 'Running',
-        uptime: Math.floor(Math.random() * 86400), // Random uptime in seconds
-        moduleCount: this.blueprint()?.enabledModules.length || 0,
-        eventCount: Math.floor(Math.random() * 1000)
-      });
-      this.containerLoading.set(false);
-      this.logger.info('[BlueprintDetailComponent]', 'Container status refreshed');
-    }, 1000);
-  }
-
-  /**
-   * Get status style for container
-   * 取得容器狀態樣式
-   */
-  getStatusStyle(): { color: string } {
-    return { color: '#52c41a' }; // Green for running
-  }
-
-  /**
-   * Get status icon for container
-   * 取得容器狀態圖示
-   */
-  getStatusIcon(): string {
-    return 'check-circle'; // Running icon
-  }
-
-  /**
-   * Navigate to event bus monitor
-   * 導航到事件總線監控
-   */
-  navigateToEventBus(): void {
-    const blueprintId = this.blueprint()?.id;
-    if (blueprintId) {
-      this.router.navigate(['container', 'event-bus'], { relativeTo: this.route });
     }
   }
 

@@ -27,55 +27,53 @@ import { NzSpaceModule } from 'ng-zorro-antd/space';
   standalone: true,
   imports: [SHARED_IMPORTS, NzSpaceModule],
   template: `
-    <nz-card nzTitle="審計記錄">
-      <!-- Filters -->
-      <div class="mb-md" style="display: flex; gap: 8px;">
-        <nz-select [(ngModel)]="filterCategory" (ngModelChange)="onFilterChange()" nzPlaceHolder="類別" style="width: 150px" nzAllowClear>
-          <nz-option nzLabel="藍圖" nzValue="blueprint"></nz-option>
-          <nz-option nzLabel="成員" nzValue="member"></nz-option>
-          <nz-option nzLabel="安全性" nzValue="security"></nz-option>
-          <nz-option nzLabel="資料" nzValue="data"></nz-option>
-          <nz-option nzLabel="系統" nzValue="system"></nz-option>
-        </nz-select>
+    <!-- Filters -->
+    <div class="mb-md" style="display: flex; gap: 8px;">
+      <nz-select [(ngModel)]="filterCategory" (ngModelChange)="onFilterChange()" nzPlaceHolder="類別" style="width: 150px" nzAllowClear>
+        <nz-option nzLabel="藍圖" nzValue="blueprint"></nz-option>
+        <nz-option nzLabel="成員" nzValue="member"></nz-option>
+        <nz-option nzLabel="安全性" nzValue="security"></nz-option>
+        <nz-option nzLabel="資料" nzValue="data"></nz-option>
+        <nz-option nzLabel="系統" nzValue="system"></nz-option>
+      </nz-select>
 
-        <nz-select
-          [(ngModel)]="filterResourceType"
-          (ngModelChange)="onFilterChange()"
-          nzPlaceHolder="資源類型"
-          style="width: 150px"
-          nzAllowClear
-        >
-          <nz-option nzLabel="藍圖" nzValue="blueprint"></nz-option>
-          <nz-option nzLabel="成員" nzValue="member"></nz-option>
-          <nz-option nzLabel="任務" nzValue="task"></nz-option>
-          <nz-option nzLabel="日誌" nzValue="log"></nz-option>
-          <nz-option nzLabel="品質" nzValue="quality"></nz-option>
-          <nz-option nzLabel="模組" nzValue="module"></nz-option>
-        </nz-select>
+      <nz-select
+        [(ngModel)]="filterResourceType"
+        (ngModelChange)="onFilterChange()"
+        nzPlaceHolder="資源類型"
+        style="width: 150px"
+        nzAllowClear
+      >
+        <nz-option nzLabel="藍圖" nzValue="blueprint"></nz-option>
+        <nz-option nzLabel="成員" nzValue="member"></nz-option>
+        <nz-option nzLabel="任務" nzValue="task"></nz-option>
+        <nz-option nzLabel="日誌" nzValue="log"></nz-option>
+        <nz-option nzLabel="品質" nzValue="quality"></nz-option>
+        <nz-option nzLabel="模組" nzValue="module"></nz-option>
+      </nz-select>
 
-        <button nz-button (click)="refresh()">
-          <span nz-icon nzType="reload"></span>
-          重新整理
-        </button>
-      </div>
+      <button nz-button (click)="refresh()">
+        <span nz-icon nzType="reload"></span>
+        重新整理
+      </button>
+    </div>
 
-      <!-- Table -->
-      @if (logsState.loading()) {
-        <nz-spin nzSimple></nz-spin>
-      } @else if (logsState.error()) {
-        <nz-alert
-          nzType="error"
-          nzShowIcon
-          [nzMessage]="'載入失敗'"
-          [nzDescription]="logsState.error()?.message || '無法載入審計記錄'"
-          class="mb-md"
-        />
-      } @else if ((logsState.data() || []).length === 0) {
-        <nz-empty nzNotFoundContent="暫無審計記錄"></nz-empty>
-      } @else {
-        <st #st [data]="logsState.data() || []" [columns]="columns" [page]="{ show: true, showSize: true }"></st>
-      }
-    </nz-card>
+    <!-- Table -->
+    @if (logsState.loading()) {
+      <nz-spin nzSimple></nz-spin>
+    } @else if (logsState.error()) {
+      <nz-alert
+        nzType="error"
+        nzShowIcon
+        [nzMessage]="'載入失敗'"
+        [nzDescription]="logsState.error()?.message || '無法載入審計記錄'"
+        class="mb-md"
+      />
+    } @else if ((logsState.data() || []).length === 0) {
+      <nz-empty nzNotFoundContent="暫無審計記錄"></nz-empty>
+    } @else {
+      <st #st [data]="logsState.data() || []" [columns]="columns" [page]="{ show: true, showSize: true }"></st>
+    }
   `,
   styles: [
     `
