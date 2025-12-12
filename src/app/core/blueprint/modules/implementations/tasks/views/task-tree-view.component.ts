@@ -15,6 +15,7 @@ import { Task, TaskTreeNode } from '@core/types/task';
 import { buildTaskHierarchy, calculateAggregatedProgress } from '@core/utils/task-hierarchy.util';
 import { SHARED_IMPORTS } from '@shared';
 import { NzTreeFlatDataSource, NzTreeFlattener, NzTreeViewModule } from 'ng-zorro-antd/tree-view';
+import { NzEmptyModule } from 'ng-zorro-antd/empty';
 
 /** Flat node structure for CDK tree */
 interface FlatNode {
@@ -30,7 +31,7 @@ interface FlatNode {
 @Component({
   selector: 'app-task-tree-view',
   standalone: true,
-  imports: [SHARED_IMPORTS, NzTreeViewModule],
+  imports: [SHARED_IMPORTS, NzTreeViewModule, NzEmptyModule],
   template: `
     <div class="tree-view-container">
       <div class="tree-view-header">
