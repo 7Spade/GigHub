@@ -7,5 +7,8 @@ export const environment = {
     baseUrl: './',
     refreshTokenEnabled: true,
     refreshTokenType: 'auth-refresh'
-  }
+  },
+  // Supabase configuration (should be set via build-time environment variables)
+  NG_APP_SUPABASE_URL: '',
+  NG_APP_SUPABASE_ANON_KEY: ''
 } as Environment;

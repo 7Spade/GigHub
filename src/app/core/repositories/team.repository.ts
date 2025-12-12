@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, Injector, runInInjectionContext } from '@angular/core';
 import {
   Firestore,
   addDoc,
@@ -24,6 +24,7 @@ import { Observable, from, map, catchError, of } from 'rxjs';
 export class TeamRepository {
   private readonly firestore = inject(Firestore);
   private readonly logger = inject(LoggerService);
+  private readonly injector = inject(Injector);
   private readonly collectionName = 'teams';
 
   private getCollectionRef(): CollectionReference {
@@ -59,7 +60,9 @@ export class TeamRepository {
     // Sorting can be done in-memory if needed
     const q = query(this.getCollectionRef(), where('organization_id', '==', organizationId));
 
-    return from(getDocs(q)).pipe(
+    return from(
+      runInInjectionContext(this.injector, () => getDocs(q))
+    ).pipe(
       map(snapshot => {
         const teams = snapshot.docs.map(docSnap => this.toTeam(docSnap.data(), docSnap.id));
         // Sort in-memory by created_at descending

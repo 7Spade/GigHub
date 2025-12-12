@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, Injector, runInInjectionContext } from '@angular/core';
 import {
   Firestore,
   addDoc,
@@ -28,6 +28,7 @@ export class OrganizationRepository {
   private readonly firestore = inject(Firestore);
   private readonly logger = inject(LoggerService);
   private readonly memberRepository = inject(OrganizationMemberRepository);
+  private readonly injector = inject(Injector);
   private readonly collectionName = 'organizations';
 
   private getCollectionRef(): CollectionReference {
@@ -64,7 +65,9 @@ export class OrganizationRepository {
     // Sorting can be done in-memory if needed
     const q = query(this.getCollectionRef(), where('created_by', '==', creatorId));
 
-    return from(getDocs(q)).pipe(
+    return from(
+      runInInjectionContext(this.injector, () => getDocs(q))
+    ).pipe(
       map(snapshot => {
         const orgs = snapshot.docs.map(docSnap => this.toOrganization(docSnap.data(), docSnap.id));
         // Sort in-memory by created_at descending
