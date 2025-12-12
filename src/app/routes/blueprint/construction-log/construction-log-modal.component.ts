@@ -210,8 +210,11 @@ export class ConstructionLogModalComponent implements OnInit {
     const log = this.modalData.log;
     const isView = this.modalData.mode === 'view';
 
+    // Safely convert log.date to Date object
+    const logDate = log?.date ? this.ensureValidDate(log.date) : new Date();
+
     this.form = this.fb.group({
-      date: [log?.date || new Date(), [Validators.required]],
+      date: [logDate, [Validators.required]],
       title: [{ value: log?.title || '', disabled: isView }, [Validators.required, Validators.maxLength(100)]],
       description: [{ value: log?.description || '', disabled: isView }, [Validators.maxLength(1000)]],
       workHours: [{ value: log?.workHours || null, disabled: isView }],
@@ -220,6 +223,42 @@ export class ConstructionLogModalComponent implements OnInit {
       weather: [{ value: log?.weather || null, disabled: isView }],
       temperature: [{ value: log?.temperature || null, disabled: isView }]
     });
+  }
+
+  /**
+   * Ensure date is a valid Date object
+   * Handles Firestore Timestamp, ISO string, and Date objects
+   */
+  private ensureValidDate(date: any): Date {
+    // If already a valid Date object
+    if (date instanceof Date && !isNaN(date.getTime())) {
+      return date;
+    }
+
+    // If Firestore Timestamp
+    if (date?.toDate && typeof date.toDate === 'function') {
+      return date.toDate();
+    }
+
+    // If string (ISO format)
+    if (typeof date === 'string') {
+      const parsed = new Date(date);
+      if (!isNaN(parsed.getTime())) {
+        return parsed;
+      }
+    }
+
+    // If number (timestamp in ms)
+    if (typeof date === 'number') {
+      const parsed = new Date(date);
+      if (!isNaN(parsed.getTime())) {
+        return parsed;
+      }
+    }
+
+    // Fallback to current date
+    console.warn('[ConstructionLogModal] Invalid date value, using current date:', date);
+    return new Date();
   }
 
   beforeUpload = (file: NzUploadFile): boolean => {
@@ -282,16 +321,21 @@ export class ConstructionLogModalComponent implements OnInit {
 
       this.modalRef.close({ success: true, log });
     } catch (error) {
-      this.message.error('操作失敗');
+      const errorMessage = error instanceof Error ? error.message : '操作失敗';
+      console.error('[ConstructionLogModal] Submit error:', error);
+      this.message.error(errorMessage);
     } finally {
       this.submitting.set(false);
     }
   }
 
   private async createLog(formValue: any): Promise<Log | null> {
+    // Ensure date is a valid Date object
+    const date = this.ensureValidDate(formValue.date);
+
     const request: CreateLogRequest = {
       blueprintId: this.modalData.blueprintId,
-      date: formValue.date,
+      date: date,
       title: formValue.title,
       description: formValue.description,
       workHours: formValue.workHours,
@@ -309,8 +353,11 @@ export class ConstructionLogModalComponent implements OnInit {
     const logId = this.modalData.log?.id;
     if (!logId) return null;
 
+    // Ensure date is a valid Date object
+    const date = this.ensureValidDate(formValue.date);
+
     const request: UpdateLogRequest = {
-      date: formValue.date,
+      date: date,
       title: formValue.title,
       description: formValue.description,
       workHours: formValue.workHours,
