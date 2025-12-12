@@ -2,6 +2,11 @@
 
 This document describes the GitHub Copilot instructions and agent configurations for the GigHub project.
 
+## Quick Links
+
+- **[Secrets Setup Guide](COPILOT_SECRETS_SETUP.md)** - How to configure repository secrets for MCP servers
+- **[Copilot Setup Steps Workflow](.github/workflows/copilot-setup-steps.yml)** - Development environment configuration
+
 ## Overview
 
 The repository is configured with comprehensive instructions for AI-assisted development using GitHub Copilot and custom agents with MCP (Model Context Protocol) tools.
@@ -343,6 +348,7 @@ When adding new frameworks to the project:
 - Verify agent configuration in `.github/agents/`
 - Check tool names match exactly
 - Ensure MCP servers are configured in GitHub settings
+- **Check repository secrets are properly configured** - See [COPILOT_SECRETS_SETUP.md](COPILOT_SECRETS_SETUP.md)
 
 ### Version Mismatches
 - Use context7 to fetch current version documentation
@@ -360,6 +366,8 @@ When adding new frameworks to the project:
 
 ### GitHub Copilot
 - [Copilot Instructions Syntax](https://docs.github.com/en/copilot/customizing-copilot)
+- [Customizing Copilot Agent Environment](https://docs.github.com/en/copilot/how-tos/use-copilot-agents/coding-agent/customize-the-agent-environment)
+- [Using Secrets in GitHub Actions](https://docs.github.com/en/actions/security-guides/using-secrets-in-github-actions)
 - [MCP Documentation](https://modelcontextprotocol.io)
 
 ## Contributing
