@@ -15,8 +15,8 @@ console-transport.ts:30  [ERROR] {
 ```
 
 **原因**：環境變數未定義
-- `NG_APP_SUPABASE_URL` ❌
-- `NG_APP_SUPABASE_ANON_KEY` ❌
+- `NG_PUBLIC_SUPABASE_URL` ❌
+- `NG_PUBLIC_SUPABASE_ANON_KEY` ❌
 
 ---
 
@@ -49,8 +49,8 @@ export const environment = {
   providers: [/* ... */],
   interceptorFns: [/* ... */],
   // ✅ 添加 Supabase 配置
-  NG_APP_SUPABASE_URL: '',
-  NG_APP_SUPABASE_ANON_KEY: ''
+  NG_PUBLIC_SUPABASE_URL: '',
+  NG_PUBLIC_SUPABASE_ANON_KEY: ''
 } as Environment;
 ```
 
@@ -62,8 +62,8 @@ export const environment = {
   useHash: true,
   api: { /* ... */ },
   // ✅ 添加 Supabase 配置
-  NG_APP_SUPABASE_URL: '',
-  NG_APP_SUPABASE_ANON_KEY: ''
+  NG_PUBLIC_SUPABASE_URL: '',
+  NG_PUBLIC_SUPABASE_ANON_KEY: ''
 } as Environment;
 ```
 

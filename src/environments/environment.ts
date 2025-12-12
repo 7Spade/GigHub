@@ -17,6 +17,6 @@ export const environment = {
   providers: [provideMockConfig({ data: MOCKDATA })],
   interceptorFns: [mockInterceptor],
   // Supabase configuration (read from .env or use placeholders)
-  NG_APP_SUPABASE_URL: '',
-  NG_APP_SUPABASE_ANON_KEY: ''
+  NG_PUBLIC_SUPABASE_URL: '',
+  NG_PUBLIC_SUPABASE_ANON_KEY: ''
 } as Environment;

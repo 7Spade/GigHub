@@ -6,7 +6,7 @@
 
 1. **Supabase 初始化失敗** (Critical)
    - 錯誤位置：`supabase.service.ts:98`
-   - 原因：環境變數 `NG_APP_SUPABASE_URL` 和 `NG_APP_SUPABASE_ANON_KEY` 未定義
+   - 原因：環境變數 `NG_PUBLIC_SUPABASE_URL` 和 `NG_PUBLIC_SUPABASE_ANON_KEY` 未定義
    - 影響：所有 Supabase 功能無法使用（Tasks, Logs, Notifications）
 
 2. **Firebase API 在注入上下文外調用** (Warning)
@@ -54,12 +54,12 @@
 ### 變更檔案 (Changed Files)
 
 1. **`src/environments/environment.ts`**
-   - 添加 `NG_APP_SUPABASE_URL: ''`
-   - 添加 `NG_APP_SUPABASE_ANON_KEY: ''`
+   - 添加 `NG_PUBLIC_SUPABASE_URL: ''`
+   - 添加 `NG_PUBLIC_SUPABASE_ANON_KEY: ''`
 
 2. **`src/environments/environment.prod.ts`**
-   - 添加 `NG_APP_SUPABASE_URL: ''`
-   - 添加 `NG_APP_SUPABASE_ANON_KEY: ''`
+   - 添加 `NG_PUBLIC_SUPABASE_URL: ''`
+   - 添加 `NG_PUBLIC_SUPABASE_ANON_KEY: ''`
 
 3. **`src/app/core/services/firebase-auth.service.ts`**
    - 導入：`Injector, runInInjectionContext`

@@ -47,8 +47,8 @@
 2. 編輯 `.env` 檔案，填入 Supabase 憑證：
    ```env
    # Supabase Configuration (Frontend)
-   NG_APP_SUPABASE_URL=https://your-project-id.supabase.co
-   NG_APP_SUPABASE_ANON_KEY=your_anon_key_here
+   NG_PUBLIC_SUPABASE_URL=https://your-project-id.supabase.co
+   NG_PUBLIC_SUPABASE_ANON_KEY=your_anon_key_here
    
    # Supabase Configuration (Backend Only)
    SUPABASE_SERVICE_ROLE_KEY=your_service_role_key_here

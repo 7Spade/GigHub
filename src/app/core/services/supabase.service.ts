@@ -56,12 +56,12 @@ export class SupabaseService {
   private initializeClient(): void {
     try {
       // Get credentials from environment
-      const supabaseUrl = this.getEnvVar('NG_APP_SUPABASE_URL');
-      const supabaseKey = this.getEnvVar('NG_APP_SUPABASE_ANON_KEY');
+      const supabaseUrl = this.getEnvVar('NG_PUBLIC_SUPABASE_URL');
+      const supabaseKey = this.getEnvVar('NG_PUBLIC_SUPABASE_ANON_KEY');
 
       if (!supabaseUrl || !supabaseKey) {
         throw new Error(
-          'Supabase configuration missing. Please set NG_APP_SUPABASE_URL and NG_APP_SUPABASE_ANON_KEY in environment variables.'
+          'Supabase configuration missing. Please set NG_PUBLIC_SUPABASE_URL and NG_PUBLIC_SUPABASE_ANON_KEY in environment variables.'
         );
       }
 

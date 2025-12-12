@@ -588,8 +588,8 @@ export class ErrorTrackingService {
 export const environment = {
   production: false,
   supabase: {
-    url: import.meta.env['NG_APP_SUPABASE_URL'] || '',
-    anonKey: import.meta.env['NG_APP_SUPABASE_ANON_KEY'] || '',
+    url: import.meta.env['NG_PUBLIC_SUPABASE_URL'] || '',
+    anonKey: import.meta.env['NG_PUBLIC_SUPABASE_ANON_KEY'] || '',
     // 永遠不要在程式碼中硬編碼 Service Role Key
   }
 };

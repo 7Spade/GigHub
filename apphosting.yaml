@@ -90,10 +90,10 @@ env:
   - variable: FIREBASE_MEASUREMENT_ID
     value: 'G-5KJJ3DD2G7'
 
-  - variable: NG_APP_SUPABASE_URL
+  - variable: NG_PUBLIC_SUPABASE_URL
     value: 'https://zecsbstjqjqoytwgjyct.supabase.co'
 
-  - variable: NG_APP_SUPABASE_ANON_KEY
+  - variable: NG_PUBLIC_SUPABASE_ANON_KEY
     value: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InplY3Nic3RqcWpxb3l0d2dqeWN0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU0OTk5MzcsImV4cCI6MjA4MTA3NTkzN30.GQSslGa2ujmjdR-DeqXwPiAUr0RPe2O3lwb37wnJQeE'
 
   - variable: NG_APP_ENABLE_SUPABASE
