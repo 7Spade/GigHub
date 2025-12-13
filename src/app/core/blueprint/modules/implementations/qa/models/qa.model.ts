@@ -1,5 +1,6 @@
 /**
  * QA Models - Quality assurance and defect tracking
+ *
  * @module QAModels
  * @author GigHub Development Team
  * @date 2025-12-13

@@ -114,7 +114,7 @@ export class TaskStore {
       const tasks = await firstValueFrom(this.repository.findByBlueprintId(blueprintId));
       this._tasks.set(tasks);
       this.logger.info('[TaskStore]', `Loaded ${tasks.length} tasks for blueprint: ${blueprintId}`, { tasks });
-      
+
       // Emit event that tasks have been loaded
       this.eventBus.emit(
         TASKS_MODULE_EVENTS.TASK_LOADED,

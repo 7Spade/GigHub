@@ -1,5 +1,6 @@
 /**
  * Workflow Models - Simple workflow management
+ *
  * @module WorkflowModels
  * @author GigHub Development Team
  * @date 2025-12-13

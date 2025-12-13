@@ -1,5 +1,6 @@
 /**
  * Acceptance Models - Formal acceptance management
+ *
  * @module AcceptanceModels
  * @author GigHub Development Team
  * @date 2025-12-13

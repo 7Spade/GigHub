@@ -172,20 +172,24 @@ export class NotificationStore {
   /**
    * Subscribe to realtime updates
    */
-  subscribeToRealtimeUpdates(userId: string, destroyRef: DestroyRef): void {
+  subscribeToRealtimeUpdates(userId: string, destroyRef: DestroyRef): () => void {
     const channel = this.repository.subscribeToChanges(userId, payload => {
       this.logger.info('[NotificationStore]', 'Realtime update received:', payload);
       // Reload notifications on any change
       this.loadNotifications(userId);
     });
 
-    // Auto-cleanup on component destroy
-    destroyRef.onDestroy(() => {
+    const cleanup = () => {
       if (channel) {
         channel();
+        this.logger.info('[NotificationStore]', 'Realtime subscription cleaned up');
       }
-      this.logger.info('[NotificationStore]', 'Realtime subscription cleaned up');
-    });
+    };
+
+    // Auto-cleanup on component destroy
+    destroyRef.onDestroy(cleanup);
+
+    return cleanup;
   }
 
   /**

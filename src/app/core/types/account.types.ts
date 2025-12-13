@@ -104,6 +104,38 @@ export interface OrganizationMember {
   joined_at?: string;
 }
 
+/**
+ * 邀請狀態
+ */
+export enum InvitationStatus {
+  PENDING = 'pending',
+  ACCEPTED = 'accepted',
+  DECLINED = 'declined',
+  EXPIRED = 'expired'
+}
+
+/**
+ * 組織邀請
+ */
+export interface OrganizationInvitation {
+  id: string;
+  organization_id: string;
+  email: string;
+  invited_by: string;
+  status: InvitationStatus;
+  created_at?: string;
+}
+
+/**
+ * 建立組織邀請請求
+ */
+export interface CreateOrganizationInvitationRequest {
+  organization_id: string;
+  email: string;
+  invited_by: string;
+  status?: InvitationStatus;
+}
+
 // ============================================================================
 // Team Types (團隊類型)
 // ============================================================================
