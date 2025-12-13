@@ -8,7 +8,7 @@ import { STColumn } from '@delon/abc/st';
 import { SHARED_IMPORTS } from '@shared';
 import { NzStatisticModule } from 'ng-zorro-antd/statistic';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
-import { CostService } from '@core/blueprint/modules/implementations/finance/services/cost.service';
+import { CostManagementService } from '@core/blueprint/modules/implementations/finance/services/cost-management.service';
 import { InvoiceService } from '@core/blueprint/modules/implementations/finance/services/invoice.service';
 import { PaymentService } from '@core/blueprint/modules/implementations/finance/services/payment.service';
 import { BudgetService } from '@core/blueprint/modules/implementations/finance/services/budget.service';
@@ -107,7 +107,7 @@ import { FinancialReportService } from '@core/blueprint/modules/implementations/
 export class FinanceModuleViewComponent implements OnInit {
   blueprintId = input.required<string>();
   
-  readonly costService = inject(CostService);
+  readonly costService = inject(CostManagementService);
   readonly invoiceService = inject(InvoiceService);
   readonly paymentService = inject(PaymentService);
   readonly budgetService = inject(BudgetService);

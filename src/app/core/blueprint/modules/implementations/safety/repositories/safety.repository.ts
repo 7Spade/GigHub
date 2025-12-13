@@ -18,11 +18,11 @@ export class SafetyRepository {
   }
 
   async create(data: unknown): Promise<unknown> {
-    return { id: 'stub-id', ...data };
+    return { id: 'stub-id', ...(data as Record<string, unknown>) };
   }
 
   async update(_id: string, data: unknown): Promise<unknown> {
-    return { id: _id, ...data };
+    return { id: _id, ...(data as Record<string, unknown>) };
   }
 
   async delete(_id: string): Promise<void> {

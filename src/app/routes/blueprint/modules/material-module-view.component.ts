@@ -11,8 +11,8 @@ import { NzEmptyModule } from 'ng-zorro-antd/empty';
 import { MaterialManagementService } from '@core/blueprint/modules/implementations/material/services/material-management.service';
 import { MaterialIssueService } from '@core/blueprint/modules/implementations/material/services/material-issue.service';
 import { InventoryService } from '@core/blueprint/modules/implementations/material/services/inventory.service';
-import { EquipmentAssetService } from '@core/blueprint/modules/implementations/material/services/equipment-asset.service';
-import { ConsumptionRecordService } from '@core/blueprint/modules/implementations/material/services/consumption-record.service';
+import { EquipmentService } from '@core/blueprint/modules/implementations/material/services/equipment.service';
+import { ConsumptionService } from '@core/blueprint/modules/implementations/material/services/consumption.service';
 
 @Component({
   selector: 'app-material-module-view',
@@ -74,8 +74,8 @@ export class MaterialModuleViewComponent implements OnInit {
   readonly materialService = inject(MaterialManagementService);
   readonly issueService = inject(MaterialIssueService);
   readonly inventoryService = inject(InventoryService);
-  readonly equipmentService = inject(EquipmentAssetService);
-  readonly consumptionService = inject(ConsumptionRecordService);
+  readonly equipmentService = inject(EquipmentService);
+  readonly consumptionService = inject(ConsumptionService);
 
   materialColumns: STColumn[] = [
     { title: '材料名稱', index: 'name' },

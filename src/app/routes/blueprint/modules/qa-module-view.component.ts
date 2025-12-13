@@ -11,7 +11,7 @@ import { NzEmptyModule } from 'ng-zorro-antd/empty';
 import { ChecklistService } from '@core/blueprint/modules/implementations/qa/services/checklist.service';
 import { DefectService } from '@core/blueprint/modules/implementations/qa/services/defect.service';
 import { InspectionService } from '@core/blueprint/modules/implementations/qa/services/inspection.service';
-import { QaReportService } from '@core/blueprint/modules/implementations/qa/services/qa-report.service';
+import { ReportService } from '@core/blueprint/modules/implementations/qa/services/report.service';
 
 @Component({
   selector: 'app-qa-module-view',
@@ -99,7 +99,7 @@ export class QaModuleViewComponent implements OnInit {
   readonly checklistService = inject(ChecklistService);
   readonly defectService = inject(DefectService);
   readonly inspectionService = inject(InspectionService);
-  readonly qaReportService = inject(QaReportService);
+  readonly qaReportService = inject(ReportService);
 
   checklistColumns: STColumn[] = [
     { title: '檢查表名稱', index: 'name' },
