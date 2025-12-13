@@ -264,7 +264,7 @@ import { WorkflowModuleViewComponent } from './modules/workflow-module-view.comp
           </nz-tab>
 
           <!-- Construction Logs Tab -->
-          <nz-tab nzTitle="日誌">
+          <nz-tab nzTitle="施工日誌">
             <ng-template nz-tab>
               @if (blueprint()?.id) {
                 <app-construction-log [blueprintId]="blueprint()!.id" />
@@ -282,7 +282,7 @@ import { WorkflowModuleViewComponent } from './modules/workflow-module-view.comp
           </nz-tab>
 
           <!-- Log Domain Tab -->
-          <nz-tab nzTitle="日誌">
+          <nz-tab nzTitle="活動日誌">
             <ng-template nz-tab>
               @if (blueprint()?.id) {
                 <app-log-module-view [blueprintId]="blueprint()!.id" />
