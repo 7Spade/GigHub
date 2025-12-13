@@ -147,10 +147,18 @@ export class TasksComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // Also check route params for backwards compatibility
+    // Priority 1: Use input blueprintId if available
+    const inputId = this.blueprintId();
+    if (inputId) {
+      this._blueprintId.set(inputId);
+      this.loadTasks(inputId);
+      return;
+    }
+
+    // Priority 2: Check route params for backwards compatibility
     this.route.params.subscribe(params => {
       const routeBlueprintId = params['id'] || params['blueprintId'];
-      if (routeBlueprintId && !this.blueprintId()) {
+      if (routeBlueprintId) {
         this._blueprintId.set(routeBlueprintId);
         this.loadTasks(routeBlueprintId);
       }
