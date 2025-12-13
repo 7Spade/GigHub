@@ -50,11 +50,7 @@ export interface TeamMemberModalData {
           <nz-select formControlName="userId" nzPlaceHolder="搜尋或選擇成員" nzShowSearch [nzLoading]="loading()" nzAllowClear>
             <nz-option *ngFor="let member of membersWithAccounts()" [nzValue]="member.user_id" [nzLabel]="getMemberLabel(member)">
               <div class="member-option">
-                <nz-avatar
-                  [nzSize]="32"
-                  [nzSrc]="member.account?.avatar_url || undefined"
-                  [nzText]="getMemberInitials(member)"
-                ></nz-avatar>
+                <nz-avatar [nzSize]="32" [nzSrc]="member.account?.avatar_url || undefined" [nzText]="getMemberInitials(member)"></nz-avatar>
                 <div class="member-info">
                   <div class="member-name">{{ member.account?.name || member.user_id }}</div>
                   <div class="member-email">{{ member.account?.email || '載入中...' }}</div>
@@ -235,7 +231,6 @@ export class TeamMemberModalComponent implements OnInit {
     }
     return name.substring(0, 2).toUpperCase();
   }
-
 
   /**
    * Get currently selected member

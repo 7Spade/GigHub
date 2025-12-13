@@ -98,9 +98,6 @@ import { NzMessageService } from 'ng-zorro-antd/message';
 
       .kanban-column {
         width: 300px;
-        border-radius: 4px;
-        display: flex;
-        flex-direction: column;
       }
 
       .column-header {
@@ -112,7 +109,6 @@ import { NzMessageService } from 'ng-zorro-antd/message';
 
       .column-header h3 {
         margin: 0;
-        font-size: 14px;
         font-weight: 600;
       }
 
@@ -131,20 +127,15 @@ import { NzMessageService } from 'ng-zorro-antd/message';
         cursor: move;
       }
 
-      .task-card:hover {
-      }
-
       .task-card-header {
         display: flex;
         justify-content: space-between;
-        align-items: flex-start;
         margin-bottom: 8px;
       }
 
       .task-title {
         font-weight: 500;
         flex: 1;
-        margin-right: 8px;
       }
 
       .task-description {
@@ -154,6 +145,7 @@ import { NzMessageService } from 'ng-zorro-antd/message';
         text-overflow: ellipsis;
         display: -webkit-box;
         -webkit-line-clamp: 2;
+        line-clamp: 2;
         -webkit-box-orient: vertical;
       }
 
@@ -176,19 +168,6 @@ import { NzMessageService } from 'ng-zorro-antd/message';
         display: flex;
         align-items: center;
         gap: 4px;
-      }
-
-      .cdk-drag-preview {
-        opacity: 0.8;
-      }
-
-      .cdk-drag-placeholder {
-        opacity: 0.4;
-        border: 2px dashed;
-      }
-
-      .cdk-drop-list-dragging .task-card:not(.cdk-drag-placeholder) {
-        transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
       }
     `
   ]

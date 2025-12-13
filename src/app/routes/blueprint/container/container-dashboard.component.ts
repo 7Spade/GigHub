@@ -195,16 +195,8 @@ import { NzStatisticModule } from 'ng-zorro-antd/statistic';
                 <span nz-icon nzType="dashboard" nzTheme="outline"></span>
               </div>
               <div class="card-stats">
-                <nz-statistic
-                  [nzValue]="performanceStats().avgEventTime"
-                  nzTitle="平均事件處理"
-                  nzSuffix="ms"
-                />
-                <nz-statistic
-                  [nzValue]="performanceStats().memoryUsage"
-                  nzTitle="記憶體使用"
-                  nzSuffix="MB"
-                />
+                <nz-statistic [nzValue]="performanceStats().avgEventTime" nzTitle="平均事件處理" nzSuffix="ms" />
+                <nz-statistic [nzValue]="performanceStats().memoryUsage" nzTitle="記憶體使用" nzSuffix="MB" />
               </div>
             </div>
             <div class="card-footer">
