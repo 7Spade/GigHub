@@ -23,6 +23,25 @@
 
 ---
 
+### 💡 最佳實踐與模式 (Best Practices & Patterns)
+
+| 文檔 | 描述 | 語言 | 狀態 |
+|------|------|------|------|
+| [價值提取文檔](./VALUE_EXTRACTION_FROM_RECENT_CHANGES.md) | 從近期變更提取的核心價值與模式 | 繁中 | ✅ |
+| [快速模式參考](./QUICK_PATTERNS_REFERENCE.md) | 常用開發模式速查表 | 繁中 | ✅ |
+| [Issue #119 總結](./ISSUE_119_SUMMARY.md) | 價值提取任務總結報告 | 繁中 | ✅ |
+
+**核心內容**:
+- **設計原則**: 奧卡姆剃刀、YAGNI、單一職責
+- **架構模式**: Blueprint V2 模組範本、CDK 按需導入
+- **程式碼模式**: AsyncState、Store/Facade、Repository
+- **Angular 20**: Signals、新控制流、Standalone Components
+- **最佳實踐**: 狀態管理、資料存取、錯誤處理
+
+**來源 PRs**: #122 (CDK Cleanup), #121 (Module Placement), #118 (Gantt Fixes), #116 (Audit Logs)
+
+---
+
 ### 🔐 身份驗證 (Authentication) - [`authentication/`](./authentication/)
 
 | 文檔 | 描述 | 語言 | 狀態 |
@@ -109,6 +128,7 @@
 
 #### 開始開發
 → [共享模組指南](./development/shared-modules-guide.md)  
+→ [快速模式參考](./QUICK_PATTERNS_REFERENCE.md) ⭐ 新增  
 → [Azure Dragon 主題](./ui-theme/azure-dragon-theme-zh-TW.md)
 
 #### 設置身份驗證
@@ -116,6 +136,7 @@
 → [Supabase Integration](./authentication/supabase-integration.md)
 
 #### 了解專案架構
+→ [價值提取文檔](./VALUE_EXTRACTION_FROM_RECENT_CHANGES.md) ⭐ 新增  
 → [設計文檔索引](./design/README-zh-TW.md)  
 → [SaaS 多租戶實作](./design/saas-implementation-zh-TW.md)
 
