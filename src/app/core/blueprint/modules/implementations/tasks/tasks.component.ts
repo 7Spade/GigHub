@@ -195,7 +195,7 @@ export class TasksComponent implements OnInit {
       return;
     }
 
-    this.modal.create({
+    const modalRef = this.modal.create({
       nzTitle: '編輯任務',
       nzContent: TaskModalComponent,
       nzData: {
@@ -207,7 +207,12 @@ export class TasksComponent implements OnInit {
       nzFooter: null,
       nzMaskClosable: false
     });
-    // Success message shown in modal, task updated in store by modal
+
+    // Refresh task list after modal closes (whether success or cancel)
+    // This ensures UI consistency with backend state
+    modalRef.afterClose.subscribe(() => {
+      this.loadTasks(blueprintId);
+    });
   }
 
   async deleteTask(task: Task): Promise<void> {
