@@ -153,10 +153,7 @@ To test the implementation:
 - Allows frontend development to proceed independently
 - Easy to replace with real API calls later
 
-### Why Firebase Instead of Supabase?
-- Project already uses Firebase (@angular/fire)
-- Simpler integration path
-- Maintains consistency with existing auth service
+#
 
 ## File Structure
 

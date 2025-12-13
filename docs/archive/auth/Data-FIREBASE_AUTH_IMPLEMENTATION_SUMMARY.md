@@ -168,7 +168,7 @@ Initial total: 3.25 MB | 667.30 kB (gzipped)
 
 **Warnings:**
 - Bundle size exceeds budget (expected, not related to this change)
-- CommonJS module warning for Supabase (existing issue)
+- CommonJS module warning for Firebase (existing issue)
 
 ## Key Benefits
 
