@@ -17,6 +17,7 @@ The Shared module contains reusable components, services, pipes, directives, and
 **規則**:
 - `src/app/shared/components/` - 可重用的 UI 元件（breadcrumb、create-organization、create-team、team-detail-drawer 等）
 - `src/app/shared/services/` - 共享 UI 相關服務（breadcrumb、menu-management、workspace-context、permission - 僅 UI 相關）
+- `src/app/shared/cdk/` - Angular CDK 模組配置（Overlay、Portal、A11y、Scrolling、Layout、Observers）
 - `src/app/shared/cell-widget/` - ST 表格 cell widgets
 - `src/app/shared/st-widget/` - ST 表格自訂 widgets
 - `src/app/shared/json-schema/` - JSON Schema 相關元件
@@ -36,10 +37,47 @@ The Shared module contains reusable components, services, pipes, directives, and
 - 目的：集中匯入通用模組
 - 位置：`src/app/shared/index.ts`
 - 必須包含 CommonModule、ReactiveFormsModule、FormsModule、RouterModule
+- 必須包含 Angular CDK 常用模組（A11yModule、ObserversModule、PlatformModule）
 - 必須包含所有 ng-zorro-antd 元件模組
 - 必須包含所有 @delon 元件模組
 - 必須包含共享元件、管道、指令
 - 使用方式：在 standalone component 中匯入 `SHARED_IMPORTS`
+
+## Angular CDK 模組
+
+**規則**:
+- 位置：`src/app/shared/cdk/shared-cdk.module.ts`
+- 常用模組（包含在 SHARED_IMPORTS 中）：
+  - `A11yModule` - 可存取性（焦點管理、鍵盤導航、ARIA 屬性）
+  - `ObserversModule` - DOM 觀察器（ResizeObserver、IntersectionObserver）
+  - `PlatformModule` - 平台檢測（瀏覽器、行動裝置等）
+- 可選模組（按需導入）：
+  - `OPTIONAL_CDK_MODULES.overlay` - 所有浮層（Modal、Dropdown、Tooltip、Popover）
+  - `OPTIONAL_CDK_MODULES.portal` - 動態內容（動態渲染元件到 DOM）
+  - `OPTIONAL_CDK_MODULES.scrolling` - 大量資料效能（虛擬滾動、無限滾動）
+  - `OPTIONAL_CDK_MODULES.layout` - RWD / Breakpoint（響應式佈局、斷點檢測）
+  - `OPTIONAL_CDK_MODULES.dragDrop` - 拖放功能
+  - `OPTIONAL_CDK_MODULES.tree` - 樹狀結構
+
+### 使用範例
+
+**規則**:
+- 常用 CDK 功能已包含在 `SHARED_IMPORTS` 中，無需額外導入
+- 需要特定功能時，額外導入可選模組：
+```typescript
+import { SHARED_IMPORTS, OPTIONAL_CDK_MODULES } from '@shared';
+
+@Component({
+  selector: 'app-example',
+  standalone: true,
+  imports: [
+    SHARED_IMPORTS,
+    OPTIONAL_CDK_MODULES.overlay,  // 使用浮層功能
+    OPTIONAL_CDK_MODULES.scrolling // 使用虛擬滾動
+  ]
+})
+export class ExampleComponent {}
+```
 
 ## Reusable Components
 

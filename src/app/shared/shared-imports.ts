@@ -18,13 +18,15 @@
  *
  * 對於特殊需求，可以額外導入可選模組：
  * ```typescript
- * import { SHARED_IMPORTS, OPTIONAL_ZORRO_MODULES, OPTIONAL_DELON_MODULES } from '@shared';
+ * import { SHARED_IMPORTS, OPTIONAL_ZORRO_MODULES, OPTIONAL_DELON_MODULES, OPTIONAL_CDK_MODULES } from '@shared';
  *
  * @Component({
  *   imports: [
  *     SHARED_IMPORTS,
  *     OPTIONAL_ZORRO_MODULES.divider,
- *     OPTIONAL_DELON_MODULES.sv
+ *     OPTIONAL_DELON_MODULES.sv,
+ *     OPTIONAL_CDK_MODULES.overlay,
+ *     OPTIONAL_CDK_MODULES.scrolling
  *   ]
  * })
  * ```
@@ -37,10 +39,12 @@ import { DatePipe, I18nPipe } from '@delon/theme';
 
 import { SHARED_DELON_MODULES } from './shared-delon.module';
 import { SHARED_ZORRO_MODULES } from './shared-zorro.module';
+import { SHARED_CDK_MODULES } from './cdk/shared-cdk.module';
 
 // 匯出可選模組供按需使用
 export { OPTIONAL_DELON_MODULES } from './shared-delon.module';
 export { OPTIONAL_ZORRO_MODULES } from './shared-zorro.module';
+export { OPTIONAL_CDK_MODULES } from './cdk/shared-cdk.module';
 
 /**
  * 核心 Angular 模組
@@ -72,9 +76,15 @@ const CORE_ANGULAR_MODULES = [
  * 標準共享導入
  * 包含：
  * - Angular 核心模組 (表單、路由、管道)
+ * - Angular CDK 常用模組 (A11y、Observers、Platform)
  * - ng-zorro-antd 常用模組
  * - @delon 常用模組
  *
  * 適用於 80% 以上的元件
  */
-export const SHARED_IMPORTS = [...CORE_ANGULAR_MODULES, ...SHARED_DELON_MODULES, ...SHARED_ZORRO_MODULES];
+export const SHARED_IMPORTS = [
+  ...CORE_ANGULAR_MODULES,
+  ...SHARED_CDK_MODULES,
+  ...SHARED_DELON_MODULES,
+  ...SHARED_ZORRO_MODULES
+];
