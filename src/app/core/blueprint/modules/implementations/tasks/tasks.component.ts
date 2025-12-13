@@ -79,7 +79,13 @@ import { TaskTreeViewComponent } from './views/task-tree-view.component';
             <span nz-icon nzType="apartment" nzTheme="outline"></span>
             樹狀視圖
           </ng-template>
-          <app-task-tree-view [blueprintId]="_blueprintId()" />
+          <app-task-tree-view
+            [blueprintId]="_blueprintId()"
+            (editTask)="editTask($event)"
+            (deleteTask)="deleteTask($event)"
+            (createSubTask)="createSubTask($event)"
+            (createRootTask)="showCreateTaskModal()"
+          />
         </nz-tab>
 
         <nz-tab [nzTitle]="kanbanViewTitle">
@@ -241,5 +247,26 @@ export class TasksComponent implements OnInit {
       this.logger.error('[TasksComponent]', 'Delete task failed', error instanceof Error ? error : undefined);
       this.message.error('任務刪除失敗');
     }
+  }
+
+  createSubTask(parentTask: Task): void {
+    const blueprintId = this._blueprintId();
+    if (!blueprintId) {
+      this.message.warning('請先選擇藍圖');
+      return;
+    }
+
+    this.modal.create({
+      nzTitle: `新增子任務 - ${parentTask.title}`,
+      nzContent: TaskModalComponent,
+      nzData: {
+        blueprintId: blueprintId,
+        parentTask: parentTask,
+        mode: 'create'
+      },
+      nzWidth: 800,
+      nzFooter: null,
+      nzMaskClosable: false
+    });
   }
 }

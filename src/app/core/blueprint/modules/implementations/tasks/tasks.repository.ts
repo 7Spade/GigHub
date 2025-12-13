@@ -91,7 +91,12 @@ export class TasksRepository {
       startDate: data.startDate instanceof Timestamp ? data.startDate.toDate() : data.startDate,
       completedDate: data.completedDate instanceof Timestamp ? data.completedDate.toDate() : data.completedDate,
       estimatedHours: data.estimatedHours,
+      estimatedBudget: data.estimatedBudget,
+      actualBudget: data.actualBudget,
       actualHours: data.actualHours,
+      progress: data.progress,
+      parentId: data.parentId,
+      dependencies: data.dependencies || [],
       tags: data.tags || [],
       attachments: data.attachments || [],
       metadata: data.metadata || {},
@@ -200,7 +205,12 @@ export class TasksRepository {
       startDate: data.startDate ? Timestamp.fromDate(data.startDate) : null,
       completedDate: null,
       estimatedHours: data.estimatedHours || null,
+      estimatedBudget: data.estimatedBudget || null,
+      actualBudget: data.actualBudget || null,
       actualHours: 0,
+      progress: data.progress || 0,
+      parentId: data.parentId || null,
+      dependencies: data.dependencies || [],
       tags: data.tags || [],
       attachments: [],
       metadata: data.metadata || {},
@@ -232,22 +242,37 @@ export class TasksRepository {
    */
   async update(blueprintId: string, taskId: string, data: UpdateTaskRequest): Promise<void> {
     const docData: any = {
-      ...data,
       updatedAt: Timestamp.now()
     };
 
-    // Convert dates to Timestamps
-    if (data.dueDate) {
-      docData.dueDate = data.dueDate instanceof Date ? Timestamp.fromDate(data.dueDate) : data.dueDate;
-    }
-    if (data.startDate) {
-      docData.startDate = data.startDate instanceof Date ? Timestamp.fromDate(data.startDate) : data.startDate;
-    }
-    if (data.completedDate) {
-      docData.completedDate = data.completedDate instanceof Date ? Timestamp.fromDate(data.completedDate) : data.completedDate;
-    }
+    // Only include defined fields to avoid Firestore undefined errors
+    // Firestore doesn't accept undefined values - use null instead
+    if (data.title !== undefined) docData.title = data.title;
+    if (data.description !== undefined) docData.description = data.description;
+    if (data.status !== undefined) docData.status = data.status;
+    if (data.priority !== undefined) docData.priority = data.priority;
+    if (data.assigneeId !== undefined) docData.assigneeId = data.assigneeId || null;
+    if (data.assigneeName !== undefined) docData.assigneeName = data.assigneeName || null;
+    if (data.estimatedHours !== undefined) docData.estimatedHours = data.estimatedHours || null;
+    if (data.actualHours !== undefined) docData.actualHours = data.actualHours || null;
+    if (data.estimatedBudget !== undefined) docData.estimatedBudget = data.estimatedBudget || null;
+    if (data.actualBudget !== undefined) docData.actualBudget = data.actualBudget || null;
+    if (data.progress !== undefined) docData.progress = data.progress;
+    if (data.parentId !== undefined) docData.parentId = data.parentId;
+    if (data.dependencies !== undefined) docData.dependencies = data.dependencies || [];
+    if (data.tags !== undefined) docData.tags = data.tags || [];
+    if (data.metadata !== undefined) docData.metadata = data.metadata || {};
 
-    delete (docData as any).id;
+    // Convert dates to Timestamps
+    if (data.dueDate !== undefined) {
+      docData.dueDate = data.dueDate ? (data.dueDate instanceof Date ? Timestamp.fromDate(data.dueDate) : data.dueDate) : null;
+    }
+    if (data.startDate !== undefined) {
+      docData.startDate = data.startDate ? (data.startDate instanceof Date ? Timestamp.fromDate(data.startDate) : data.startDate) : null;
+    }
+    if (data.completedDate !== undefined) {
+      docData.completedDate = data.completedDate ? (data.completedDate instanceof Date ? Timestamp.fromDate(data.completedDate) : data.completedDate) : null;
+    }
 
     try {
       await updateDoc(doc(this.firestore, this.parentCollection, blueprintId, this.subcollectionName, taskId), docData);
