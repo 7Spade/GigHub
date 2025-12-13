@@ -1,3 +1,10 @@
+> **⚠️ OBSOLETE - 已過時**  
+> This document is archived as the Supabase to Firebase migration has been completed.  
+> **此文件已封存，Supabase 至 Firebase 遷移已完成。**  
+> Date archived: 2025-12-13
+
+---
+
 # Supabase 遷移與安全整合總結
 
 > **專案**: GigHub 工地施工進度追蹤管理系統  

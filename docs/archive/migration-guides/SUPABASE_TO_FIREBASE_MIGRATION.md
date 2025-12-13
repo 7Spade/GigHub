@@ -1,3 +1,10 @@
+> **⚠️ OBSOLETE - 已過時**  
+> This document is archived as the Supabase to Firebase migration has been completed.  
+> **此文件已封存，Supabase 至 Firebase 遷移已完成。**  
+> Date archived: 2025-12-13
+
+---
+
 # Supabase to @angular/fire Migration Guide
 
 ## 📋 Overview
