@@ -67,7 +67,7 @@ import { ConstructionLogComponent } from './construction-log/construction-log.co
     ConstructionLogComponent
   ],
   template: `
-    <nz-tab nzTitle="工地日誌">
+    <nz-tab nzTitle="日誌">
       <ng-template nz-tab>
         @if (blueprint()?.id) {
           <app-construction-log [blueprintId]="blueprint()!.id" />

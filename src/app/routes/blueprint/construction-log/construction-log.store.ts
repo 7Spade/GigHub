@@ -92,8 +92,8 @@ export class ConstructionLogStore {
           actorType: ActorType.USER,
           resourceType: 'log',
           resourceId: newLog.id,
-          action: '建立工地日誌',
-          message: `工地日誌已建立: ${newLog.title}`,
+          action: '建立日誌',
+          message: `日誌已建立: ${newLog.title}`,
           status: AuditStatus.SUCCESS
         });
       } catch (auditError) {

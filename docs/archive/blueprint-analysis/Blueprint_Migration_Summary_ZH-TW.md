@@ -159,7 +159,7 @@
 
 **遷移步驟**:
 1. 建立 Log Domain 模組結構
-2. 將工地日誌元件移至 Log Domain
+2. 將日誌元件(工地)移至 Log Domain
 3. 擴展以支援其他日誌類型（Activity, Comments, Attachments）
 4. 更新路由以參照 Log Domain
 
