@@ -1,14 +1,12 @@
-import { ChangeDetectionStrategy, Component, computed, inject, OnInit, effect, DestroyRef } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit, effect, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { ContextType, Team, TeamStore } from '@core';
 import { SHARED_IMPORTS, WorkspaceContextService } from '@shared';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
-import { NzDescriptionsModule } from 'ng-zorro-antd/descriptions';
 import { NzDrawerService } from 'ng-zorro-antd/drawer';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
 import { NzMessageService } from 'ng-zorro-antd/message';
-import { NzModalService } from 'ng-zorro-antd/modal';
+import { NzModalModule, NzModalService } from 'ng-zorro-antd/modal';
 import { NzSpaceModule } from 'ng-zorro-antd/space';
 import { NzTableModule } from 'ng-zorro-antd/table';
 import { NzTagModule } from 'ng-zorro-antd/tag';
@@ -20,38 +18,23 @@ import { TeamDetailDrawerComponent } from '../../../shared/components/team-detai
 @Component({
   selector: 'app-organization-teams',
   standalone: true,
-  imports: [SHARED_IMPORTS, NzAlertModule, NzEmptyModule, NzTableModule, NzTagModule, NzDescriptionsModule, NzSpaceModule],
+  imports: [SHARED_IMPORTS, NzAlertModule, NzEmptyModule, NzTableModule, NzTagModule, NzSpaceModule, NzModalModule],
   template: `
-    <page-header [title]="'團隊管理'" [content]="headerContent" [breadcrumb]="breadcrumb"></page-header>
+    <nz-modal
+      [nzVisible]="visible()"
+      nzTitle="團隊管理"
+      [nzFooter]="null"
+      nzWidth="1100px"
+      nzMaskClosable="false"
+      (nzOnCancel)="closeModal()"
+    >
+      <div class="mb-sm">瀏覽並管理組織內的團隊。</div>
 
-    <ng-template #headerContent>
-      <div>瀏覽並管理組織內的團隊。</div>
-    </ng-template>
+      @if (!isOrganizationContext()) {
+        <nz-alert nzType="info" nzShowIcon nzMessage="請先選擇組織" nzDescription="請從側邊欄選擇一個組織以查看團隊列表。" class="mb-md" />
+      }
 
-    <ng-template #breadcrumb>
-      <nz-breadcrumb>
-        <nz-breadcrumb-item>
-          <a routerLink="/">
-            <span nz-icon nzType="home"></span>
-            首頁
-          </a>
-        </nz-breadcrumb-item>
-        @if (currentOrgId()) {
-          <nz-breadcrumb-item>
-            <span nz-icon nzType="team"></span>
-            {{ workspaceContext.contextLabel() }}
-          </nz-breadcrumb-item>
-        }
-        <nz-breadcrumb-item>團隊管理</nz-breadcrumb-item>
-      </nz-breadcrumb>
-    </ng-template>
-
-    @if (!isOrganizationContext()) {
-      <nz-alert nzType="info" nzShowIcon nzMessage="請先選擇組織" nzDescription="請從側邊欄選擇一個組織以查看團隊列表。" class="mb-md" />
-    }
-
-    <nz-card nzTitle="團隊列表" [nzExtra]="extraTemplate" [nzLoading]="loading()">
-      <ng-template #extraTemplate>
+      <div class="mb-md">
         @if (isOrganizationContext()) {
           <nz-space>
             <button *nzSpaceItem nz-button nzType="primary" (click)="openCreateTeamModal()">
@@ -64,7 +47,7 @@ import { TeamDetailDrawerComponent } from '../../../shared/components/team-detai
             </button>
           </nz-space>
         }
-      </ng-template>
+      </div>
 
       @if (teams().length > 0) {
         <nz-table #table [nzData]="teams()" [nzShowPagination]="false">
@@ -124,7 +107,7 @@ import { TeamDetailDrawerComponent } from '../../../shared/components/team-detai
       } @else {
         <nz-empty nzNotFoundContent="暫無團隊，請點擊上方按鈕建立團隊"></nz-empty>
       }
-    </nz-card>
+    </nz-modal>
   `,
   styles: [
     `
@@ -147,11 +130,12 @@ import { TeamDetailDrawerComponent } from '../../../shared/components/team-detai
 export class OrganizationTeamsComponent implements OnInit {
   readonly workspaceContext = inject(WorkspaceContextService);
   readonly teamStore = inject(TeamStore);
+  readonly visible = signal(true);
   private readonly modal = inject(NzModalService);
   private readonly message = inject(NzMessageService);
   private readonly router = inject(Router);
   private readonly drawer = inject(NzDrawerService);
-  private readonly destroyRef = inject(DestroyRef);
+  private readonly closeTargetUrl = ['/organization/members'];
 
   constructor() {
     // Auto-reload teams when organization context changes
@@ -199,6 +183,11 @@ export class OrganizationTeamsComponent implements OnInit {
 
   isOrganizationContext(): boolean {
     return this.workspaceContext.contextType() === ContextType.ORGANIZATION;
+  }
+
+  closeModal(): void {
+    this.visible.set(false);
+    this.router.navigate(this.closeTargetUrl, { replaceUrl: true });
   }
 
   openCreateTeamModal(): void {
