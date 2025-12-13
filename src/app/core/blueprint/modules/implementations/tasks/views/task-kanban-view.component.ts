@@ -28,10 +28,10 @@ import { NzMessageService } from 'ng-zorro-antd/message';
       } @else {
         <div class="kanban-board">
           @for (column of columns(); track column.id) {
-            <div class="kanban-column" [style.border-top]="'3px solid ' + column.color">
+            <div class="kanban-column">
               <div class="column-header">
                 <h3>{{ column.title }}</h3>
-                <nz-badge [nzCount]="column.tasks.length" [nzStyle]="{ backgroundColor: column.color }" />
+                <nz-badge [nzCount]="column.tasks.length" />
               </div>
 
               <div
@@ -98,7 +98,6 @@ import { NzMessageService } from 'ng-zorro-antd/message';
 
       .kanban-column {
         width: 300px;
-        background: #f5f5f5;
         border-radius: 4px;
         display: flex;
         flex-direction: column;
@@ -129,12 +128,10 @@ import { NzMessageService } from 'ng-zorro-antd/message';
         border-radius: 4px;
         padding: 12px;
         margin-bottom: 8px;
-        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
         cursor: move;
       }
 
       .task-card:hover {
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
       }
 
       .task-card-header {
@@ -152,7 +149,6 @@ import { NzMessageService } from 'ng-zorro-antd/message';
 
       .task-description {
         font-size: 12px;
-        color: #666;
         margin-bottom: 8px;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -170,7 +166,6 @@ import { NzMessageService } from 'ng-zorro-antd/message';
         align-items: center;
         gap: 8px;
         font-size: 12px;
-        color: #666;
       }
 
       .assignee-name {
@@ -184,14 +179,12 @@ import { NzMessageService } from 'ng-zorro-antd/message';
       }
 
       .cdk-drag-preview {
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         opacity: 0.8;
       }
 
       .cdk-drag-placeholder {
         opacity: 0.4;
-        background: #e0e0e0;
-        border: 2px dashed #999;
+        border: 2px dashed;
       }
 
       .cdk-drop-list-dragging .task-card:not(.cdk-drag-placeholder) {
@@ -216,10 +209,10 @@ export class TaskKanbanViewComponent {
     const tasks = this.taskStore.tasks();
 
     const columnDefs = [
-      { id: TaskStatus.PENDING, title: '待處理', status: TaskStatus.PENDING, color: '#d9d9d9' },
-      { id: TaskStatus.IN_PROGRESS, title: '進行中', status: TaskStatus.IN_PROGRESS, color: '#1890ff' },
-      { id: TaskStatus.ON_HOLD, title: '暫停', status: TaskStatus.ON_HOLD, color: '#faad14' },
-      { id: TaskStatus.COMPLETED, title: '已完成', status: TaskStatus.COMPLETED, color: '#52c41a' }
+      { id: TaskStatus.PENDING, title: '待處理', status: TaskStatus.PENDING },
+      { id: TaskStatus.IN_PROGRESS, title: '進行中', status: TaskStatus.IN_PROGRESS },
+      { id: TaskStatus.ON_HOLD, title: '暫停', status: TaskStatus.ON_HOLD },
+      { id: TaskStatus.COMPLETED, title: '已完成', status: TaskStatus.COMPLETED }
     ];
 
     return columnDefs.map(col => ({
@@ -264,13 +257,7 @@ export class TaskKanbanViewComponent {
    * Get priority color
    */
   getPriorityColor(priority: string): string {
-    const colorMap: Record<string, string> = {
-      critical: 'red',
-      high: 'orange',
-      medium: 'blue',
-      low: 'default'
-    };
-    return colorMap[priority] || 'default';
+    return 'default';
   }
 
   /**

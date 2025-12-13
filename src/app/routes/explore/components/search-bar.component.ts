@@ -86,11 +86,9 @@ import { ExploreSearchFacade } from '../services';
 
       .search-clear-icon {
         cursor: pointer;
-        color: rgba(0, 0, 0, 0.25);
         transition: color 0.2s;
 
         &:hover {
-          color: rgba(0, 0, 0, 0.45);
         }
       }
 
@@ -100,9 +98,8 @@ import { ExploreSearchFacade } from '../services';
         left: 0;
         right: 0;
         background: white;
-        border: 1px solid #d9d9d9;
+        border: 1px solid;
         border-radius: 4px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
         z-index: 1000;
         margin-top: 4px;
       }
@@ -112,9 +109,8 @@ import { ExploreSearchFacade } from '../services';
         justify-content: space-between;
         align-items: center;
         padding: 8px 12px;
-        border-bottom: 1px solid #f0f0f0;
+        border-bottom: 1px solid;
         font-weight: 500;
-        color: rgba(0, 0, 0, 0.45);
         font-size: 12px;
       }
 
@@ -127,7 +123,6 @@ import { ExploreSearchFacade } from '../services';
         transition: background 0.2s;
 
         &:hover {
-          background: #f5f5f5;
         }
 
         .item-text {

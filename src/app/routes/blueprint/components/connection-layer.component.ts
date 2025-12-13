@@ -107,28 +107,22 @@ interface ConnectionPath {
       }
 
       .connection-line {
-        stroke: #8c8c8c;
         transition: all 0.2s ease;
       }
 
       .connection-line:hover {
-        stroke: #1890ff;
         stroke-width: 3;
       }
 
       .connection-line.selected {
-        stroke: #1890ff;
         stroke-width: 3;
-        filter: drop-shadow(0 0 4px rgba(24, 144, 255, 0.5));
       }
 
       .connection-line.error {
-        stroke: #ff4d4f;
         stroke-dasharray: 5, 5;
       }
 
       .connection-line.inactive {
-        stroke: #d9d9d9;
         opacity: 0.5;
       }
 
@@ -137,7 +131,6 @@ interface ConnectionPath {
       }
 
       .connection-label {
-        fill: #595959;
         font-size: 12px;
         font-weight: 500;
         pointer-events: none;
@@ -145,7 +138,6 @@ interface ConnectionPath {
       }
 
       .connection-group:hover .connection-label {
-        fill: #1890ff;
       }
     `
   ]

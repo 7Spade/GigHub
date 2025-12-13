@@ -79,7 +79,6 @@ import { ExploreSearchFacade } from './services';
     `
       .page-subtitle {
         margin: 0;
-        color: rgba(0, 0, 0, 0.45);
         font-size: 14px;
       }
 
@@ -94,7 +93,7 @@ import { ExploreSearchFacade } from './services';
       }
 
       .filter-section {
-        border-bottom: 1px solid #f0f0f0;
+        border-bottom: 1px solid;
         margin-bottom: 16px;
       }
 
@@ -113,7 +112,6 @@ import { ExploreSearchFacade } from './services';
 
       .welcome-icon {
         font-size: 64px;
-        color: #d9d9d9;
         margin-bottom: 24px;
       }
 
@@ -121,11 +119,9 @@ import { ExploreSearchFacade } from './services';
         font-size: 20px;
         font-weight: 500;
         margin-bottom: 8px;
-        color: rgba(0, 0, 0, 0.85);
       }
 
       .welcome-description {
-        color: rgba(0, 0, 0, 0.45);
         margin-bottom: 32px;
       }
 
@@ -137,7 +133,6 @@ import { ExploreSearchFacade } from './services';
 
       .section-title {
         font-size: 14px;
-        color: rgba(0, 0, 0, 0.45);
         margin-bottom: 12px;
         font-weight: normal;
       }
@@ -154,8 +149,6 @@ import { ExploreSearchFacade } from './services';
         transition: all 0.2s;
 
         &:hover {
-          color: #1890ff;
-          border-color: #1890ff;
         }
       }
     `

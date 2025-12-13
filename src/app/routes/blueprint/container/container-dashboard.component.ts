@@ -105,8 +105,8 @@ import { NzStatisticModule } from 'ng-zorro-antd/statistic';
                 <span nz-icon nzType="radar-chart" nzTheme="outline"></span>
               </div>
               <div class="card-stats">
-                <nz-statistic [nzValue]="eventBusStats().totalEvents" nzTitle="總事件數" [nzValueStyle]="{ color: '#1890ff' }" />
-                <nz-statistic [nzValue]="eventBusStats().subscriberCount" nzTitle="訂閱者數量" [nzValueStyle]="{ color: '#52c41a' }" />
+                <nz-statistic [nzValue]="eventBusStats().totalEvents" nzTitle="總事件數" />
+                <nz-statistic [nzValue]="eventBusStats().subscriberCount" nzTitle="訂閱者數量" />
               </div>
             </div>
             <div class="card-footer">
@@ -123,8 +123,8 @@ import { NzStatisticModule } from 'ng-zorro-antd/statistic';
                 <span nz-icon nzType="appstore" nzTheme="outline"></span>
               </div>
               <div class="card-stats">
-                <nz-statistic [nzValue]="moduleStats().totalModules" nzTitle="註冊模組" [nzValueStyle]="{ color: '#1890ff' }" />
-                <nz-statistic [nzValue]="moduleStats().activeModules" nzTitle="運行中" [nzValueStyle]="{ color: '#52c41a' }" />
+                <nz-statistic [nzValue]="moduleStats().totalModules" nzTitle="註冊模組" />
+                <nz-statistic [nzValue]="moduleStats().activeModules" nzTitle="運行中" />
               </div>
             </div>
             <div class="card-footer">
@@ -142,7 +142,7 @@ import { NzStatisticModule } from 'ng-zorro-antd/statistic';
               </div>
               <div class="card-stats">
                 <nz-statistic [nzValue]="lifecycleStats().currentPhase" nzTitle="當前階段" />
-                <nz-statistic [nzValue]="lifecycleStats().transitionCount" nzTitle="狀態轉換" [nzValueStyle]="{ color: '#722ed1' }" />
+                <nz-statistic [nzValue]="lifecycleStats().transitionCount" nzTitle="狀態轉換" />
               </div>
             </div>
             <div class="card-footer">
@@ -159,8 +159,8 @@ import { NzStatisticModule } from 'ng-zorro-antd/statistic';
                 <span nz-icon nzType="database" nzTheme="outline"></span>
               </div>
               <div class="card-stats">
-                <nz-statistic [nzValue]="resourceStats().totalResources" nzTitle="總資源數" [nzValueStyle]="{ color: '#1890ff' }" />
-                <nz-statistic [nzValue]="resourceStats().healthyResources" nzTitle="健康資源" [nzValueStyle]="{ color: '#52c41a' }" />
+                <nz-statistic [nzValue]="resourceStats().totalResources" nzTitle="總資源數" />
+                <nz-statistic [nzValue]="resourceStats().healthyResources" nzTitle="健康資源" />
               </div>
             </div>
             <div class="card-footer">
@@ -177,8 +177,8 @@ import { NzStatisticModule } from 'ng-zorro-antd/statistic';
                 <span nz-icon nzType="cluster" nzTheme="outline"></span>
               </div>
               <div class="card-stats">
-                <nz-statistic [nzValue]="contextStats().dataSize" nzTitle="資料大小" nzSuffix="KB" [nzValueStyle]="{ color: '#1890ff' }" />
-                <nz-statistic [nzValue]="contextStats().serviceCount" nzTitle="服務數量" [nzValueStyle]="{ color: '#13c2c2' }" />
+                <nz-statistic [nzValue]="contextStats().dataSize" nzTitle="資料大小" nzSuffix="KB" />
+                <nz-statistic [nzValue]="contextStats().serviceCount" nzTitle="服務數量" />
               </div>
             </div>
             <div class="card-footer">
@@ -199,13 +199,11 @@ import { NzStatisticModule } from 'ng-zorro-antd/statistic';
                   [nzValue]="performanceStats().avgEventTime"
                   nzTitle="平均事件處理"
                   nzSuffix="ms"
-                  [nzValueStyle]="{ color: '#fa8c16' }"
                 />
                 <nz-statistic
                   [nzValue]="performanceStats().memoryUsage"
                   nzTitle="記憶體使用"
                   nzSuffix="MB"
-                  [nzValueStyle]="{ color: '#eb2f96' }"
                 />
               </div>
             </div>
@@ -234,7 +232,6 @@ import { NzStatisticModule } from 'ng-zorro-antd/statistic';
       }
 
       .dashboard-card:hover {
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         transform: translateY(-2px);
       }
 
@@ -247,7 +244,6 @@ import { NzStatisticModule } from 'ng-zorro-antd/statistic';
 
       .card-icon {
         font-size: 48px;
-        color: #1890ff;
         line-height: 1;
       }
 
@@ -260,17 +256,15 @@ import { NzStatisticModule } from 'ng-zorro-antd/statistic';
 
       .card-footer {
         padding-top: 12px;
-        border-top: 1px solid #f0f0f0;
+        border-top: 1px solid;
         text-align: right;
       }
 
       .card-footer a {
-        color: #1890ff;
         transition: color 0.3s ease;
       }
 
       .card-footer a:hover {
-        color: #40a9ff;
       }
 
       .mb-md {
@@ -428,17 +422,7 @@ export class ContainerDashboardComponent implements OnInit {
    * Get status style based on container status
    */
   getStatusStyle(): Record<string, string> {
-    const status = this.containerStatus().status;
-    switch (status) {
-      case 'RUNNING':
-        return { color: '#52c41a' };
-      case 'STOPPED':
-        return { color: '#faad14' };
-      case 'ERROR':
-        return { color: '#f5222d' };
-      default:
-        return { color: '#d9d9d9' };
-    }
+    return {};
   }
 
   /**

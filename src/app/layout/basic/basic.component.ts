@@ -91,7 +91,7 @@ import { CreateTeamModalComponent } from '../../shared/components/create-team-mo
             <ul nz-menu>
               <!-- 上下文切換器區域 -->
               <li nz-menu-item [nzDisabled]="true" style="cursor: default; opacity: 1; background: transparent;">
-                <div style="font-weight: 600; color: rgba(0, 0, 0, 0.85); margin-bottom: 4px;">切換工作區</div>
+                <div style="font-weight: 600; margin-bottom: 4px;">切換工作區</div>
               </li>
               <li style="padding: 0;">
                 <header-context-switcher />

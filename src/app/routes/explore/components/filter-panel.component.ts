@@ -124,7 +124,6 @@ import { ExploreSearchFacade } from '../services';
 
       .filter-label {
         font-size: 13px;
-        color: rgba(0, 0, 0, 0.45);
         white-space: nowrap;
       }
 

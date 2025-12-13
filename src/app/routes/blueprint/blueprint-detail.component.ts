@@ -140,19 +140,19 @@ import { WorkflowModuleViewComponent } from './modules/workflow-module-view.comp
                       <nz-col [nzSpan]="8">
                         <nz-statistic [nzValue]="blueprint()!.enabledModules.length" nzTitle="啟用模組" [nzPrefix]="moduleIconTpl" />
                         <ng-template #moduleIconTpl>
-                          <span nz-icon nzType="appstore" style="color: #1890ff;"></span>
+                          <span nz-icon nzType="appstore"></span>
                         </ng-template>
                       </nz-col>
                       <nz-col [nzSpan]="8">
                         <nz-statistic [nzValue]="0" nzTitle="總任務" [nzPrefix]="taskIconTpl" />
                         <ng-template #taskIconTpl>
-                          <span nz-icon nzType="check-square" style="color: #52c41a;"></span>
+                          <span nz-icon nzType="check-square"></span>
                         </ng-template>
                       </nz-col>
                       <nz-col [nzSpan]="8">
                         <nz-statistic [nzValue]="0" nzTitle="日誌數" [nzPrefix]="logIconTpl" />
                         <ng-template #logIconTpl>
-                          <span nz-icon nzType="file-text" style="color: #faad14;"></span>
+                          <span nz-icon nzType="file-text"></span>
                         </ng-template>
                       </nz-col>
                     </nz-row>
@@ -166,7 +166,7 @@ import { WorkflowModuleViewComponent } from './modules/workflow-module-view.comp
                           <nz-col [nzXs]="24" [nzSm]="12" [nzMd]="8">
                             <nz-card [nzHoverable]="true" class="module-card" (click)="openModule(module)">
                               <div style="text-align: center;">
-                                <span nz-icon [nzType]="getModuleIcon(module)" style="font-size: 32px; color: #1890ff;"></span>
+                                <span nz-icon [nzType]="getModuleIcon(module)" style="font-size: 32px;"></span>
                                 <h4 style="margin-top: 12px;">{{ getModuleName(module) }}</h4>
                                 <p class="text-grey" style="font-size: 12px;">{{ getModuleDescription(module) }}</p>
                               </div>
@@ -396,11 +396,9 @@ import { WorkflowModuleViewComponent } from './modules/workflow-module-view.comp
 
       .module-card:hover {
         transform: translateY(-4px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
       }
 
       .text-grey {
-        color: rgba(0, 0, 0, 0.45);
       }
     `
   ]
