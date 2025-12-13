@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit, DestroyRef } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, effect, inject } from '@angular/core';
 import { FirebaseService } from '@core/services/firebase.service';
 import { NotificationStore } from '@core/stores/notification.store';
 import { NzAvatarModule } from 'ng-zorro-antd/avatar';
@@ -84,19 +84,35 @@ export class HeaderTaskComponent implements OnInit {
   private readonly firebase = inject(FirebaseService);
   private readonly destroyRef = inject(DestroyRef);
   protected readonly notificationStore = inject(NotificationStore);
+  private currentUserId?: string;
+  private unsubscribeRealtime?: () => void;
 
-  async ngOnInit(): Promise<void> {
-    const user = await this.firebase.getCurrentUser();
-    if (user) {
+  ngOnInit(): void {
+    effect(() => {
+      const user = this.firebase.currentUser();
+      if (!user) {
+        this.currentUserId = undefined;
+        this.unsubscribeRealtime?.();
+        this.unsubscribeRealtime = undefined;
+        return;
+      }
+
+      if (this.currentUserId === user.uid) {
+        return;
+      }
+
+      this.unsubscribeRealtime?.();
+      this.currentUserId = user.uid;
       // Subscribe to realtime updates (shared with notify.component)
-      this.notificationStore.subscribeToRealtimeUpdates(user.uid, this.destroyRef);
-    }
+      this.unsubscribeRealtime = this.notificationStore.subscribeToRealtimeUpdates(user.uid, this.destroyRef);
+      void this.notificationStore.loadNotifications(user.uid);
+    });
   }
 
   async loadData(): Promise<void> {
-    const user = await this.firebase.getCurrentUser();
-    if (user) {
-      await this.notificationStore.loadNotifications(user.uid);
+    const userId = this.currentUserId ?? this.firebase.currentUser()?.uid;
+    if (userId) {
+      await this.notificationStore.loadNotifications(userId);
     }
   }
 
