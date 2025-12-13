@@ -16,6 +16,7 @@
 
 import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FirebaseService } from '@core/services/firebase.service';
 import { Log, CreateLogRequest, UpdateLogRequest } from '@core/types/log/log.types';
 import { SHARED_IMPORTS } from '@shared';
 import { NzMessageService } from 'ng-zorro-antd/message';
@@ -193,6 +194,7 @@ export class ConstructionLogModalComponent implements OnInit, OnDestroy {
   private modalRef = inject(NzModalRef);
   private message = inject(NzMessageService);
   private logStore = inject(ConstructionLogStore);
+  private firebaseService = inject(FirebaseService);
 
   // Modal data injected
   modalData: ModalData = inject(NZ_MODAL_DATA);
@@ -371,6 +373,13 @@ export class ConstructionLogModalComponent implements OnInit, OnDestroy {
   private async createLog(formValue: any): Promise<Log | null> {
     // Ensure date is a valid Date object
     const date = this.ensureValidDate(formValue.date);
+    
+    // Get current user ID
+    const currentUserId = this.firebaseService.getCurrentUserId();
+    if (!currentUserId) {
+      this.message.error('無法取得使用者資訊，請重新登入');
+      return null;
+    }
 
     const request: CreateLogRequest = {
       blueprintId: this.modalData.blueprintId,
@@ -382,7 +391,7 @@ export class ConstructionLogModalComponent implements OnInit, OnDestroy {
       equipment: formValue.equipment,
       weather: formValue.weather,
       temperature: formValue.temperature,
-      creatorId: 'current-user' // TODO: Get from auth service
+      creatorId: currentUserId
     };
 
     return this.logStore.createLog(request);

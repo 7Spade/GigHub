@@ -23,7 +23,7 @@ export const routes: Routes = [
   },
   {
     path: ':id/audit',
-    loadComponent: () => import('./audit/audit-logs.component').then(m => m.AuditLogsComponent),
+    loadComponent: () => import('@core/blueprint/modules/implementations/audit-logs').then(m => m.AuditLogsComponent),
     data: { title: '審計日誌' }
   }
 ];

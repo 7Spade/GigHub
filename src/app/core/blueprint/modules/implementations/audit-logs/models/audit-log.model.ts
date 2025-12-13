@@ -106,6 +106,19 @@ export enum AuditEventType {
   CONFIG_ACTIVATED = 'config.activated',
   CONFIG_ARCHIVED = 'config.archived',
 
+  // Task events
+  TASK_CREATED = 'task.created',
+  TASK_UPDATED = 'task.updated',
+  TASK_DELETED = 'task.deleted',
+  TASK_STATUS_CHANGED = 'task.status_changed',
+  TASK_ASSIGNED = 'task.assigned',
+  TASK_COMPLETED = 'task.completed',
+
+  // Log events  
+  LOG_CREATED = 'log.created',
+  LOG_UPDATED = 'log.updated',
+  LOG_DELETED = 'log.deleted',
+
   // Member events
   MEMBER_ADDED = 'member.added',
   MEMBER_REMOVED = 'member.removed',
@@ -141,6 +154,7 @@ export enum AuditCategory {
   MEMBER = 'member',
   PERMISSION = 'permission',
   ACCESS = 'access',
+  DATA = 'data',
   SYSTEM = 'system'
 }
 

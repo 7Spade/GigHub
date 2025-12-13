@@ -1,26 +1,38 @@
+/**
+ * Audit Logs Component
+ *
+ * UI component for displaying and filtering audit logs.
+ * Part of the Audit Logs module implementation.
+ *
+ * @author GigHub Development Team
+ * @date 2025-12-13
+ */
+
 import { Component, ChangeDetectionStrategy, OnInit, inject, input } from '@angular/core';
 import { LoggerService } from '@core';
-import { AuditLogRepository } from '@core/blueprint/repositories';
-import { AuditLogDocument, AuditEventType, AuditCategory, AuditLogQueryOptions } from '@core/models/audit-log.model';
 import { STColumn } from '@delon/abc/st';
-import { SHARED_IMPORTS, createAsyncArrayState } from '@shared';
+import { SHARED_IMPORTS } from '@shared';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzSpaceModule } from 'ng-zorro-antd/space';
 
+import { AuditLogDocument, AuditCategory } from '../models/audit-log.model';
+import { AuditLogsService } from '../services/audit-logs.service';
+
 /**
  * Audit Logs Component
- * 審計記錄元件 - 顯示藍圖審計記錄
+ *
+ * Displays audit logs for a blueprint with filtering capabilities.
  *
  * Features:
- * - Display audit logs
- * - Filter by event type, category, resource
- * - Date range filter
- * - Pagination
+ * - Display audit logs in table format
+ * - Filter by category and resource type
+ * - Real-time updates via service
+ * - Responsive design
  *
  * Following Occam's Razor: Simple, read-only audit viewer
- * ✅ Modernized with AsyncState pattern
- * ✅ Fixed: Use correct query parameters (eventType, category)
+ * ✅ Modernized with Signal-based state management
+ * ✅ Service layer for business logic
  */
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -60,20 +72,20 @@ import { NzSpaceModule } from 'ng-zorro-antd/space';
     </div>
 
     <!-- Table -->
-    @if (logsState.loading()) {
+    @if (auditService.loading()) {
       <nz-spin nzSimple></nz-spin>
-    } @else if (logsState.error()) {
+    } @else if (auditService.error()) {
       <nz-alert
         nzType="error"
         nzShowIcon
         [nzMessage]="'載入失敗'"
-        [nzDescription]="logsState.error()?.message || '無法載入審計記錄'"
+        [nzDescription]="auditService.error()?.message || '無法載入審計記錄'"
         class="mb-md"
       />
-    } @else if ((logsState.data() || []).length === 0) {
+    } @else if (!auditService.hasLogs()) {
       <nz-empty nzNotFoundContent="暫無審計記錄"></nz-empty>
     } @else {
-      <st #st [data]="logsState.data() || []" [columns]="columns" [page]="{ show: true, showSize: true }"></st>
+      <st #st [data]="auditService.logs()" [columns]="columns" [page]="{ show: true, showSize: true }"></st>
     }
   `,
   styles: [
@@ -87,15 +99,14 @@ import { NzSpaceModule } from 'ng-zorro-antd/space';
 export class AuditLogsComponent implements OnInit {
   private readonly message = inject(NzMessageService);
   private readonly logger = inject(LoggerService);
-  private readonly auditRepository: AuditLogRepository = inject(AuditLogRepository);
+
+  // Inject the audit logs service
+  readonly auditService = inject(AuditLogsService);
 
   // Input: blueprint ID
   blueprintId = input.required<string>();
 
-  // ✅ Modern Pattern: Use AsyncState for unified state management
-  readonly logsState = createAsyncArrayState<AuditLogDocument>([]);
-
-  // Filter state - using correct model properties
+  // Filter state
   filterCategory: AuditCategory | null = null;
   filterResourceType: string | null = null;
 
@@ -140,7 +151,7 @@ export class AuditLogsComponent implements OnInit {
         {
           text: '檢視',
           type: 'link',
-          click: (record: any) => this.viewDetails(record)
+          click: (record: unknown) => this.viewDetails(record as AuditLogDocument)
         }
       ]
     }
@@ -152,20 +163,17 @@ export class AuditLogsComponent implements OnInit {
 
   /**
    * Load audit logs
-   * 載入審計記錄
-   * ✅ Using AsyncState for automatic state management
-   * ✅ Fixed: Use correct query options with category and resourceType
    */
   private async loadLogs(): Promise<void> {
-    const options: AuditLogQueryOptions = {
+    const options = {
       ...(this.filterCategory && { category: this.filterCategory }),
       ...(this.filterResourceType && { resourceType: this.filterResourceType }),
       limit: 100
     };
 
     try {
-      await this.logsState.load(this.auditRepository.queryLogs(this.blueprintId(), options));
-      this.logger.info('[AuditLogsComponent]', `Loaded ${this.logsState.data()?.length || 0} audit logs`);
+      await this.auditService.loadLogs(this.blueprintId(), options);
+      this.logger.info('[AuditLogsComponent]', `Loaded ${this.auditService.logs().length} audit logs`);
     } catch (error) {
       this.message.error('載入審計記錄失敗');
       this.logger.error('[AuditLogsComponent]', 'Failed to load audit logs', error as Error);
@@ -174,7 +182,6 @@ export class AuditLogsComponent implements OnInit {
 
   /**
    * Handle filter change
-   * 處理篩選變更
    */
   onFilterChange(): void {
     this.loadLogs();
@@ -182,7 +189,6 @@ export class AuditLogsComponent implements OnInit {
 
   /**
    * Refresh logs
-   * 重新整理
    */
   refresh(): void {
     this.loadLogs();
@@ -190,14 +196,11 @@ export class AuditLogsComponent implements OnInit {
 
   /**
    * View audit log details
-   * 檢視審計記錄詳情
    */
-  viewDetails(record: any): void {
-    const log = record as AuditLogDocument;
+  viewDetails(record: AuditLogDocument): void {
+    const log = record;
 
-    // Show details in modal or drawer
-    // For simplicity, show in message (can be enhanced later)
-    const details = JSON.stringify(log.changes || {}, null, 2);
+    // Show details in console (can be enhanced with modal/drawer later)
     console.log('Audit Log Details:', log);
     this.message.info('詳情已輸出到控制台');
   }

@@ -9,9 +9,8 @@
  */
 
 import { Injectable, inject, signal, computed } from '@angular/core';
-import { AuditLogRepository } from '@core/blueprint/repositories/audit-log.repository';
+import { AuditLogRepository, AuditEventType, AuditCategory } from '@core/blueprint/modules/implementations/audit-logs';
 import { BlueprintModuleRepository } from '@core/blueprint/repositories/blueprint-module.repository';
-import { AuditLogEventType, AuditLogCategory } from '@core/models/audit-log.model';
 import {
   BlueprintModuleDocument,
   ModuleStatus,
@@ -159,8 +158,8 @@ export class ModuleManagerService {
 
       // Log audit event
       await this.auditRepo.create(blueprintId, {
-        eventType: AuditLogEventType.MODULE_REGISTERED,
-        category: AuditLogCategory.MODULE,
+        eventType: AuditEventType.MODULE_REGISTERED,
+        category: AuditCategory.MODULE,
         actor: data.createdBy || 'system',
         resourceType: 'module',
         resourceId: module.id,
@@ -204,8 +203,8 @@ export class ModuleManagerService {
       const module = this._modules().find(m => m.id === moduleId);
       if (module) {
         await this.auditRepo.create(blueprintId, {
-          eventType: AuditLogEventType.MODULE_ENABLED,
-          category: AuditLogCategory.MODULE,
+          eventType: AuditEventType.MODULE_ENABLED,
+          category: AuditCategory.MODULE,
           actor: 'current-user', // TODO: Get from auth service
           resourceType: 'module',
           resourceId: moduleId,
@@ -244,8 +243,8 @@ export class ModuleManagerService {
       const module = this._modules().find(m => m.id === moduleId);
       if (module) {
         await this.auditRepo.create(blueprintId, {
-          eventType: AuditLogEventType.MODULE_DISABLED,
-          category: AuditLogCategory.MODULE,
+          eventType: AuditEventType.MODULE_DISABLED,
+          category: AuditCategory.MODULE,
           actor: 'current-user', // TODO: Get from auth service
           resourceType: 'module',
           resourceId: moduleId,
@@ -313,8 +312,8 @@ export class ModuleManagerService {
       const module = this._modules().find(m => m.id === moduleId);
       if (module) {
         await this.auditRepo.create(blueprintId, {
-          eventType: AuditLogEventType.MODULE_CONFIGURED,
-          category: AuditLogCategory.MODULE,
+          eventType: AuditEventType.MODULE_CONFIGURED,
+          category: AuditCategory.MODULE,
           actor: 'current-user', // TODO: Get from auth service
           resourceType: 'module',
           resourceId: moduleId,
@@ -352,8 +351,8 @@ export class ModuleManagerService {
 
       // Log audit event
       await this.auditRepo.create(blueprintId, {
-        eventType: AuditLogEventType.MODULE_UNREGISTERED,
-        category: AuditLogCategory.MODULE,
+        eventType: AuditEventType.MODULE_UNREGISTERED,
+        category: AuditCategory.MODULE,
         actor: 'current-user', // TODO: Get from auth service
         resourceType: 'module',
         resourceId: moduleId,
@@ -393,8 +392,8 @@ export class ModuleManagerService {
 
       // Log audit event
       await this.auditRepo.create(blueprintId, {
-        eventType: enabled ? AuditLogEventType.MODULE_ENABLED : AuditLogEventType.MODULE_DISABLED,
-        category: AuditLogCategory.MODULE,
+        eventType: enabled ? AuditEventType.MODULE_ENABLED : AuditEventType.MODULE_DISABLED,
+        category: AuditCategory.MODULE,
         actor: 'current-user', // TODO: Get from auth service
         resourceType: 'module',
         description: `Batch ${enabled ? 'enabled' : 'disabled'} ${result.successful.length} modules`,

@@ -7,7 +7,6 @@
  */
 
 export * from './account.types';
-export * from './audit/audit-log.types';
 export * from './blueprint/blueprint-status.enum';
 export * from './blueprint/blueprint.types';
 export * from './blueprint/owner-type.enum';

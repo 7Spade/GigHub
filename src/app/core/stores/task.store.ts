@@ -1,10 +1,17 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
 import { LoggerService } from '@core';
 import { EventBus } from '@core/blueprint/events/event-bus';
+import {
+  AuditLogRepository,
+  CreateAuditLogData,
+  AuditEventType,
+  AuditCategory,
+  AuditSeverity,
+  ActorType,
+  AuditStatus
+} from '@core/blueprint/modules/implementations/audit-logs';
 import { TASKS_MODULE_EVENTS } from '@core/blueprint/modules/implementations/tasks/module.metadata';
 import { TasksRepository } from '@core/blueprint/modules/implementations/tasks/tasks.repository';
-import { AuditLogRepository, CreateAuditLogData } from '@core/blueprint/repositories/audit-log.repository';
-import { AuditEventType, AuditCategory, AuditSeverity, ActorType, AuditStatus } from '@core/models/audit-log.model';
 import { Task, TaskStatus, TaskPriority, CreateTaskRequest, UpdateTaskRequest } from '@core/types/task';
 import { firstValueFrom } from 'rxjs';
 
@@ -129,15 +136,15 @@ export class TaskStore {
       // Log audit event
       await this.logAuditEvent(blueprintId, {
         blueprintId,
-        eventType: AuditEventType.MODULE_CONFIGURED,
-        category: AuditCategory.MODULE,
+        eventType: AuditEventType.TASK_CREATED,
+        category: AuditCategory.DATA,
         severity: AuditSeverity.INFO,
         actorId: request.creatorId,
         actorType: ActorType.USER,
         resourceType: 'task',
         resourceId: newTask.id!,
-        action: 'create',
-        message: `Task created: ${newTask.title}`,
+        action: '建立任務',
+        message: `任務已建立: ${newTask.title}`,
         status: AuditStatus.SUCCESS
       });
 
