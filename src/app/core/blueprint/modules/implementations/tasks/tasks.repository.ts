@@ -104,7 +104,7 @@ export class TasksRepository {
   /**
    * Find all tasks for a blueprint
    * 根據藍圖 ID 查找所有任務
-   * 
+   *
    * Following Occam's Razor: Simplified query without composite index requirement
    * - Removed orderBy to avoid Firestore composite index requirement
    * - Sorting is done in-memory after fetch (acceptable for typical task counts)
@@ -112,7 +112,7 @@ export class TasksRepository {
    */
   findByBlueprintId(blueprintId: string, options?: TaskQueryOptions): Observable<Task[]> {
     this.logger.info('[TasksRepository]', `Querying tasks for blueprint: ${blueprintId}`);
-    
+
     const constraints: QueryConstraint[] = [];
 
     if (options?.status) {
@@ -145,17 +145,17 @@ export class TasksRepository {
     return from(getDocs(q)).pipe(
       map(snapshot => {
         this.logger.info('[TasksRepository]', `Fetched ${snapshot.docs.length} task documents from Firestore`);
-        
+
         // Convert to Task objects
         const tasks = snapshot.docs.map(docSnap => this.toTask(docSnap.data(), docSnap.id));
-        
+
         // Sort in-memory by createdAt desc (newest first)
         tasks.sort((a, b) => {
           const timeA = a.createdAt instanceof Date ? a.createdAt.getTime() : 0;
           const timeB = b.createdAt instanceof Date ? b.createdAt.getTime() : 0;
           return timeB - timeA; // Descending order
         });
-        
+
         return tasks;
       }),
       catchError(error => {

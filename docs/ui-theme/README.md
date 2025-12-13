@@ -1,7 +1,7 @@
-# Azure Dragon Theme Documentation
-# 青龍主題文檔
+# Xuanwu Theme Documentation
+# 玄武主題文檔
 
-> **Version**: 1.1.0 | **Status**: ✅ Production Ready
+> **Version**: 2.0.0 | **Status**: ✅ Production Ready
 
 ## 🚀 Quick Start
 
@@ -17,24 +17,27 @@ Read **[THEME_GUIDE.md](./THEME_GUIDE.md)** for everything you need to know.
 ### Reference (Detailed)
 - **[reference/COLOR_SYSTEM_REFERENCE.md](./reference/COLOR_SYSTEM_REFERENCE.md)** - Complete color palette with WCAG compliance
 - **[reference/VERSION_COMPATIBILITY.md](./reference/VERSION_COMPATIBILITY.md)** - Version matrix and upgrade guides
-- **[reference/azure-dragon-theme-examples.md](./reference/azure-dragon-theme-examples.md)** - Code examples
+- **[reference/xuanwu-theme.md](./reference/xuanwu-theme.md)** - Detailed Xuanwu theme documentation
+- **[reference/xuanwu-theme-zh-TW.md](./reference/xuanwu-theme-zh-TW.md)** - Traditional Chinese version
 
 ### Archive (Historical)
+- **[archive/](./archive/)** - Azure Dragon theme archives and migration guides
 - Implementation summaries and legacy documentation
 
 ## 🎨 Quick Reference
 
 ### Colors
-- **Primary**: `#0EA5E9` (Azure Blue)
-- **Success**: `#14B8A6` (Jade Green)
-- **Info**: `#06B6D4` (Cyan)
+- **Primary**: `#1E3A8A` (Xuanwu Navy)
+- **Success**: `#0D9488` (Deep Teal)
+- **Info**: `#64748B` (Steel Blue)
 
 ### Configuration
 ```typescript
 const ngZorroConfig: NzConfig = {
   theme: {
-    primaryColor: '#0EA5E9',
-    successColor: '#14B8A6'
+    primaryColor: '#1E3A8A',
+    successColor: '#0D9488',
+    infoColor: '#64748B'
   }
 };
 ```
@@ -68,7 +71,7 @@ All improvements are **automatically applied** - no configuration needed!
 ```html
 <!-- Existing code works with enhanced hover states -->
 <button nz-button nzType="primary">Click Me</button>
-<div class="azure-card">Card content</div>
+<div class="xuanwu-card">Card content</div>
 ```
 
 ### New Utility Classes
@@ -77,7 +80,7 @@ All improvements are **automatically applied** - no configuration needed!
 <!-- Use new hover utilities -->
 <div class="hover-lift">Lifts on hover</div>
 <div class="hover-scale">Scales on hover</div>
-<div class="hover-border-azure">Azure border on hover</div>
+<div class="hover-border-xuanwu">Xuanwu border on hover</div>
 ```
 
 ## 🧪 Testing
@@ -92,12 +95,12 @@ Before deploying to production:
 
 ## 📖 Learning Path
 
-### New to Azure Dragon Theme?
-1. Start with **[AZURE_DRAGON_INTEGRATION.md](../AZURE_DRAGON_INTEGRATION.md)**
-2. Review **[AZURE_DRAGON_VISUAL_REFERENCE.md](../AZURE_DRAGON_VISUAL_REFERENCE.md)**
-3. Check **[azure-dragon-theme-examples.md](../azure-dragon-theme-examples.md)**
+### New to Xuanwu Theme?
+1. Start with **[THEME_GUIDE.md](./THEME_GUIDE.md)**
+2. Review **[reference/xuanwu-theme.md](./reference/xuanwu-theme.md)**
+3. Check **[reference/COLOR_SYSTEM_REFERENCE.md](./reference/COLOR_SYSTEM_REFERENCE.md)**
 
-### Upgrading from v1.0?
+### Migrating from Azure Dragon Theme?
 1. Read **[HOVER_STATES_IMPROVEMENTS.md](./HOVER_STATES_IMPROVEMENTS.md)**
 2. Review the migration guide section
 3. No breaking changes - fully backward compatible!
@@ -128,7 +131,7 @@ Before deploying to production:
 When making UI changes:
 
 1. Follow the three-tier transition system
-2. Use Azure Dragon color variables
+2. Use Xuanwu color variables
 3. Test accessibility (keyboard + screen reader)
 4. Update documentation
 5. Add to testing checklist if needed
@@ -137,7 +140,7 @@ When making UI changes:
 
 ### Questions?
 - Check existing documentation first
-- Review code examples in `azure-dragon-theme-examples.md`
+- Review code examples in `reference/xuanwu-theme.md`
 - Look at the implementation in `src/styles/index.less`
 
 ### Found a Bug?
@@ -147,6 +150,13 @@ When making UI changes:
 4. Submit with browser/device info
 
 ## 📊 Version History
+
+### v2.0.0 (December 2025)
+- ✅ Complete transformation to Xuanwu theme
+- ✅ New color palette (Navy, Teal, Steel Blue)
+- ✅ Updated all gradients and effects
+- ✅ Archived Azure Dragon theme documentation
+- ✅ Migration guide added
 
 ### v1.1.0 (December 2025)
 - ✅ Comprehensive hover state improvements
@@ -178,4 +188,4 @@ MIT License - See main project LICENSE file
 
 **Maintained by**: GitHub Copilot  
 **Last Updated**: December 2025  
-**Version**: 1.1.0
+**Version**: 2.0.0

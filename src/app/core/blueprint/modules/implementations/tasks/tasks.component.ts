@@ -149,7 +149,7 @@ export class TasksComponent implements OnInit {
 
   ngOnInit(): void {
     this.logger.info('[TasksComponent]', 'ngOnInit called');
-    
+
     // Priority 1: Use input blueprintId if available
     const inputId = this.blueprintId();
     if (inputId) {

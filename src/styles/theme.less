@@ -1,8 +1,8 @@
 // ============================================
-// Azure Dragon Theme - LESS Variables
-// 青龍主題 - LESS 變量定義
+// Xuanwu Theme - LESS Variables
+// 玄武主題 - LESS 變量定義
 // ============================================
-// Version: 1.1.0
+// Version: 2.0.0
 // Compatible with:
 // - ng-zorro-antd: 20.3.1+ (Current: 20.3.1, Latest: 20.4.3)
 // - ng-alain: 20.1.0+ (Current: 20.1.0, Latest: 20.1.0)
@@ -11,47 +11,56 @@
 // References:
 // - ng-zorro-antd docs: https://ng.ant.design/docs/customize-theme/en
 // - Context7 Documentation: /ng-zorro/ng-zorro-antd
-// - Azure Dragon Design: docs/ui-theme/azure-dragon-theme.md
+// - Xuanwu Design: docs/ui-theme/xuanwu-theme.md
 //
-// IMPORTANT: Define Azure Dragon colors BEFORE importing @delon/theme
+// IMPORTANT: Define Xuanwu colors BEFORE importing @delon/theme
 // to ensure they override the default values
 // ============================================
 
 // ============================================
-// Primary Azure Dragon Colors (青龍主色系)
+// Primary Xuanwu Colors (玄武主色系)
 // ============================================
 // 10-level color palette from lightest to darkest
-@azure-1: #E6F7FF;   // Lightest - Backgrounds, hover states
-@azure-2: #BAE7FF;   // Very Light - Active backgrounds
-@azure-3: #91D5FF;   // Light - Secondary elements, borders
-@azure-4: #69C0FF;   // Medium Light - Disabled states, placeholders
-@azure-5: #40A9FF;   // Medium - Hover primary, auxiliary color
-@azure-6: #0EA5E9;   // ★ MAIN AZURE - Primary brand color (Sky Blue)
-@azure-7: #0C83BA;   // Medium Dark - Active primary, pressed states
-@azure-8: #0A688B;   // Dark - Text on light backgrounds
-@azure-9: #084C5C;   // Very Dark - Deep emphasis
-@azure-10: #06303D;  // Darkest - Dark mode backgrounds
+@xuanwu-1: #EFF6FF;   // Lightest - Backgrounds, hover states
+@xuanwu-2: #DBEAFE;   // Very Light - Active backgrounds
+@xuanwu-3: #BFDBFE;   // Light - Secondary elements, borders
+@xuanwu-4: #93C5FD;   // Medium Light - Disabled states, placeholders
+@xuanwu-5: #60A5FA;   // Medium - Hover primary, auxiliary color
+@xuanwu-6: #1E3A8A;   // ★ MAIN XUANWU - Primary brand color (Deep Navy)
+@xuanwu-7: #1E40AF;   // Medium Dark - Active primary, pressed states
+@xuanwu-8: #1D4ED8;   // Dark - Text on light backgrounds
+@xuanwu-9: #172554;   // Very Dark - Deep emphasis
+@xuanwu-10: #0F172A;  // Darkest - Dark mode backgrounds
 
 // ============================================
-// Secondary Colors - Jade Green (翡翠綠)
+// Secondary Colors - Deep Teal (深青綠)
 // ============================================
-// Represents dragon scales, vitality, and success
-@jade-1: #E6FFF9;    // Lightest jade - Success backgrounds
-@jade-2: #B3FFE6;    // Very light jade - Hover success states
-@jade-3: #7FFFD4;    // Light jade - Secondary success elements
-@jade-4: #14B8A6;    // ★ MAIN JADE - Success color (Teal/Turquoise)
-@jade-5: #0D9488;    // Dark jade - Active success states
-@jade-6: #0A7C6C;    // Darkest jade - Deep success emphasis
+// Represents flowing water and life force
+@teal-1: #F0FDFA;    // Lightest teal - Success backgrounds
+@teal-2: #CCFBF1;    // Very light teal - Hover success states
+@teal-3: #99F6E4;    // Light teal - Secondary success elements
+@teal-4: #0D9488;    // ★ MAIN TEAL - Success color (Deep Teal)
+@teal-5: #0F766E;    // Dark teal - Active success states
+@teal-6: #115E59;    // Darkest teal - Deep success emphasis
 
 // ============================================
-// Secondary Colors - Cyan (青綠)
+// Secondary Colors - Steel Blue (鋼藍)
 // ============================================
-// Represents dragon's breath, information, and clarity
-@cyan-1: #E0F7FA;    // Lightest cyan - Info backgrounds
-@cyan-2: #B2EBF2;    // Very light cyan - Hover info states
-@cyan-3: #06B6D4;    // ★ MAIN CYAN - Info color (Sky-cyan)
-@cyan-4: #0891B2;    // Dark cyan - Active info states
-@cyan-5: #0E7490;    // Darkest cyan - Deep info emphasis
+// Represents wisdom, clarity, and protective qualities
+@steel-1: #F8FAFC;    // Lightest steel - Info backgrounds
+@steel-2: #F1F5F9;    // Very light steel - Hover info states
+@steel-3: #64748B;    // ★ MAIN STEEL - Info color (Steel Blue)
+@steel-4: #475569;    // Dark steel - Active info states
+@steel-5: #334155;    // Darkest steel - Deep info emphasis
+
+// ============================================
+// Accent Colors - Silver Gray (銀灰)
+// ============================================
+// Represents the protective tortoise shell
+@silver-1: #F8FAFC;    // Lightest silver
+@silver-2: #E2E8F0;    // Light silver
+@silver-3: #94A3B8;    // ★ MAIN SILVER - Accent color
+@silver-4: #64748B;    // Dark silver
 
 // ============================================
 // Ant Design / ng-zorro-antd Core Variables Override
@@ -60,13 +69,13 @@
 // These variables override the default Ant Design theme
 // Must be defined BEFORE importing theme files
 // Primary & Semantic Colors
-@primary-color: @azure-6;        // Primary brand color (all primary buttons, links)
-@link-color: @azure-6;            // Link text color
-@success-color: @jade-4;          // Success states (alerts, badges, etc.)
+@primary-color: @xuanwu-6;        // Primary brand color (all primary buttons, links)
+@link-color: @xuanwu-6;            // Link text color
+@success-color: @teal-4;          // Success states (alerts, badges, etc.)
 @warning-color: #F59E0B;          // Warning states (Amber 500)
 @error-color: #EF4444;            // Error states (Red 500)
-@info-color: @cyan-3;             // Info states (Cyan 500)
-@processing-color: @azure-6;      // Processing/loading states
+@info-color: @steel-3;             // Info states (Steel Blue)
+@processing-color: @xuanwu-6;      // Processing/loading states
 
 // ============================================
 // Background Colors (背景色)
@@ -92,18 +101,18 @@
 // ============================================
 // Interaction States (交互狀態)
 // ============================================
-@item-hover-bg: @azure-1;             // Hover background for list items, menu items
-@item-active-bg: @azure-2;            // Active/selected background
+@item-hover-bg: @xuanwu-1;             // Hover background for list items, menu items
+@item-active-bg: @xuanwu-2;            // Active/selected background
 
 // ============================================
 // ng-alain Layout Customizations
 // ng-alain 佈局自定義
 // ============================================
 // IMPORTANT: Must be defined BEFORE @delon/theme import
-@alain-default-header-bg: @azure-6;
+@alain-default-header-bg: @xuanwu-6;
 @alain-default-header-hg: 64px;
 @alain-default-header-padding: 0 16px;
-@layout-header-background: @azure-6;
+@layout-header-background: @xuanwu-6;
 
 // Sidebar customizations
 @alain-default-aside-wd: 200px;
@@ -111,55 +120,55 @@
 @alain-default-aside-scrollbar-width: 0;
 @alain-default-aside-scrollbar-height: 0;
 @alain-default-aside-scrollbar-track-color: transparent;
-@alain-default-aside-scrollbar-thumb-color: @azure-4;
+@alain-default-aside-scrollbar-thumb-color: @xuanwu-4;
 @alain-default-aside-nav-padding-top-bottom: 8px;
 @alain-default-aside-nav-text-color: rgba(0, 0, 0, 0.85);
-@alain-default-aside-nav-text-hover-color: @azure-6;
+@alain-default-aside-nav-text-hover-color: @xuanwu-6;
 @alain-default-aside-nav-group-text-color: rgba(0, 0, 0, 0.45);
-@alain-default-aside-nav-selected-text-color: @azure-6;
-@alain-default-aside-nav-selected-bg: @azure-1;
-@alain-default-aside-nav-selected-border-color: @azure-6;
+@alain-default-aside-nav-selected-text-color: @xuanwu-6;
+@alain-default-aside-nav-selected-bg: @xuanwu-1;
+@alain-default-aside-nav-selected-border-color: @xuanwu-6;
 
 // Content area
 @alain-default-content-bg: @body-background;
 @alain-default-content-padding: 24px;
 
 // Component customizations
-@btn-primary-bg: @azure-6;
+@btn-primary-bg: @xuanwu-6;
 @btn-primary-color: #FFFFFF;
-@menu-highlight-color: @azure-6;
-@menu-item-active-bg: @azure-1;
-@tabs-ink-bar-color: @azure-6;
-@tabs-highlight-color: @azure-6;
-@progress-default-color: @azure-6;
-@badge-color: @azure-6;
+@menu-highlight-color: @xuanwu-6;
+@menu-item-active-bg: @xuanwu-1;
+@tabs-ink-bar-color: @xuanwu-6;
+@tabs-highlight-color: @xuanwu-6;
+@progress-default-color: @xuanwu-6;
+@badge-color: @xuanwu-6;
 
 // ============================================
-// Azure Dragon Gradients (青龍漸變)
+// Xuanwu Gradients (玄武漸變)
 // ============================================
 // Professional gradients for modern UI design
-// Usage: background: @gradient-dragon-soaring;
-@gradient-dragon-soaring: linear-gradient(135deg, @azure-6 0%, @jade-4 100%);
-@gradient-azure-sky: linear-gradient(180deg, @azure-6 0%, @cyan-3 50%, @jade-4 100%);
-@gradient-dragon-scales: linear-gradient(45deg, @azure-7 0%, @jade-5 50%, @azure-6 100%);
-@gradient-dawn-light: linear-gradient(135deg, @azure-1 0%, @cyan-1 50%, @jade-1 100%);
-@gradient-deep-mystery: linear-gradient(135deg, @azure-9 0%, @jade-6 100%);
+// Usage: background: @gradient-northern-waters;
+@gradient-northern-waters: linear-gradient(135deg, @xuanwu-6 0%, @teal-4 100%);
+@gradient-tortoise-shell: linear-gradient(45deg, @xuanwu-9 0%, @xuanwu-6 50%, @steel-3 100%);
+@gradient-winter-night: linear-gradient(180deg, @xuanwu-10 0%, @xuanwu-6 50%, @teal-4 100%);
+@gradient-silver-frost: linear-gradient(135deg, @xuanwu-1 0%, @silver-2 50%, @silver-3 100%);
+@gradient-deep-mystery: linear-gradient(135deg, @xuanwu-9 0%, @teal-6 100%);
 
 // ============================================
-// Azure Dragon Shadows (青龍陰影)
+// Xuanwu Shadows (玄武陰影)
 // ============================================
-// Subtle shadows with Azure Dragon color tint
-@shadow-azure-sm: 0 1px 2px rgba(14, 165, 233, 0.05);
-@shadow-azure-md: 0 4px 6px rgba(14, 165, 233, 0.1);
-@shadow-azure-lg: 0 10px 15px rgba(14, 165, 233, 0.15);
-@shadow-azure-xl: 0 20px 25px rgba(14, 165, 233, 0.2);
+// Subtle shadows with Xuanwu color tint
+@shadow-xuanwu-sm: 0 1px 2px rgba(30, 58, 138, 0.05);
+@shadow-xuanwu-md: 0 4px 6px rgba(30, 58, 138, 0.1);
+@shadow-xuanwu-lg: 0 10px 15px rgba(30, 58, 138, 0.15);
+@shadow-xuanwu-xl: 0 20px 25px rgba(30, 58, 138, 0.2);
 
 // ============================================
 // Glow Effects (光暈效果)
 // ============================================
 // Use sparingly for important interactive elements
-@glow-azure: 0 0 20px rgba(14, 165, 233, 0.5);
-@glow-jade: 0 0 20px rgba(20, 184, 166, 0.5);
+@glow-xuanwu: 0 0 20px rgba(30, 58, 138, 0.5);
+@glow-teal: 0 0 20px rgba(13, 148, 136, 0.5);
 
 // ============================================
 // Transition Timing (過渡時間)

@@ -64,8 +64,8 @@ const alainConfig: AlainConfig = {
 };
 
 // ============================================
-// Azure Dragon Theme Configuration
-// 青龍主題配置
+// Xuanwu Theme Configuration
+// 玄武主題配置
 // ============================================
 // Based on ng-zorro-antd 20.3.1+ API
 // References:
@@ -78,11 +78,11 @@ const ngZorroConfig: NzConfig = {
   // ============================================
   // Note: Runtime theme changes via NzConfigService.set('theme', {...})
   theme: {
-    primaryColor: '#0EA5E9', // Azure Dragon Blue (青龍藍) - Main brand color
-    successColor: '#14B8A6', // Jade Green (翡翠綠) - Success states
+    primaryColor: '#1E3A8A', // Xuanwu Navy (玄武深藍) - Main brand color
+    successColor: '#0D9488', // Deep Teal (深青綠) - Success states
     warningColor: '#F59E0B', // Amber Yellow (琥珀黃) - Warning states
     errorColor: '#EF4444', // Crimson Red (赤紅) - Error states
-    infoColor: '#06B6D4' // Cyan (青綠) - Info states
+    infoColor: '#64748B' // Steel Blue (鋼藍) - Info states
   },
 
   // ============================================
