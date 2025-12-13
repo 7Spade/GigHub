@@ -35,12 +35,14 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterOutlet, RouterLink } from '@angular/router';
 import { DatePipe, I18nPipe } from '@delon/theme';
 
+import { SHARED_CDK_MODULES } from './shared-cdk.module';
 import { SHARED_DELON_MODULES } from './shared-delon.module';
 import { SHARED_ZORRO_MODULES } from './shared-zorro.module';
 
 // 匯出可選模組供按需使用
 export { OPTIONAL_DELON_MODULES } from './shared-delon.module';
 export { OPTIONAL_ZORRO_MODULES } from './shared-zorro.module';
+export { OPTIONAL_CDK_MODULES } from './shared-cdk.module';
 
 /**
  * 核心 Angular 模組
@@ -74,7 +76,8 @@ const CORE_ANGULAR_MODULES = [
  * - Angular 核心模組 (表單、路由、管道)
  * - ng-zorro-antd 常用模組
  * - @delon 常用模組
+ * - Angular CDK 模組 (按需配置)
  *
  * 適用於 80% 以上的元件
  */
-export const SHARED_IMPORTS = [...CORE_ANGULAR_MODULES, ...SHARED_DELON_MODULES, ...SHARED_ZORRO_MODULES];
+export const SHARED_IMPORTS = [...CORE_ANGULAR_MODULES, ...SHARED_DELON_MODULES, ...SHARED_ZORRO_MODULES, ...SHARED_CDK_MODULES];
