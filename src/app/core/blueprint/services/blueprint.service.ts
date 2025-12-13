@@ -6,7 +6,8 @@ import {
   CreateBlueprintRequest,
   OwnerType,
   UpdateBlueprintRequest,
-  LoggerService
+  LoggerService,
+  FirebaseAuthService
 } from '@core';
 import {
   AuditLogsService,
@@ -31,6 +32,7 @@ export class BlueprintService {
   private readonly logger = inject(LoggerService);
   private readonly validator = inject(ValidationService);
   private readonly auditService = inject(AuditLogsService);
+  private readonly authService = inject(FirebaseAuthService);
 
   getById(id: string): Observable<Blueprint | null> {
     return this.repository.findById(id);
@@ -120,9 +122,12 @@ export class BlueprintService {
     }
   }
 
-  async update(id: string, updates: UpdateBlueprintRequest): Promise<void> {
+  async update(id: string, updates: UpdateBlueprintRequest, actorId?: string): Promise<void> {
     // Validate updates
     this.validator.validateOrThrow(updates, BlueprintUpdateSchema, 'blueprint');
+
+    // Get actorId from auth service if not provided
+    const currentActorId = actorId || this.authService.currentUser?.uid || 'system';
 
     try {
       await this.repository.update(id, updates);
@@ -135,7 +140,7 @@ export class BlueprintService {
           eventType: AuditEventType.BLUEPRINT_UPDATED,
           category: AuditCategory.BLUEPRINT,
           severity: AuditSeverity.INFO,
-          actorId: 'system', // TODO: Get from auth service
+          actorId: currentActorId,
           actorType: ActorType.USER,
           resourceType: 'blueprint',
           resourceId: id,
