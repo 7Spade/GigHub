@@ -2,95 +2,7 @@
 
 ## ⚡ Quick Start (Recommended)
 
-### Option 1: Supabase Dashboard (Easiest - 5 minutes)
-
-**Steps:**
-
-1. **Open Supabase Dashboard**
-   ```
-   https://supabase.com/dashboard/project/zecsbstjqjqoytwgjyct
-   ```
-
-2. **Go to SQL Editor**
-   - Click "SQL Editor" in left sidebar
-   - Click "New query" button
-
-3. **Execute Schema Migration**
-   - Open file: `supabase/migrations/20251212_04_task_quantity_expansion.sql`
-   - Select all (Ctrl+A) and copy
-   - Paste into SQL Editor
-   - Click "Run" button or press Ctrl+Enter
-   - Wait for success message (should see NOTICE messages)
-
-4. **Execute RLS Policies**
-   - Open file: `supabase/migrations/20251212_05_task_quantity_rls_policies.sql`
-   - Select all and copy
-   - Paste into SQL Editor
-   - Click "Run" button
-   - Wait for success message
-
-5. **Verify Installation**
-   - Copy and run this verification query:
-   ```sql
-   -- Quick verification
-   SELECT table_name 
-   FROM information_schema.tables 
-   WHERE table_schema = 'public' 
-   AND table_name IN ('log_tasks', 'quality_controls', 'task_progress');
-   -- Should return 3 rows
-   ```
-
-**Expected Output:**
-```
-NOTICE:  Migration 20251212_04_task_quantity_expansion.sql completed successfully
-NOTICE:  Created tables: log_tasks, quality_controls, task_progress
-NOTICE:  Extended table: tasks (added quantity tracking fields)
-
-NOTICE:  Migration 20251212_05_task_quantity_rls_policies.sql completed successfully
-NOTICE:  Enabled RLS on: log_tasks, quality_controls, task_progress
-```
-
-✅ **Done!** Your database is now ready for the Task Quantity Expansion feature.
-
----
-
-## Option 2: Supabase CLI (For Automation)
-
-**Prerequisites:**
-```bash
-# Install Supabase CLI (if not already installed)
-npx supabase --version  # Should show 2.66.0 or higher
-```
-
-**Steps:**
-
-```bash
-# 1. Navigate to project directory
-cd /path/to/GigHub
-
-# 2. Login to Supabase
-npx supabase login
-
-# 3. Link to remote project
-npx supabase link --project-ref zecsbstjqjqoytwgjyct
-
-# 4. Apply all migrations
-npx supabase db push
-
-# 5. Verify
-npx supabase migration list
-```
-
-**Alternative - Execute specific files:**
-```bash
-npx supabase db execute \
-  --file supabase/migrations/20251212_04_task_quantity_expansion.sql
-
-npx supabase db execute \
-  --file supabase/migrations/20251212_05_task_quantity_rls_policies.sql
-```
-
----
+#
 
 ## 📋 What Gets Created
 
@@ -168,7 +80,7 @@ DROP TABLE IF EXISTS public.log_tasks CASCADE;
 ```
 
 ### Error: "permission denied"
-- **Solution:** Use Supabase Dashboard SQL Editor (automatically uses service role)
+- **Solution:** Use Firebase Dashboard SQL Editor (automatically uses service role)
 - Or ensure you're using service role key (not anon key)
 
 ### Error: "foreign key constraint violation"
@@ -212,7 +124,6 @@ ALTER TABLE public.tasks
 
 - **Detailed Guide:** `docs/database/MIGRATION_GUIDE.md` (13.6 KB - comprehensive guide)
 - **Quick Reference:** `docs/database/QUICK_MIGRATION_REFERENCE.md` (4.2 KB - quick tips)
-- **Migration README:** `supabase/migrations/README.md` (8.8 KB - all methods)
 - **Design Document:** `docs/task-quantity-expansion-design.md` (feature overview)
 
 ---
@@ -223,7 +134,7 @@ You'll know the migration was successful when:
 
 ✅ SQL Editor shows success messages with NOTICE lines
 ✅ All verification queries return expected counts
-✅ New tables visible in Supabase Dashboard → Database → Tables
+✅ New tables visible in Firebase Dashboard → Database → Tables
 ✅ RLS policies visible in Database → Policies
 ✅ Functions visible in Database → Functions
 ✅ No error messages in the output
@@ -242,9 +153,9 @@ You'll know the migration was successful when:
 
 ## 🆘 Need Help?
 
-1. **Check the logs:** Supabase Dashboard → Database → Logs
+1. **Check the logs:** Firebase Dashboard → Database → Logs
 2. **Review documentation:** See references above
-3. **Test locally first:** Use local Supabase instance
+3. **Test locally first:** Use local Firebase instance
 4. **Open an issue:** GitHub repository with error details
 
 ---

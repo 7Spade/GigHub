@@ -4,7 +4,7 @@
 
 This document describes the integration of Firebase Authentication with the GigHub application's existing @delon/auth system (DA_SERVICE_TOKEN). The integration provides email/password authentication via Firebase while maintaining compatibility with the existing ng-alain authentication patterns.
 
-**Note**: Supabase is simplified to only handle statistics and non-sensitive data. All authentication is handled by Firebase.
+**Note**: Firebase is simplified to only handle statistics and non-sensitive data. All authentication is handled by Firebase.
 
 ## Architecture
 
@@ -22,7 +22,7 @@ This document describes the integration of Firebase Authentication with the GigH
    - Syncs Firebase user state with Delon token service
    - Handles error messages and i18n integration
 
-3. **SupabaseService** (`src/app/core/services/supabase.service.ts`)
+3. **SupabaseService** (`src/app/core/services/firebase.service.ts`)
    - **Simplified service for statistics only**
    - No authentication methods - Firebase handles all auth
    - Hardcoded credentials (safe for public statistics data)
@@ -45,15 +45,7 @@ User Input → Login Component → FirebaseAuthService → Firebase Auth
               UI Feedback          Navigate to Dashboard
 ```
 
-### Supabase Usage
-
-```
-Statistics/Data Query → SupabaseService → Supabase Database
-                              ↓
-                    (No authentication required)
-                              ↓
-                        Return Data
-```
+#
 
 ## Configuration
 
@@ -172,17 +164,13 @@ The `FirebaseAuthService` automatically syncs Firebase authentication state with
    - Clears the token from DA_SERVICE_TOKEN
    - Redirects to login page
 
-## Supabase Service (Statistics Only)
-
-The `SupabaseService` has been simplified to handle only statistics and non-sensitive data queries. **All authentication is handled by Firebase**.
-
 ### Configuration
 
 Credentials are hardcoded directly in the service (safe for public statistics):
 
 ```typescript
-// src/app/core/services/supabase.service.ts
-private readonly SUPABASE_URL = 'https://edfxrqgadtlnfhqqmgjw.supabase.co';
+// src/app/core/services/firebase.service.ts
+private readonly SUPABASE_URL = 'https://edfxrqgadtlnfhqqmgjw.firebase.co';
 private readonly SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...';
 ```
 
@@ -193,10 +181,10 @@ private readonly SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...';
 import { SupabaseService } from '@core';
 
 export class StatisticsComponent {
-  private readonly supabase = inject(SupabaseService);
+  private readonly firebase = inject(SupabaseService);
 
   async getStatistics() {
-    const { data, error } = await this.supabase
+    const { data, error } = await this.firebase
       .from('statistics')
       .select('*')
       .order('created_at', { ascending: false });
@@ -214,14 +202,14 @@ export class StatisticsComponent {
 **Use the client directly:**
 ```typescript
 // For advanced queries
-const client = this.supabase.client;
+const client = this.firebase.client;
 const { data } = await client.from('table_name').select('*');
 ```
 
 **Access storage:**
 ```typescript
 // Download a file
-const storage = this.supabase.storage('statistics-files');
+const storage = this.firebase.storage('statistics-files');
 const { data } = await storage.download('file-path.csv');
 ```
 
@@ -234,7 +222,7 @@ const { data } = await storage.download('file-path.csv');
 
 2. **Firebase Handles Auth**: All user authentication is done through FirebaseAuthService
 
-3. **Statistics Only**: Supabase is used for:
+3. **Statistics Only**: Firebase is used for:
    - Non-sensitive data queries
    - Statistics aggregation
    - Public reports and analytics

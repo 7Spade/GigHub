@@ -1,7 +1,7 @@
 # SQL Migration Fix Summary
 
 ## Overview
-Fixed three critical SQL migration errors that were preventing migrations from running successfully in Supabase.
+Fixed three critical SQL migration errors that were preventing migrations from running successfully in Firebase.
 
 ## Errors Fixed
 
@@ -17,7 +17,7 @@ Fixed three critical SQL migration errors that were preventing migrations from r
 - Line 86: "Helper functions for RLS created successfully"
 - Line 146: "RLS policies for tasks table created successfully"
 - Line 225: "RLS policies for logs table created successfully"
-- Line 256: "Storage bucket policies need to be configured via Supabase Dashboard"
+- Line 256: "Storage bucket policies need to be configured via Firebase Dashboard"
 - Line 269: "Anonymous access denied by default (secure by design)"
 
 ### Error 2: Migration 04 - Missing blueprints Table
@@ -90,7 +90,6 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 **Root Cause**: 
 1. The `log_tasks` table is created in migration 04, so it should exist when migration 05 runs
-2. Migration 05 used `auth.uid()` which is a Supabase auth function, but the migration expects to use custom helper functions defined in migration 03
 
 **Solution**: Replaced all 14 occurrences of `auth.uid()` with `public.get_user_id()` throughout migration 05.
 
@@ -132,8 +131,8 @@ The migrations must be executed in the following order:
 ## Testing Instructions
 
 ### Prerequisites
-- Supabase CLI installed: `npm install -g supabase`
-- Supabase project initialized: `supabase init`
+- Firebase CLI installed: `npm install -g firebase`
+- Firebase project initialized: `firebase init`
 
 ### Test Migration Syntax (Offline)
 ```bash
@@ -141,7 +140,6 @@ The migrations must be executed in the following order:
 cd /home/runner/work/GigHub/GigHub
 
 # Validate each migration file
-for file in supabase/migrations/*.sql; do
     echo "Checking $file..."
     psql -f "$file" --echo-errors --set ON_ERROR_STOP=1 --dry-run 2>&1 || echo "Syntax error in $file"
 done
@@ -149,25 +147,23 @@ done
 
 ### Test Migration Execution (Online)
 ```bash
-# Start local Supabase instance
-supabase start
+# Start local Firebase instance
+firebase start
 
 # Run migrations
-supabase db reset
+firebase db reset
 
 # Or apply migrations individually
-supabase migration up
 
 # Check migration status
-supabase migration list
 
 # Verify tables were created
-supabase db dump --schema-only
+firebase db dump --schema-only
 ```
 
 ### Verify Changes
 ```sql
--- Connect to Supabase database and run:
+-- Connect to Firebase database and run:
 
 -- 1. Check if tables exist
 SELECT table_name 
@@ -226,9 +222,6 @@ AND routine_name LIKE '%user%' OR routine_name LIKE '%blueprint%';
 ## Changes Summary
 
 ### Files Modified
-- `supabase/migrations/20251212_03_create_rls_policies.sql` (+49 lines, -7 lines)
-- `supabase/migrations/20251212_04_task_quantity_expansion.sql` (+54 lines)
-- `supabase/migrations/20251212_05_task_quantity_rls_policies.sql` (+20 lines, -20 lines)
 
 **Total**: 115 insertions, 28 deletions
 
@@ -258,9 +251,9 @@ AND routine_name LIKE '%user%' OR routine_name LIKE '%blueprint%';
 2. Configure Firebase Auth to include custom claims:
    - `organization_id`: UUID of user's organization
    - `role`: 'admin' | 'member' | 'viewer' | 'qc_inspector'
-3. Configure Storage Bucket Policies via Supabase Dashboard
+3. Configure Storage Bucket Policies via Firebase Dashboard
 4. Test RLS policies with different user roles
-5. Monitor RLS policy violations in Supabase logs
+5. Monitor RLS policy violations in Firebase logs
 
 ## Rollback Instructions
 
@@ -268,13 +261,11 @@ If issues arise, you can rollback migrations:
 
 ```bash
 # List applied migrations
-supabase migration list
 
 # Rollback to a specific migration
-supabase migration down --target 20251212_02_create_logs_table
 
 # Or reset the entire database
-supabase db reset
+firebase db reset
 ```
 
 ## Additional Notes
@@ -298,9 +289,8 @@ The `accounts` and `blueprints` tables are created as "stubs" because:
 ## Contact & Support
 
 For questions or issues:
-1. Check Supabase logs: `supabase logs`
-2. Review migration output: `supabase migration list`
-3. Consult Supabase docs: https://supabase.com/docs
+1. Check Firebase logs: `firebase logs`
+3. Consult Firebase docs: https://firebase.com/docs
 4. Open an issue in the repository
 
 ---

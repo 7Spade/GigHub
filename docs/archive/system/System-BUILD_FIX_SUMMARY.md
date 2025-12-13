@@ -171,7 +171,7 @@ nzExtra: string | TemplateRef<void>  // ✅ Content to render in top-right corne
    - This is a separate optimization task
    - Not a build-blocking error
    
-2. **CommonJS Warning**: `@supabase/postgrest-js` is not ESM
+2. **CommonJS Warning**: `@firebase/postgrest-js` is not ESM
    - External library issue
    - Does not prevent build
 
@@ -265,10 +265,10 @@ Current: 3.52 MB (exceeds 2 MB budget by 1.52 MB)
 4. Consider dynamic imports for large components
 
 ### CommonJS Warning
-`@supabase/postgrest-js` is not ESM
+`@firebase/postgrest-js` is not ESM
 
 **Options**:
-1. Wait for Supabase to publish ESM version
+1. Wait for Firebase to publish ESM version
 2. Configure Angular to handle CommonJS dependencies
 3. Consider alternative libraries (if critical)
 
@@ -288,7 +288,7 @@ npm run ng-high-memory build
 ✔ Building...
 Application bundle generation complete. [~19 seconds]
 ▲ [WARNING] bundle initial exceeded maximum budget
-▲ [WARNING] Module '@supabase/postgrest-js' used by ... is not ESM
+▲ [WARNING] Module '@firebase/postgrest-js' used by ... is not ESM
 Output location: /dist/ng-alain
 ```
 

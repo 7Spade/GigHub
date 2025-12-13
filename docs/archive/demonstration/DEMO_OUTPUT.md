@@ -13,8 +13,8 @@ When SupabaseService failed to initialize, the error log looked like this:
   "context": {
     "error": {
       "name": "Error",
-      "message": "Supabase configuration missing. Please set NG_PUBLIC_SUPABASE_URL and NG_PUBLIC_SUPABASE_ANON_KEY in environment variables.",
-      "stack": "Error: Supabase configuration missing...\n    at SupabaseService.initializeClient (supabase.service.ts:63:15)\n    at new SupabaseService (supabase.service.ts:49:10)"
+      "message": "Firebase configuration missing. Please set NG_PUBLIC_SUPABASE_URL and NG_PUBLIC_SUPABASE_ANON_KEY in environment variables.",
+      "stack": "Error: Firebase configuration missing...\n    at SupabaseService.initializeClient (firebase.service.ts:63:15)\n    at new SupabaseService (firebase.service.ts:49:10)"
     }
   },
   "error": undefined,  // ❌ ERROR: This should contain the error details!
@@ -37,8 +37,8 @@ With the fix applied, the same error now logs correctly:
   "context": {},
   "error": {  // ✅ FIXED: Now properly populated!
     "name": "Error",
-    "message": "Supabase configuration missing. Please set NG_PUBLIC_SUPABASE_URL and NG_PUBLIC_SUPABASE_ANON_KEY in environment variables.",
-    "stack": "Error: Supabase configuration missing...\n    at SupabaseService.initializeClient (supabase.service.ts:63:15)\n    at new SupabaseService (supabase.service.ts:49:10)"
+    "message": "Firebase configuration missing. Please set NG_PUBLIC_SUPABASE_URL and NG_PUBLIC_SUPABASE_ANON_KEY in environment variables.",
+    "stack": "Error: Firebase configuration missing...\n    at SupabaseService.initializeClient (firebase.service.ts:63:15)\n    at new SupabaseService (firebase.service.ts:49:10)"
   },
   "timestamp": "2025-12-12T11:22:08.353Z"
 }
