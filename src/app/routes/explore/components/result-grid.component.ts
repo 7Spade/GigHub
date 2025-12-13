@@ -58,8 +58,7 @@ import { ExploreSearchFacade } from '../services';
                 @if (result.avatarUrl) {
                   <nz-avatar [nzSrc]="result.avatarUrl" [nzSize]="48"></nz-avatar>
                 } @else {
-                  <nz-avatar [nzIcon]="getEntityIcon(result.type)" [nzSize]="48">
-                  </nz-avatar>
+                  <nz-avatar [nzIcon]="getEntityIcon(result.type)" [nzSize]="48"> </nz-avatar>
                 }
               </div>
 
