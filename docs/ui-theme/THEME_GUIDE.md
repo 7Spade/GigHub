@@ -1,7 +1,7 @@
-# Azure Dragon Theme - Complete Guide
-# 青龍主題 - 完整指南
+# Xuanwu Theme - Complete Guide
+# 玄武主題 - 完整指南
 
-> **Version**: 1.1.0 | **Last Updated**: 2025-12-09 | **Status**: ✅ Production Ready
+> **Version**: 2.0.0 | **Last Updated**: 2025-12-13 | **Status**: ✅ Production Ready
 
 ## 📚 Quick Links
 
@@ -17,40 +17,40 @@
 ### Primary Colors (主色)
 
 ```typescript
-// Azure Blue (青龍藍) - 10 levels
-azure-1: '#E6F7FF'  // Lightest - backgrounds
-azure-6: '#0EA5E9'  // ⭐ PRIMARY - main brand color
-azure-10: '#06303D' // Darkest - dark mode
+// Xuanwu Navy (玄武深藍) - 10 levels
+xuanwu-1: '#EFF6FF'  // Lightest - backgrounds
+xuanwu-6: '#1E3A8A'  // ⭐ PRIMARY - main brand color (Deep Navy)
+xuanwu-10: '#0F172A' // Darkest - dark mode
 
-// Jade Green (翡翠綠) - 6 levels  
-jade-1: '#E6FFF9'   // Lightest
-jade-4: '#14B8A6'   // ⭐ SUCCESS - success states
-jade-6: '#0A7C6C'   // Darkest
+// Deep Teal (深青綠) - 6 levels  
+teal-1: '#F0FDFA'   // Lightest
+teal-4: '#0D9488'   // ⭐ SUCCESS - success states
+teal-6: '#115E59'   // Darkest
 
-// Cyan (青綠) - 5 levels
-cyan-1: '#E0F7FA'   // Lightest
-cyan-3: '#06B6D4'   // ⭐ INFO - info states
-cyan-5: '#0E7490'   // Darkest
+// Steel Blue (鋼藍) - 5 levels
+steel-1: '#F8FAFC'   // Lightest
+steel-3: '#64748B'   // ⭐ INFO - info states
+steel-5: '#334155'   // Darkest
 ```
 
 ### Semantic Colors (語義色)
 
 ```typescript
-Primary:  #0EA5E9  // Azure-6
-Success:  #14B8A6  // Jade-4
+Primary:  #1E3A8A  // Xuanwu Navy
+Success:  #0D9488  // Deep Teal
 Warning:  #F59E0B  // Amber
 Error:    #EF4444  // Red
-Info:     #06B6D4  // Cyan-3
+Info:     #64748B  // Steel Blue
 ```
 
 ### Gradients (漸變)
 
 ```less
-// Dragon Soaring (龍躍雲端) - Primary actions
-@gradient-dragon-soaring: linear-gradient(135deg, #0EA5E9 0%, #14B8A6 100%);
+// Northern Waters (北方之水) - Primary actions
+@gradient-northern-waters: linear-gradient(135deg, #1E3A8A 0%, #0D9488 100%);
 
-// Dawn Light (晨曦微光) - Subtle backgrounds
-@gradient-dawn-light: linear-gradient(135deg, #E6F7FF 0%, #E0F7FA 50%, #E6FFF9 100%);
+// Silver Frost (銀霜微光) - Subtle backgrounds
+@gradient-silver-frost: linear-gradient(135deg, #EFF6FF 0%, #E2E8F0 50%, #CBD5E1 100%);
 ```
 
 ---
@@ -64,9 +64,9 @@ import { NzConfig, provideNzConfig } from 'ng-zorro-antd/core/config';
 
 const ngZorroConfig: NzConfig = {
   theme: {
-    primaryColor: '#0EA5E9',  // Azure Blue
-    successColor: '#14B8A6',  // Jade Green
-    infoColor: '#06B6D4'      // Cyan
+    primaryColor: '#1E3A8A',  // Xuanwu Navy
+    successColor: '#0D9488',  // Deep Teal
+    infoColor: '#64748B'      // Steel Blue
   }
 };
 
@@ -79,9 +79,9 @@ export const appConfig: ApplicationConfig = {
 
 ```less
 // Define BEFORE importing @delon/theme
-@primary-color: #0EA5E9;
-@success-color: #14B8A6;
-@info-color: #06B6D4;
+@primary-color: #1E3A8A;
+@success-color: #0D9488;
+@info-color: #64748B;
 
 @import '@delon/theme/theme-default.less';
 ```
@@ -117,7 +117,7 @@ export class ThemeService {
 yarn add ng-zorro-antd@20.4.3
 yarn build
 ```
-✅ No breaking changes for Azure Dragon Theme
+✅ No breaking changes for Xuanwu Theme
 
 **Angular 20.3.0 → 21.0.3** (Medium Risk, 4-8 hours)
 - Wait for ng-alain official support
@@ -134,21 +134,21 @@ yarn build
 <button nz-button nzType="primary">Submit</button>
 
 <!-- Success button -->
-<button nz-button nzType="primary" [style.background]="'#14B8A6'">Success</button>
+<button nz-button nzType="primary" [style.background]="'#0D9488'">Success</button>
 ```
 
 ### Cards with Gradient
 
 ```html
-<nz-card class="azure-card-featured">
+<nz-card class="xuanwu-card-featured">
   <h3>Featured Content</h3>
-  <p>Dragon Soaring gradient background</p>
+  <p>Northern Waters gradient background</p>
 </nz-card>
 ```
 
 ```less
-.azure-card-featured {
-  background: linear-gradient(135deg, #0EA5E9 0%, #14B8A6 100%);
+.xuanwu-card-featured {
+  background: linear-gradient(135deg, #1E3A8A 0%, #0D9488 100%);
   color: #ffffff;
 }
 ```
@@ -157,10 +157,10 @@ yarn build
 
 ```html
 <input nz-input placeholder="Username" />
-<!-- Focus: Azure-6 border with 20% shadow -->
+<!-- Focus: Xuanwu-6 border with 20% shadow -->
 
 <nz-select [nzOptions]="options"></nz-select>
-<!-- Hover: Azure-1 background -->
+<!-- Hover: Xuanwu-1 background -->
 ```
 
 ---
@@ -169,15 +169,15 @@ yarn build
 
 ```html
 <!-- Background Colors -->
-<div class="azure-bg-primary">Azure background</div>
-<div class="azure-bg-gradient">Gradient background</div>
+<div class="xuanwu-bg-primary">Xuanwu background</div>
+<div class="xuanwu-bg-gradient">Gradient background</div>
 
 <!-- Text Colors -->
-<span class="azure-text-primary">Azure text</span>
-<span class="azure-text-jade">Jade text</span>
+<span class="xuanwu-text-primary">Xuanwu text</span>
+<span class="xuanwu-text-teal">Teal text</span>
 
 <!-- Borders -->
-<div class="azure-border-primary">Azure border</div>
+<div class="xuanwu-border-primary">Xuanwu border</div>
 ```
 
 ---
@@ -186,8 +186,8 @@ yarn build
 
 All color combinations meet accessibility standards:
 
-- Azure-6 on White: **4.5:1** ✅
-- Jade-4 on White: **4.5:1** ✅
+- Xuanwu-6 on White: **6.8:1** ✅ (AAA)
+- Teal-4 on White: **4.5:1** ✅ (AA)
 - Primary Text on White: **14.8:1** ✅ (AAA)
 
 ---
@@ -229,5 +229,5 @@ All color combinations meet accessibility standards:
 ---
 
 **Maintained by**: GitHub Copilot  
-**Theme Version**: 1.1.0  
+**Theme Version**: 2.0.0  
 **Compatible**: Angular 20+, ng-zorro-antd 20+, ng-alain 20+

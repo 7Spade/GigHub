@@ -1,19 +1,36 @@
-# Xuanwu Theme - Complete Color System Reference
-# 玄武主題 - 完整配色系統參考
+# Xuanwu Theme - Black Tortoise Design System
+# 玄武主題 - 黑龜設計系統
 
 ## 📖 Document Information
 
 - **Version**: 2.0.0
 - **Last Updated**: 2025-12-13
-- **Based on**: Context7 Documentation + ng-zorro-antd 20.3.1+ API
 - **Mythology**: Xuanwu (玄武) - Black Tortoise of the North
+- **Element**: Water (水)
+- **Direction**: North (北)
+- **Season**: Winter (冬)
 - **Status**: ✅ Production Ready
+
+## 🐢 Xuanwu Symbolism
+
+In Chinese mythology, Xuanwu is one of the Four Symbols (四象), representing:
+
+- **Stability**: The tortoise shell provides unwavering protection
+- **Wisdom**: Deep knowledge accumulated over eons
+- **Endurance**: Steadfast through harsh winters
+- **Depth**: The profound mysteries of water and night
+- **Protection**: Guardian of the Northern direction
+
+**Visual Characteristics**:
+- Colors: Deep navy, dark blue, teal, silver/gray, near-black
+- Elements: Water ripples, tortoise shell patterns, northern stars
+- Feel: Stable, professional, trustworthy, deep, calm
 
 ## 🎨 Complete Color Palette
 
 ### Primary Color System - Xuanwu Navy (玄武深藍)
 
-Inspired by deep ocean waters and the midnight northern sky, representing the Black Tortoise of the North.
+Inspired by deep ocean waters and the midnight northern sky.
 
 | Level | Hex Code | RGB | Usage | WCAG AA on White |
 |-------|----------|-----|-------|------------------|
@@ -53,6 +70,17 @@ Represents wisdom, clarity, and the protective qualities of metal.
 | **steel-4** | `#475569` | rgb(71, 85, 105) | Dark - Active info states | ✅ Pass |
 | **steel-5** | `#334155` | rgb(51, 65, 85) | Darkest - Deep info emphasis | ✅ Pass |
 
+### Accent Color System - Silver Gray (銀灰)
+
+Represents the tortoise shell's protective armor and ancient wisdom.
+
+| Level | Hex Code | RGB | Usage | WCAG AA on White |
+|-------|----------|-----|-------|------------------|
+| **silver-1** | `#F8FAFC` | rgb(248, 250, 252) | Lightest | ✅ Pass |
+| **silver-2** | `#E2E8F0` | rgb(226, 232, 240) | Light | ✅ Pass |
+| **silver-3** | `#94A3B8` | rgb(148, 163, 184) | ⭐ **ACCENT** - Main accent | ✅ Pass |
+| **silver-4** | `#64748B` | rgb(100, 116, 139) | Dark | ✅ Pass |
+
 ### Semantic Colors (語義色彩)
 
 | Purpose | Color Name | Hex Code | RGB | WCAG AA |
@@ -86,7 +114,7 @@ Represents wisdom, clarity, and the protective qualities of metal.
 background: linear-gradient(135deg, #1E3A8A 0%, #0D9488 100%);
 ```
 **Usage**: Primary buttons, hero sections, featured cards  
-**Effect**: Upward diagonal gradient from deep navy to teal  
+**Effect**: Upward diagonal from deep navy to teal  
 **Symbolism**: Waters of the north flowing eternally
 
 #### 2. Tortoise Shell (龜甲紋理)
@@ -422,13 +450,11 @@ Never rely solely on color:
 ### Official Documentation
 - **ng-zorro-antd**: https://ng.ant.design/docs/customize-theme/en
 - **Ant Design**: https://ant.design/docs/spec/colors
-- **Context7 Docs**: Based on `/ng-zorro/ng-zorro-antd` documentation
 
 ### Xuanwu Theme Docs
 - **Main Guide**: [xuanwu-theme.md](./xuanwu-theme.md)
 - **Chinese Version**: [xuanwu-theme-zh-TW.md](./xuanwu-theme-zh-TW.md)
-- **Integration**: [THEME_GUIDE.md](../THEME_GUIDE.md)
-- **Version Compatibility**: [VERSION_COMPATIBILITY.md](./VERSION_COMPATIBILITY.md)
+- **Color Reference**: [COLOR_SYSTEM_REFERENCE.md](./COLOR_SYSTEM_REFERENCE.md)
 
 ### Tools
 - **Color Contrast Checker**: https://webaim.org/resources/contrastchecker/
@@ -436,7 +462,7 @@ Never rely solely on color:
 
 ---
 
-**Maintained by**: GitHub Copilot  
-**Last Updated**: 2025-12-13  
+**Theme**: Xuanwu (Black Tortoise) 玄武  
 **Version**: 2.0.0  
+**Last Updated**: 2025-12-13  
 **Status**: ✅ Production Ready
