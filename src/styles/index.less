@@ -1,988 +1,145 @@
-/* ============================================
- * Xuanwu Theme - Global Styles
- * 玄武主題 - 全局樣式
- * ============================================
- * Version: 2.0.0
- * Compatible with:
- * - ng-zorro-antd: 20.3.1+ (Current: 20.3.1, Latest: 20.4.3)
- * - ng-alain: 20.1.0+ (Current: 20.1.0, Latest: 20.1.0)
- * - Angular: 20.3.0+ (Current: 20.3.0, Latest: 21.0.3)
- *
- * This file contains:
- * - Global component style enhancements
- * - Utility classes for Xuanwu theme
- * - Animation definitions
- * - Accessibility improvements
- *
- * Note: Xuanwu color variables are defined in theme.less
- * and are available for use throughout this file.
- *
- * References:
- * - Xuanwu Design: docs/ui-theme/xuanwu-theme.md
- * - Hover States: docs/ui-theme/HOVER_STATES_IMPROVEMENTS.md
- * ============================================ */
+// Xuanwu minimal surface styling
 
-// ============================================
-// Utility Classes for Xuanwu Theme
-// 玄武主題工具類
-// ============================================
-
-// Background Colors
-.xuanwu-bg-primary {
-  background-color: @xuanwu-6 !important;
+body {
+  background:
+    radial-gradient(circle at 20% 20%, fade(@primary-color, 10%), transparent 30%),
+    radial-gradient(circle at 80% 10%, fade(@teal-4, 12%), transparent 28%),
+    @layout-body-background;
+  color: @text-color;
 }
 
-.xuanwu-bg-gradient {
-  background: @gradient-northern-waters !important;
+::selection {
+  background: fade(@primary-color, 45%);
+  color: #ffffff;
 }
 
-.xuanwu-bg-gradient-sky {
-  background: @gradient-winter-night !important;
+.alain-default__header {
+  background: @gradient-primary !important;
+  border-bottom: 1px solid fade(@primary-color, 25%);
+  box-shadow: @shadow-soft;
 }
 
-.xuanwu-bg-light {
-  background-color: @xuanwu-1 !important;
-}
+.alain-default__nav-item {
+  color: @text-color-secondary !important;
+  transition: color @transition-fast, background @transition-fast;
 
-// Text Colors
-.xuanwu-text-primary {
-  color: @xuanwu-6 !important;
-}
-
-.xuanwu-text-jade {
-  color: @teal-4 !important;
-}
-
-.xuanwu-text-cyan {
-  color: @steel-3 !important;
-}
-
-// Border Colors
-.xuanwu-border-primary {
-  border-color: @xuanwu-6 !important;
-}
-
-.xuanwu-border-jade {
-  border-color: @teal-4 !important;
-}
-
-// Card Styles with Xuanwu Theme
-.xuanwu-card {
-  background: #ffffff;
-  border: 1px solid @border-color-split;
-  border-radius: 8px;
-  box-shadow: @shadow-xuanwu-sm;
-  transition: all @transition-base;
-  position: relative;
-
-  &::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    border-radius: 8px;
-    border: 1px solid @xuanwu-6;
-    opacity: 0;
-    transition: opacity @transition-base;
-    pointer-events: none;
+  &.active,
+  &:hover {
+    color: @heading-color !important;
+    background: fade(@primary-color, 14%);
   }
+}
+
+.ant-layout-sider {
+  background: @alain-default-aside-bg !important;
+  border-right: 1px solid @border-color-base;
+}
+
+.xuanwu-surface,
+.ant-card {
+  background: @gradient-surface;
+  border: 1px solid fade(@primary-color, 18%);
+  box-shadow: @shadow-soft;
+  border-radius: 12px;
+  color: @text-color;
+}
+
+.ant-card-head {
+  border-color: fade(@primary-color, 18%);
+  color: @heading-color;
+}
+
+.ant-modal-content,
+.ant-drawer-body {
+  background: @component-background;
+  border: 1px solid fade(@primary-color, 16%);
+  box-shadow: @shadow-soft;
+}
+
+.xuanwu-bg-primary {
+  background: @primary-color !important;
+}
+
+.xuanwu-text-primary {
+  color: @primary-color !important;
+}
+
+.ant-btn-primary {
+  background: @gradient-primary;
+  border: none;
+  color: #ffffff;
+  box-shadow: @shadow-soft;
+  transition: box-shadow @transition-base, transform @transition-fast;
 
   &:hover {
-    box-shadow: @shadow-xuanwu-lg;
-    transform: translateY(-2px);
-
-    &::after {
-      opacity: 1;
-    }
-  }
-}
-
-.xuanwu-card-featured {
-  background: @gradient-northern-waters;
-  color: #ffffff;
-  border: none;
-  box-shadow: @shadow-xuanwu-lg;
-}
-
-.xuanwu-card-highlight {
-  background: @gradient-silver-frost;
-  border: 2px solid @xuanwu-6;
-  box-shadow: @shadow-xuanwu-md;
-}
-
-// Button Enhancements
-.ant-btn-primary {
-  background: @gradient-northern-waters;
-  border: none;
-  transition: all @transition-base;
-  position: relative;
-  overflow: hidden;
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: @gradient-tortoise-shell;
-    opacity: 0;
-    transition: opacity @transition-base;
-  }
-
-  &:hover,
-  &:focus {
-    box-shadow: @shadow-xuanwu-md;
+    box-shadow: 0 12px 34px fade(@primary-color, 35%);
     transform: translateY(-1px);
-
-    &::before {
-      opacity: 1;
-    }
   }
 
   &:active {
     transform: translateY(0);
-    box-shadow: @shadow-xuanwu-sm;
+    box-shadow: @shadow-soft;
   }
 
-  & > * {
-    position: relative;
-    z-index: 1;
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px fade(@primary-color, 35%);
   }
 }
 
-// Secondary and Default Button Hover States
 .ant-btn-default {
-  transition: all @transition-base;
-
-  &:hover,
-  &:focus {
-    color: @xuanwu-6;
-    border-color: @xuanwu-6;
-    background: @xuanwu-1;
-  }
-}
-
-.ant-btn-dashed {
-  transition: all @transition-base;
-
-  &:hover,
-  &:focus {
-    color: @xuanwu-6;
-    border-color: @xuanwu-6;
-    background: fade(@xuanwu-1, 50%);
-  }
-}
-
-.ant-btn-text {
-  transition: all @transition-fast;
-
-  &:hover,
-  &:focus {
-    color: @xuanwu-5;
-    background: fade(@xuanwu-1, 60%);
-  }
-}
-
-.ant-btn-link {
-  transition: color @transition-fast;
-
-  &:hover,
-  &:focus {
-    color: @xuanwu-5;
-  }
-}
-
-// Header Gradient Enhancement
-.alain-default__header {
-  background: @gradient-northern-waters !important;
-  box-shadow: @shadow-xuanwu-md;
-}
-
-// Navigation Active State
-.alain-default__nav-item.active,
-.alain-default__nav-item:hover {
-  color: @xuanwu-6 !important;
-  background: fade(@xuanwu-1, 80%);
-  border-left: 3px solid @xuanwu-6;
-  transition: all @transition-fast;
-}
-
-.alain-default__nav-item {
-  transition: all @transition-fast;
-  position: relative;
-
-  &::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 3px;
-    background: @xuanwu-6;
-    transform: scaleY(0);
-    transition: transform @transition-fast;
-  }
-
-  &:hover::before {
-    transform: scaleY(1);
-  }
-}
-
-// Scrollbar Styling
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: @xuanwu-1;
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb {
-  background: @xuanwu-4;
-  border-radius: 4px;
-  transition: background @transition-fast;
-
-  &:hover {
-    background: @xuanwu-6;
-  }
-
-  &:active {
-    background: @xuanwu-7;
-  }
-}
-
-::-webkit-scrollbar-corner {
-  background: @xuanwu-1;
-}
-
-// Loading State with Xuanwu Theme
-.ant-spin-dot-item {
-  background-color: @xuanwu-6;
-}
-
-// Tag Styles
-.ant-tag-blue {
-  color: @xuanwu-6;
-  background: @xuanwu-1;
-  border-color: @xuanwu-3;
-  transition: all @transition-fast;
-  cursor: pointer;
-
-  &:hover {
-    background: @xuanwu-2;
-    border-color: @xuanwu-4;
-    transform: translateY(-1px);
-  }
-}
-
-.ant-tag-cyan {
-  color: @steel-3;
-  background: @steel-1;
-  border-color: @steel-2;
-  transition: all @transition-fast;
-  cursor: pointer;
-
-  &:hover {
-    background: fade(@steel-2, 60%);
-    border-color: @steel-3;
-    transform: translateY(-1px);
-  }
-}
-
-.ant-tag-green {
-  color: @teal-4;
-  background: @teal-1;
-  border-color: @teal-2;
-  transition: all @transition-fast;
-  cursor: pointer;
-
-  &:hover {
-    background: fade(@teal-2, 60%);
-    border-color: @teal-3;
-    transform: translateY(-1px);
-  }
-}
-
-.ant-tag-checkable {
+  color: @text-color;
+  border-color: fade(@primary-color, 25%);
+  background: fade(@component-background, 80%);
   transition: all @transition-fast;
 
   &:hover {
-    color: @xuanwu-6;
-  }
-
-  &:not(.ant-tag-checkable-checked):hover {
-    color: @xuanwu-6;
+    border-color: @primary-color;
+    color: @heading-color;
+    background: fade(@primary-color, 12%);
   }
 }
 
-// Badge Colors
-.ant-badge-status-processing {
-  background-color: @xuanwu-6;
-}
-
-.ant-badge-status-success {
-  background-color: @teal-4;
-}
-
-// Progress Bar
-.ant-progress-bg {
-  background: @gradient-northern-waters !important;
-}
-
-// Alert Styles
-.ant-alert-info {
-  background-color: @xuanwu-1;
-  border: 1px solid @xuanwu-3;
-  transition: all @transition-fast;
-
-  .ant-alert-icon {
-    color: @xuanwu-6;
-  }
-
-  &:hover {
-    background-color: fade(@xuanwu-2, 60%);
-    border-color: @xuanwu-4;
-  }
-}
-
-.ant-alert-success {
-  background-color: @teal-1;
-  border: 1px solid @teal-2;
-  transition: all @transition-fast;
-
-  .ant-alert-icon {
-    color: @teal-4;
-  }
-
-  &:hover {
-    background-color: fade(@teal-2, 60%);
-    border-color: @teal-3;
-  }
-}
-
-.ant-alert-close-icon {
-  transition: all @transition-fast;
-
-  &:hover {
-    color: @xuanwu-6;
-    transform: scale(1.1);
-  }
-}
-
-// Modal & Drawer
-.ant-modal-header,
-.ant-drawer-header {
-  background: @gradient-silver-frost;
-  border-bottom: 2px solid @xuanwu-2;
-  transition: all @transition-base;
-}
-
-.ant-modal-title,
-.ant-drawer-title {
-  color: @xuanwu-7;
-  font-weight: 600;
-}
-
-.ant-modal-close,
-.ant-drawer-close {
-  transition: all @transition-fast;
-
-  &:hover {
-    color: @xuanwu-6;
-    background: fade(@xuanwu-1, 50%);
-    border-radius: 4px;
-  }
-}
-
-.ant-modal-footer {
-  border-top: 1px solid @border-color-split;
-  transition: all @transition-fast;
-
-  .ant-btn {
-    transition: all @transition-fast;
-  }
-}
-
-// Dropdown & Select
-.ant-dropdown-menu-item,
-.ant-select-item-option {
-  transition: all @transition-fast;
-
-  &:hover {
-    background: fade(@xuanwu-1, 80%);
-    color: @xuanwu-6;
-  }
-}
-
-.ant-dropdown-menu-item-selected,
-.ant-select-item-option-selected {
-  background: fade(@xuanwu-1, 90%);
-  color: @xuanwu-6;
-  font-weight: 500;
-
-  &:hover {
-    background: @xuanwu-2;
-  }
-}
-
+.ant-input,
+.ant-input-affix-wrapper,
 .ant-select-selector {
-  transition: all @transition-fast !important;
-
-  &:hover {
-    border-color: @xuanwu-5 !important;
-  }
+  background: fade(@component-background, 90%) !important;
+  border-color: @border-color-base !important;
+  color: @text-color !important;
+  transition: border-color @transition-fast, box-shadow @transition-fast;
 }
 
-.ant-select-arrow {
-  transition: all @transition-fast;
-  color: @text-color-secondary;
-
-  &:hover {
-    color: @xuanwu-6;
-  }
+.ant-input:hover,
+.ant-input-affix-wrapper:hover,
+.ant-select:not(.ant-select-disabled) .ant-select-selector:hover {
+  border-color: fade(@primary-color, 50%) !important;
 }
+
 .ant-input:focus,
 .ant-input-focused,
-.ant-select-focused .ant-select-selector {
-  border-color: @xuanwu-6 !important;
-  box-shadow: 0 0 0 2px fade(@xuanwu-6, 20%) !important;
-  transition: all @transition-fast;
+.ant-select-focused .ant-select-selector,
+.ant-input-affix-wrapper-focused {
+  border-color: @primary-color !important;
+  box-shadow: 0 0 0 2px fade(@primary-color, 30%) !important;
 }
 
-.ant-input:hover:not(:disabled):not([disabled]),
-.ant-select:hover:not(.ant-select-disabled) .ant-select-selector {
-  border-color: @xuanwu-5;
-  transition: all @transition-fast;
-}
-
-.ant-checkbox-wrapper {
-  transition: all @transition-fast;
-
-  &:hover .ant-checkbox-inner {
-    border-color: @xuanwu-6;
-  }
-}
-
-.ant-checkbox-checked .ant-checkbox-inner {
-  background-color: @xuanwu-6;
-  border-color: @xuanwu-6;
-  transition: all @transition-fast;
-}
-
-.ant-checkbox:hover .ant-checkbox-inner,
-.ant-checkbox-input:focus + .ant-checkbox-inner {
-  border-color: @xuanwu-6;
-}
-
-.ant-radio-wrapper {
-  transition: all @transition-fast;
-
-  &:hover .ant-radio-inner {
-    border-color: @xuanwu-6;
-  }
-}
-
-.ant-radio-checked .ant-radio-inner {
-  border-color: @xuanwu-6;
-  transition: all @transition-fast;
-
-  &::after {
-    background-color: @xuanwu-6;
-  }
-}
-
-.ant-radio:hover .ant-radio-inner,
-.ant-radio-input:focus + .ant-radio-inner {
-  border-color: @xuanwu-6;
-}
-
-.ant-switch {
-  transition: all @transition-base;
-
-  &:hover:not(.ant-switch-disabled) {
-    background-color: fade(@xuanwu-6, 70%);
-  }
-}
-
-.ant-switch-checked {
-  background-color: @xuanwu-6;
-
-  &:hover:not(.ant-switch-disabled) {
-    background-color: @xuanwu-5;
-  }
-}
-
-// Table Enhancements
-.ant-table-thead > tr > th {
-  background: @gradient-silver-frost;
-  color: @xuanwu-7;
-  font-weight: 600;
-  transition: all @transition-fast;
-}
-
-.ant-table-tbody > tr {
-  transition: all @transition-fast;
-
-  &:hover > td {
-    background: fade(@xuanwu-1, 80%);
-  }
-}
-
-.ant-table-row-selected > td {
-  background: fade(@xuanwu-1, 90%);
-  border-color: @xuanwu-3;
-  transition: all @transition-fast;
-}
-
-.ant-table-cell {
-  transition: background @transition-fast;
-}
-
-// Tabs
-.ant-tabs-tab {
-  transition: all @transition-fast;
-
-  &:hover {
-    color: @xuanwu-5;
-  }
-
-  &.ant-tabs-tab-active .ant-tabs-tab-btn {
-    color: @xuanwu-6;
-  }
-}
-
-.ant-tabs-ink-bar {
-  background: @gradient-northern-waters;
-  height: 3px;
-  transition: all @transition-base;
-}
-
-// Menu
-.ant-menu-item-selected {
-  background-color: @xuanwu-1;
-  color: @xuanwu-6;
-  border-left: 3px solid @xuanwu-6;
-  transition: all @transition-fast;
-}
-
-.ant-menu-item:hover,
-.ant-menu-submenu-title:hover {
-  color: @xuanwu-6;
-  background: fade(@xuanwu-1, 70%);
-  transition: all @transition-fast;
-
-  &::after {
-    border-right-color: @xuanwu-6;
-  }
-}
-
-.ant-menu-item,
-.ant-menu-submenu-title {
-  transition: all @transition-fast;
-}
-
-// Pagination
-.ant-pagination-item-active {
-  background: @gradient-northern-waters;
-  border-color: @xuanwu-6;
-  transition: all @transition-base;
-
-  a {
-    color: #ffffff;
-  }
-
-  &:hover {
-    box-shadow: @shadow-xuanwu-sm;
-    transform: translateY(-1px);
-  }
-}
-
-.ant-pagination-item {
-  transition: all @transition-fast;
-
-  &:hover {
-    border-color: @xuanwu-6;
-    transform: translateY(-1px);
-
-    a {
-      color: @xuanwu-6;
-    }
-  }
-}
-
-.ant-pagination-prev,
-.ant-pagination-next {
-  transition: all @transition-fast;
-
-  &:hover {
-    .ant-pagination-item-link {
-      color: @xuanwu-6;
-      border-color: @xuanwu-6;
-    }
-  }
-}
-
-// Steps
-.ant-steps-item {
-  transition: all @transition-fast;
-
-  &:hover {
-    .ant-steps-item-icon {
-      border-color: @xuanwu-5;
-    }
-
-    .ant-steps-item-title {
-      color: @xuanwu-6;
-    }
-  }
-}
-
-.ant-steps-item-process .ant-steps-item-icon {
-  background: @gradient-northern-waters;
-  border-color: @xuanwu-6;
-  transition: all @transition-base;
-}
-
-.ant-steps-item-finish {
-  .ant-steps-item-icon {
-    border-color: @xuanwu-6;
-    transition: all @transition-fast;
-
-    .ant-steps-icon {
-      color: @xuanwu-6;
-    }
-
-    &:hover {
-      border-color: @xuanwu-5;
-      background: fade(@xuanwu-1, 50%);
-    }
-  }
-
-  .ant-steps-item-title {
-    &:hover {
-      color: @xuanwu-6;
-    }
-  }
-}
-
-// Timeline
-.ant-timeline-item-head-blue {
-  background-color: @xuanwu-6;
-  border-color: @xuanwu-6;
-}
-
-// Skeleton Loading Animation
-.ant-skeleton-element {
-  .ant-skeleton-button,
-  .ant-skeleton-input,
-  .ant-skeleton-image,
-  .ant-skeleton-avatar {
-    background: linear-gradient(90deg, @xuanwu-1 25%, @xuanwu-2 37%, @xuanwu-1 63%);
-    background-size: 400% 100%;
-    animation: ant-skeleton-loading 1.4s ease infinite;
-  }
-}
-
-// Custom Animation - Dragon Flow Effect
-@keyframes tortoise-flow {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
-.tortoise-effect {
-  background: linear-gradient(270deg, @xuanwu-6, @teal-4, @steel-3, @xuanwu-6);
-  background-size: 400% 400%;
-  animation: tortoise-flow 8s ease infinite;
-}
-
-// Pulse Effect
-@keyframes xuanwu-pulse {
-  0%,
-  100% {
-    box-shadow: 0 0 0 0 fade(@xuanwu-6, 70%);
-  }
-  50% {
-    box-shadow: 0 0 0 10px fade(@xuanwu-6, 0%);
-  }
-}
-
-.tortoise-pulse {
-  animation: xuanwu-pulse 2s ease-in-out infinite;
-}
-
-// Glow Effect
-.xuanwu-glow {
-  box-shadow: @glow-xuanwu;
-}
-
-.teal-glow {
-  box-shadow: @glow-teal;
-}
-
-// Glow Effect
-.xuanwu-glow {
-  box-shadow: @glow-xuanwu;
-  transition: box-shadow @transition-base;
-
-  &:hover {
-    box-shadow: @glow-xuanwu, @shadow-xuanwu-lg;
-  }
-}
-
-.teal-glow {
-  box-shadow: @glow-teal;
-  transition: box-shadow @transition-base;
-
-  &:hover {
-    box-shadow: @glow-teal, @shadow-xuanwu-lg;
-  }
-}
-
-// Tooltip & Popover Enhancements
-.ant-tooltip-inner {
-  background: @xuanwu-7;
-  transition: all @transition-fast;
-}
-
-.ant-tooltip-arrow-content {
-  background: @xuanwu-7;
-}
-
-.ant-popover-inner {
-  box-shadow: @shadow-xuanwu-lg;
-  transition: all @transition-base;
-}
-
-.ant-popover-inner-content {
-  color: @text-color;
-}
-
-// Breadcrumb Enhancements
-.ant-breadcrumb-link {
-  transition: all @transition-fast;
-
-  &:hover {
-    color: @xuanwu-6;
-    background: fade(@xuanwu-1, 50%);
-    padding: 2px 6px;
-    border-radius: 4px;
-    margin: -2px -6px;
-  }
-}
-
-.ant-breadcrumb-separator {
-  color: @text-color-secondary;
-}
-
-// Link Enhancements
 a {
+  color: @primary-color;
   transition: color @transition-fast;
 
   &:hover {
-    color: @xuanwu-5;
-  }
-
-  &:active {
-    color: @xuanwu-7;
+    color: @teal-4;
   }
 }
 
-// Collapse Panel Enhancements
-.ant-collapse-item {
-  transition: all @transition-fast;
-
-  &:hover {
-    border-color: @xuanwu-5;
-  }
+.ant-spin-dot-item {
+  background-color: @primary-color;
 }
 
-.ant-collapse-header {
-  transition: all @transition-fast;
-
-  &:hover {
-    color: @xuanwu-6 !important;
-    background: fade(@xuanwu-1, 40%);
-  }
+.ant-progress-bg {
+  background: @gradient-primary !important;
 }
 
-.ant-collapse-content {
-  transition: all @transition-base;
+.xuanwu-glow {
+  box-shadow: @shadow-soft;
 }
-
-// Avatar Enhancements
-.ant-avatar {
-  transition: all @transition-fast;
-  border: 2px solid transparent;
-
-  &:hover {
-    border-color: @xuanwu-6;
-    box-shadow: @shadow-xuanwu-sm;
-    transform: scale(1.05);
-  }
-}
-
-.ant-avatar-group .ant-avatar:hover {
-  z-index: 2;
-}
-
-// Statistic Enhancements
-.ant-statistic-title {
-  color: @text-color-secondary;
-  transition: color @transition-fast;
-}
-
-.ant-statistic:hover .ant-statistic-title {
-  color: @xuanwu-6;
-}
-
-.ant-statistic-content {
-  color: @xuanwu-6;
-  transition: all @transition-fast;
-}
-
-// Card Action Buttons
-.ant-card-actions > li {
-  transition: all @transition-fast;
-
-  &:hover {
-    color: @xuanwu-6;
-    background: fade(@xuanwu-1, 50%);
-  }
-}
-
-// Input Number Enhancements
-.ant-input-number {
-  transition: all @transition-fast;
-
-  &:hover {
-    border-color: @xuanwu-5;
-  }
-
-  &:focus-within {
-    border-color: @xuanwu-6;
-    box-shadow: 0 0 0 2px fade(@xuanwu-6, 20%);
-  }
-}
-
-.ant-input-number-handler {
-  transition: all @transition-fast;
-
-  &:hover {
-    color: @xuanwu-6;
-  }
-}
-
-// Rate (Star Rating) Enhancements
-.ant-rate-star {
-  transition: all @transition-fast;
-
-  &:hover {
-    transform: scale(1.1);
-  }
-}
-
-.ant-rate-star-full .ant-rate-star-second {
-  color: @xuanwu-6;
-}
-
-// Slider Enhancements
-.ant-slider-track {
-  background: @gradient-northern-waters;
-  transition: all @transition-fast;
-}
-
-.ant-slider-handle {
-  border-color: @xuanwu-6;
-  transition: all @transition-fast;
-
-  &:hover,
-  &:focus {
-    border-color: @xuanwu-5;
-    box-shadow: 0 0 0 4px fade(@xuanwu-6, 20%);
-  }
-}
-
-.ant-slider:hover .ant-slider-track {
-  background: @gradient-tortoise-shell;
-}
-
-// Upload Component Enhancements
-.ant-upload {
-  transition: all @transition-fast;
-
-  &:hover {
-    border-color: @xuanwu-6;
-  }
-}
-
-.ant-upload-drag {
-  transition: all @transition-base;
-
-  &:hover {
-    border-color: @xuanwu-6;
-    background: fade(@xuanwu-1, 30%);
-  }
-}
-
-.ant-upload-list-item {
-  transition: all @transition-fast;
-
-  &:hover {
-    background: fade(@xuanwu-1, 50%);
-  }
-}
-
-// Transfer Component Enhancements
-.ant-transfer-list-content-item {
-  transition: all @transition-fast;
-
-  &:hover {
-    background: fade(@xuanwu-1, 70%);
-  }
-}
-
-.ant-transfer-list-content-item-checked {
-  background: fade(@xuanwu-1, 90%);
-}
-
-// Responsive Utilities
-@media (max-width: @screen-sm) {
-  .alain-default__header {
-    background: @xuanwu-6 !important; // Use solid color on mobile for better performance
-  }
-}
-
-// Print Styles
-@media print {
-  .xuanwu-bg-gradient,
-  .xuanwu-bg-gradient-sky,
-  .tortoise-effect {
-    background: @xuanwu-6 !important; // Use solid colors for printing
-  }
-}
-
-// Accessibility Enhancements
-.xuanwu-focus-visible:focus-visible {
-  outline: 2px solid @xuanwu-6;
-  outline-offset: 2px;
-}
-
-// Dark Mode Support (Optional - for future implementation)
-// @media (prefers-color-scheme: dark) {
-//   body {
-//     background-color: @xuanwu-10;
-//     color: @text-color;
-//   }
-// }
