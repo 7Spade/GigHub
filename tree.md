@@ -712,6 +712,3 @@
 │      AGENTS.md                                                  # Styles AI 代理指南
 │      index.less                                                 # 樣式入口
 │      theme.less                                                 # 主題樣式
-│
-└─types
-        import-meta.d.ts                                          # Import Meta 類型定義
