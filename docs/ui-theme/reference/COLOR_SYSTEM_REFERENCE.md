@@ -1,5 +1,5 @@
-# Azure Dragon Theme - Complete Color System Reference
-# 青龍主題 - 完整配色系統參考
+# Black Tortoise Theme - Complete Color System Reference
+# 玄武主題 - 完整配色系統參考
 
 ## 📖 Document Information
 
@@ -10,35 +10,35 @@
 
 ## 🎨 Complete Color Palette
 
-### Primary Color System - Azure Dragon Blue (青龍藍)
+### Primary Color System - Black Tortoise Blue (玄武藍)
 
-Inspired by the clear morning sky and deep ocean, representing the Azure Dragon of the East.
+Inspired by the clear morning sky and deep ocean, representing the Black Tortoise of the East.
 
 | Level | Hex Code | RGB | Usage | WCAG AA on White |
 |-------|----------|-----|-------|------------------|
-| **azure-1** | `#E6F7FF` | rgb(230, 247, 255) | Lightest - Backgrounds, hover states | ✅ Pass |
-| **azure-2** | `#BAE7FF` | rgb(186, 231, 255) | Very Light - Active backgrounds | ✅ Pass |
-| **azure-3** | `#91D5FF` | rgb(145, 213, 255) | Light - Secondary elements, borders | ✅ Pass |
-| **azure-4** | `#69C0FF` | rgb(105, 192, 255) | Medium Light - Disabled states | ⚠️  AAA Large |
-| **azure-5** | `#40A9FF` | rgb(64, 169, 255) | Medium - Hover primary, auxiliary | ✅ Pass |
-| **azure-6** | `#0EA5E9` | rgb(14, 165, 233) | ⭐ **PRIMARY** - Main brand color | ✅ Pass |
-| **azure-7** | `#0C83BA` | rgb(12, 131, 186) | Medium Dark - Active primary | ✅ Pass |
-| **azure-8** | `#0A688B` | rgb(10, 104, 139) | Dark - Text on light backgrounds | ✅ Pass |
-| **azure-9** | `#084C5C` | rgb(8, 76, 92) | Very Dark - Deep emphasis | ✅ Pass |
-| **azure-10** | `#06303D` | rgb(6, 48, 61) | Darkest - Dark mode backgrounds | ✅ Pass |
+| **obsidian-1** | `#E6F7FF` | rgb(230, 247, 255) | Lightest - Backgrounds, hover states | ✅ Pass |
+| **obsidian-2** | `#BAE7FF` | rgb(186, 231, 255) | Very Light - Active backgrounds | ✅ Pass |
+| **obsidian-3** | `#91D5FF` | rgb(145, 213, 255) | Light - Secondary elements, borders | ✅ Pass |
+| **obsidian-4** | `#69C0FF` | rgb(105, 192, 255) | Medium Light - Disabled states | ⚠️  AAA Large |
+| **obsidian-5** | `#40A9FF` | rgb(64, 169, 255) | Medium - Hover primary, auxiliary | ✅ Pass |
+| **obsidian-6** | `#1E293B` | rgb(14, 165, 233) | ⭐ **PRIMARY** - Main brand color | ✅ Pass |
+| **obsidian-7** | `#0C83BA` | rgb(12, 131, 186) | Medium Dark - Active primary | ✅ Pass |
+| **obsidian-8** | `#0A688B` | rgb(10, 104, 139) | Dark - Text on light backgrounds | ✅ Pass |
+| **obsidian-9** | `#084C5C` | rgb(8, 76, 92) | Very Dark - Deep emphasis | ✅ Pass |
+| **obsidian-10** | `#06303D` | rgb(6, 48, 61) | Darkest - Dark mode backgrounds | ✅ Pass |
 
 ### Secondary Color System - Jade Green (翡翠綠)
 
-Represents the jade scales of the Azure Dragon, symbolizing vitality and success.
+Represents the jade scales of the Black Tortoise, symbolizing vitality and success.
 
 | Level | Hex Code | RGB | Usage | WCAG AA on White |
 |-------|----------|-----|-------|------------------|
-| **jade-1** | `#E6FFF9` | rgb(230, 255, 249) | Lightest - Success backgrounds | ✅ Pass |
-| **jade-2** | `#B3FFE6` | rgb(179, 255, 230) | Very Light - Hover success states | ✅ Pass |
-| **jade-3** | `#7FFFD4` | rgb(127, 255, 212) | Light - Secondary success elements | ⚠️  AAA Large |
-| **jade-4** | `#14B8A6` | rgb(20, 184, 166) | ⭐ **SUCCESS** - Main success color | ✅ Pass |
-| **jade-5** | `#0D9488` | rgb(13, 148, 136) | Dark - Active success states | ✅ Pass |
-| **jade-6** | `#0A7C6C` | rgb(10, 124, 108) | Darkest - Deep success emphasis | ✅ Pass |
+| **stone-1** | `#E6FFF9` | rgb(230, 255, 249) | Lightest - Success backgrounds | ✅ Pass |
+| **stone-2** | `#B3FFE6` | rgb(179, 255, 230) | Very Light - Hover success states | ✅ Pass |
+| **stone-3** | `#7FFFD4` | rgb(127, 255, 212) | Light - Secondary success elements | ⚠️  AAA Large |
+| **stone-4** | `#475569` | rgb(20, 184, 166) | ⭐ **SUCCESS** - Main success color | ✅ Pass |
+| **stone-5** | `#0D9488` | rgb(13, 148, 136) | Dark - Active success states | ✅ Pass |
+| **stone-6** | `#0A7C6C` | rgb(10, 124, 108) | Darkest - Deep success emphasis | ✅ Pass |
 
 ### Tertiary Color System - Cyan (青綠)
 
@@ -56,8 +56,8 @@ Represents the dragon's breath and mysterious aura, used for informational eleme
 
 | Purpose | Color Name | Hex Code | RGB | WCAG AA |
 |---------|-----------|----------|-----|---------|
-| **Primary** | Azure Blue | `#0EA5E9` | rgb(14, 165, 233) | ✅ Pass |
-| **Success** | Jade Green | `#14B8A6` | rgb(20, 184, 166) | ✅ Pass |
+| **Primary** | Azure Blue | `#1E293B` | rgb(14, 165, 233) | ✅ Pass |
+| **Success** | Jade Green | `#475569` | rgb(20, 184, 166) | ✅ Pass |
 | **Warning** | Amber Yellow | `#F59E0B` | rgb(245, 158, 11) | ✅ Pass |
 | **Error** | Crimson Red | `#EF4444` | rgb(239, 68, 68) | ✅ Pass |
 | **Info** | Cyan | `#06B6D4` | rgb(6, 182, 212) | ✅ Pass |
@@ -82,7 +82,7 @@ Represents the dragon's breath and mysterious aura, used for informational eleme
 
 #### 1. Dragon Soaring (龍躍雲端)
 ```css
-background: linear-gradient(135deg, #0EA5E9 0%, #14B8A6 100%);
+background: linear-gradient(135deg, #1E293B 0%, #475569 100%);
 ```
 **Usage**: Primary buttons, hero sections, featured cards  
 **Effect**: Upward diagonal gradient from azure to jade  
@@ -90,15 +90,15 @@ background: linear-gradient(135deg, #0EA5E9 0%, #14B8A6 100%);
 
 #### 2. Azure Sky & Sea (碧海青天)
 ```css
-background: linear-gradient(180deg, #0EA5E9 0%, #06B6D4 50%, #14B8A6 100%);
+background: linear-gradient(180deg, #1E293B 0%, #06B6D4 50%, #475569 100%);
 ```
 **Usage**: Large banners, page backgrounds  
 **Effect**: Vertical gradient with cyan midpoint  
 **Symbolism**: Sky meeting the ocean
 
-#### 3. Dragon Scales (青龍鱗片)
+#### 3. Dragon Scales (玄武鱗片)
 ```css
-background: linear-gradient(45deg, #0C83BA 0%, #0D9488 50%, #0EA5E9 100%);
+background: linear-gradient(45deg, #0C83BA 0%, #0D9488 50%, #1E293B 100%);
 ```
 **Usage**: Hover effects, decorative elements  
 **Effect**: Diagonal multi-stop gradient  
@@ -124,32 +124,32 @@ background: linear-gradient(135deg, #084C5C 0%, #0A7C6C 100%);
 
 #### Dragon Orb (龍珠光暈)
 ```css
-background: radial-gradient(circle at center, #0EA5E9 0%, #06B6D4 50%, transparent 100%);
+background: radial-gradient(circle at center, #1E293B 0%, #06B6D4 50%, transparent 100%);
 ```
 **Usage**: Spotlight effects, focus highlights
 
 #### Energy Ripple (能量波紋)
 ```css
-background: radial-gradient(ellipse at center, #14B8A6 0%, #0EA5E9 40%, transparent 70%);
+background: radial-gradient(ellipse at center, #475569 0%, #1E293B 40%, transparent 70%);
 ```
 **Usage**: Notification badges, pulse effects
 
 ## 💫 Shadow System
 
-### Azure Dragon Shadows
+### Black Tortoise Shadows
 
 ```less
 // Small shadow - Cards, buttons
-@shadow-azure-sm: 0 1px 2px rgba(14, 165, 233, 0.05);
+@shadow-obsidian-sm: 0 1px 2px rgba(14, 165, 233, 0.05);
 
 // Medium shadow - Floating elements
-@shadow-azure-md: 0 4px 6px rgba(14, 165, 233, 0.1);
+@shadow-obsidian-md: 0 4px 6px rgba(14, 165, 233, 0.1);
 
 // Large shadow - Modals, drawers
-@shadow-azure-lg: 0 10px 15px rgba(14, 165, 233, 0.15);
+@shadow-obsidian-lg: 0 10px 15px rgba(14, 165, 233, 0.15);
 
 // Extra large shadow - Full-screen overlays
-@shadow-azure-xl: 0 20px 25px rgba(14, 165, 233, 0.2);
+@shadow-obsidian-xl: 0 20px 25px rgba(14, 165, 233, 0.2);
 ```
 
 ### Glow Effects
@@ -194,7 +194,7 @@ Three-tier timing system for optimal user experience:
 
 3. **Use Gradients for Hero Elements**
    ```html
-   <div class="hero-banner" style="background: linear-gradient(135deg, #0EA5E9 0%, #14B8A6 100%)">
+   <div class="hero-banner" style="background: linear-gradient(135deg, #1E293B 0%, #475569 100%)">
      <h1>Welcome to GigHub</h1>
    </div>
    ```
@@ -202,9 +202,9 @@ Three-tier timing system for optimal user experience:
 4. **Use Shadows for Depth**
    ```less
    .card {
-     box-shadow: @shadow-azure-md;
+     box-shadow: @shadow-obsidian-md;
      &:hover {
-       box-shadow: @shadow-azure-lg;
+       box-shadow: @shadow-obsidian-lg;
      }
    }
    ```
@@ -238,7 +238,7 @@ Three-tier timing system for optimal user experience:
 
 // Default button - Outline style
 <button nz-button nzType="default">Default</button>
-// Border: @azure-6, Hover BG: @azure-1
+// Border: @obsidian-6, Hover BG: @obsidian-1
 
 // Danger button - Error state
 <button nz-button nzType="primary" nzDanger>Delete</button>
@@ -250,15 +250,15 @@ Three-tier timing system for optimal user experience:
 ```typescript
 // Input focus - Azure border
 <input nz-input placeholder="Enter text" />
-// Focus: @azure-6 border with 20% opacity shadow
+// Focus: @obsidian-6 border with 20% opacity shadow
 
 // Select hover - Azure highlight
 <nz-select [nzOptions]="options"></nz-select>
-// Option hover: @azure-1 background
+// Option hover: @obsidian-1 background
 
 // Checkbox checked - Azure fill
 <label nz-checkbox>Option</label>
-// Checked: @azure-6 background
+// Checked: @obsidian-6 background
 ```
 
 ### Tables
@@ -267,17 +267,17 @@ Three-tier timing system for optimal user experience:
 // Table header - Dawn Light gradient
 .ant-table-thead > tr > th {
   background: @gradient-dawn-light;
-  color: @azure-7;
+  color: @obsidian-7;
 }
 
 // Table row hover - Azure light background
 .ant-table-tbody > tr:hover > td {
-  background: fade(@azure-1, 80%);
+  background: fade(@obsidian-1, 80%);
 }
 
 // Selected row - Azure background
 .ant-table-row-selected > td {
-  background: fade(@azure-1, 90%);
+  background: fade(@obsidian-1, 90%);
 }
 ```
 
@@ -286,15 +286,15 @@ Three-tier timing system for optimal user experience:
 ```less
 // Active menu item - Azure highlight
 .ant-menu-item-selected {
-  background-color: @azure-1;
-  color: @azure-6;
-  border-left: 3px solid @azure-6;
+  background-color: @obsidian-1;
+  color: @obsidian-6;
+  border-left: 3px solid @obsidian-6;
 }
 
 // Sidebar active - Gradient background
 .alain-default__nav-item.active {
-  background: fade(@azure-1, 80%);
-  border-left: 3px solid @azure-6;
+  background: fade(@obsidian-1, 80%);
+  border-left: 3px solid @obsidian-6;
 }
 ```
 
@@ -307,8 +307,8 @@ import { NzConfig, provideNzConfig } from 'ng-zorro-antd/core/config';
 
 const ngZorroConfig: NzConfig = {
   theme: {
-    primaryColor: '#0EA5E9',
-    successColor: '#14B8A6',
+    primaryColor: '#1E293B',
+    successColor: '#475569',
     warningColor: '#F59E0B',
     errorColor: '#EF4444',
     infoColor: '#06B6D4'
@@ -324,8 +324,8 @@ export const appConfig: ApplicationConfig = {
 
 ```less
 // Define BEFORE importing @delon/theme
-@primary-color: #0EA5E9;
-@success-color: #14B8A6;
+@primary-color: #1E293B;
+@success-color: #475569;
 @warning-color: #F59E0B;
 @error-color: #EF4444;
 @info-color: #06B6D4;
@@ -344,7 +344,7 @@ export class ThemeService {
   
   changeToAzureTheme() {
     this.nzConfigService.set('theme', {
-      primaryColor: '#0EA5E9'
+      primaryColor: '#1E293B'
     });
   }
   
@@ -363,8 +363,8 @@ export class ThemeService {
 All color combinations meet **WCAG 2.1 Level AA** standards:
 
 - ✅ Primary text (`#1E293B`) on white: **14.8:1** (AAA)
-- ✅ Azure-6 (`#0EA5E9`) on white: **4.5:1** (AA)
-- ✅ Jade-4 (`#14B8A6`) on white: **4.5:1** (AA)
+- ✅ Azure-6 (`#1E293B`) on white: **4.5:1** (AA)
+- ✅ Jade-4 (`#475569`) on white: **4.5:1** (AA)
 - ✅ Link color on white: **4.5:1** (AA)
 - ✅ Secondary text (`#64748B`) on white: **5.3:1** (AA)
 
@@ -389,12 +389,12 @@ Never rely solely on color:
 @media (max-width: @screen-sm) {
   // Use solid colors instead of gradients for better performance
   .alain-default__header {
-    background: @azure-6 !important;
+    background: @obsidian-6 !important;
   }
   
   // Simplify shadows
   .card {
-    box-shadow: @shadow-azure-sm;
+    box-shadow: @shadow-obsidian-sm;
   }
 }
 ```
@@ -404,9 +404,9 @@ Never rely solely on color:
 ```less
 @media print {
   // Convert gradients to solid colors for printing
-  .azure-bg-gradient,
+  .obsidian-bg-gradient,
   .dragon-effect {
-    background: @azure-6 !important;
+    background: @obsidian-6 !important;
   }
   
   // Ensure text contrast
@@ -423,8 +423,8 @@ Never rely solely on color:
 - **Ant Design**: https://ant.design/docs/spec/colors
 - **Context7 Docs**: Based on `/ng-zorro/ng-zorro-antd` documentation
 
-### Azure Dragon Theme Docs
-- **Main Guide**: [azure-dragon-theme.md](./azure-dragon-theme.md)
+### Black Tortoise Theme Docs
+- **Main Guide**: [obsidian-dragon-theme.md](./obsidian-dragon-theme.md)
 - **Integration**: [AZURE_DRAGON_INTEGRATION.md](./AZURE_DRAGON_INTEGRATION.md)
 - **Version Compatibility**: [VERSION_COMPATIBILITY.md](./VERSION_COMPATIBILITY.md)
 

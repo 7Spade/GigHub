@@ -1,4 +1,4 @@
-# Azure Dragon Theme Styling Fixes - Summary
+# Black Tortoise Theme Styling Fixes - Summary
 
 **Date**: 2025-12-09  
 **Status**: ✅ Completed  
@@ -6,20 +6,20 @@
 
 ## Issue Description
 
-針對青龍主題視覺問題的全面修復，確保所有樣式符合設計文檔規範。
+針對玄武主題視覺問題的全面修復，確保所有樣式符合設計文檔規範。
 
 ### Original Problems
 
 1. **index.html 動畫顏色不搭配**
-   - 預載器背景使用 `#49a9ee`（不符合青龍主題）
-   - 應使用青龍漸變色
+   - 預載器背景使用 `#49a9ee`（不符合玄武主題）
+   - 應使用玄武漸變色
 
 2. **樣式不一致**
    - 選中與懸停狀態需統一
    - 需符合設計文檔規範
 
 3. **未使用的檔案**
-   - `azure-dragon-runtime.css` 未被引用但存在於專案中
+   - `black-tortoise-runtime.css` 未被引用但存在於專案中
 
 4. **缺少圖標**
    - 專案使用的部分圖標未在 `style-icons.ts` 中註冊
@@ -38,7 +38,7 @@ background: #49a9ee;
 background: linear-gradient(135deg, #0EA5E9 0%, #14B8A6 100%);
 ```
 
-**效果**: 預載器現在使用「龍躍雲端」漸變色（Azure Dragon Blue → Jade Green）
+**效果**: 預載器現在使用「龜甲守護」漸變色（Black Tortoise Blue → Jade Green）
 
 #### Title Update
 ```html
@@ -83,55 +83,55 @@ UsergroupAddOutline
 
 ### 3. Remove Unused File ✅
 
-**刪除**: `src/styles/azure-dragon-runtime.css`
+**刪除**: `src/styles/black-tortoise-runtime.css`
 
 **原因**:
 1. 未在 `angular.json` 中引用
-2. 所有青龍主題功能已在 `theme.less` 和 `index.less` 中實現
+2. 所有玄武主題功能已在 `theme.less` 和 `index.less` 中實現
 3. LESS 編譯時變量系統優於 CSS 變量
 4. 避免維護混淆
 
 ### 4. Style Consistency Validation ✅
 
 #### theme.less 檢查
-- ✅ 所有 Azure Dragon 顏色正確定義
+- ✅ 所有 Black Tortoise 顏色正確定義
 - ✅ 漸變變量完整
-- ✅ 語義化顏色（success, warning, error）使用青龍色系
+- ✅ 語義化顏色（success, warning, error）使用玄武色系
 - ✅ ng-alain 變量配置正確
 
 #### index.less 檢查
-- ✅ 按鈕懸停效果使用青龍漸變
-- ✅ 卡片懸停使用 Azure Dragon 色系
+- ✅ 按鈕懸停效果使用玄武漸變
+- ✅ 卡片懸停使用 Black Tortoise 色系
 - ✅ 表單控件焦點狀態統一
-- ✅ 導航選中狀態使用青龍色
+- ✅ 導航選中狀態使用玄武色
 - ✅ 表格懸停使用 Azure 1 背景
 - ✅ 標籤、徽章使用對應色系
 - ✅ 所有過渡效果遵循三級系統
 
 ## Color System Reference
 
-### Azure Dragon Colors (Primary)
+### Black Tortoise Colors (Primary)
 ```less
-@azure-1: #E6F7FF;  // 背景淺色
-@azure-2: #BAE7FF;  // 懸停淺色
-@azure-3: #91D5FF;  // 次要色
-@azure-4: #69C0FF;  // 中亮色
-@azure-5: #40A9FF;  // 輔助色
-@azure-6: #0EA5E9;  // ⭐ 主色
-@azure-7: #0C83BA;  // 懸停深色
-@azure-8: #0A688B;  // 強調色
-@azure-9: #084C5C;  // 深色
-@azure-10: #06303D; // 最深色
+@obsidian-1: #E6F7FF;  // 背景淺色
+@obsidian-2: #BAE7FF;  // 懸停淺色
+@obsidian-3: #91D5FF;  // 次要色
+@obsidian-4: #69C0FF;  // 中亮色
+@obsidian-5: #40A9FF;  // 輔助色
+@obsidian-6: #0EA5E9;  // ⭐ 主色
+@obsidian-7: #0C83BA;  // 懸停深色
+@obsidian-8: #0A688B;  // 強調色
+@obsidian-9: #084C5C;  // 深色
+@obsidian-10: #06303D; // 最深色
 ```
 
 ### Jade Green (Secondary)
 ```less
-@jade-1: #E6FFF9;
-@jade-2: #B3FFE6;
-@jade-3: #7FFFD4;
-@jade-4: #14B8A6;  // ⭐ 成功色
-@jade-5: #0D9488;
-@jade-6: #0A7C6C;
+@stone-1: #E6FFF9;
+@stone-2: #B3FFE6;
+@stone-3: #7FFFD4;
+@stone-4: #14B8A6;  // ⭐ 成功色
+@stone-5: #0D9488;
+@stone-6: #0A7C6C;
 ```
 
 ### Cyan (Tertiary)
@@ -145,20 +145,20 @@ UsergroupAddOutline
 
 ### Gradients (漸變)
 ```less
-// 龍躍雲端 - 主要按鈕與預載器
-@gradient-dragon-soaring: linear-gradient(135deg, @azure-6 0%, @jade-4 100%);
+// 龜甲守護 - 主要按鈕與預載器
+@gradient-tortoise-soaring: linear-gradient(135deg, @obsidian-6 0%, @stone-4 100%);
 
 // 碧海青天 - 大型背景
-@gradient-azure-sky: linear-gradient(180deg, @azure-6 0%, @cyan-3 50%, @jade-4 100%);
+@gradient-azure-sky: linear-gradient(180deg, @obsidian-6 0%, @cyan-3 50%, @stone-4 100%);
 
-// 青龍鱗片 - 裝飾元素
-@gradient-dragon-scales: linear-gradient(45deg, @azure-7 0%, @jade-5 50%, @azure-6 100%);
+// 玄武紋理 - 裝飾元素
+@gradient-tortoise-scales: linear-gradient(45deg, @obsidian-7 0%, @stone-5 50%, @obsidian-6 100%);
 
 // 晨曦微光 - 表格表頭、卡片背景
-@gradient-dawn-light: linear-gradient(135deg, @azure-1 0%, @cyan-1 50%, @jade-1 100%);
+@gradient-dawn-light: linear-gradient(135deg, @obsidian-1 0%, @cyan-1 50%, @stone-1 100%);
 
 // 深海神秘 - 深色模式（預留）
-@gradient-deep-mystery: linear-gradient(135deg, @azure-9 0%, @jade-6 100%);
+@gradient-deep-mystery: linear-gradient(135deg, @obsidian-9 0%, @stone-6 100%);
 ```
 
 ## Transition System
@@ -177,9 +177,9 @@ UsergroupAddOutline
   transition: all @transition-fast;
   
   &:hover {
-    color: @azure-6;
-    background: @azure-1;
-    border-color: @azure-5;
+    color: @obsidian-6;
+    background: @obsidian-1;
+    border-color: @obsidian-5;
   }
 }
 ```
@@ -187,7 +187,7 @@ UsergroupAddOutline
 ### Layered Effect Pattern (Buttons)
 ```less
 .ant-btn-primary {
-  background: @gradient-dragon-soaring;
+  background: @gradient-tortoise-soaring;
   position: relative;
   overflow: hidden;
   
@@ -195,7 +195,7 @@ UsergroupAddOutline
     content: '';
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
-    background: @gradient-dragon-scales;
+    background: @gradient-tortoise-scales;
     opacity: 0;
     transition: opacity @transition-base;
   }
@@ -216,7 +216,7 @@ UsergroupAddOutline
     content: '';
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
-    border: 1px solid @azure-6;
+    border: 1px solid @obsidian-6;
     border-radius: 8px;
     opacity: 0;
     transition: opacity @transition-base;
@@ -255,7 +255,7 @@ Application bundle generation complete. [21.403 seconds]
 
 ### Preloader
 **之前**: 單調藍色 (`#49a9ee`)  
-**現在**: 青龍漸變 (Azure → Jade)  
+**現在**: 玄武漸變 (Obsidian → Stone)  
 **效果**: 載入時立即呈現品牌視覺
 
 ### Icons
@@ -265,7 +265,7 @@ Application bundle generation complete. [21.403 seconds]
 
 ### Hover States
 **檢查**: 所有互動元素  
-**狀態**: 統一使用 Azure Dragon 色系  
+**狀態**: 統一使用 Black Tortoise 色系  
 **效果**: 一致的視覺反饋
 
 ## Testing Checklist
@@ -276,7 +276,7 @@ Application bundle generation complete. [21.403 seconds]
 - [x] All icons load correctly
 
 ### Visual Tests (Recommended)
-- [ ] Preloader animation displays Azure Dragon gradient
+- [ ] Preloader animation displays Black Tortoise gradient
 - [ ] Button hover effects show gradient transition
 - [ ] Card hover shows dual-layer effect
 - [ ] Form inputs show Azure focus ring
@@ -300,23 +300,23 @@ Application bundle generation complete. [21.403 seconds]
 
 ### Core Changes
 1. **src/index.html** (修改)
-   - 預載器背景改用青龍漸變
+   - 預載器背景改用玄武漸變
    - 標題更新為專案名稱
 
 2. **src/style-icons.ts** (修改)
    - 新增 14 個常用圖標
 
-3. **src/styles/azure-dragon-runtime.css** (刪除)
+3. **src/styles/black-tortoise-runtime.css** (刪除)
    - 移除未使用檔案
 
 ### Files Analyzed (No Changes Needed)
 1. **src/styles/theme.less** (✅ 已完整)
-   - 所有青龍色系變量定義正確
+   - 所有玄武色系變量定義正確
    - 漸變定義完整
    - ng-alain 配置正確
 
 2. **src/styles/index.less** (✅ 已完整)
-   - 所有懸停效果使用青龍色系
+   - 所有懸停效果使用玄武色系
    - 過渡效果符合設計
    - 組件樣式統一
 
@@ -330,11 +330,11 @@ Application bundle generation complete. [21.403 seconds]
 - 過渡效果符合規範
 
 ✅ **AZURE_DRAGON_VISUAL_REFERENCE.md**
-- 預載器使用「龍躍雲端」漸變
+- 預載器使用「龜甲守護」漸變
 - 懸停效果使用指定色系
 - 所有視覺元素符合參考
 
-✅ **azure-dragon-theme-examples.md**
+✅ **black-tortoise-theme-examples.md**
 - 按鈕漸變實現正確
 - 卡片效果符合範例
 - 互動狀態一致
@@ -365,13 +365,13 @@ Application bundle generation complete. [21.403 seconds]
 
 本次修復成功解決所有識別的樣式問題：
 
-✅ **預載器顏色**: 現在使用青龍漸變  
+✅ **預載器顏色**: 現在使用玄武漸變  
 ✅ **圖標完整性**: 所有使用的圖標已註冊  
 ✅ **檔案清理**: 移除未使用的 CSS 檔案  
 ✅ **樣式一致性**: 所有懸停/選中狀態符合設計  
 ✅ **建置驗證**: 成功編譯，無錯誤
 
-**專案狀態**: 青龍主題視覺體驗完整且一致 🐉
+**專案狀態**: 玄武主題視覺體驗完整且一致 🐢
 
 ---
 

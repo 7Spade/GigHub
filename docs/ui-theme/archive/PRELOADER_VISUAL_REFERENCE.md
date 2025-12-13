@@ -30,7 +30,7 @@
 ```css
 .preloader {
   background: linear-gradient(135deg, #0EA5E9 0%, #14B8A6 100%);
-  /* 青龍漸變：Azure Dragon Blue → Jade Green */
+  /* 青龍漸變：Black Tortoise Blue → Jade Green */
 }
 ```
 
@@ -45,7 +45,7 @@
 █████████████████████████████
 ↑                           ↑
 #0EA5E9                #14B8A6
-Azure Dragon Blue      Jade Green
+Black Tortoise Blue      Jade Green
 (青龍藍)               (翡翠綠)
 ```
 
@@ -59,7 +59,7 @@ Azure Dragon Blue      Jade Green
 ### 色彩組成
 ```less
 // 起點
-@azure-6: #0EA5E9  // Azure Dragon Blue (青龍藍)
+@azure-6: #0EA5E9  // Black Tortoise Blue (青龍藍)
 ↓
 // 終點
 @jade-4: #14B8A6   // Jade Green (翡翠綠)
@@ -180,7 +180,7 @@ Android Chrome: ✅ 完整支援
 
 ## Color Psychology
 
-### Azure Dragon Blue (#0EA5E9)
+### Black Tortoise Blue (#0EA5E9)
 - **意義**: 清晨天空、信任、專業
 - **情緒**: 平靜、可靠、現代
 - **用途**: 品牌主色

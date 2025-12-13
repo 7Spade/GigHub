@@ -1,9 +1,9 @@
-# Azure Dragon Theme Implementation Summary
-# 青龍主題實施總結
+# Black Tortoise Theme Implementation Summary
+# 玄武主題實施總結
 
 ## 🎯 專案目標
 
-將青龍主題完全整合到 GigHub 工地施工進度追蹤管理系統中，打造具有中國傳統文化意象的現代化企業級 UI 視覺體驗。
+將玄武主題完全整合到 GigHub 工地施工進度追蹤管理系統中，打造具有中國傳統文化意象的現代化企業級 UI 視覺體驗。
 
 ## ✅ 完成狀態
 
@@ -17,7 +17,7 @@
 1. **src/styles/theme.less** - 主題變量定義與 ng-alain 配置
 2. **src/styles/index.less** - 全局樣式、工具類與元件增強
 3. **src/styles.less** - 主要樣式入口（調整導入順序）
-4. **src/styles/azure-dragon-runtime.css** - CSS 變量檔案（運行時主題切換）
+4. **src/styles/tortoise-dragon-runtime.css** - CSS 變量檔案（運行時主題切換）
 
 ### 應用配置
 5. **src/app/app.config.ts** - ng-zorro-antd 主題配置
@@ -30,15 +30,15 @@
 ## 🎨 主題特色
 
 ### 色彩系統
-- **主色**: Azure Dragon Blue (#0EA5E9) - 清晨天空的青藍色
-- **輔助色**: Jade Green (#14B8A6) - 翡翠般的生機綠
+- **主色**: Black Tortoise Blue (#1E293B) - 清晨天空的青藍色
+- **輔助色**: Jade Green (#475569) - 翡翠般的生機綠
 - **資訊色**: Cyan (#06B6D4) - 清澈的青綠
 - **10 級色階**: 從淺到深的完整漸變體系
 
 ### 漸變效果
 1. **龍躍雲端**: 主要按鈕與英雄區塊
 2. **碧海青天**: 大型背景與橫幅
-3. **青龍鱗片**: 裝飾元素與懸停效果
+3. **玄武鱗片**: 裝飾元素與懸停效果
 4. **晨曦微光**: 表格與卡片背景
 5. **深海神秘**: 深色模式背景（預留）
 
@@ -52,8 +52,8 @@
 ### LESS 變量架構
 ```less
 // 在 theme.less 中定義所有變量 BEFORE 導入 @delon/theme
-@azure-6: #0EA5E9;
-@primary-color: @azure-6;
+@tortoise-6: #1E293B;
+@primary-color: @tortoise-6;
 // ... 其他變量
 
 // 然後導入
@@ -79,11 +79,11 @@
 ### 避免重複定義
 ```less
 // ❌ 錯誤：在 index.less 中再次導入會造成衝突
-@import '../docs/azure-dragon-theme-variables.less';  // 會重複定義變量
+@import '../docs/tortoise-dragon-theme-variables.less';  // 會重複定義變量
 
 // ✅ 正確：直接使用 theme.less 中已定義的變量
 .my-class {
-  color: @azure-6;  // 可以直接使用
+  color: @tortoise-6;  // 可以直接使用
 }
 ```
 
@@ -113,15 +113,15 @@
 
 ```html
 <!-- 背景 -->
-<div class="azure-bg-primary">主色背景</div>
-<div class="azure-bg-gradient">漸變背景</div>
+<div class="tortoise-bg-primary">主色背景</div>
+<div class="tortoise-bg-gradient">漸變背景</div>
 
 <!-- 文字 -->
-<span class="azure-text-primary">主色文字</span>
+<span class="tortoise-text-primary">主色文字</span>
 
 <!-- 卡片 -->
-<div class="azure-card">標準卡片</div>
-<div class="azure-card-featured">特色卡片</div>
+<div class="tortoise-card">標準卡片</div>
+<div class="tortoise-card-featured">特色卡片</div>
 
 <!-- 動畫 -->
 <div class="dragon-effect">流動效果</div>
@@ -180,28 +180,28 @@ Application bundle generation complete. [17.107 seconds]
 - **AZURE_DRAGON_IMPLEMENTATION_SUMMARY.md**: 本實施總結
 
 ### 原始設計文檔
-- **docs/azure-dragon-theme.md**: 設計理念與色彩系統
-- **docs/azure-dragon-theme-variables.less**: LESS 變量定義
-- **docs/azure-dragon-theme.css**: CSS 版本
-- **docs/azure-dragon-theme-examples.md**: 程式碼範例
+- **docs/tortoise-dragon-theme.md**: 設計理念與色彩系統
+- **docs/tortoise-dragon-theme-variables.less**: LESS 變量定義
+- **docs/tortoise-dragon-theme.css**: CSS 版本
+- **docs/tortoise-dragon-theme-examples.md**: 程式碼範例
 
 ### 快速開始
 ```typescript
 // 1. 在元件 LESS 中使用
 .my-component {
-  background: @azure-6;
+  background: @tortoise-6;
   color: white;
   
   &:hover {
-    background: @azure-5;
+    background: @tortoise-5;
   }
 }
 
 // 2. 在 HTML 中使用工具類
-<button class="azure-bg-gradient">點擊我</button>
+<button class="tortoise-bg-gradient">點擊我</button>
 
 // 3. 在 TypeScript 中使用常量
-readonly AZURE_PRIMARY = '#0EA5E9';
+readonly AZURE_PRIMARY = '#1E293B';
 ```
 
 ## 🚀 下一步建議
@@ -227,7 +227,7 @@ readonly AZURE_PRIMARY = '#0EA5E9';
 ## 💡 使用建議
 
 ### 最佳實踐
-1. **一致性**: 在整個應用中統一使用青龍主題顏色
+1. **一致性**: 在整個應用中統一使用玄武主題顏色
 2. **語義化**: 使用 `@success-color`、`@error-color` 等語義變量
 3. **效能**: 在移動端避免過度使用漸變與動畫
 4. **無障礙**: 確保足夠的顏色對比度
@@ -235,8 +235,8 @@ readonly AZURE_PRIMARY = '#0EA5E9';
 
 ### 常見問題
 
-**Q: 如何在新元件中使用青龍主題？**  
-A: 直接在元件 LESS 檔案中使用變量（如 `@azure-6`），或在 HTML 中使用工具類（如 `azure-bg-primary`）。
+**Q: 如何在新元件中使用玄武主題？**  
+A: 直接在元件 LESS 檔案中使用變量（如 `@tortoise-6`），或在 HTML 中使用工具類（如 `tortoise-bg-primary`）。
 
 **Q: 可以自定義顏色嗎？**  
 A: 可以。修改 `src/styles/theme.less` 中的顏色變量值，然後重新建置。
@@ -252,7 +252,7 @@ A: Bundle size 警告是可接受的，這是企業級應用的正常範圍。Co
 - **ng-zorro-antd**: 優秀的 Angular UI 元件庫
 - **ng-alain**: 企業級中後台前端解決方案
 - **Ant Design**: 卓越的設計系統
-- **中國傳統文化**: 青龍四象的設計靈感
+- **中國傳統文化**: 玄武四象的設計靈感
 
 ## 📞 支援
 
@@ -264,9 +264,9 @@ A: Bundle size 警告是可接受的，這是企業級應用的正常範圍。Co
 ---
 
 **專案**: GigHub (工地施工進度追蹤管理系統)  
-**主題**: Azure Dragon (青龍)  
+**主題**: Black Tortoise (玄武)  
 **版本**: 1.0.0  
 **日期**: 2025-12-08  
 **狀態**: ✅ 已完成核心整合
 
-🐉 **願青龍主題為您的專案帶來生機與力量！**
+🐉 **願玄武主題為您的專案帶來生機與力量！**
