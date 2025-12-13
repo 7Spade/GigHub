@@ -373,7 +373,7 @@ export class ConstructionLogModalComponent implements OnInit, OnDestroy {
   private async createLog(formValue: any): Promise<Log | null> {
     // Ensure date is a valid Date object
     const date = this.ensureValidDate(formValue.date);
-    
+
     // Get current user ID
     const currentUserId = this.firebaseService.getCurrentUserId();
     if (!currentUserId) {

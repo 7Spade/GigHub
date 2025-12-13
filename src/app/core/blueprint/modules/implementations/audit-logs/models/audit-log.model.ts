@@ -114,7 +114,7 @@ export enum AuditEventType {
   TASK_ASSIGNED = 'task.assigned',
   TASK_COMPLETED = 'task.completed',
 
-  // Log events  
+  // Log events
   LOG_CREATED = 'log.created',
   LOG_UPDATED = 'log.updated',
   LOG_DELETED = 'log.deleted',
