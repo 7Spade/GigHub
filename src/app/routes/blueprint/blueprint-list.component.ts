@@ -3,7 +3,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Blueprint, BlueprintStatus, LoggerService, FirebaseAuthService, OwnerType, ContextType } from '@core';
 import { BlueprintService } from '@core/blueprint/services';
-import { STColumn, STData } from '@delon/abc/st';
+import { STChange, STColumn, STData } from '@delon/abc/st';
 import { ModalHelper } from '@delon/theme';
 import { SHARED_IMPORTS, createAsyncArrayState, WorkspaceContextService } from '@shared';
 import { NzInputModule } from 'ng-zorro-antd/input';
@@ -247,24 +247,30 @@ export class BlueprintListComponent implements OnInit {
     {
       title: '名稱',
       index: 'name',
-      width: '200px',
+      width: '180px',
       render: 'name'
+    },
+    {
+      title: '業主',
+      index: 'ownerType',
+      width: '110px',
+      format: (item: Blueprint) => this.getOwnerDisplay(item)
     },
     {
       title: 'Slug',
       index: 'slug',
-      width: '150px'
+      width: '120px'
     },
     {
       title: '描述',
       index: 'description',
-      width: '300px',
+      width: '220px',
       default: '-'
     },
     {
       title: '狀態',
       index: 'status',
-      width: '100px',
+      width: '90px',
       type: 'badge',
       badge: {
         draft: { text: '草稿', color: 'default' },
@@ -273,20 +279,58 @@ export class BlueprintListComponent implements OnInit {
       }
     },
     {
+      title: '進度',
+      index: 'metadata.progress',
+      width: '90px',
+      format: (item: Blueprint) => this.formatProgress(item)
+    },
+    {
+      title: '負責人',
+      index: 'createdBy',
+      width: '150px',
+      format: (item: Blueprint) => this.getResponsibleDisplay(item)
+    },
+    {
+      title: '開始日期',
+      width: '120px',
+      format: (item: Blueprint) => this.formatDateValue(this.getMetadataDate(item, ['startDate', 'start', 'plannedStart']))
+    },
+    {
+      title: '預計完成日',
+      width: '130px',
+      format: (item: Blueprint) => this.formatDateValue(this.getMetadataDate(item, ['dueDate', 'endDate', 'plannedEnd']))
+    },
+    {
+      title: '最後更新時間',
+      index: 'updatedAt',
+      width: '130px',
+      format: (item: Blueprint) => this.formatDateValue(item.updatedAt)
+    },
+    {
       title: '建立時間',
       index: 'createdAt',
       type: 'date',
-      width: '150px'
+      width: '130px'
     },
     {
       title: '啟用模組',
       index: 'enabledModules',
-      width: '120px',
+      width: '110px',
       format: (item: Blueprint) => (item.enabledModules ? `${item.enabledModules.length}/5` : '0/5')
     },
     {
+      title: '預算',
+      width: '110px',
+      format: (item: Blueprint) => this.formatCurrency(this.getMetadataNumber(item, ['budget', 'budgetAmount']))
+    },
+    {
+      title: '已花費',
+      width: '110px',
+      format: (item: Blueprint) => this.formatCurrency(this.getMetadataNumber(item, ['spent', 'cost', 'actualCost']))
+    },
+    {
       title: '操作',
-      width: '220px',
+      width: '200px',
       buttons: [
         {
           text: '檢視',
@@ -324,6 +368,141 @@ export class BlueprintListComponent implements OnInit {
     this.loadBlueprints();
   }
 
+  private getOwnerDisplay(blueprint: Blueprint): string {
+    const ownerName = this.getMetadataString(blueprint, ['ownerName', 'client', 'clientName']);
+    if (ownerName) {
+      return ownerName;
+    }
+
+    const ownerLabels: Record<OwnerType, string> = {
+      [OwnerType.USER]: '個人',
+      [OwnerType.ORGANIZATION]: '組織',
+      [OwnerType.TEAM]: '團隊'
+    };
+
+    if (blueprint.ownerType === OwnerType.ORGANIZATION) {
+      const organization = this.workspaceContext.organizations().find(org => org.id === blueprint.ownerId);
+      if (organization?.name) {
+        return organization.name;
+      }
+    }
+
+    if (blueprint.ownerType === OwnerType.TEAM) {
+      const team = this.workspaceContext.teams().find(t => t.id === blueprint.ownerId);
+      if (team?.name) {
+        return team.name;
+      }
+    }
+
+    const user = this.workspaceContext.currentUser();
+    if (blueprint.ownerType === OwnerType.USER && user?.name) {
+      return user.name;
+    }
+
+    return ownerLabels[blueprint.ownerType] || blueprint.ownerType || '-';
+  }
+
+  private getResponsibleDisplay(blueprint: Blueprint): string {
+    const responsible =
+      this.getMetadataString(blueprint, ['responsibleName', 'assigneeName', 'responsibleDisplay']) ||
+      this.getMetadataString(blueprint, ['responsible', 'owner', 'manager', 'lead', 'assignee']);
+
+    if (responsible) {
+      return responsible;
+    }
+
+    const currentUser = this.workspaceContext.currentUser();
+    if (currentUser && blueprint.createdBy === currentUser.id) {
+      return currentUser.name || currentUser.email || currentUser.uid || '-';
+    }
+
+    // Fallback: avoid exposing opaque IDs directly
+    if (blueprint.createdBy && blueprint.createdBy.length <= 12) {
+      return blueprint.createdBy;
+    }
+
+    return '-';
+  }
+
+  private formatProgress(blueprint: Blueprint): string {
+    const progress = this.getMetadataNumber(blueprint, ['progress', 'progressPercent']);
+    if (progress === null) {
+      return '-';
+    }
+    const normalized = Math.min(100, Math.max(0, progress));
+    return `${normalized}%`;
+  }
+
+  private formatDateValue(value: unknown): string {
+    let date: Date | null = null;
+
+    if (value instanceof Date) {
+      date = value;
+    } else if (typeof value === 'string') {
+      date = new Date(value);
+    } else if (this.isTimestampLike(value)) {
+      date = value.toDate();
+    }
+
+    if (!date || Number.isNaN(date.getTime())) {
+      return '-';
+    }
+    return date.toLocaleDateString();
+  }
+
+  private formatCurrency(value: number | null): string {
+    if (typeof value !== 'number' || Number.isNaN(value)) {
+      return '-';
+    }
+    return value.toLocaleString('zh-TW', { maximumFractionDigits: 0 });
+  }
+
+  private getMetadataString(blueprint: Blueprint, keys: string[]): string | null {
+    if (!blueprint.metadata) {
+      return null;
+    }
+    for (const key of keys) {
+      const value = blueprint.metadata[key];
+      if (typeof value === 'string' && value.trim()) {
+        return value;
+      }
+    }
+    return null;
+  }
+
+  private getMetadataNumber(blueprint: Blueprint, keys: string[]): number | null {
+    if (!blueprint.metadata) {
+      return null;
+    }
+    for (const key of keys) {
+      const value = blueprint.metadata[key];
+      if (typeof value === 'number' && !Number.isNaN(value)) {
+        return value;
+      }
+    }
+    return null;
+  }
+
+  private getMetadataDate(blueprint: Blueprint, keys: string[]): unknown {
+    if (!blueprint.metadata) {
+      return null;
+    }
+    for (const key of keys) {
+      const value = blueprint.metadata[key];
+      if (value instanceof Date || typeof value === 'string') {
+        return value;
+      }
+      if (this.isTimestampLike(value)) {
+        return value;
+      }
+    }
+    return null;
+  }
+
+  private isTimestampLike(value: unknown): value is { toDate: () => Date } {
+    return !!value && typeof value === 'object' && 'toDate' in value && typeof (value as { toDate: unknown }).toDate === 'function';
+  }
+
   /**
    * Load blueprints for current workspace context
    * 載入當前工作區上下文的藍圖
@@ -354,14 +533,16 @@ export class BlueprintListComponent implements OnInit {
         ownerId = contextId || user.uid;
         break;
       case ContextType.TEAM:
-        // Teams belong to organizations, so load organization's blueprints
-        const team = this.workspaceContext.teams().find(t => t.id === contextId);
-        if (team) {
-          ownerType = OwnerType.ORGANIZATION;
-          ownerId = team.organization_id;
-        } else {
-          ownerType = OwnerType.USER;
-          ownerId = user.uid;
+        {
+          // Teams belong to organizations, so load organization's blueprints
+          const team = this.workspaceContext.teams().find(t => t.id === contextId);
+          if (team) {
+            ownerType = OwnerType.ORGANIZATION;
+            ownerId = team.organization_id;
+          } else {
+            ownerType = OwnerType.USER;
+            ownerId = user.uid;
+          }
         }
         break;
       case ContextType.USER:
@@ -408,9 +589,9 @@ export class BlueprintListComponent implements OnInit {
    * Handle table change event
    * 處理表格變更事件
    */
-  onChange(event: any): void {
+  onChange(event: STChange): void {
     // Handle pagination, sorting, etc.
-    this.logger.debug('[BlueprintListComponent]', 'Table changed', event);
+    this.logger.debug('[BlueprintListComponent]', 'Table changed', { event });
   }
 
   /**
