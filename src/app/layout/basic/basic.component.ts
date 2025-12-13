@@ -3,9 +3,6 @@ import { RouterLink, RouterOutlet } from '@angular/router';
 import { ContextType } from '@core';
 import { SettingsService, User, ModalHelper } from '@delon/theme';
 import { LayoutDefaultModule, LayoutDefaultOptions } from '@delon/theme/layout-default';
-import { SettingDrawerModule } from '@delon/theme/setting-drawer';
-import { ThemeBtnComponent } from '@delon/theme/theme-btn';
-import { environment } from '@env/environment';
 import { WorkspaceContextService, MenuManagementService } from '@shared';
 import { NzAvatarModule } from 'ng-zorro-antd/avatar';
 import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
@@ -130,10 +127,6 @@ import { CreateTeamModalComponent } from '../../shared/components/create-team-mo
         <router-outlet />
       </ng-template>
     </layout-default>
-    @if (showSettingDrawer) {
-      <setting-drawer />
-    }
-    <theme-btn />
   `,
   imports: [
     RouterOutlet,
@@ -143,8 +136,6 @@ import { CreateTeamModalComponent } from '../../shared/components/create-team-mo
     NzMenuModule,
     NzDropDownModule,
     NzAvatarModule,
-    SettingDrawerModule,
-    ThemeBtnComponent,
     HeaderSearchComponent,
     HeaderNotifyComponent,
     HeaderTaskComponent,
@@ -168,7 +159,6 @@ export class LayoutBasicComponent {
     logoCollapsed: `./assets/logo.svg`
   };
   searchToggleStatus = false;
-  showSettingDrawer = !environment.production;
 
   constructor() {
     // Load menu configuration asynchronously
