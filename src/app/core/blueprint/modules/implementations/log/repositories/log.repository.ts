@@ -61,19 +61,19 @@ export class LogRepository {
   private toActivityLog(data: Record<string, unknown>, id: string): ActivityLog {
     return {
       id,
-      blueprintId: data.blueprintId || '',
-      userId: data.userId,
-      userName: data.userName,
-      action: data.action,
-      actionType: data.actionType,
-      resourceType: data.resourceType,
-      resourceId: data.resourceId,
-      description: data.description,
-      metadata: data.metadata || {},
-      ipAddress: data.ipAddress,
-      userAgent: data.userAgent,
-      timestamp: data.timestamp instanceof Timestamp ? data.timestamp.toDate() : data.timestamp,
-      createdAt: data.createdAt instanceof Timestamp ? data.createdAt.toDate() : data.createdAt
+      blueprintId: (data['blueprintId'] as string) || '',
+      userId: data['userId'] as string,
+      userName: data['userName'] as string,
+      action: data['action'] as string,
+      actionType: data['actionType'] as ActivityType,
+      resourceType: data['resourceType'] as string,
+      resourceId: data['resourceId'] as string,
+      description: data['description'] as string,
+      metadata: (data['metadata'] as Record<string, unknown>) || {},
+      ipAddress: data['ipAddress'] as string | undefined,
+      userAgent: data['userAgent'] as string | undefined,
+      timestamp: data['timestamp'] instanceof Timestamp ? (data['timestamp'] as Timestamp).toDate() : (data['timestamp'] as Date),
+      createdAt: data['createdAt'] instanceof Timestamp ? (data['createdAt'] as Timestamp).toDate() : (data['createdAt'] as Date)
     };
   }
 
@@ -193,7 +193,7 @@ export class LogRepository {
 
       snapshot.docs.forEach(doc => {
         const data = doc.data();
-        const actionType = data.actionType as string;
+        const actionType = data['actionType'] as string;
         if (actionType) {
           counts[actionType] = (counts[actionType] || 0) + 1;
         }
