@@ -9,12 +9,14 @@
  */
 
 import { FlatTreeControl } from '@angular/cdk/tree';
-import { Component, input, computed, inject } from '@angular/core';
+import { Component, input, output, computed, inject } from '@angular/core';
 import { TaskStore } from '@core/stores/task.store';
 import { Task, TaskTreeNode } from '@core/types/task';
 import { buildTaskHierarchy, calculateAggregatedProgress } from '@core/utils/task-hierarchy.util';
 import { SHARED_IMPORTS } from '@shared';
+import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
+import { NzPopconfirmModule } from 'ng-zorro-antd/popconfirm';
 import { NzTreeFlatDataSource, NzTreeFlattener, NzTreeViewModule } from 'ng-zorro-antd/tree-view';
 
 /** Flat node structure for CDK tree */
@@ -31,7 +33,7 @@ interface FlatNode {
 @Component({
   selector: 'app-task-tree-view',
   standalone: true,
-  imports: [SHARED_IMPORTS, NzTreeViewModule, NzEmptyModule],
+  imports: [SHARED_IMPORTS, NzTreeViewModule, NzEmptyModule, NzDropDownModule, NzPopconfirmModule],
   template: `
     <div class="tree-view-container">
       <div class="tree-view-header">
@@ -68,6 +70,34 @@ interface FlatNode {
               @if (node.task.progress !== undefined) {
                 <span style="margin-left: 8px; color: #888; font-size: 12px;"> {{ node.task.progress }}% </span>
               }
+
+              <!-- Action Buttons -->
+              <span class="task-actions" style="margin-left: auto;">
+                <button
+                  nz-button
+                  nzType="text"
+                  nzSize="small"
+                  (click)="onEditTask(node.task); $event.stopPropagation()"
+                  nz-tooltip
+                  nzTooltipTitle="編輯任務"
+                >
+                  <span nz-icon nzType="edit" nzTheme="outline"></span>
+                </button>
+                <button
+                  nz-button
+                  nzType="text"
+                  nzSize="small"
+                  nz-popconfirm
+                  nzPopconfirmTitle="確認刪除此任務？"
+                  nzPopconfirmPlacement="topRight"
+                  (nzOnConfirm)="onDeleteTask(node.task); $event.stopPropagation()"
+                  (click)="$event.stopPropagation()"
+                  nz-tooltip
+                  nzTooltipTitle="刪除任務"
+                >
+                  <span nz-icon nzType="delete" nzTheme="outline" style="color: #ff4d4f;"></span>
+                </button>
+              </span>
             </nz-tree-node-option>
           </nz-tree-node>
 
@@ -91,6 +121,44 @@ interface FlatNode {
                   style="width: 120px; margin-left: 12px;"
                 />
               }
+
+              <!-- Action Buttons for Parent Node -->
+              <span class="task-actions" style="margin-left: auto;">
+                <button
+                  nz-button
+                  nzType="text"
+                  nzSize="small"
+                  (click)="onCreateSubTask(node.task); $event.stopPropagation()"
+                  nz-tooltip
+                  nzTooltipTitle="新增子任務"
+                >
+                  <span nz-icon nzType="plus" nzTheme="outline"></span>
+                </button>
+                <button
+                  nz-button
+                  nzType="text"
+                  nzSize="small"
+                  (click)="onEditTask(node.task); $event.stopPropagation()"
+                  nz-tooltip
+                  nzTooltipTitle="編輯任務"
+                >
+                  <span nz-icon nzType="edit" nzTheme="outline"></span>
+                </button>
+                <button
+                  nz-button
+                  nzType="text"
+                  nzSize="small"
+                  nz-popconfirm
+                  nzPopconfirmTitle="確認刪除此任務及其所有子任務？"
+                  nzPopconfirmPlacement="topRight"
+                  (nzOnConfirm)="onDeleteTask(node.task); $event.stopPropagation()"
+                  (click)="$event.stopPropagation()"
+                  nz-tooltip
+                  nzTooltipTitle="刪除任務"
+                >
+                  <span nz-icon nzType="delete" nzTheme="outline" style="color: #ff4d4f;"></span>
+                </button>
+              </span>
             </nz-tree-node-option>
           </nz-tree-node>
         </nz-tree-view>
@@ -119,6 +187,21 @@ interface FlatNode {
         align-items: center;
         padding: 4px 8px;
       }
+
+      .task-actions {
+        display: inline-flex;
+        gap: 4px;
+        margin-left: 12px;
+      }
+
+      .task-actions button {
+        opacity: 0.6;
+        transition: opacity 0.2s;
+      }
+
+      .task-actions button:hover {
+        opacity: 1;
+      }
     `
   ]
 })
@@ -127,6 +210,11 @@ export class TaskTreeViewComponent {
 
   // Input from parent
   blueprintId = input.required<string>();
+
+  // Outputs
+  readonly editTask = output<Task>();
+  readonly deleteTask = output<Task>();
+  readonly createSubTask = output<Task>();
 
   // Expose store state
   readonly loading = this.taskStore.loading;
@@ -232,5 +320,26 @@ export class TaskTreeViewComponent {
       low: '低'
     };
     return labelMap[priority] || priority;
+  }
+
+  /**
+   * Handle edit task action
+   */
+  onEditTask(task: Task): void {
+    this.editTask.emit(task);
+  }
+
+  /**
+   * Handle delete task action
+   */
+  onDeleteTask(task: Task): void {
+    this.deleteTask.emit(task);
+  }
+
+  /**
+   * Handle create sub-task action
+   */
+  onCreateSubTask(parentTask: Task): void {
+    this.createSubTask.emit(parentTask);
   }
 }

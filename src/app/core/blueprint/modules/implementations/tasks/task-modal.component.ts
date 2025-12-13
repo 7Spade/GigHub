@@ -29,6 +29,7 @@ import { firstValueFrom } from 'rxjs';
 interface ModalData {
   blueprintId: string;
   task?: Task;
+  parentTask?: Task;
   mode: 'create' | 'edit' | 'view';
 }
 
@@ -38,6 +39,11 @@ interface ModalData {
   imports: [SHARED_IMPORTS, NzSliderModule],
   template: `
     <form nz-form [formGroup]="form" (ngSubmit)="submit()">
+      <!-- Parent Task Info (for sub-tasks) -->
+      @if (modalData.parentTask) {
+        <nz-alert nzType="info" nzShowIcon [nzMessage]="'父任務: ' + modalData.parentTask.title" style="margin-bottom: 16px;" />
+      }
+
       <!-- Title -->
       <nz-form-item>
         <nz-form-label [nzSpan]="6" nzRequired>標題</nz-form-label>
@@ -323,7 +329,9 @@ export class TaskModalComponent implements OnInit {
       dueDate: formValue.dueDate || undefined,
       estimatedHours: formValue.estimatedHours || undefined,
       tags: formValue.tags || [],
-      creatorId: currentUserId
+      creatorId: currentUserId,
+      // Set parentId if creating a sub-task
+      parentId: this.modalData.parentTask?.id || undefined
     };
 
     // Auto-add creator as blueprint member if not already a member
@@ -335,7 +343,8 @@ export class TaskModalComponent implements OnInit {
       throw new Error('Failed to create task');
     }
 
-    this.message.success('任務新增成功');
+    const successMessage = this.modalData.parentTask ? '子任務新增成功' : '任務新增成功';
+    this.message.success(successMessage);
     this.modalRef.close({ success: true, task: newTask });
   }
 
