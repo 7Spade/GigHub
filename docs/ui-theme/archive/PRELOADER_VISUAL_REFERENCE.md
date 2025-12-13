@@ -3,7 +3,7 @@
 
 ## Overview
 
-本文檔展示 index.html 預載器的視覺變更，從單調藍色改為青龍主題漸變。
+本文檔展示 index.html 預載器的視覺變更，從單調藍色改為玄武主題漸變。
 
 ## Before & After Comparison
 
@@ -16,12 +16,12 @@
 
 **視覺效果**:
 - 單一藍色背景 (#49a9ee)
-- 不符合青龍主題
+- 不符合玄武主題
 - 與專案整體視覺不協調
 
 **顏色**: 
 ```
-███████████ #49a9ee (淺藍色，不屬於青龍色系)
+███████████ #49a9ee (淺藍色，不屬於玄武色系)
 ```
 
 ---
@@ -30,13 +30,13 @@
 ```css
 .preloader {
   background: linear-gradient(135deg, #0EA5E9 0%, #14B8A6 100%);
-  /* 青龍漸變：Black Tortoise Blue → Jade Green */
+  /* 玄武漸變：Obsidian Black → Stone Gray */
 }
 ```
 
 **視覺效果**:
 - 「龍躍雲端」漸變 (Dragon Soaring)
-- 完全符合青龍主題設計
+- 完全符合玄武主題設計
 - 從左上到右下的漸變方向 (135deg)
 - 與專案整體視覺完美融合
 
@@ -46,7 +46,7 @@
 ↑                           ↑
 #0EA5E9                #14B8A6
 Black Tortoise Blue      Jade Green
-(青龍藍)               (翡翠綠)
+(玄武黑)               (石灰)
 ```
 
 ## Gradient Details
@@ -59,10 +59,10 @@ Black Tortoise Blue      Jade Green
 ### 色彩組成
 ```less
 // 起點
-@azure-6: #0EA5E9  // Black Tortoise Blue (青龍藍)
+@azure-6: #0EA5E9  // Obsidian Black (玄武黑)
 ↓
 // 終點
-@jade-4: #14B8A6   // Jade Green (翡翠綠)
+@jade-4: #14B8A6   // Jade Green (石灰)
 ```
 
 ### 漸變定義
@@ -119,7 +119,7 @@ Black Tortoise Blue      Jade Green
 ✅ **After**: 使用品牌核心漸變 (Azure → Jade)
 
 ### 用戶體驗
-✅ **載入時**: 立即呈現青龍主題視覺  
+✅ **載入時**: 立即呈現玄武主題視覺  
 ✅ **第一印象**: 與應用內部色調一致  
 ✅ **過渡體驗**: 從載入到應用無縫銜接
 
@@ -263,9 +263,9 @@ Android Chrome: ✅ 完整支援
 
 ## Conclusion
 
-預載器漸變更新成功將青龍主題延伸至應用載入階段，確保用戶從第一眼就體驗到一致的品牌視覺。
+預載器漸變更新成功將玄武主題延伸至應用載入階段，確保用戶從第一眼就體驗到一致的品牌視覺。
 
-**效果**: 🐉 青龍之力，從載入開始！
+**效果**: 🐢 玄武守護，從載入開始！
 
 ---
 

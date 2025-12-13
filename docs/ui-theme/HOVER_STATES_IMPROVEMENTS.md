@@ -62,7 +62,7 @@ The original Black Tortoise theme implementation had several UI/UX issues:
 ### Implementation Techniques
 - Pseudo-elements for layered effects
 - Hardware-accelerated transforms
-- Consistent Azure Dragon color palette
+- Consistent Black Tortoise color palette
 - Accessibility-first approach
 
 ## Files Modified
