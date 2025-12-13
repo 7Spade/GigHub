@@ -6,6 +6,7 @@
 export * from './account.repository';
 export * from './organization.repository';
 export * from './organization-member.repository';
+export * from './organization-invitation.repository';
 export * from './team.repository';
 export * from './team-member.repository';
 export * from './log.repository';
