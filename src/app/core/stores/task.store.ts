@@ -94,18 +94,40 @@ export class TaskStore {
    * 載入藍圖的任務
    */
   async loadTasks(blueprintId: string): Promise<void> {
+    if (!blueprintId) {
+      this.logger.warn('[TaskStore]', 'loadTasks called with empty blueprintId');
+      return;
+    }
+
+    // Check if already loading for this blueprint
+    if (this._currentBlueprintId() === blueprintId && this._loading()) {
+      this.logger.info('[TaskStore]', `Already loading tasks for blueprint: ${blueprintId}`);
+      return;
+    }
+
     this._currentBlueprintId.set(blueprintId);
     this._loading.set(true);
     this._error.set(null);
 
     try {
+      this.logger.info('[TaskStore]', `Fetching tasks for blueprint: ${blueprintId}`);
       const tasks = await firstValueFrom(this.repository.findByBlueprintId(blueprintId));
       this._tasks.set(tasks);
-      this.logger.info('[TaskStore]', `Loaded ${tasks.length} tasks for blueprint: ${blueprintId}`);
+      this.logger.info('[TaskStore]', `Loaded ${tasks.length} tasks for blueprint: ${blueprintId}`, { tasks });
+      
+      // Emit event that tasks have been loaded
+      this.eventBus.emit(
+        TASKS_MODULE_EVENTS.TASK_LOADED,
+        {
+          blueprintId,
+          count: tasks.length
+        },
+        'tasks-module'
+      );
     } catch (err) {
       const error = err instanceof Error ? err.message : 'Unknown error';
       this._error.set(error);
-      this.logger.error('[TaskStore]', 'Failed to load tasks', err instanceof Error ? err : undefined);
+      this.logger.error('[TaskStore]', `Failed to load tasks for blueprint: ${blueprintId}`, err instanceof Error ? err : undefined);
     } finally {
       this._loading.set(false);
     }

@@ -139,7 +139,8 @@ export class TasksComponent implements OnInit {
     // Watch for blueprintId input changes
     effect(() => {
       const id = this.blueprintId();
-      if (id) {
+      if (id && id !== this._blueprintId()) {
+        this.logger.info('[TasksComponent]', `Effect triggered: blueprintId changed to ${id}`);
         this._blueprintId.set(id);
         this.loadTasks(id);
       }
@@ -147,9 +148,12 @@ export class TasksComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.logger.info('[TasksComponent]', 'ngOnInit called');
+    
     // Priority 1: Use input blueprintId if available
     const inputId = this.blueprintId();
     if (inputId) {
+      this.logger.info('[TasksComponent]', `Using input blueprintId: ${inputId}`);
       this._blueprintId.set(inputId);
       this.loadTasks(inputId);
       return;
@@ -159,13 +163,21 @@ export class TasksComponent implements OnInit {
     this.route.params.subscribe(params => {
       const routeBlueprintId = params['id'] || params['blueprintId'];
       if (routeBlueprintId) {
+        this.logger.info('[TasksComponent]', `Using route blueprintId: ${routeBlueprintId}`);
         this._blueprintId.set(routeBlueprintId);
         this.loadTasks(routeBlueprintId);
+      } else {
+        this.logger.warn('[TasksComponent]', 'No blueprintId found in route params');
       }
     });
   }
 
   loadTasks(blueprintId: string): void {
+    if (!blueprintId) {
+      this.logger.warn('[TasksComponent]', 'Cannot load tasks: blueprintId is empty');
+      return;
+    }
+    this.logger.info('[TasksComponent]', `Loading tasks for blueprint: ${blueprintId}`);
     this.taskStore.loadTasks(blueprintId);
   }
 
