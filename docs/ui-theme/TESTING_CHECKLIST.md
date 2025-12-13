@@ -1,4 +1,4 @@
-# Azure Dragon Theme - UI Testing Checklist
+# Black Tortoise Theme - UI Testing Checklist
 
 ## Visual Testing Guide
 
@@ -6,35 +6,35 @@
 
 #### Test Cases
 - [ ] **Primary Button**
-  - Hover: Gradient should transition from dragon-soaring to dragon-scales
+  - Hover: Gradient should transition from tortoise-shield to stone-depths
   - Hover: Should lift 1px with shadow enhancement
   - Active: Should reset to original position
-  - Focus: Should show focus ring with Azure color
+  - Focus: Should show focus ring with Obsidian color
 
 - [ ] **Default Button**
-  - Hover: Should show Azure-6 color with Azure-1 background
+  - Hover: Should show Obsidian-6 color with Obsidian-1 background
   - Focus: Same as hover state
 
 - [ ] **Dashed Button**
-  - Hover: Should show Azure-6 color with faded Azure-1 background
+  - Hover: Should show Obsidian-6 color with faded Obsidian-1 background
 
 - [ ] **Text Button**
-  - Hover: Should show Azure-5 color with faded background
+  - Hover: Should show Obsidian-5 color with faded background
 
 - [ ] **Link Button**
-  - Hover: Text color should change to Azure-5
+  - Hover: Text color should change to Obsidian-5
 
 ### 🔳 Cards
 
 #### Test Cases
-- [ ] **Azure Card**
+- [ ] **Tortoise Card**
   - Hover: Should lift 2px
   - Hover: Shadow should intensify from sm to lg
-  - Hover: Border should appear in Azure-6 color (subtle)
+  - Hover: Border should appear in Obsidian-6 color (subtle)
   - Transition: All effects should happen smoothly together
 
 - [ ] **Gradient Card**
-  - Same hover effects as Azure Card
+  - Same hover effects as Tortoise Card
 
 - [ ] **Featured Card**
   - Verify gradient background persists during hover
@@ -44,7 +44,7 @@
 
 #### Test Cases
 - [ ] **Table Rows**
-  - Hover: Row should highlight with faded Azure-1 background
+  - Hover: Row should highlight with faded Obsidian-1 background
   - All cells should highlight simultaneously
   - Transition should be smooth (0.15s)
 

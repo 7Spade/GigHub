@@ -1,5 +1,5 @@
-# Azure Dragon Theme - Version Compatibility Guide
-# 青龍主題 - 版本兼容性指南
+# Black Tortoise Theme - Version Compatibility Guide
+# 玄武主題 - 版本兼容性指南
 
 ## 📦 Current Project Versions
 
@@ -11,13 +11,13 @@
 - **RxJS**: 7.8.0 (Latest: 7.8.x)
 
 ### Theme Version
-- **Azure Dragon Theme**: 1.1.0
+- **Black Tortoise Theme**: 1.1.0
 - **Last Updated**: 2025-12-09
 - **Status**: ✅ Production Ready
 
 ## 🔄 Version Compatibility Matrix
 
-### Azure Dragon Theme 1.1.0
+### Black Tortoise Theme 1.1.0
 
 | Package | Minimum Version | Tested With | Latest Available | Status |
 |---------|----------------|-------------|------------------|---------|
@@ -54,7 +54,7 @@ yarn lint
 yarn start
 ```
 
-**Breaking Changes**: None identified for Azure Dragon Theme
+**Breaking Changes**: None identified for Black Tortoise Theme
 
 **Estimated Effort**: Low (< 1 hour)
 
@@ -98,9 +98,9 @@ yarn test
 
 ### ng-zorro-antd 20.3.1 → 20.4.3
 
-**No Breaking Changes for Azure Dragon Theme**
+**No Breaking Changes for Black Tortoise Theme**
 
-The following APIs used in Azure Dragon Theme remain stable:
+The following APIs used in Black Tortoise Theme remain stable:
 - ✅ `NzConfig.theme.primaryColor`
 - ✅ `NzConfigService.set('theme', {...})`
 - ✅ Component theming via Less variables
@@ -125,7 +125,7 @@ import { NzConfig, provideNzConfig } from 'ng-zorro-antd/core/config';
 
 const ngZorroConfig: NzConfig = {
   theme: {
-    primaryColor: '#0EA5E9',  // Azure Dragon Blue
+    primaryColor: '#1E293B',  // Black Tortoise Blue
     successColor: '#14B8A6',   // Jade Green
     warningColor: '#F59E0B',   // Amber
     errorColor: '#EF4444',     // Red
@@ -141,7 +141,7 @@ export const appConfig: ApplicationConfig = {
 #### 2. theme.less - Compile-Time Variable Override
 ```less
 // Define BEFORE importing @delon/theme
-@primary-color: #0EA5E9;
+@primary-color: #1E293B;
 @success-color: #14B8A6;
 @warning-color: #F59E0B;
 @error-color: #EF4444;
@@ -205,7 +205,7 @@ Before upgrading any dependency, verify:
 
 ✅ **No known issues with current versions**
 
-The Azure Dragon Theme is fully compatible with:
+The Black Tortoise Theme is fully compatible with:
 - Angular 20.3.0
 - ng-zorro-antd 20.3.1
 - ng-alain 20.1.0
@@ -217,7 +217,7 @@ The Azure Dragon Theme is fully compatible with:
 - **ng-alain Documentation**: https://ng-alain.com/theme/getting-started/en
 - **Angular Update Guide**: https://update.angular.io/
 
-### Azure Dragon Theme Documentation
+### Black Tortoise Theme Documentation
 - **Main Theme Guide**: [azure-dragon-theme.md](./azure-dragon-theme.md)
 - **Integration Guide**: [AZURE_DRAGON_INTEGRATION.md](./AZURE_DRAGON_INTEGRATION.md)
 - **Visual Reference**: [AZURE_DRAGON_VISUAL_REFERENCE.md](./AZURE_DRAGON_VISUAL_REFERENCE.md)
@@ -281,7 +281,7 @@ The Azure Dragon Theme is fully compatible with:
 
 ### Questions?
 - Check official documentation first
-- Review Azure Dragon Theme docs
+- Review Black Tortoise Theme docs
 - Search existing issues on GitHub
 
 ### Found a Compatibility Issue?
