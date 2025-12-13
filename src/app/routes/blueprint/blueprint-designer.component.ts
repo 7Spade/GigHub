@@ -381,7 +381,6 @@ interface ConnectionCreationState {
         width: 24px;
         height: 24px;
         border-radius: 50%;
-        background: #fff;
         border: 2px solid;
         display: flex;
         align-items: center;
