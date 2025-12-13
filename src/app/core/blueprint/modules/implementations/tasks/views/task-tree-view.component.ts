@@ -90,7 +90,7 @@ interface FlatNode {
                   nz-popconfirm
                   nzPopconfirmTitle="確認刪除此任務？"
                   nzPopconfirmPlacement="topRight"
-                  (nzOnConfirm)="onDeleteTask(node.task); $event.stopPropagation()"
+                  (nzOnConfirm)="onDeleteTask(node.task)"
                   (click)="$event.stopPropagation()"
                   nz-tooltip
                   nzTooltipTitle="刪除任務"
@@ -151,7 +151,7 @@ interface FlatNode {
                   nz-popconfirm
                   nzPopconfirmTitle="確認刪除此任務及其所有子任務？"
                   nzPopconfirmPlacement="topRight"
-                  (nzOnConfirm)="onDeleteTask(node.task); $event.stopPropagation()"
+                  (nzOnConfirm)="onDeleteTask(node.task)"
                   (click)="$event.stopPropagation()"
                   nz-tooltip
                   nzTooltipTitle="刪除任務"
