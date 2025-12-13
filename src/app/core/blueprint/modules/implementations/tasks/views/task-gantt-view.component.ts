@@ -438,12 +438,23 @@ export class TaskGanttViewComponent {
   // Convert tasks to gantt format
   readonly ganttTasks = computed(() => {
     const tasks = this.taskStore.tasks();
+    
+    // Debug: Log task count and dates status
+    console.log('[Gantt View] Total tasks:', tasks.length);
+    const tasksWithDates = tasks.filter(t => t.startDate || t.dueDate).length;
+    const tasksWithoutDates = tasks.length - tasksWithDates;
+    console.log('[Gantt View] Tasks with dates:', tasksWithDates, ', Tasks without dates:', tasksWithoutDates);
 
     return tasks.map(task => {
       // Check if task has dates
       const hasStartDate = !!task.startDate;
       const hasDueDate = !!task.dueDate;
       const hasDates = hasStartDate || hasDueDate;
+      
+      // Debug: Log each task processing
+      if (!hasDates) {
+        console.log('[Gantt View] Processing task without dates:', task.title, task.id);
+      }
 
       // For tasks with dates, use actual dates
       // For tasks without dates, use placeholder (will be rendered differently)
