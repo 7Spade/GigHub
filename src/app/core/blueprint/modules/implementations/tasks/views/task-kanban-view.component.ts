@@ -9,7 +9,7 @@
  */
 
 import { CdkDragDrop, DragDropModule, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
-import { Component, input, computed, inject } from '@angular/core';
+import { Component, input, output, computed, inject } from '@angular/core';
 import { TaskStore } from '@core/stores/task.store';
 import { Task, TaskStatus } from '@core/types/task';
 import { SHARED_IMPORTS } from '@shared';
@@ -61,17 +61,27 @@ import { NzMessageService } from 'ng-zorro-antd/message';
                       </div>
                     }
 
-                    <div class="task-meta">
-                      @if (task.assigneeName) {
-                        <nz-avatar [nzText]="task.assigneeName.charAt(0)" nzSize="small" />
-                        <span class="assignee-name">{{ task.assigneeName }}</span>
-                      }
-                      @if (task.dueDate) {
-                        <span class="due-date">
-                          <span nz-icon nzType="calendar" nzTheme="outline"></span>
-                          {{ task.dueDate | date: 'MM/dd' }}
-                        </span>
-                      }
+                    <div class="task-footer">
+                      <div class="task-meta">
+                        @if (task.assigneeName) {
+                          <nz-avatar [nzText]="task.assigneeName.charAt(0)" nzSize="small" />
+                          <span class="assignee-name">{{ task.assigneeName }}</span>
+                        }
+                        @if (task.dueDate) {
+                          <span class="due-date">
+                            <span nz-icon nzType="calendar" nzTheme="outline"></span>
+                            {{ task.dueDate | date: 'MM/dd' }}
+                          </span>
+                        }
+                      </div>
+                      <div class="task-actions">
+                        <button nz-button nzType="text" nzSize="small" (click)="handleEdit(task)" title="編輯">
+                          <span nz-icon nzType="edit" nzTheme="outline"></span>
+                        </button>
+                        <button nz-button nzType="text" nzSize="small" nzDanger (click)="handleDelete(task)" title="刪除">
+                          <span nz-icon nzType="delete" nzTheme="outline"></span>
+                        </button>
+                      </div>
                     </div>
                   </div>
                 }
@@ -165,12 +175,33 @@ import { NzMessageService } from 'ng-zorro-antd/message';
         margin-bottom: 8px;
       }
 
+      .task-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+      }
+
       .task-meta {
         display: flex;
         align-items: center;
         gap: 8px;
         font-size: 12px;
         color: #666;
+        flex: 1;
+      }
+
+      .task-actions {
+        display: none;
+        gap: 4px;
+      }
+
+      .task-card:hover .task-actions {
+        display: flex;
+      }
+
+      .task-actions button {
+        padding: 0 4px;
       }
 
       .assignee-name {
@@ -206,6 +237,10 @@ export class TaskKanbanViewComponent {
 
   // Inputs
   blueprintId = input.required<string>();
+
+  // Outputs for CRUD operations
+  editTask = output<Task>();
+  deleteTask = output<Task>();
 
   // Expose store state
   readonly loading = this.taskStore.loading;
@@ -284,5 +319,19 @@ export class TaskKanbanViewComponent {
       low: '低'
     };
     return textMap[priority] || priority;
+  }
+
+  /**
+   * Handle edit task
+   */
+  handleEdit(task: Task): void {
+    this.editTask.emit(task);
+  }
+
+  /**
+   * Handle delete task
+   */
+  handleDelete(task: Task): void {
+    this.deleteTask.emit(task);
   }
 }

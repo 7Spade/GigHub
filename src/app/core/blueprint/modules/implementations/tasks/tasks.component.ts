@@ -79,7 +79,7 @@ import { TaskTreeViewComponent } from './views/task-tree-view.component';
             <span nz-icon nzType="apartment" nzTheme="outline"></span>
             樹狀視圖
           </ng-template>
-          <app-task-tree-view [blueprintId]="_blueprintId()" />
+          <app-task-tree-view [blueprintId]="_blueprintId()" (editTask)="editTask($event)" (deleteTask)="deleteTask($event)" />
         </nz-tab>
 
         <nz-tab [nzTitle]="kanbanViewTitle">
@@ -87,7 +87,7 @@ import { TaskTreeViewComponent } from './views/task-tree-view.component';
             <span nz-icon nzType="project" nzTheme="outline"></span>
             看板視圖
           </ng-template>
-          <app-task-kanban-view [blueprintId]="_blueprintId()" />
+          <app-task-kanban-view [blueprintId]="_blueprintId()" (editTask)="editTask($event)" (deleteTask)="deleteTask($event)" />
         </nz-tab>
 
         <nz-tab [nzTitle]="timelineViewTitle">
@@ -103,7 +103,7 @@ import { TaskTreeViewComponent } from './views/task-tree-view.component';
             <span nz-icon nzType="bar-chart" nzTheme="outline"></span>
             甘特圖視圖
           </ng-template>
-          <app-task-gantt-view [blueprintId]="_blueprintId()" />
+          <app-task-gantt-view [blueprintId]="_blueprintId()" (editTask)="editTask($event)" (deleteTask)="deleteTask($event)" />
         </nz-tab>
       </nz-tabset>
     </nz-card>

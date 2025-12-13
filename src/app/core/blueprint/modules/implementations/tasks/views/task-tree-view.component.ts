@@ -9,7 +9,7 @@
  */
 
 import { FlatTreeControl } from '@angular/cdk/tree';
-import { Component, input, computed, inject } from '@angular/core';
+import { Component, input, output, computed, inject } from '@angular/core';
 import { TaskStore } from '@core/stores/task.store';
 import { Task, TaskTreeNode } from '@core/types/task';
 import { buildTaskHierarchy, calculateAggregatedProgress } from '@core/utils/task-hierarchy.util';
@@ -68,6 +68,15 @@ interface FlatNode {
               @if (node.task.progress !== undefined) {
                 <span style="margin-left: 8px; color: #888; font-size: 12px;"> {{ node.task.progress }}% </span>
               }
+              <!-- Action buttons -->
+              <span class="task-actions" style="margin-left: auto;">
+                <button nz-button nzType="link" nzSize="small" (click)="handleEdit(node.task)" title="編輯">
+                  <span nz-icon nzType="edit" nzTheme="outline"></span>
+                </button>
+                <button nz-button nzType="link" nzSize="small" nzDanger (click)="handleDelete(node.task)" title="刪除">
+                  <span nz-icon nzType="delete" nzTheme="outline"></span>
+                </button>
+              </span>
             </nz-tree-node-option>
           </nz-tree-node>
 
@@ -91,6 +100,15 @@ interface FlatNode {
                   style="width: 120px; margin-left: 12px;"
                 />
               }
+              <!-- Action buttons for parent nodes -->
+              <span class="task-actions" style="margin-left: auto;">
+                <button nz-button nzType="link" nzSize="small" (click)="handleEdit(node.task)" title="編輯">
+                  <span nz-icon nzType="edit" nzTheme="outline"></span>
+                </button>
+                <button nz-button nzType="link" nzSize="small" nzDanger (click)="handleDelete(node.task)" title="刪除">
+                  <span nz-icon nzType="delete" nzTheme="outline"></span>
+                </button>
+              </span>
             </nz-tree-node-option>
           </nz-tree-node>
         </nz-tree-view>
@@ -124,6 +142,19 @@ interface FlatNode {
       :host ::ng-deep .nz-tree-node-content-wrapper:hover {
         background-color: #f5f5f5;
       }
+
+      .task-actions {
+        display: none;
+        gap: 4px;
+      }
+
+      :host ::ng-deep .nz-tree-node-content-wrapper:hover .task-actions {
+        display: flex;
+      }
+
+      .task-actions button {
+        padding: 0 4px;
+      }
     `
   ]
 })
@@ -132,6 +163,10 @@ export class TaskTreeViewComponent {
 
   // Input from parent
   blueprintId = input.required<string>();
+
+  // Outputs for CRUD operations
+  editTask = output<Task>();
+  deleteTask = output<Task>();
 
   // Expose store state
   readonly loading = this.taskStore.loading;
@@ -237,5 +272,19 @@ export class TaskTreeViewComponent {
       low: '低'
     };
     return labelMap[priority] || priority;
+  }
+
+  /**
+   * Handle edit task
+   */
+  handleEdit(task: Task): void {
+    this.editTask.emit(task);
+  }
+
+  /**
+   * Handle delete task
+   */
+  handleDelete(task: Task): void {
+    this.deleteTask.emit(task);
   }
 }

@@ -12,7 +12,7 @@
  * @date 2025-12-12
  */
 
-import { Component, input, computed, inject, signal } from '@angular/core';
+import { Component, input, output, computed, inject, signal } from '@angular/core';
 import { TaskStore } from '@core/stores/task.store';
 import { Task, GanttTask } from '@core/types/task';
 import { SHARED_IMPORTS } from '@shared';
@@ -77,6 +77,15 @@ enum ZoomLevel {
                       }
                       <span class="task-title">{{ ganttTask.name }}</span>
                       <nz-tag [nzColor]="getPriorityColor(ganttTask)" nzSize="small"> {{ ganttTask.progress }}% </nz-tag>
+                      <!-- Action buttons -->
+                      <span class="task-actions">
+                        <button nz-button nzType="text" nzSize="small" (click)="handleEdit(ganttTask.task)" title="編輯">
+                          <span nz-icon nzType="edit" nzTheme="outline"></span>
+                        </button>
+                        <button nz-button nzType="text" nzSize="small" nzDanger (click)="handleDelete(ganttTask.task)" title="刪除">
+                          <span nz-icon nzType="delete" nzTheme="outline"></span>
+                        </button>
+                      </span>
                     </div>
                   </div>
                   <div class="task-timeline">
@@ -234,6 +243,20 @@ enum ZoomLevel {
         white-space: nowrap;
       }
 
+      .task-actions {
+        display: none;
+        gap: 4px;
+        margin-left: auto;
+      }
+
+      .gantt-row:hover .task-actions {
+        display: flex;
+      }
+
+      .task-actions button {
+        padding: 0 4px;
+      }
+
       .milestone-icon {
         color: #faad14;
       }
@@ -326,6 +349,10 @@ export class TaskGanttViewComponent {
 
   // Inputs
   blueprintId = input.required<string>();
+
+  // Outputs for CRUD operations
+  editTask = output<Task>();
+  deleteTask = output<Task>();
 
   // Zoom level signal
   zoomLevel = signal<ZoomLevel>(ZoomLevel.MONTH);
@@ -549,5 +576,19 @@ export class TaskGanttViewComponent {
       low: 'default'
     };
     return colorMap[ganttTask.task.priority] || 'default';
+  }
+
+  /**
+   * Handle edit task
+   */
+  handleEdit(task: Task): void {
+    this.editTask.emit(task);
+  }
+
+  /**
+   * Handle delete task
+   */
+  handleDelete(task: Task): void {
+    this.deleteTask.emit(task);
   }
 }

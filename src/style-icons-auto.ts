@@ -20,7 +20,10 @@ import {
   MenuUnfoldOutline,
   AppstoreOutline,
   RocketOutline,
-  ProjectOutline // 新增：對應 anticon-project
+  ProjectOutline, // 新增：對應 anticon-project
+  UnorderedListOutline, // 新增：列表視圖 icon
+  ApartmentOutline, // 新增：樹狀視圖 icon
+  BarChartOutline // 新增：甘特圖視圖 icon
 } from '@ant-design/icons-angular/icons';
 
 // 用戶與權限相關
@@ -89,6 +92,9 @@ export const ICONS_AUTO = [
   AppstoreOutline,
   RocketOutline,
   ProjectOutline, // 新增
+  UnorderedListOutline, // 新增：列表視圖
+  ApartmentOutline, // 新增：樹狀視圖
+  BarChartOutline, // 新增：甘特圖視圖
 
   // 用戶與權限 (User & Auth)
   UserOutline,
