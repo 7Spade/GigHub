@@ -4,15 +4,15 @@
  */
 
 import { Component, ChangeDetectionStrategy, OnInit, inject, input } from '@angular/core';
-import { STColumn } from '@delon/abc/st';
-import { SHARED_IMPORTS } from '@shared';
-import { NzStatisticModule } from 'ng-zorro-antd/statistic';
-import { NzEmptyModule } from 'ng-zorro-antd/empty';
+import { ApprovalService } from '@core/blueprint/modules/implementations/workflow/services/approval.service';
+import { AutomationService } from '@core/blueprint/modules/implementations/workflow/services/automation.service';
 import { CustomWorkflowService } from '@core/blueprint/modules/implementations/workflow/services/custom-workflow.service';
 import { StateMachineService } from '@core/blueprint/modules/implementations/workflow/services/state-machine.service';
-import { AutomationService } from '@core/blueprint/modules/implementations/workflow/services/automation.service';
 import { TemplateService } from '@core/blueprint/modules/implementations/workflow/services/template.service';
-import { ApprovalService } from '@core/blueprint/modules/implementations/workflow/services/approval.service';
+import { STColumn } from '@delon/abc/st';
+import { SHARED_IMPORTS } from '@shared';
+import { NzEmptyModule } from 'ng-zorro-antd/empty';
+import { NzStatisticModule } from 'ng-zorro-antd/statistic';
 
 @Component({
   selector: 'app-workflow-module-view',
@@ -96,7 +96,7 @@ import { ApprovalService } from '@core/blueprint/modules/implementations/workflo
 })
 export class WorkflowModuleViewComponent implements OnInit {
   blueprintId = input.required<string>();
-  
+
   readonly customWorkflowService = inject(CustomWorkflowService);
   readonly stateMachineService = inject(StateMachineService);
   readonly automationService = inject(AutomationService);

@@ -4,15 +4,15 @@
  */
 
 import { Component, ChangeDetectionStrategy, OnInit, inject, input } from '@angular/core';
+import { ConsumptionService } from '@core/blueprint/modules/implementations/material/services/consumption.service';
+import { EquipmentService } from '@core/blueprint/modules/implementations/material/services/equipment.service';
+import { InventoryService } from '@core/blueprint/modules/implementations/material/services/inventory.service';
+import { MaterialIssueService } from '@core/blueprint/modules/implementations/material/services/material-issue.service';
+import { MaterialManagementService } from '@core/blueprint/modules/implementations/material/services/material-management.service';
 import { STColumn } from '@delon/abc/st';
 import { SHARED_IMPORTS } from '@shared';
-import { NzStatisticModule } from 'ng-zorro-antd/statistic';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
-import { MaterialManagementService } from '@core/blueprint/modules/implementations/material/services/material-management.service';
-import { MaterialIssueService } from '@core/blueprint/modules/implementations/material/services/material-issue.service';
-import { InventoryService } from '@core/blueprint/modules/implementations/material/services/inventory.service';
-import { EquipmentService } from '@core/blueprint/modules/implementations/material/services/equipment.service';
-import { ConsumptionService } from '@core/blueprint/modules/implementations/material/services/consumption.service';
+import { NzStatisticModule } from 'ng-zorro-antd/statistic';
 
 @Component({
   selector: 'app-material-module-view',
@@ -70,7 +70,7 @@ import { ConsumptionService } from '@core/blueprint/modules/implementations/mate
 })
 export class MaterialModuleViewComponent implements OnInit {
   blueprintId = input.required<string>();
-  
+
   readonly materialService = inject(MaterialManagementService);
   readonly issueService = inject(MaterialIssueService);
   readonly inventoryService = inject(InventoryService);

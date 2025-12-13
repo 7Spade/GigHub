@@ -4,15 +4,15 @@
  */
 
 import { Component, ChangeDetectionStrategy, OnInit, inject, input, signal } from '@angular/core';
-import { STColumn } from '@delon/abc/st';
-import { SHARED_IMPORTS } from '@shared';
-import { NzStatisticModule } from 'ng-zorro-antd/statistic';
-import { NzEmptyModule } from 'ng-zorro-antd/empty';
 import { ActivityLogService } from '@core/blueprint/modules/implementations/log/services/activity-log.service';
-import { SystemEventService } from '@core/blueprint/modules/implementations/log/services/system-event.service';
-import { CommentService } from '@core/blueprint/modules/implementations/log/services/comment.service';
 import { AttachmentService } from '@core/blueprint/modules/implementations/log/services/attachment.service';
 import { ChangeHistoryService } from '@core/blueprint/modules/implementations/log/services/change-history.service';
+import { CommentService } from '@core/blueprint/modules/implementations/log/services/comment.service';
+import { SystemEventService } from '@core/blueprint/modules/implementations/log/services/system-event.service';
+import { STColumn } from '@delon/abc/st';
+import { SHARED_IMPORTS } from '@shared';
+import { NzEmptyModule } from 'ng-zorro-antd/empty';
+import { NzStatisticModule } from 'ng-zorro-antd/statistic';
 
 @Component({
   selector: 'app-log-module-view',
@@ -105,7 +105,7 @@ import { ChangeHistoryService } from '@core/blueprint/modules/implementations/lo
 })
 export class LogModuleViewComponent implements OnInit {
   blueprintId = input.required<string>();
-  
+
   // Inject services
   readonly activityLogService = inject(ActivityLogService);
   readonly systemEventService = inject(SystemEventService);
