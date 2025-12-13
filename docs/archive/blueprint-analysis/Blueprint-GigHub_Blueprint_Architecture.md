@@ -204,7 +204,7 @@ graph TB
 
     subgraph "Infrastructure Layer - 基礎設施層"
         FIRE_REPO[FirestoreRepository<br/>實作]
-        SUPA_REPO[SupabaseRepository<br/>實作]
+        SUPA_REPO[FirebaseRepository<br/>實作]
         EVENT_BUS[Event Bus<br/>事件匯流排]
         AUTH_ADAPTER[Auth Adapter<br/>認證適配器]
     end
@@ -390,7 +390,7 @@ graph TB
   - Maps domain objects to Firestore documents
   - Handles Timestamp conversions
   - Implements query optimizations
-- **SupabaseRepository**: Firebase/PostgreSQL implementation
+- **FirebaseRepository**: Firebase/PostgreSQL implementation
   - SQL query generation
   - Relational data mapping
   - Transaction management

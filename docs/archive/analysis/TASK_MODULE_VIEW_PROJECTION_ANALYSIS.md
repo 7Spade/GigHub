@@ -431,7 +431,7 @@ return {
 1. User clicks "Update Progress" in List View
 2. List View emits: editTask.emit(task)
 3. Parent component calls: taskStore.updateTask(task.id, { progress: 75 })
-4. TaskStore updates Supabase via Repository
+4. TaskStore updates Firestore via Repository
 5. TaskStore updates _tasks signal
 6. Signal propagation:
    - List View: tasks() auto-updates → re-renders
@@ -473,7 +473,7 @@ return {
 
 ### 1. Repository Pattern ✅
 ```
-TaskStore → TaskRepository → Supabase
+TaskStore → TaskRepository → Firestore
 (Abstraction layer for data access)
 ```
 

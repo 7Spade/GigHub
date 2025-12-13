@@ -207,7 +207,7 @@ All repositories follow the infrastructure-only injection pattern.
 @Injectable({ providedIn: 'root' })
 export class LogRepository {
   // NO INJECTIONS - stub implementation
-  // In production, would inject: private firebase = inject(SupabaseService);
+  // In production, would inject: private firebase = inject(FirebaseService);
   
   async findAll(): Promise<unknown[]> {
     return [];

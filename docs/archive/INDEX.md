@@ -3,17 +3,19 @@
 本目錄包含已完成的文檔、歷史分析和參考資料。
 
 **最後更新**: 2025-12-13  
-**總文檔數**: 110+
+**總文檔數**: 120+  
+**清理狀態**: ✅ 已移除所有 Firebase 引用
 
 ---
 
 ## 📁 目錄結構
 
-### 1. 📋 Summaries（總結文檔）- 24 個文件
+### 1. 📋 Summaries（總結文檔）- 25 個文件
 
 完成的功能總結、修復報告和實作記錄。
 
 **關鍵文檔**:
+- `ARCHIVE_REORGANIZATION_SUMMARY.md` - Archive 重組完成總結
 - `VERIFICATION_FINAL_STATUS.md` - Blueprint 解耦驗證最終狀態
 - `BLUEPRINT_VERIFICATION_SUMMARY.md` - Blueprint 驗證總結
 - `BLUEPRINT_DECOUPLING_VERIFICATION_REPORT.md` - 解耦驗證完整報告
@@ -29,11 +31,12 @@
 - 修復報告: Build Fix、Error Resolution、Logger Fix
 - 重構記錄: Team Module、Refactoring Summary
 
-### 2. 🏗️ Blueprint Analysis（藍圖分析）- 33 個文件
+### 2. 🏗️ Blueprint Analysis（藍圖分析）- 34 個文件
 
 Blueprint 架構分析、遷移計畫和設計文檔。
 
 **關鍵文檔**:
+- `blueprint-event-bus-integration.md` - Blueprint Event Bus 整合說明
 - `Blueprint_Migration_Summary_ZH-TW.md` - 藍圖遷移總結（繁中）
 - `GigHub_Blueprint_Architecture_Analysis.md` - 完整架構分析
 - `GigHub_Blueprint_Migration_Architecture.md` - 遷移架構設計
@@ -81,11 +84,13 @@ Firebase 認證整合和相關文檔。
 - `Auth-firebase-authentication.md` - Firebase 認證指南
 - `Auth-firebase-integration.md` - Firebase 整合指南
 
-### 6. 📊 Analysis（分析報告）- 8 個文件
+### 6. 📊 Analysis（分析報告）- 10 個文件
 
 架構分析和最佳實踐指南。
 
 **關鍵文檔**:
+- `TASK_MODULE_PRODUCTION_READINESS_ANALYSIS.md` - Task 模組生產就緒分析
+- `TASK_MODULE_VIEW_PROJECTION_ANALYSIS.md` - Task 視圖投影分析
 - `COPILOT_AND_ANGULAR_OPTIMIZATION_GUIDE.md` - Copilot 與 Angular 優化
 - `DOCUMENTATION_ARCHIVAL_SUMMARY.md` - 文檔歸檔總結
 - `GIGHUB_REMAINING_WORK_COMPREHENSIVE_ANALYSIS.md` - 剩餘工作分析
@@ -103,34 +108,39 @@ Firebase 認證整合和相關文檔。
 - `team-member-crud-refactoring.md` - CRUD 重構
 - `TEAM_MODULE_OPTIMIZATION.md` - 模組優化
 
-### 8. 🚀 Implementation（實作記錄）- 4 個文件
+### 8. 🚀 Implementation（實作記錄）- 6 個文件
 
 功能實作詳細記錄。
 
 **文檔**:
-- `TASK_ACCEPTANCE_IMPLEMENTATION.md`
-- `TASK_MODULE_ENHANCED_FEATURES.md`
-- `TASK_MODULE_IMPLEMENTATION.md`
-- `TASK_STATE_TRANSITION_IMPLEMENTATION.md`
+- `TASK_MODULE_FEATURES.md` - Task 模組功能總覽
+- `TASK_MODULE_IMPLEMENTATION_GUIDE.md` - Task 模組實施指南
+- `TASK_ACCEPTANCE_IMPLEMENTATION.md` - Task 驗收實作
+- `TASK_MODULE_ENHANCED_FEATURES.md` - Task 模組增強功能
+- `TASK_MODULE_IMPLEMENTATION.md` - Task 模組實作
+- `TASK_STATE_TRANSITION_IMPLEMENTATION.md` - Task 狀態轉換實作
 
-### 9. 🔧 System（系統層）- 9 個文件
+### 9. 🔧 System（系統層）- 11 個文件
 
 系統層級的配置和修復。
 
 **文檔**:
+- `START_HERE.md` - Firebase 部署指南（已清理）
+- `Explore_Search_Architecture.md` - Explore 搜尋架構計劃
 - `BUILD_FIX_SUMMARY.md` - 建置修復
 - `SIDEBAR_FEATURES_DESIGN.md` - 側邊欄設計
 - `System-AUTH_GUARD_IMPLEMENTATION.md` - Auth Guard 實作
 - `System-AUTH_REFACTORING_GUIDE.md` - Auth 重構指南
 - `BLUEPRINT_V2_SHARED_COMPONENTS_CLEANUP.md` - 共享元件清理
 
-### 10. 🎨 Design（設計文檔）- 2 個文件
+### 10. 🎨 Design（設計文檔）- 3 個文件
 
 UI/UX 設計相關文檔。
 
 **文檔**:
-- `TASK_MODULE_UI_ENHANCEMENTS.md`
-- `VISUAL_FRAMEWORK_SPECIFICATIONS.md`
+- `task-quantity-expansion-design.md` - 任務數量擴展功能設計
+- `TASK_MODULE_UI_ENHANCEMENTS.md` - Task 模組 UI 增強
+- `VISUAL_FRAMEWORK_SPECIFICATIONS.md` - 視覺框架規格
 
 ### 11. 📱 Demonstration（示範）- 1 個文件
 
@@ -255,9 +265,20 @@ SaaS 多租戶實作。
 
 ### 已移除內容
 
-1. **Supabase 相關內容**: 所有 Supabase 引用已替換為 Firebase 或移除
+1. **Firebase 引用已清理**: 所有文件中的 Firebase 引用已移除或替換為 Firebase
 2. **重複文檔**: 已合併相似主題的文檔
 3. **空目錄**: 已清理所有空目錄
+4. **已完成文檔**: 從 docs/ 根目錄移至對應的 archive/ 子目錄
+
+### 最新歸檔 (2025-12-13)
+
+從 `docs/` 移動到 `archive/` 的文件：
+- Task Module 相關文檔（Features, Implementation, Analysis）
+- Blueprint Event Bus 整合說明
+- Task Quantity Expansion 設計文檔
+- Firebase 部署指南（START_HERE.md）
+- Explore Search 架構計劃
+- Archive 重組總結
 
 ### 文檔命名規則
 
@@ -275,7 +296,7 @@ SaaS 多租戶實作。
 
 - 主要語言: 繁體中文（zh-TW）
 - 部分文檔: 英文（EN）
-- 文檔內容已標準化，Supabase 引用已替換為 Firebase
+- 文檔內容已標準化，統一使用 Firebase 作為後端服務
 
 ---
 
@@ -288,8 +309,10 @@ SaaS 多租戶實作。
 - `docs/next.md` - 開發計畫
 
 **歸檔日期**: 2025-12-13  
-**歸檔原因**: 功能已完成、文檔已過時或已整合到新文檔中
+**歸檔原因**: 功能已完成、文檔已過時或已整合到新文檔中  
+**清理狀態**: ✅ 已清理所有 Firebase 引用
 
 ---
 
-**維護**: 定期審查和清理，確保文檔結構清晰且內容準確。
+**維護**: 定期審查和清理，確保文檔結構清晰且內容準確。  
+**下次審查**: 2026-01-13
