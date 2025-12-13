@@ -35,14 +35,12 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterOutlet, RouterLink } from '@angular/router';
 import { DatePipe, I18nPipe } from '@delon/theme';
 
-import { SHARED_CDK_MODULES } from './shared-cdk.module';
 import { SHARED_DELON_MODULES } from './shared-delon.module';
 import { SHARED_ZORRO_MODULES } from './shared-zorro.module';
 
 // 匯出可選模組供按需使用
 export { OPTIONAL_DELON_MODULES } from './shared-delon.module';
 export { OPTIONAL_ZORRO_MODULES } from './shared-zorro.module';
-export { OPTIONAL_CDK_MODULES } from './shared-cdk.module';
 
 /**
  * 核心 Angular 模組
@@ -76,8 +74,14 @@ const CORE_ANGULAR_MODULES = [
  * - Angular 核心模組 (表單、路由、管道)
  * - ng-zorro-antd 常用模組
  * - @delon 常用模組
- * - Angular CDK 模組 (按需配置)
  *
  * 適用於 80% 以上的元件
+ *
+ * @note Angular CDK 模組按需直接引入
+ * ng-zorro-antd 已包含大部分 CDK 功能，無需額外抽象層
+ * 如需使用 CDK，請直接在元件中引入：
+ * - DragDropModule - 拖放功能
+ * - ScrollingModule - 虛擬滾動
+ * - A11yModule - 無障礙功能
  */
-export const SHARED_IMPORTS = [...CORE_ANGULAR_MODULES, ...SHARED_DELON_MODULES, ...SHARED_ZORRO_MODULES, ...SHARED_CDK_MODULES];
+export const SHARED_IMPORTS = [...CORE_ANGULAR_MODULES, ...SHARED_DELON_MODULES, ...SHARED_ZORRO_MODULES];
