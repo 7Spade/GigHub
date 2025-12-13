@@ -1,5 +1,5 @@
-# Azure Dragon Theme - Complete Guide
-# 青龍主題 - 完整指南
+# Black Tortoise Theme - Complete Guide
+# 玄武主題 - 完整指南
 
 > **Version**: 1.1.0 | **Last Updated**: 2025-12-13 | **Status**: ✅ Production Ready
 
@@ -17,58 +17,40 @@
 ### Primary Colors (主色)
 
 ```typescript
-// Azure Blue (青龍藍) - 10 levels
-azure-1: '#E6F7FF'   // Lightest - backgrounds
-azure-2: '#BAE7FF'   // Very Light - active backgrounds
-azure-3: '#91D5FF'   // Light - secondary elements, borders
-azure-4: '#69C0FF'   // Medium Light - disabled states
-azure-5: '#40A9FF'   // Medium - hover primary
-azure-6: '#0EA5E9'   // ⭐ PRIMARY - main brand color (Sky Blue)
-azure-7: '#0C83BA'   // Medium Dark - active primary
-azure-8: '#0A688B'   // Dark - text on light backgrounds
-azure-9: '#084C5C'   // Very Dark - deep emphasis
-azure-10: '#06303D'  // Darkest - dark mode backgrounds
+// Obsidian Black (玄武黑) - 10 levels
+obsidian-1: '#F8FAFC'  // Lightest - backgrounds
+obsidian-6: '#1E293B'  // ⭐ PRIMARY - main brand color
+obsidian-10: '#020617' // Darkest - dark mode
 
-// Jade Green (翡翠綠) - 6 levels
-jade-1: '#E6FFF9'    // Lightest jade - success backgrounds
-jade-2: '#B3FFE6'    // Very light jade - hover success
-jade-3: '#7FFFD4'    // Light jade - secondary success
-jade-4: '#14B8A6'    // ⭐ MAIN JADE - success color (Teal/Turquoise)
-jade-5: '#0D9488'    // Dark jade - active success
-jade-6: '#0A7C6C'    // Darkest jade - deep success
+// Stone Gray (石灰) - 6 levels  
+stone-1: '#F1F5F9'   // Lightest
+stone-4: '#475569'   // ⭐ SECONDARY - secondary states
+stone-6: '#334155'   // Darkest
 
-// Cyan (青綠) - 5 levels
-cyan-1: '#E0F7FA'    // Lightest cyan - info backgrounds
-cyan-2: '#B2EBF2'    // Very light cyan - hover info
-cyan-3: '#06B6D4'    // ⭐ MAIN CYAN - info color (Sky-cyan)
-cyan-4: '#0891B2'    // Dark cyan - active info
-cyan-5: '#0E7490'    // Darkest cyan - deep info
+// Deep Waters (深水藍) - 5 levels
+waters-1: '#EEF2FF'   // Lightest
+waters-3: '#1E40AF'   // ⭐ ACCENT - accent states
+waters-5: '#1E3A8A'   // Darkest
 ```
 
 ### Semantic Colors (語義色)
 
 ```typescript
-Primary:  #0EA5E9  // Azure-6
-Success:  #14B8A6  // Jade-4 (Emerald/Teal)
+Primary:  #1E293B  // Obsidian-6
+Success:  #10B981  // Emerald
 Warning:  #F59E0B  // Amber
 Error:    #EF4444  // Red
-Info:     #06B6D4  // Cyan-3
+Info:     #1E40AF  // Waters-3
 ```
 
 ### Gradients (漸變)
 
 ```less
-// Dragon Soaring (龍翔) - Primary actions
-@gradient-dragon-soaring: linear-gradient(135deg, #0EA5E9 0%, #14B8A6 100%);
+// Tortoise Shield (龜甲守護) - Primary actions
+@gradient-tortoise-shield: linear-gradient(135deg, #1E293B 0%, #475569 100%);
 
-// Azure Sky (青天) - Subtle backgrounds
-@gradient-azure-sky: linear-gradient(180deg, #0EA5E9 0%, #06B6D4 50%, #14B8A6 100%);
-
-// Dragon Scales (龍鱗) - Hover effects
-@gradient-dragon-scales: linear-gradient(45deg, #0C83BA 0%, #0D9488 50%, #0EA5E9 100%);
-
-// Dawn Light (曙光) - Card backgrounds
-@gradient-dawn-light: linear-gradient(135deg, #E6F7FF 0%, #E0F7FA 50%, #E6FFF9 100%);
+// Midnight Waters (深夜水波) - Subtle backgrounds
+@gradient-midnight-waters: linear-gradient(135deg, #F8FAFC 0%, #EEF2FF 50%, #F1F5F9 100%);
 ```
 
 ---
@@ -82,9 +64,9 @@ import { NzConfig, provideNzConfig } from 'ng-zorro-antd/core/config';
 
 const ngZorroConfig: NzConfig = {
   theme: {
-    primaryColor: '#0EA5E9',  // Azure Dragon Blue
-    successColor: '#14B8A6',  // Jade Green
-    infoColor: '#06B6D4'      // Cyan
+    primaryColor: '#1E293B',  // Obsidian Black
+    secondaryColor: '#475569',  // Stone Gray
+    infoColor: '#1E40AF'      // Deep Waters
   }
 };
 
@@ -97,9 +79,9 @@ export const appConfig: ApplicationConfig = {
 
 ```less
 // Define BEFORE importing @delon/theme
-@primary-color: #0EA5E9;
-@success-color: #14B8A6;
-@info-color: #06B6D4;
+@primary-color: #1E293B;
+@secondary-color: #475569;
+@info-color: #1E40AF;
 
 @import '@delon/theme/theme-default.less';
 ```
@@ -135,7 +117,7 @@ export class ThemeService {
 yarn add ng-zorro-antd@20.4.3
 yarn build
 ```
-✅ No breaking changes for Azure Dragon Theme
+✅ No breaking changes for Black Tortoise Theme
 
 **Angular 20.3.0 → 21.0.3** (Medium Risk, 4-8 hours)
 - Wait for ng-alain official support
@@ -158,15 +140,15 @@ yarn build
 ### Cards with Gradient
 
 ```html
-<nz-card class="azure-card-featured">
+<nz-card class="tortoise-card-featured">
   <h3>Featured Content</h3>
-  <p>Dragon Soaring gradient background</p>
+  <p>Tortoise Shield gradient background</p>
 </nz-card>
 ```
 
 ```less
-.azure-card-featured {
-  background: linear-gradient(135deg, #0EA5E9 0%, #14B8A6 100%);
+.tortoise-card-featured {
+  background: linear-gradient(135deg, #1E293B 0%, #475569 100%);
   color: #ffffff;
 }
 ```
@@ -175,10 +157,10 @@ yarn build
 
 ```html
 <input nz-input placeholder="Username" />
-<!-- Focus: Azure-6 border with 20% shadow -->
+<!-- Focus: Obsidian-6 border with 20% shadow -->
 
 <nz-select [nzOptions]="options"></nz-select>
-<!-- Hover: Azure-1 background -->
+<!-- Hover: Obsidian-1 background -->
 ```
 
 ---
@@ -187,15 +169,15 @@ yarn build
 
 ```html
 <!-- Background Colors -->
-<div class="azure-bg-primary">Azure background</div>
-<div class="azure-bg-gradient">Gradient background</div>
+<div class="tortoise-bg-primary">Tortoise background</div>
+<div class="tortoise-bg-gradient">Gradient background</div>
 
 <!-- Text Colors -->
-<span class="azure-text-primary">Azure text</span>
-<span class="azure-text-jade">Jade text</span>
+<span class="tortoise-text-primary">Tortoise text</span>
+<span class="tortoise-text-stone">Stone text</span>
 
 <!-- Borders -->
-<div class="azure-border-primary">Azure border</div>
+<div class="tortoise-border-primary">Tortoise border</div>
 ```
 
 ---
@@ -204,10 +186,9 @@ yarn build
 
 All color combinations meet accessibility standards:
 
-- Azure-6 on White: **4.5:1** ✅ (AA)
-- Jade-4 on White: **3.1:1** ⚠️ (Use for large text only)
-- Cyan-3 on White: **4.8:1** ✅ (AA)
-- Azure-8 on White: **7.2:1** ✅ (AAA)
+- Obsidian-6 on White: **12.6:1** ✅ (AAA)
+- Stone-4 on White: **7.5:1** ✅ (AAA)
+- Primary Text on White: **18.2:1** ✅ (AAA)
 
 ---
 
@@ -216,12 +197,11 @@ All color combinations meet accessibility standards:
 ### Detailed Documentation (in `/reference` folder)
 - `COLOR_SYSTEM_REFERENCE.md` - Complete color palette with RGB values
 - `VERSION_COMPATIBILITY.md` - Detailed upgrade guides
-- `azure-dragon-theme-examples.md` - Code examples
 
 ### Archived Documentation (in `/archive` folder)
-- Black Tortoise theme migration guide
 - Historical implementation summaries
 - Legacy theme examples
+- Old visual references
 
 ### Official Documentation
 - ng-zorro-antd: https://ng.ant.design/docs/customize-theme/en

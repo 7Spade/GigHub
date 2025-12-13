@@ -1,5 +1,5 @@
-# Azure Dragon Theme Documentation
-# 青龍主題文檔
+# Black Tortoise Theme Documentation
+# 玄武主題文檔
 
 > **Version**: 1.1.0 | **Status**: ✅ Production Ready
 
@@ -17,25 +17,24 @@ Read **[THEME_GUIDE.md](./THEME_GUIDE.md)** for everything you need to know.
 ### Reference (Detailed)
 - **[reference/COLOR_SYSTEM_REFERENCE.md](./reference/COLOR_SYSTEM_REFERENCE.md)** - Complete color palette with WCAG compliance
 - **[reference/VERSION_COMPATIBILITY.md](./reference/VERSION_COMPATIBILITY.md)** - Version matrix and upgrade guides
-- **[reference/azure-dragon-theme-examples.md](./reference/azure-dragon-theme-examples.md)** - Code examples
+- **[reference/black-tortoise-theme-examples.md](./reference/black-tortoise-theme-examples.md)** - Code examples
 
 ### Archive (Historical)
-- Implementation summaries and legacy documentation (Black Tortoise theme)
+- Implementation summaries and legacy documentation
 
 ## 🎨 Quick Reference
 
 ### Colors
-- **Primary**: `#0EA5E9` (Azure Dragon Blue / 青龍藍)
-- **Secondary**: `#14B8A6` (Jade Green / 翡翠綠)
-- **Info**: `#06B6D4` (Cyan / 青綠)
+- **Primary**: `#1E293B` (Obsidian Black)
+- **Secondary**: `#475569` (Stone Gray)
+- **Accent**: `#1E40AF` (Deep Waters)
 
 ### Configuration
 ```typescript
 const ngZorroConfig: NzConfig = {
   theme: {
-    primaryColor: '#0EA5E9',
-    successColor: '#14B8A6',
-    infoColor: '#06B6D4'
+    primaryColor: '#1E293B',
+    secondaryColor: '#475569'
   }
 };
 ```
@@ -69,7 +68,7 @@ All improvements are **automatically applied** - no configuration needed!
 ```html
 <!-- Existing code works with enhanced hover states -->
 <button nz-button nzType="primary">Click Me</button>
-<div class="azure-card">Card content</div>
+<div class="tortoise-card">Card content</div>
 ```
 
 ### New Utility Classes
@@ -78,7 +77,7 @@ All improvements are **automatically applied** - no configuration needed!
 <!-- Use new hover utilities -->
 <div class="hover-lift">Lifts on hover</div>
 <div class="hover-scale">Scales on hover</div>
-<div class="hover-border-azure">Azure border on hover</div>
+<div class="hover-border-tortoise">Tortoise border on hover</div>
 ```
 
 ## 🧪 Testing
@@ -93,16 +92,15 @@ Before deploying to production:
 
 ## 📖 Learning Path
 
-### New to Azure Dragon Theme?
-1. Start with **[THEME_GUIDE.md](./THEME_GUIDE.md)**
-2. Check **[reference/azure-dragon-theme-examples.md](./reference/azure-dragon-theme-examples.md)**
-3. Review color system in **[reference/COLOR_SYSTEM_REFERENCE.md](./reference/COLOR_SYSTEM_REFERENCE.md)**
+### New to Black Tortoise Theme?
+1. Start with **[BLACK_TORTOISE_INTEGRATION.md](./archive/BLACK_TORTOISE_INTEGRATION.md)**
+2. Review **[BLACK_TORTOISE_VISUAL_REFERENCE.md](./archive/BLACK_TORTOISE_VISUAL_REFERENCE.md)**
+3. Check **[black-tortoise-theme-examples.md](./reference/black-tortoise-theme-examples.md)**
 
-### Upgrading from Black Tortoise v1.0?
-1. Read **[archive/black-tortoise/MIGRATION_GUIDE.md](./archive/black-tortoise/MIGRATION_GUIDE.md)**
-2. Review the color mapping table
-3. Update theme configuration in `app.config.ts`
-4. Test thoroughly before production
+### Upgrading from v1.0?
+1. Read **[HOVER_STATES_IMPROVEMENTS.md](./HOVER_STATES_IMPROVEMENTS.md)**
+2. Review the migration guide section
+3. No breaking changes - fully backward compatible!
 
 ### QA Testing?
 1. Use **[TESTING_CHECKLIST.md](./TESTING_CHECKLIST.md)**
@@ -112,6 +110,10 @@ Before deploying to production:
 ## 🐛 Known Issues
 
 ### Build Status
+⚠️ **Note**: Current build has unrelated TypeScript errors in `app.config.ts`:
+- Duplicate `providers` key
+- Firebase configuration issues
+
 ✅ **CSS/LESS Changes**: All style changes compile successfully
 
 ### Browser Support
@@ -126,7 +128,7 @@ Before deploying to production:
 When making UI changes:
 
 1. Follow the three-tier transition system
-2. Use Azure Dragon color variables
+2. Use Black Tortoise color variables
 3. Test accessibility (keyboard + screen reader)
 4. Update documentation
 5. Add to testing checklist if needed
@@ -135,12 +137,12 @@ When making UI changes:
 
 ### Questions?
 - Check existing documentation first
-- Review code examples in `azure-dragon-theme-examples.md`
-- Look at the implementation in `src/styles/index.less` and `src/styles/theme.less`
+- Review code examples in `black-tortoise-theme-examples.md`
+- Look at the implementation in `src/styles/index.less`
 
 ### Found a Bug?
 1. Check if it's in the testing checklist
-2. Verify it's related to theme colors (not other features)
+2. Verify it's related to hover states (not other features)
 3. Document steps to reproduce
 4. Submit with browser/device info
 
@@ -154,7 +156,7 @@ When making UI changes:
 - ✅ Complete testing documentation
 
 ### v1.0.0 (December 2025)
-- ✅ Initial Azure Dragon theme implementation
+- ✅ Initial Black Tortoise theme implementation
 - ✅ Color system and gradients
 - ✅ Base component styling
 - ✅ Integration with ng-alain and ng-zorro-antd
