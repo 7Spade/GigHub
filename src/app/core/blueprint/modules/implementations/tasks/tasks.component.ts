@@ -11,6 +11,7 @@
 import { Component, OnInit, inject, signal, effect, input } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { LoggerService } from '@core';
+import { FirebaseService } from '@core/services/firebase.service';
 import { TaskStore } from '@core/stores/task.store';
 import { Task, TaskViewMode } from '@core/types/task';
 import { SHARED_IMPORTS } from '@shared';
@@ -122,6 +123,7 @@ export class TasksComponent implements OnInit {
   private message = inject(NzMessageService);
   private logger = inject(LoggerService);
   private taskStore = inject(TaskStore);
+  private firebaseService = inject(FirebaseService);
 
   // Input from parent (Angular 19+ input() function)
   blueprintId = input<string>();
@@ -218,8 +220,15 @@ export class TasksComponent implements OnInit {
   async deleteTask(task: Task): Promise<void> {
     try {
       const blueprintId = this._blueprintId();
+      const currentUserId = this.firebaseService.getCurrentUserId();
+
+      if (!currentUserId) {
+        this.message.warning('請先登入');
+        return;
+      }
+
       if (blueprintId && task.id) {
-        await this.taskStore.deleteTask(blueprintId, task.id, 'current-user');
+        await this.taskStore.deleteTask(blueprintId, task.id, currentUserId);
         this.message.success('任務刪除成功');
       }
     } catch (error) {

@@ -17,6 +17,7 @@
 
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FirebaseService } from '@core/services/firebase.service';
 import { TaskStore } from '@core/stores/task.store';
 import { Task, TaskStatus, TaskPriority, CreateTaskRequest, UpdateTaskRequest } from '@core/types/task';
 import { SHARED_IMPORTS } from '@shared';
@@ -155,6 +156,7 @@ export class TaskModalComponent implements OnInit {
   private modalRef = inject(NzModalRef);
   private message = inject(NzMessageService);
   private taskStore = inject(TaskStore);
+  private firebaseService = inject(FirebaseService);
 
   // Modal data injected
   modalData: ModalData = inject(NZ_MODAL_DATA);
@@ -230,6 +232,15 @@ export class TaskModalComponent implements OnInit {
   }
 
   private async createTask(formValue: any): Promise<void> {
+    // Get current authenticated user
+    const currentUser = this.firebaseService.getCurrentUser();
+    const currentUserId = this.firebaseService.getCurrentUserId();
+
+    if (!currentUserId) {
+      this.message.error('請先登入');
+      throw new Error('User not authenticated');
+    }
+
     const createData: CreateTaskRequest = {
       title: formValue.title,
       description: formValue.description,
@@ -240,7 +251,8 @@ export class TaskModalComponent implements OnInit {
       startDate: formValue.startDate || undefined,
       estimatedHours: formValue.estimatedHours || undefined,
       tags: formValue.tags || [],
-      creatorId: 'current-user' // TODO: Get from auth service
+      creatorId: currentUserId,
+      creatorName: currentUser?.displayName || currentUser?.email || undefined
     };
 
     const newTask = await this.taskStore.createTask(this.modalData.blueprintId, createData);
@@ -259,6 +271,13 @@ export class TaskModalComponent implements OnInit {
       throw new Error('Task ID not found');
     }
 
+    // Get current authenticated user
+    const currentUserId = this.firebaseService.getCurrentUserId();
+    if (!currentUserId) {
+      this.message.error('請先登入');
+      throw new Error('User not authenticated');
+    }
+
     const updateData: UpdateTaskRequest = {
       title: formValue.title,
       description: formValue.description,
@@ -269,10 +288,11 @@ export class TaskModalComponent implements OnInit {
       dueDate: formValue.dueDate || undefined,
       startDate: formValue.startDate || undefined,
       estimatedHours: formValue.estimatedHours || undefined,
+      progress: formValue.progress,
       tags: formValue.tags || []
     };
 
-    await this.taskStore.updateTask(this.modalData.blueprintId, taskId, updateData, 'current-user');
+    await this.taskStore.updateTask(this.modalData.blueprintId, taskId, updateData, currentUserId);
 
     this.message.success('任務更新成功');
     this.modalRef.close({ success: true });

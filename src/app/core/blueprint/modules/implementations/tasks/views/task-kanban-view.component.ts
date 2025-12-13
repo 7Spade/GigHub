@@ -10,6 +10,7 @@
 
 import { CdkDragDrop, DragDropModule, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { Component, input, output, computed, inject } from '@angular/core';
+import { FirebaseService } from '@core/services/firebase.service';
 import { TaskStore } from '@core/stores/task.store';
 import { Task, TaskStatus } from '@core/types/task';
 import { SHARED_IMPORTS } from '@shared';
@@ -234,6 +235,7 @@ import { NzMessageService } from 'ng-zorro-antd/message';
 export class TaskKanbanViewComponent {
   private taskStore = inject(TaskStore);
   private message = inject(NzMessageService);
+  private firebaseService = inject(FirebaseService);
 
   // Inputs
   blueprintId = input.required<string>();
@@ -278,14 +280,18 @@ export class TaskKanbanViewComponent {
 
       transferArrayItem(event.previousContainer.data, event.container.data, event.previousIndex, event.currentIndex);
 
+      // Get current authenticated user
+      const currentUserId = this.firebaseService.getCurrentUserId();
+      if (!currentUserId) {
+        this.message.error('請先登入');
+        // Revert the move
+        transferArrayItem(event.container.data, event.previousContainer.data, event.currentIndex, event.previousIndex);
+        return;
+      }
+
       // Update task status
       try {
-        await this.taskStore.updateTaskStatus(
-          this.blueprintId(),
-          task.id!,
-          newStatus as TaskStatus,
-          'current-user' // TODO: Get from auth service
-        );
+        await this.taskStore.updateTaskStatus(this.blueprintId(), task.id!, newStatus as TaskStatus, currentUserId);
         this.message.success('任務狀態已更新');
       } catch (error) {
         this.message.error('更新任務狀態失敗');
