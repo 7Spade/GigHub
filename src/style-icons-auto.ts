@@ -70,7 +70,60 @@ import { BookOutline, BorderLeftOutline, BorderRightOutline } from '@ant-design/
 import { PayCircleOutline, ShoppingCartOutline, TrophyOutline, CopyrightOutline } from '@ant-design/icons-angular/icons';
 
 // 互動與反饋
-import { LikeOutline, DislikeOutline, StarOutline, FrownOutline, ArrowDownOutline } from '@ant-design/icons-angular/icons';
+import {
+  LikeOutline,
+  DislikeOutline,
+  StarOutline,
+  FrownOutline,
+  ArrowDownOutline,
+  ArrowLeftOutline,
+  ArrowRightOutline
+} from '@ant-design/icons-angular/icons';
+
+// 編輯與操作
+import {
+  EditOutline,
+  DeleteOutline,
+  SaveOutline,
+  CloseOutline,
+  CheckCircleOutline,
+  CheckSquareOutline,
+  PlusSquareOutline,
+  MinusSquareOutline,
+  EyeOutline,
+  EyeInvisibleOutline,
+  SwapOutline,
+  ReloadOutline,
+  ZoomInOutline,
+  ZoomOutOutline
+} from '@ant-design/icons-angular/icons';
+
+// 文件與內容
+import { FileTextOutline, PaperClipOutline, PictureOutline, UnorderedListOutline } from '@ant-design/icons-angular/icons';
+
+// 時間與狀態
+import { ClockCircleOutline, HistoryOutline, PlayCircleOutline, PauseCircleOutline } from '@ant-design/icons-angular/icons';
+
+// 通知與警告
+import { NotificationOutline, WarningOutline, ExclamationCircleOutline } from '@ant-design/icons-angular/icons';
+
+// 建築與部署
+import { ApartmentOutline, ClusterOutline, ContainerOutline, DeploymentUnitOutline } from '@ant-design/icons-angular/icons';
+
+// 圖表與數據視覺化
+import { BarChartOutline, LineChartOutline, RadarChartOutline, FundOutline } from '@ant-design/icons-angular/icons';
+
+// 位置與導航
+import { HomeOutline, InboxOutline, FlagOutline } from '@ant-design/icons-angular/icons';
+
+// 財務與交易
+import { DollarOutline, TransactionOutline } from '@ant-design/icons-angular/icons';
+
+// 用戶管理擴展
+import { UserAddOutline, UserDeleteOutline, CrownOutline } from '@ant-design/icons-angular/icons';
+
+// 特效與動作
+import { ThunderboltOutline } from '@ant-design/icons-angular/icons';
 
 /**
  * 自動生成的圖標列表
@@ -148,5 +201,69 @@ export const ICONS_AUTO = [
   DislikeOutline,
   StarOutline,
   FrownOutline,
-  ArrowDownOutline
+  ArrowDownOutline,
+  ArrowLeftOutline,
+  ArrowRightOutline,
+
+  // 編輯與操作 (Edit & Actions)
+  EditOutline,
+  DeleteOutline,
+  SaveOutline,
+  CloseOutline,
+  CheckCircleOutline,
+  CheckSquareOutline,
+  PlusSquareOutline,
+  MinusSquareOutline,
+  EyeOutline,
+  EyeInvisibleOutline,
+  SwapOutline,
+  ReloadOutline,
+  ZoomInOutline,
+  ZoomOutOutline,
+
+  // 文件與內容 (Files & Content)
+  FileTextOutline,
+  PaperClipOutline,
+  PictureOutline,
+  UnorderedListOutline,
+
+  // 時間與狀態 (Time & Status)
+  ClockCircleOutline,
+  HistoryOutline,
+  PlayCircleOutline,
+  PauseCircleOutline,
+
+  // 通知與警告 (Notifications & Warnings)
+  NotificationOutline,
+  WarningOutline,
+  ExclamationCircleOutline,
+
+  // 建築與部署 (Architecture & Deployment)
+  ApartmentOutline,
+  ClusterOutline,
+  ContainerOutline,
+  DeploymentUnitOutline,
+
+  // 圖表與數據視覺化 (Charts & Data Visualization)
+  BarChartOutline,
+  LineChartOutline,
+  RadarChartOutline,
+  FundOutline,
+
+  // 位置與導航 (Location & Navigation)
+  HomeOutline,
+  InboxOutline,
+  FlagOutline,
+
+  // 財務與交易 (Finance & Transactions)
+  DollarOutline,
+  TransactionOutline,
+
+  // 用戶管理擴展 (User Management Extended)
+  UserAddOutline,
+  UserDeleteOutline,
+  CrownOutline,
+
+  // 特效與動作 (Effects & Actions)
+  ThunderboltOutline
 ];
