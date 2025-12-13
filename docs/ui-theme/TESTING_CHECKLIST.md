@@ -1,4 +1,4 @@
-# Xuanwu Theme - UI Testing Checklist
+# Black Tortoise Theme - UI Testing Checklist
 
 ## Visual Testing Guide
 
@@ -6,35 +6,35 @@
 
 #### Test Cases
 - [ ] **Primary Button**
-  - Hover: Gradient should transition from northern-waters to tortoise-shell
+  - Hover: Gradient should transition from tortoise-shield to stone-depths
   - Hover: Should lift 1px with shadow enhancement
   - Active: Should reset to original position
-  - Focus: Should show focus ring with Xuanwu color
+  - Focus: Should show focus ring with Obsidian color
 
 - [ ] **Default Button**
-  - Hover: Should show Xuanwu-6 color with Xuanwu-1 background
+  - Hover: Should show Obsidian-6 color with Obsidian-1 background
   - Focus: Same as hover state
 
 - [ ] **Dashed Button**
-  - Hover: Should show Xuanwu-6 color with faded Xuanwu-1 background
+  - Hover: Should show Obsidian-6 color with faded Obsidian-1 background
 
 - [ ] **Text Button**
-  - Hover: Should show Xuanwu-5 color with faded background
+  - Hover: Should show Obsidian-5 color with faded background
 
 - [ ] **Link Button**
-  - Hover: Text color should change to Xuanwu-5
+  - Hover: Text color should change to Obsidian-5
 
 ### 🔳 Cards
 
 #### Test Cases
-- [ ] **Xuanwu Card**
+- [ ] **Tortoise Card**
   - Hover: Should lift 2px
   - Hover: Shadow should intensify from sm to lg
-  - Hover: Border should appear in Xuanwu-6 color (subtle)
+  - Hover: Border should appear in Obsidian-6 color (subtle)
   - Transition: All effects should happen smoothly together
 
 - [ ] **Gradient Card**
-  - Same hover effects as Xuanwu Card
+  - Same hover effects as Tortoise Card
 
 - [ ] **Featured Card**
   - Verify gradient background persists during hover
@@ -44,7 +44,7 @@
 
 #### Test Cases
 - [ ] **Table Rows**
-  - Hover: Row should highlight with faded Xuanwu-1 background
+  - Hover: Row should highlight with faded Obsidian-1 background
   - All cells should highlight simultaneously
   - Transition should be smooth (0.15s)
 
@@ -53,15 +53,15 @@
   - Hover on selected row should intensify background
 
 - [ ] **Table Header**
-  - Should have gradient silver-frost background
+  - Should have gradient dawn-light background
   - No hover effect on header (by design)
 
 ### 📝 Form Controls
 
 #### Input Fields
-- [ ] Border color changes to Xuanwu-5 on hover
-- [ ] Border color changes to Xuanwu-6 on focus
-- [ ] Shadow ring appears on focus (2px Xuanwu-6 at 20% opacity)
+- [ ] Border color changes to Azure-5 on hover
+- [ ] Border color changes to Azure-6 on focus
+- [ ] Shadow ring appears on focus (2px Azure-6 at 20% opacity)
 - [ ] Disabled state has no hover effect
 
 #### Checkboxes & Radio
