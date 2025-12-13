@@ -137,4 +137,7 @@ export interface GanttTask {
 
   /** Is milestone */
   milestone?: boolean;
+
+  /** Has no dates set (for visual distinction) */
+  hasNoDates?: boolean;
 }

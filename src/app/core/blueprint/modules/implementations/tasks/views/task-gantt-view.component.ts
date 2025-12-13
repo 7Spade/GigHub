@@ -12,7 +12,7 @@
  * @date 2025-12-12
  */
 
-import { Component, input, computed, inject, signal } from '@angular/core';
+import { Component, input, computed, inject, signal, WritableSignal } from '@angular/core';
 import { TaskStore } from '@core/stores/task.store';
 import { Task, GanttTask } from '@core/types/task';
 import { SHARED_IMPORTS } from '@shared';
@@ -51,7 +51,7 @@ enum ZoomLevel {
         </div>
 
         @if (ganttTasks().length === 0) {
-          <nz-empty nzNotFoundContent="暫無包含日期的任務" nzNotFoundImage="simple" />
+          <nz-empty nzNotFoundContent="暫無任務" nzNotFoundImage="simple" />
         } @else {
           <div class="gantt-chart">
             <div class="gantt-timeline">
@@ -69,10 +69,12 @@ enum ZoomLevel {
 
             <div class="gantt-tasks">
               @for (ganttTask of ganttTasks(); track ganttTask.id) {
-                <div class="gantt-row" [class.milestone]="ganttTask.milestone">
+                <div class="gantt-row" [class.milestone]="ganttTask.milestone" [class.no-dates]="ganttTask.hasNoDates">
                   <div class="task-name">
                     <div class="task-info">
-                      @if (ganttTask.milestone) {
+                      @if (ganttTask.hasNoDates) {
+                        <span nz-icon nzType="clock-circle" nzTheme="outline" class="no-dates-icon"></span>
+                      } @else if (ganttTask.milestone) {
                         <span nz-icon nzType="flag" nzTheme="fill" class="milestone-icon"></span>
                       }
                       <span class="task-title">{{ ganttTask.name }}</span>
@@ -80,47 +82,57 @@ enum ZoomLevel {
                     </div>
                   </div>
                   <div class="task-timeline">
-                    <!-- Dependencies lines -->
-                    @for (depId of ganttTask.dependencies || []; track depId) {
-                      <div
-                        class="dependency-line"
-                        [style.left.%]="getDependencyLinePosition(ganttTask, depId)"
-                        [style.width.%]="getDependencyLineWidth(ganttTask, depId)"
-                      >
-                      </div>
-                    }
-
-                    <!-- Task bar -->
-                    @if (ganttTask.milestone) {
-                      <div
-                        class="milestone-marker"
-                        [style.left.%]="getTaskPosition(ganttTask)"
-                        [title]="ganttTask.name"
-                        [attr.aria-label]="'里程碑: ' + ganttTask.name"
-                        role="img"
-                      >
-                        <span nz-icon nzType="flag" nzTheme="fill"></span>
-                      </div>
-                    } @else {
-                      <div
-                        class="task-bar"
-                        [class.has-dependencies]="ganttTask.dependencies && ganttTask.dependencies.length > 0"
-                        [style.left.%]="getTaskPosition(ganttTask)"
-                        [style.width.%]="getTaskWidth(ganttTask)"
-                        [style.background-color]="ganttTask.color"
-                        [title]="getTaskTooltip(ganttTask)"
-                      >
-                        <div class="task-bar-progress" [style.width.%]="ganttTask.progress"></div>
-                        <span class="task-bar-label">
-                          @if (zoomLevel() === 'day') {
-                            {{ ganttTask.start | date: 'M/d' }} - {{ ganttTask.end | date: 'M/d' }}
-                          } @else if (zoomLevel() === 'week') {
-                            {{ ganttTask.start | date: 'M/d' }}
-                          } @else {
-                            {{ getDurationDays(ganttTask) }}d
-                          }
+                    @if (ganttTask.hasNoDates) {
+                      <!-- Special display for tasks without dates -->
+                      <div class="task-bar-no-dates" [title]="'未設定日期 - ' + ganttTask.name">
+                        <span class="no-dates-label">
+                          <span nz-icon nzType="clock-circle" nzTheme="outline"></span>
+                          未設定日期
                         </span>
                       </div>
+                    } @else {
+                      <!-- Dependencies lines -->
+                      @for (depId of ganttTask.dependencies || []; track depId) {
+                        <div
+                          class="dependency-line"
+                          [style.left.%]="getDependencyLinePosition(ganttTask, depId)"
+                          [style.width.%]="getDependencyLineWidth(ganttTask, depId)"
+                        >
+                        </div>
+                      }
+
+                      <!-- Task bar -->
+                      @if (ganttTask.milestone) {
+                        <div
+                          class="milestone-marker"
+                          [style.left.%]="getTaskPosition(ganttTask)"
+                          [title]="ganttTask.name"
+                          [attr.aria-label]="'里程碑: ' + ganttTask.name"
+                          role="img"
+                        >
+                          <span nz-icon nzType="flag" nzTheme="fill"></span>
+                        </div>
+                      } @else {
+                        <div
+                          class="task-bar"
+                          [class.has-dependencies]="ganttTask.dependencies && ganttTask.dependencies.length > 0"
+                          [style.left.%]="getTaskPosition(ganttTask)"
+                          [style.width.%]="getTaskWidth(ganttTask)"
+                          [style.background-color]="ganttTask.color"
+                          [title]="getTaskTooltip(ganttTask)"
+                        >
+                          <div class="task-bar-progress" [style.width.%]="ganttTask.progress"></div>
+                          <span class="task-bar-label">
+                            @if (zoomLevel === 'day') {
+                              {{ ganttTask.start | date: 'M/d' }} - {{ ganttTask.end | date: 'M/d' }}
+                            } @else if (zoomLevel === 'week') {
+                              {{ ganttTask.start | date: 'M/d' }}
+                            } @else {
+                              {{ getDurationDays(ganttTask) }}d
+                            }
+                          </span>
+                        </div>
+                      }
                     }
                   </div>
                 </div>
@@ -211,6 +223,11 @@ enum ZoomLevel {
         background: #fff7e6;
       }
 
+      .gantt-row.no-dates {
+        background: #fafafa;
+        border-left: 3px solid #d9d9d9;
+      }
+
       .task-name {
         width: 200px;
         padding: 8px 12px;
@@ -236,6 +253,43 @@ enum ZoomLevel {
 
       .milestone-icon {
         color: #faad14;
+      }
+
+      .no-dates-icon {
+        color: #8c8c8c;
+      }
+
+      .task-bar-no-dates {
+        position: relative;
+        height: 24px;
+        background: #f5f5f5;
+        border: 2px dashed #d9d9d9;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #8c8c8c;
+        font-size: 11px;
+        padding: 0 12px;
+        width: fit-content;
+        min-width: 120px;
+        cursor: help;
+      }
+
+      .task-bar-no-dates:hover {
+        background: #e8e8e8;
+        border-color: #bfbfbf;
+      }
+
+      .no-dates-label {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        white-space: nowrap;
+      }
+
+      .no-dates-label [nz-icon] {
+        font-size: 12px;
       }
 
       .task-timeline {
@@ -327,8 +381,17 @@ export class TaskGanttViewComponent {
   // Inputs
   blueprintId = input.required<string>();
 
-  // Zoom level signal
-  zoomLevel = signal<ZoomLevel>(ZoomLevel.MONTH);
+  // Zoom level - using writable signal
+  private _zoomLevel: WritableSignal<ZoomLevel> = signal(ZoomLevel.MONTH);
+
+  // Getter/setter for ngModel compatibility
+  get zoomLevel(): ZoomLevel {
+    return this._zoomLevel();
+  }
+
+  set zoomLevel(value: ZoomLevel) {
+    this._zoomLevel.set(value);
+  }
 
   // Expose store state
   readonly loading = this.taskStore.loading;
@@ -336,37 +399,40 @@ export class TaskGanttViewComponent {
 
   // Timeline periods based on zoom level
   readonly timelinePeriods = computed(() => {
-    const zoom = this.zoomLevel();
+    const zoom = this._zoomLevel();
     const today = new Date();
     const periods: Array<{ label: string; flex?: number }> = [];
 
-    if (zoom === ZoomLevel.DAY) {
-      // Show 60 days (2 months)
-      for (let i = -15; i < 45; i++) {
-        const date = new Date(today);
-        date.setDate(today.getDate() + i);
-        periods.push({
-          label: date.toLocaleDateString('zh-TW', { month: 'numeric', day: 'numeric' })
-        });
-      }
-    } else if (zoom === ZoomLevel.WEEK) {
-      // Show 24 weeks (6 months)
-      for (let i = -8; i < 16; i++) {
-        const date = new Date(today);
-        date.setDate(today.getDate() + i * 7);
-        const weekNum = this.getWeekNumber(date);
-        periods.push({
-          label: `W${weekNum}`
-        });
-      }
-    } else {
-      // Show 12 months (1 year)
-      for (let i = -3; i < 9; i++) {
-        const date = new Date(today.getFullYear(), today.getMonth() + i, 1);
-        periods.push({
-          label: date.toLocaleDateString('zh-TW', { year: 'numeric', month: 'short' })
-        });
-      }
+    switch (zoom) {
+      case ZoomLevel.DAY:
+        // Show 60 days (2 months)
+        for (let i = -15; i < 45; i++) {
+          const date = new Date(today);
+          date.setDate(today.getDate() + i);
+          periods.push({
+            label: date.toLocaleDateString('zh-TW', { month: 'numeric', day: 'numeric' })
+          });
+        }
+        break;
+
+      case ZoomLevel.WEEK:
+        // Show 24 weeks (6 months)
+        for (let i = -8; i < 16; i++) {
+          const date = new Date(today);
+          date.setDate(today.getDate() + i * 7);
+          periods.push({ label: `W${this.getWeekNumber(date)}` });
+        }
+        break;
+
+      case ZoomLevel.MONTH:
+        // Show 12 months (1 year)
+        for (let i = -3; i < 9; i++) {
+          const date = new Date(today.getFullYear(), today.getMonth() + i, 1);
+          periods.push({
+            label: date.toLocaleDateString('zh-TW', { year: 'numeric', month: 'short' })
+          });
+        }
+        break;
     }
 
     return periods;
@@ -376,29 +442,31 @@ export class TaskGanttViewComponent {
   readonly ganttTasks = computed(() => {
     const tasks = this.taskStore.tasks();
 
-    return tasks
-      .filter(task => task.startDate || task.dueDate)
-      .map(task => {
-        const start = task.startDate ? new Date(task.startDate) : new Date();
-        const end = task.dueDate ? new Date(task.dueDate) : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+    return tasks.map(task => {
+      const hasStartDate = !!task.startDate;
+      const hasDueDate = !!task.dueDate;
+      const hasDates = hasStartDate || hasDueDate;
 
-        // Check if milestone (task with same start and end date, or marked as milestone)
-        const isMilestone =
-          (task.metadata && typeof task.metadata === 'object' && task.metadata !== null && task.metadata['milestone'] === true) ||
-          start.getTime() === end.getTime();
+      // Use actual dates or defaults for tasks without dates
+      const start = hasStartDate ? new Date(task.startDate!) : new Date();
+      const end = hasDueDate ? new Date(task.dueDate!) : hasStartDate ? new Date(start.getTime() + 7 * 24 * 60 * 60 * 1000) : new Date();
 
-        return {
-          id: task.id!,
-          name: task.title,
-          start,
-          end,
-          progress: task.progress ?? 0,
-          color: this.getStatusColor(task.status),
-          dependencies: task.dependencies || [],
-          milestone: isMilestone,
-          task
-        } as GanttTask & { task: Task };
-      });
+      // Milestone: same start/end date or explicitly marked
+      const isMilestone = hasDates && (task.metadata?.['milestone'] === true || start.getTime() === end.getTime());
+
+      return {
+        id: task.id!,
+        name: task.title,
+        start,
+        end,
+        progress: task.progress ?? 0,
+        color: this.getStatusColor(task.status),
+        dependencies: task.dependencies || [],
+        milestone: isMilestone,
+        hasNoDates: !hasDates,
+        task
+      };
+    });
   });
 
   // Task lookup map for better performance (O(1) lookup instead of O(n))
@@ -411,36 +479,40 @@ export class TaskGanttViewComponent {
   // Timeline start and end dates based on zoom
   private timelineStart = computed(() => {
     const today = new Date();
-    const zoom = this.zoomLevel();
+    const zoom = this._zoomLevel();
+    const start = new Date(today);
 
-    if (zoom === ZoomLevel.DAY) {
-      const start = new Date(today);
-      start.setDate(today.getDate() - 15);
-      return start;
-    } else if (zoom === ZoomLevel.WEEK) {
-      const start = new Date(today);
-      start.setDate(today.getDate() - 8 * 7);
-      return start;
-    } else {
-      return new Date(today.getFullYear(), today.getMonth() - 3, 1);
+    switch (zoom) {
+      case ZoomLevel.DAY:
+        start.setDate(today.getDate() - 15);
+        break;
+      case ZoomLevel.WEEK:
+        start.setDate(today.getDate() - 56); // 8 weeks
+        break;
+      case ZoomLevel.MONTH:
+        return new Date(today.getFullYear(), today.getMonth() - 3, 1);
     }
+
+    return start;
   });
 
   private timelineEnd = computed(() => {
     const today = new Date();
-    const zoom = this.zoomLevel();
+    const zoom = this._zoomLevel();
+    const end = new Date(today);
 
-    if (zoom === ZoomLevel.DAY) {
-      const end = new Date(today);
-      end.setDate(today.getDate() + 45);
-      return end;
-    } else if (zoom === ZoomLevel.WEEK) {
-      const end = new Date(today);
-      end.setDate(today.getDate() + 16 * 7);
-      return end;
-    } else {
-      return new Date(today.getFullYear(), today.getMonth() + 9, 0);
+    switch (zoom) {
+      case ZoomLevel.DAY:
+        end.setDate(today.getDate() + 45);
+        break;
+      case ZoomLevel.WEEK:
+        end.setDate(today.getDate() + 112); // 16 weeks
+        break;
+      case ZoomLevel.MONTH:
+        return new Date(today.getFullYear(), today.getMonth() + 9, 0);
     }
+
+    return end;
   });
 
   /**

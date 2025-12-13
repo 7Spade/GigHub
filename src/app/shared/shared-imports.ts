@@ -81,6 +81,13 @@ const CORE_ANGULAR_MODULES = [
  * - @delon 常用模組
  *
  * 適用於 80% 以上的元件
+ *
+ * @note Angular CDK 模組按需直接引入
+ * ng-zorro-antd 已包含大部分 CDK 功能，無需額外抽象層
+ * 如需使用 CDK，請直接在元件中引入：
+ * - DragDropModule - 拖放功能
+ * - ScrollingModule - 虛擬滾動
+ * - A11yModule - 無障礙功能
  */
 export const SHARED_IMPORTS = [
   ...CORE_ANGULAR_MODULES,

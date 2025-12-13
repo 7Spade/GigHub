@@ -17,12 +17,15 @@
 
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { BlueprintMemberRepository } from '@core/blueprint/repositories/blueprint-member.repository';
 import { TaskStore } from '@core/stores/task.store';
+import { BlueprintMember, BlueprintRole } from '@core/types/blueprint/blueprint.types';
 import { Task, TaskStatus, TaskPriority, CreateTaskRequest, UpdateTaskRequest } from '@core/types/task';
 import { SHARED_IMPORTS } from '@shared';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NZ_MODAL_DATA, NzModalRef } from 'ng-zorro-antd/modal';
 import { NzSliderModule } from 'ng-zorro-antd/slider';
+import { firstValueFrom } from 'rxjs';
 interface ModalData {
   blueprintId: string;
   task?: Task;
@@ -78,19 +81,22 @@ interface ModalData {
         </nz-form-control>
       </nz-form-item>
 
-      <!-- Assignee Name -->
+      <!-- Assignee (Member Selector) -->
       <nz-form-item>
         <nz-form-label [nzSpan]="6">負責人</nz-form-label>
         <nz-form-control [nzSpan]="14">
-          <input nz-input formControlName="assigneeName" placeholder="輸入負責人姓名" />
-        </nz-form-control>
-      </nz-form-item>
-
-      <!-- Due Date -->
-      <nz-form-item>
-        <nz-form-label [nzSpan]="6">到期日</nz-form-label>
-        <nz-form-control [nzSpan]="14">
-          <nz-date-picker formControlName="dueDate" nzFormat="yyyy-MM-dd" style="width: 100%;" />
+          <nz-select
+            formControlName="assigneeId"
+            nzPlaceHolder="選擇負責人"
+            nzShowSearch
+            nzAllowClear
+            style="width: 100%;"
+            [nzLoading]="loadingMembers()"
+          >
+            @for (member of blueprintMembers(); track member.id) {
+              <nz-option [nzValue]="member.accountId" [nzLabel]="member.accountId"></nz-option>
+            }
+          </nz-select>
         </nz-form-control>
       </nz-form-item>
 
@@ -102,12 +108,23 @@ interface ModalData {
         </nz-form-control>
       </nz-form-item>
 
-      <!-- Estimated Hours -->
+      <!-- Due Date -->
+      <nz-form-item>
+        <nz-form-label [nzSpan]="6">到期日</nz-form-label>
+        <nz-form-control [nzSpan]="14">
+          <nz-date-picker formControlName="dueDate" nzFormat="yyyy-MM-dd" style="width: 100%;" />
+        </nz-form-control>
+      </nz-form-item>
+
+      <!-- Estimated Hours (with auto-calculation) -->
       <nz-form-item>
         <nz-form-label [nzSpan]="6">預估工時</nz-form-label>
         <nz-form-control [nzSpan]="14">
           <nz-input-number formControlName="estimatedHours" [nzMin]="0" [nzMax]="1000" [nzStep]="0.5" style="width: 100%;" />
           <span style="margin-left: 8px;">小時</span>
+          @if (autoCalculatedHours() > 0) {
+            <div style="color: #999; font-size: 12px; margin-top: 4px;"> 建議值: {{ autoCalculatedHours() }} 小時 (基於日期差異) </div>
+          }
         </nz-form-control>
       </nz-form-item>
 
@@ -155,6 +172,7 @@ export class TaskModalComponent implements OnInit {
   private modalRef = inject(NzModalRef);
   private message = inject(NzMessageService);
   private taskStore = inject(TaskStore);
+  private memberRepo = inject(BlueprintMemberRepository);
 
   // Modal data injected
   modalData: ModalData = inject(NZ_MODAL_DATA);
@@ -168,6 +186,9 @@ export class TaskModalComponent implements OnInit {
 
   // State
   submitting = signal(false);
+  blueprintMembers = signal<BlueprintMember[]>([]);
+  loadingMembers = signal(false);
+  autoCalculatedHours = signal(0);
 
   // Progress marks
   readonly progressMarks = {
@@ -180,6 +201,20 @@ export class TaskModalComponent implements OnInit {
 
   ngOnInit(): void {
     this.initForm();
+    this.loadBlueprintMembers();
+  }
+
+  private async loadBlueprintMembers(): Promise<void> {
+    this.loadingMembers.set(true);
+    try {
+      const members = await firstValueFrom(this.memberRepo.findByBlueprint(this.modalData.blueprintId));
+      this.blueprintMembers.set(members);
+    } catch (error) {
+      console.error('Failed to load blueprint members:', error);
+      this.message.warning('載入成員清單失敗');
+    } finally {
+      this.loadingMembers.set(false);
+    }
   }
 
   private initForm(): void {
@@ -191,13 +226,50 @@ export class TaskModalComponent implements OnInit {
       description: [{ value: task?.description || '', disabled: isView }, [Validators.maxLength(1000)]],
       status: [{ value: task?.status || TaskStatus.PENDING, disabled: isView || this.modalData.mode === 'create' }],
       priority: [{ value: task?.priority || TaskPriority.MEDIUM, disabled: isView }],
-      assigneeName: [{ value: task?.assigneeName || '', disabled: isView }],
-      dueDate: [{ value: task?.dueDate ? new Date(task.dueDate as any) : null, disabled: isView }],
+      assigneeId: [{ value: task?.assigneeId || null, disabled: isView }],
       startDate: [{ value: task?.startDate ? new Date(task.startDate as any) : null, disabled: isView }],
+      dueDate: [{ value: task?.dueDate ? new Date(task.dueDate as any) : null, disabled: isView }],
       estimatedHours: [{ value: task?.estimatedHours || null, disabled: isView }],
       progress: [{ value: task?.progress ?? 0, disabled: isView }, [Validators.min(0), Validators.max(100)]],
       tags: [{ value: task?.tags || [], disabled: isView }]
     });
+
+    // Subscribe to date changes for auto-calculation
+    this.form.get('startDate')?.valueChanges.subscribe(() => {
+      this.calculateEstimatedHours();
+    });
+    this.form.get('dueDate')?.valueChanges.subscribe(() => {
+      this.calculateEstimatedHours();
+    });
+  }
+
+  private calculateEstimatedHours(): void {
+    const startDate = this.form.get('startDate')?.value;
+    const dueDate = this.form.get('dueDate')?.value;
+
+    if (startDate && dueDate) {
+      const start = new Date(startDate);
+      const end = new Date(dueDate);
+
+      if (end >= start) {
+        const diffTime = end.getTime() - start.getTime();
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // +1 to include both days
+
+        // Calculate hours: assume 8 hours per working day
+        const calculatedHours = diffDays * 8;
+        this.autoCalculatedHours.set(calculatedHours);
+
+        // Auto-fill if estimatedHours is empty or zero
+        const currentValue = this.form.get('estimatedHours')?.value;
+        if (!currentValue || currentValue === 0) {
+          this.form.get('estimatedHours')?.setValue(calculatedHours, { emitEvent: false });
+        }
+      } else {
+        this.autoCalculatedHours.set(0);
+      }
+    } else {
+      this.autoCalculatedHours.set(0);
+    }
   }
 
   async submit(): Promise<void> {
@@ -230,18 +302,32 @@ export class TaskModalComponent implements OnInit {
   }
 
   private async createTask(formValue: any): Promise<void> {
+    const assigneeId = formValue.assigneeId;
+
+    // Get assignee name from members list
+    let assigneeName: string | undefined;
+    if (assigneeId) {
+      const assignee = this.blueprintMembers().find(m => m.accountId === assigneeId);
+      assigneeName = assignee?.accountId; // TODO: Get actual name from user profile
+    }
+
+    const currentUserId = 'current-user'; // TODO: Get from auth service
+
     const createData: CreateTaskRequest = {
       title: formValue.title,
       description: formValue.description,
       priority: formValue.priority || TaskPriority.MEDIUM,
-      assigneeName: formValue.assigneeName || undefined,
-      assigneeId: undefined, // TODO: Get from user selection if needed
-      dueDate: formValue.dueDate || undefined,
+      assigneeName: assigneeName,
+      assigneeId: assigneeId || undefined,
       startDate: formValue.startDate || undefined,
+      dueDate: formValue.dueDate || undefined,
       estimatedHours: formValue.estimatedHours || undefined,
       tags: formValue.tags || [],
-      creatorId: 'current-user' // TODO: Get from auth service
+      creatorId: currentUserId
     };
+
+    // Auto-add creator as blueprint member if not already a member
+    await this.ensureCreatorIsMember(currentUserId);
 
     const newTask = await this.taskStore.createTask(this.modalData.blueprintId, createData);
 
@@ -253,10 +339,47 @@ export class TaskModalComponent implements OnInit {
     this.modalRef.close({ success: true, task: newTask });
   }
 
+  /**
+   * Ensure the creator is added as a blueprint member
+   * 確保建立者已加入藍圖成員
+   */
+  private async ensureCreatorIsMember(creatorId: string): Promise<void> {
+    try {
+      const existingMembers = this.blueprintMembers();
+      const isAlreadyMember = existingMembers.some(m => m.accountId === creatorId);
+
+      if (!isAlreadyMember) {
+        // Add creator as CONTRIBUTOR
+        await this.memberRepo.addMember(this.modalData.blueprintId, {
+          blueprintId: this.modalData.blueprintId,
+          accountId: creatorId,
+          role: BlueprintRole.CONTRIBUTOR,
+          isExternal: false,
+          grantedBy: creatorId
+        });
+
+        // Reload members list
+        await this.loadBlueprintMembers();
+      }
+    } catch (error) {
+      console.error('Failed to add creator as member:', error);
+      // Don't throw - this is not critical for task creation
+    }
+  }
+
   private async updateTask(formValue: any): Promise<void> {
     const taskId = this.modalData.task?.id;
     if (!taskId) {
       throw new Error('Task ID not found');
+    }
+
+    const assigneeId = formValue.assigneeId;
+
+    // Get assignee name from members list
+    let assigneeName: string | undefined;
+    if (assigneeId) {
+      const assignee = this.blueprintMembers().find(m => m.accountId === assigneeId);
+      assigneeName = assignee?.accountId; // TODO: Get actual name from user profile
     }
 
     const updateData: UpdateTaskRequest = {
@@ -264,10 +387,10 @@ export class TaskModalComponent implements OnInit {
       description: formValue.description,
       status: formValue.status,
       priority: formValue.priority,
-      assigneeName: formValue.assigneeName || undefined,
-      assigneeId: undefined, // TODO: Get from user selection if needed
-      dueDate: formValue.dueDate || undefined,
+      assigneeName: assigneeName,
+      assigneeId: assigneeId || undefined,
       startDate: formValue.startDate || undefined,
+      dueDate: formValue.dueDate || undefined,
       estimatedHours: formValue.estimatedHours || undefined,
       tags: formValue.tags || []
     };
