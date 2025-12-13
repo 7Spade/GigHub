@@ -265,4 +265,13 @@ export class SafetyRepository {
       throw error;
     }
   }
+
+  /**
+   * @deprecated Use findByBlueprintId() instead. This method exists for backward compatibility with stub services.
+   * Legacy method for stub services that don't have blueprintId context.
+   */
+  async findAll(): Promise<unknown[]> {
+    this.logger.warn('[SafetyRepository]', 'findAll() is deprecated. Use findByBlueprintId() instead.');
+    return [];
+  }
 }

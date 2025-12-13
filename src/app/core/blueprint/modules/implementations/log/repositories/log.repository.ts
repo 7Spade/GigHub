@@ -220,4 +220,12 @@ export class LogRepository {
       })
     );
   }
+
+  /**
+   * @deprecated Use findByBlueprintId() instead. This method exists for backward compatibility with stub services.
+   */
+  async findAll(): Promise<unknown[]> {
+    this.logger.warn('[LogRepository]', 'findAll() is deprecated. Use findByBlueprintId() instead.');
+    return [];
+  }
 }
