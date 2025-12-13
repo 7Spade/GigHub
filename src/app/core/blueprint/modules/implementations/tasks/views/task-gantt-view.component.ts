@@ -403,33 +403,36 @@ export class TaskGanttViewComponent {
     const today = new Date();
     const periods: Array<{ label: string; flex?: number }> = [];
 
-    if (zoom === ZoomLevel.DAY) {
-      // Show 60 days (2 months)
-      for (let i = -15; i < 45; i++) {
-        const date = new Date(today);
-        date.setDate(today.getDate() + i);
-        periods.push({
-          label: date.toLocaleDateString('zh-TW', { month: 'numeric', day: 'numeric' })
-        });
-      }
-    } else if (zoom === ZoomLevel.WEEK) {
-      // Show 24 weeks (6 months)
-      for (let i = -8; i < 16; i++) {
-        const date = new Date(today);
-        date.setDate(today.getDate() + i * 7);
-        const weekNum = this.getWeekNumber(date);
-        periods.push({
-          label: `W${weekNum}`
-        });
-      }
-    } else {
-      // Show 12 months (1 year)
-      for (let i = -3; i < 9; i++) {
-        const date = new Date(today.getFullYear(), today.getMonth() + i, 1);
-        periods.push({
-          label: date.toLocaleDateString('zh-TW', { year: 'numeric', month: 'short' })
-        });
-      }
+    switch (zoom) {
+      case ZoomLevel.DAY:
+        // Show 60 days (2 months)
+        for (let i = -15; i < 45; i++) {
+          const date = new Date(today);
+          date.setDate(today.getDate() + i);
+          periods.push({
+            label: date.toLocaleDateString('zh-TW', { month: 'numeric', day: 'numeric' })
+          });
+        }
+        break;
+
+      case ZoomLevel.WEEK:
+        // Show 24 weeks (6 months)
+        for (let i = -8; i < 16; i++) {
+          const date = new Date(today);
+          date.setDate(today.getDate() + i * 7);
+          periods.push({ label: `W${this.getWeekNumber(date)}` });
+        }
+        break;
+
+      case ZoomLevel.MONTH:
+        // Show 12 months (1 year)
+        for (let i = -3; i < 9; i++) {
+          const date = new Date(today.getFullYear(), today.getMonth() + i, 1);
+          periods.push({
+            label: date.toLocaleDateString('zh-TW', { year: 'numeric', month: 'short' })
+          });
+        }
+        break;
     }
 
     return periods;
@@ -438,34 +441,18 @@ export class TaskGanttViewComponent {
   // Convert tasks to gantt format
   readonly ganttTasks = computed(() => {
     const tasks = this.taskStore.tasks();
-    
-    // Debug: Log task count and dates status
-    console.log('[Gantt View] Total tasks:', tasks.length);
-    const tasksWithDates = tasks.filter(t => t.startDate || t.dueDate).length;
-    const tasksWithoutDates = tasks.length - tasksWithDates;
-    console.log('[Gantt View] Tasks with dates:', tasksWithDates, ', Tasks without dates:', tasksWithoutDates);
 
     return tasks.map(task => {
-      // Check if task has dates
       const hasStartDate = !!task.startDate;
       const hasDueDate = !!task.dueDate;
       const hasDates = hasStartDate || hasDueDate;
-      
-      // Debug: Log each task processing
-      if (!hasDates) {
-        console.log('[Gantt View] Processing task without dates:', task.title, task.id);
-      }
 
-      // For tasks with dates, use actual dates
-      // For tasks without dates, use placeholder (will be rendered differently)
+      // Use actual dates or defaults for tasks without dates
       const start = hasStartDate ? new Date(task.startDate!) : new Date();
       const end = hasDueDate ? new Date(task.dueDate!) : hasStartDate ? new Date(start.getTime() + 7 * 24 * 60 * 60 * 1000) : new Date();
 
-      // Check if milestone (task with same start and end date, or marked as milestone)
-      const isMilestone =
-        hasDates &&
-        ((task.metadata && typeof task.metadata === 'object' && task.metadata !== null && task.metadata['milestone'] === true) ||
-          start.getTime() === end.getTime());
+      // Milestone: same start/end date or explicitly marked
+      const isMilestone = hasDates && (task.metadata?.['milestone'] === true || start.getTime() === end.getTime());
 
       return {
         id: task.id!,
@@ -476,9 +463,9 @@ export class TaskGanttViewComponent {
         color: this.getStatusColor(task.status),
         dependencies: task.dependencies || [],
         milestone: isMilestone,
-        hasNoDates: !hasDates, // Flag to indicate no dates set
+        hasNoDates: !hasDates,
         task
-      } as GanttTask & { task: Task; hasNoDates: boolean };
+      };
     });
   });
 
@@ -493,35 +480,39 @@ export class TaskGanttViewComponent {
   private timelineStart = computed(() => {
     const today = new Date();
     const zoom = this._zoomLevel();
+    const start = new Date(today);
 
-    if (zoom === ZoomLevel.DAY) {
-      const start = new Date(today);
-      start.setDate(today.getDate() - 15);
-      return start;
-    } else if (zoom === ZoomLevel.WEEK) {
-      const start = new Date(today);
-      start.setDate(today.getDate() - 8 * 7);
-      return start;
-    } else {
-      return new Date(today.getFullYear(), today.getMonth() - 3, 1);
+    switch (zoom) {
+      case ZoomLevel.DAY:
+        start.setDate(today.getDate() - 15);
+        break;
+      case ZoomLevel.WEEK:
+        start.setDate(today.getDate() - 56); // 8 weeks
+        break;
+      case ZoomLevel.MONTH:
+        return new Date(today.getFullYear(), today.getMonth() - 3, 1);
     }
+
+    return start;
   });
 
   private timelineEnd = computed(() => {
     const today = new Date();
     const zoom = this._zoomLevel();
+    const end = new Date(today);
 
-    if (zoom === ZoomLevel.DAY) {
-      const end = new Date(today);
-      end.setDate(today.getDate() + 45);
-      return end;
-    } else if (zoom === ZoomLevel.WEEK) {
-      const end = new Date(today);
-      end.setDate(today.getDate() + 16 * 7);
-      return end;
-    } else {
-      return new Date(today.getFullYear(), today.getMonth() + 9, 0);
+    switch (zoom) {
+      case ZoomLevel.DAY:
+        end.setDate(today.getDate() + 45);
+        break;
+      case ZoomLevel.WEEK:
+        end.setDate(today.getDate() + 112); // 16 weeks
+        break;
+      case ZoomLevel.MONTH:
+        return new Date(today.getFullYear(), today.getMonth() + 9, 0);
     }
+
+    return end;
   });
 
   /**
