@@ -2,12 +2,12 @@
 
 ## Overview
 
-The Cloud Storage Module provides comprehensive file management, cloud synchronization, and backup capabilities for the GigHub Blueprint system. It integrates with Supabase Storage and communicates with other modules via the Blueprint EventBus.
+The Cloud Storage Module provides comprehensive file management, cloud synchronization, and backup capabilities for the GigHub Blueprint system. It integrates with Firebase Storage and Firestore, and communicates with other modules via the Blueprint EventBus.
 
 ## Features
 
 - **File Management**: Upload, download, and delete files
-- **Cloud Sync**: Automatic synchronization with cloud storage
+- **Cloud Sync**: Automatic synchronization with Firebase Storage
 - **Backup & Restore**: Create and restore backups of blueprint files
 - **Event-Driven**: Publishes events through the Blueprint EventBus
 - **Storage Statistics**: Real-time storage usage tracking
@@ -18,6 +18,8 @@ The Cloud Storage Module provides comprehensive file management, cloud synchroni
 CloudModule (IBlueprintModule)
 ├─ CloudStorageService (Business Logic)
 ├─ CloudRepository (Data Access)
+│   ├─ FirebaseStorageRepository (File Storage)
+│   └─ Firestore (Metadata Storage)
 └─ Models (Data Structures)
 ```
 
@@ -26,7 +28,8 @@ CloudModule (IBlueprintModule)
 1. **Blueprint Container**: Manages module lifecycle
 2. **Event Bus**: Publishes/subscribes to events
 3. **Execution Context**: Provides shared resources
-4. **Supabase Storage**: Cloud storage backend
+4. **Firebase Storage**: Cloud storage backend for files
+5. **Firestore**: Database for file metadata
 
 ## Module Lifecycle
 
@@ -123,70 +126,96 @@ Default configuration is defined in `module.metadata.ts`:
 }
 ```
 
-## Database Schema
+## Firebase Integration
 
-### Tables Required
+### Storage Structure
 
-#### `cloud_files`
-- `id` (UUID, PK)
-- `blueprint_id` (UUID, FK)
-- `name` (TEXT)
-- `path` (TEXT)
-- `size` (BIGINT)
-- `mime_type` (TEXT)
-- `extension` (TEXT)
-- `url` (TEXT)
-- `public_url` (TEXT, nullable)
-- `status` (TEXT)
-- `uploaded_by` (UUID, FK to users)
-- `uploaded_at` (TIMESTAMPTZ)
-- `updated_at` (TIMESTAMPTZ)
-- `metadata` (JSONB, nullable)
-- `bucket` (TEXT)
-- `is_public` (BOOLEAN)
-- `checksum` (TEXT, nullable)
-- `expires_at` (TIMESTAMPTZ, nullable)
+Files are stored in Firebase Storage with the following structure:
+```
+blueprint-{blueprintId}/
+  ├─ files/
+  │   ├─ {timestamp}-{filename}
+  │   └─ ...
+  └─ backups/
+      ├─ {timestamp}-{backupname}.zip
+      └─ ...
+```
 
-#### `cloud_backups`
-- `id` (UUID, PK)
-- `blueprint_id` (UUID, FK)
-- `name` (TEXT)
-- `description` (TEXT, nullable)
-- `type` (TEXT)
-- `status` (TEXT)
-- `size` (BIGINT)
-- `file_count` (INTEGER)
-- `path` (TEXT)
-- `created_at` (TIMESTAMPTZ)
-- `created_by` (UUID, FK to users)
-- `last_accessed_at` (TIMESTAMPTZ, nullable)
-- `expires_at` (TIMESTAMPTZ, nullable)
-- `metadata` (JSONB, nullable)
-- `checksum` (TEXT, nullable)
-- `is_encrypted` (BOOLEAN)
+### Firestore Collections
 
-### RLS Policies
+#### `cloud_files` Collection
+- Document ID: Auto-generated
+- Fields:
+  - `blueprint_id` (string)
+  - `name` (string)
+  - `path` (string)
+  - `size` (number)
+  - `mime_type` (string)
+  - `extension` (string)
+  - `url` (string)
+  - `public_url` (string, optional)
+  - `status` (string)
+  - `uploaded_by` (string)
+  - `uploaded_at` (Timestamp)
+  - `updated_at` (Timestamp)
+  - `metadata` (map, optional)
+  - `bucket` (string)
+  - `is_public` (boolean)
 
-```sql
--- Cloud Files RLS
-CREATE POLICY "Users can view their blueprint files"
-  ON cloud_files FOR SELECT
-  USING (blueprint_id IN (
-    SELECT id FROM blueprints WHERE owner_id = auth.uid()
-  ));
+#### `cloud_backups` Collection
+- Document ID: Auto-generated
+- Fields:
+  - `blueprint_id` (string)
+  - `name` (string)
+  - `description` (string, optional)
+  - `type` (string)
+  - `status` (string)
+  - `size` (number)
+  - `file_count` (number)
+  - `path` (string)
+  - `created_at` (Timestamp)
+  - `created_by` (string)
+  - `is_encrypted` (boolean)
+  - `metadata` (map, optional)
 
-CREATE POLICY "Users can upload files to their blueprints"
-  ON cloud_files FOR INSERT
-  WITH CHECK (blueprint_id IN (
-    SELECT id FROM blueprints WHERE owner_id = auth.uid()
-  ));
+### Security Rules
 
--- Cloud Backups RLS
-CREATE POLICY "Users can view their blueprint backups"
-  ON cloud_backups FOR SELECT
-  USING (blueprint_id IN (
-    SELECT id FROM blueprints WHERE owner_id = auth.uid()
-  ));
+```javascript
+// Firestore Security Rules
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Cloud Files Rules
+    match /cloud_files/{fileId} {
+      allow read: if request.auth != null &&
+        (resource.data.uploaded_by == request.auth.uid ||
+         resource.data.is_public == true);
+      
+      allow create: if request.auth != null &&
+        request.resource.data.uploaded_by == request.auth.uid;
+      
+      allow update, delete: if request.auth != null &&
+        resource.data.uploaded_by == request.auth.uid;
+    }
+    
+    // Cloud Backups Rules
+    match /cloud_backups/{backupId} {
+      allow read, write: if request.auth != null &&
+        resource.data.created_by == request.auth.uid;
+    }
+  }
+}
+
+// Firebase Storage Security Rules
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /blueprint-{blueprintId}/{allPaths=**} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null;
+    }
+  }
+}
 ```
 
 ## Testing
@@ -213,7 +242,7 @@ yarn test:integration cloud
 ## Dependencies
 
 - `@angular/core`: ^20.3.0
-- `@supabase/supabase-js`: ^2.86.0
+- `@angular/fire`: ^20.0.1
 
 ## License
 

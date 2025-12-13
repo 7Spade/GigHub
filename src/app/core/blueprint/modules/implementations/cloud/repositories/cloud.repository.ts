@@ -2,23 +2,27 @@
  * Cloud Storage Repository
  * 雲端儲存資料存取層
  *
- * Mock implementation for demonstration purposes.
- * TODO: Replace with actual Supabase Storage integration when SupabaseService is available.
+ * Handles interaction with Firebase Storage for file operations.
+ * Uses FirebaseStorageRepository and FirebaseService.
  */
 
 import { Injectable, signal, inject } from '@angular/core';
+import { collection, addDoc, doc, getDocs, deleteDoc, query, where, orderBy, Timestamp } from '@angular/fire/firestore';
 import { LoggerService } from '@core';
+import { FirebaseStorageRepository } from '@core/repositories/firebase-storage.repository';
+import { FirebaseService } from '@core/services/firebase.service';
 
 import type { CloudFile, CloudBackup, CloudUploadRequest, CloudBackupRequest } from '../models';
 
 /**
  * Cloud Repository
  *
- * Provides data access for cloud storage operations.
- * Currently uses mock data - will be replaced with Supabase Storage integration.
+ * Provides data access for cloud storage operations using Firebase Storage.
  */
 @Injectable({ providedIn: 'root' })
 export class CloudRepository {
+  private readonly firebaseService = inject(FirebaseService);
+  private readonly storageRepo = inject(FirebaseStorageRepository);
   private readonly logger = inject(LoggerService);
 
   // State
@@ -28,35 +32,80 @@ export class CloudRepository {
   readonly error = signal<string | null>(null);
 
   /**
+   * Get storage bucket name for blueprint
+   */
+  private getBucketName(blueprintId: string): string {
+    return `blueprint-${blueprintId}`;
+  }
+
+  /**
    * Upload file to cloud storage
-   * TODO: Integrate with Supabase Storage
    */
   async uploadFile(blueprintId: string, request: CloudUploadRequest): Promise<CloudFile> {
     this.loading.set(true);
     this.error.set(null);
 
     try {
-      // Simulate upload delay
-      await new Promise(resolve => setTimeout(resolve, 500));
+      const bucket = this.getBucketName(blueprintId);
+      const fileName = `${Date.now()}-${request.file.name}`;
+      const filePath = request.path || `files/${fileName}`;
 
-      // Create mock file record
+      // Upload to Firebase Storage
+      const uploadResult = await this.storageRepo.uploadFile(bucket, filePath, request.file, {
+        contentType: request.file.type,
+        metadata: request.metadata
+          ? {
+              originalName: request.metadata.originalName || request.file.name,
+              description: request.metadata.description || '',
+              tags: request.metadata.tags?.join(',') || ''
+            }
+          : {}
+      });
+
+      // Get current user
+      const currentUserId = this.firebaseService.getCurrentUserId() || 'anonymous';
+
+      // Create file record
       const file: CloudFile = {
-        id: crypto.randomUUID(),
+        id: '', // Will be set after Firestore add
         blueprintId,
         name: request.file.name,
-        path: `${blueprintId}/${Date.now()}-${request.file.name}`,
+        path: uploadResult.path,
         size: request.file.size,
         mimeType: request.file.type,
         extension: request.file.name.split('.').pop() || '',
-        url: URL.createObjectURL(request.file),
+        url: uploadResult.publicUrl,
+        publicUrl: request.isPublic ? uploadResult.publicUrl : undefined,
         status: 'synced',
-        uploadedBy: 'current-user',
+        uploadedBy: currentUserId,
         uploadedAt: new Date(),
         updatedAt: new Date(),
         metadata: request.metadata,
-        bucket: `blueprint-${blueprintId}-files`,
+        bucket,
         isPublic: request.isPublic ?? false
       };
+
+      // Store file metadata in Firestore
+      const filesCollection = collection(this.firebaseService.db, 'cloud_files');
+      const docRef = await addDoc(filesCollection, {
+        blueprint_id: file.blueprintId,
+        name: file.name,
+        path: file.path,
+        size: file.size,
+        mime_type: file.mimeType,
+        extension: file.extension,
+        url: file.url,
+        public_url: file.publicUrl,
+        status: file.status,
+        uploaded_by: file.uploadedBy,
+        uploaded_at: Timestamp.fromDate(file.uploadedAt),
+        updated_at: Timestamp.fromDate(file.updatedAt),
+        metadata: file.metadata || {},
+        bucket: file.bucket,
+        is_public: file.isPublic
+      });
+
+      file.id = docRef.id;
 
       // Update local state
       this.files.update(files => [...files, file]);
@@ -75,7 +124,6 @@ export class CloudRepository {
 
   /**
    * Download file from cloud storage
-   * TODO: Integrate with Supabase Storage
    */
   async downloadFile(blueprintId: string, fileId: string): Promise<Blob> {
     this.loading.set(true);
@@ -88,11 +136,18 @@ export class CloudRepository {
         throw new Error(`File not found: ${fileId}`);
       }
 
-      // Simulate download delay
-      await new Promise(resolve => setTimeout(resolve, 300));
+      const bucket = this.getBucketName(blueprintId);
 
-      // Create mock blob
-      const blob = new Blob(['Mock file content'], { type: file.mimeType });
+      // Get download URL from Firebase Storage
+      const downloadUrl = await this.storageRepo.downloadFile(bucket, file.path);
+
+      // Fetch the blob
+      const response = await fetch(downloadUrl);
+      if (!response.ok) {
+        throw new Error(`Failed to download file: ${response.statusText}`);
+      }
+
+      const blob = await response.blob();
 
       this.logger.info('[CloudRepository]', `File downloaded: ${file.name}`);
       return blob;
@@ -108,7 +163,6 @@ export class CloudRepository {
 
   /**
    * Delete file from cloud storage
-   * TODO: Integrate with Supabase Storage
    */
   async deleteFile(blueprintId: string, fileId: string): Promise<void> {
     this.loading.set(true);
@@ -121,8 +175,14 @@ export class CloudRepository {
         throw new Error(`File not found: ${fileId}`);
       }
 
-      // Simulate delete delay
-      await new Promise(resolve => setTimeout(resolve, 300));
+      const bucket = this.getBucketName(blueprintId);
+
+      // Delete from Firebase Storage
+      await this.storageRepo.deleteFile(bucket, file.path);
+
+      // Delete metadata from Firestore
+      const fileDoc = doc(this.firebaseService.db, 'cloud_files', fileId);
+      await deleteDoc(fileDoc);
 
       // Update local state
       this.files.update(files => files.filter(f => f.id !== fileId));
@@ -140,18 +200,43 @@ export class CloudRepository {
 
   /**
    * List files for blueprint
-   * TODO: Integrate with Supabase database
    */
   async listFiles(blueprintId: string): Promise<CloudFile[]> {
     this.loading.set(true);
     this.error.set(null);
 
     try {
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 300));
+      // Query Firestore for file metadata
+      const filesCollection = collection(this.firebaseService.db, 'cloud_files');
+      const q = query(filesCollection, where('blueprint_id', '==', blueprintId), orderBy('uploaded_at', 'desc'));
 
-      // Return current state (mock data)
-      const files = this.files().filter(f => f.blueprintId === blueprintId);
+      const querySnapshot = await getDocs(q);
+
+      // Map to CloudFile interface
+      const files: CloudFile[] = querySnapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          blueprintId: data['blueprint_id'],
+          name: data['name'],
+          path: data['path'],
+          size: data['size'],
+          mimeType: data['mime_type'],
+          extension: data['extension'],
+          url: data['url'],
+          publicUrl: data['public_url'],
+          status: data['status'],
+          uploadedBy: data['uploaded_by'],
+          uploadedAt: data['uploaded_at']?.toDate() || new Date(),
+          updatedAt: data['updated_at']?.toDate() || new Date(),
+          metadata: data['metadata'],
+          bucket: data['bucket'],
+          isPublic: data['is_public']
+        };
+      });
+
+      // Update local state
+      this.files.set(files);
 
       this.logger.info('[CloudRepository]', `Loaded ${files.length} files`);
       return files;
@@ -167,19 +252,17 @@ export class CloudRepository {
 
   /**
    * Create backup
-   * TODO: Implement actual backup creation
    */
   async createBackup(blueprintId: string, request: CloudBackupRequest): Promise<CloudBackup> {
     this.loading.set(true);
     this.error.set(null);
 
     try {
-      // Simulate backup creation delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const currentUserId = this.firebaseService.getCurrentUserId() || 'anonymous';
 
       // Create backup record
       const backup: CloudBackup = {
-        id: crypto.randomUUID(),
+        id: '', // Will be set after Firestore add
         blueprintId,
         name: request.name,
         description: request.description,
@@ -189,7 +272,7 @@ export class CloudRepository {
         fileCount: request.fileIds?.length || 0,
         path: `backups/${blueprintId}/${Date.now()}-${request.name}.zip`,
         createdAt: new Date(),
-        createdBy: 'current-user',
+        createdBy: currentUserId,
         isEncrypted: request.options?.encrypt ?? false,
         metadata: {
           includedFiles: request.fileIds,
@@ -197,6 +280,25 @@ export class CloudRepository {
           custom: {}
         }
       };
+
+      // Store in Firestore
+      const backupsCollection = collection(this.firebaseService.db, 'cloud_backups');
+      const docRef = await addDoc(backupsCollection, {
+        blueprint_id: backup.blueprintId,
+        name: backup.name,
+        description: backup.description,
+        type: backup.type,
+        status: backup.status,
+        size: backup.size,
+        file_count: backup.fileCount,
+        path: backup.path,
+        created_at: Timestamp.fromDate(backup.createdAt),
+        created_by: backup.createdBy,
+        is_encrypted: backup.isEncrypted,
+        metadata: backup.metadata
+      });
+
+      backup.id = docRef.id;
 
       // Update local state
       this.backups.update(backups => [...backups, backup]);
@@ -215,19 +317,37 @@ export class CloudRepository {
 
   /**
    * List backups for blueprint
-   * TODO: Integrate with Supabase database
    */
   async listBackups(blueprintId: string): Promise<CloudBackup[]> {
     this.loading.set(true);
     this.error.set(null);
 
     try {
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 300));
+      const backupsCollection = collection(this.firebaseService.db, 'cloud_backups');
+      const q = query(backupsCollection, where('blueprint_id', '==', blueprintId), orderBy('created_at', 'desc'));
 
-      // Return current state (mock data)
-      const backups = this.backups().filter(b => b.blueprintId === blueprintId);
+      const querySnapshot = await getDocs(q);
 
+      const backups: CloudBackup[] = querySnapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          blueprintId: data['blueprint_id'],
+          name: data['name'],
+          description: data['description'],
+          type: data['type'],
+          status: data['status'],
+          size: data['size'],
+          fileCount: data['file_count'],
+          path: data['path'],
+          createdAt: data['created_at']?.toDate() || new Date(),
+          createdBy: data['created_by'],
+          isEncrypted: data['is_encrypted'],
+          metadata: data['metadata']
+        };
+      });
+
+      this.backups.set(backups);
       this.logger.info('[CloudRepository]', `Loaded ${backups.length} backups`);
       return backups;
     } catch (error) {
