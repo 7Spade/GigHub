@@ -120,7 +120,6 @@ import { NzMessageService } from 'ng-zorro-antd/message';
       }
 
       .task-card {
-        background: white;
         border-radius: 4px;
         padding: 12px;
         margin-bottom: 8px;
@@ -224,7 +223,7 @@ export class TaskKanbanViewComponent {
           'current-user' // TODO: Get from auth service
         );
         this.message.success('任務狀態已更新');
-      } catch (error) {
+      } catch (_error) {
         this.message.error('更新任務狀態失敗');
         // Revert the move
         transferArrayItem(event.container.data, event.previousContainer.data, event.currentIndex, event.previousIndex);
@@ -235,7 +234,7 @@ export class TaskKanbanViewComponent {
   /**
    * Get priority color
    */
-  getPriorityColor(priority: string): string {
+  getPriorityColor(_priority: string): string {
     return 'default';
   }
 
