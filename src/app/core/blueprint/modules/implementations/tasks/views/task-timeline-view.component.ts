@@ -77,7 +77,6 @@ import { NzTimelineModule } from 'ng-zorro-antd/timeline';
 
       .timeline-content {
         padding: 12px;
-        background: #fafafa;
         border-radius: 4px;
       }
 
@@ -96,7 +95,6 @@ import { NzTimelineModule } from 'ng-zorro-antd/timeline';
 
       .timeline-description {
         margin: 8px 0;
-        color: #666;
         font-size: 14px;
       }
 
@@ -105,7 +103,6 @@ import { NzTimelineModule } from 'ng-zorro-antd/timeline';
         gap: 16px;
         align-items: center;
         font-size: 13px;
-        color: #666;
         margin-top: 8px;
       }
 

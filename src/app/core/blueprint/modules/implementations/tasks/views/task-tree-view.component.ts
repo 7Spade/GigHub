@@ -108,7 +108,6 @@ interface FlatNode {
       .tree-view-header {
         margin-bottom: 16px;
         padding-bottom: 12px;
-        border-bottom: 1px solid #f0f0f0;
       }
 
       .task-title {
@@ -119,10 +118,6 @@ interface FlatNode {
         display: flex;
         align-items: center;
         padding: 4px 8px;
-      }
-
-      :host ::ng-deep .nz-tree-node-content-wrapper:hover {
-        background-color: #f5f5f5;
       }
     `
   ]

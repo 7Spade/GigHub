@@ -167,8 +167,6 @@ enum ZoomLevel {
       }
 
       .gantt-chart {
-        background: white;
-        border: 1px solid;
         border-radius: 4px;
         overflow: hidden;
       }
@@ -213,12 +211,6 @@ enum ZoomLevel {
         min-height: 40px;
       }
 
-      .gantt-row:hover {
-      }
-
-      .gantt-row.milestone {
-      }
-
       .gantt-row.no-dates {
         border-left: 3px solid;
       }
@@ -246,12 +238,6 @@ enum ZoomLevel {
         white-space: nowrap;
       }
 
-      .milestone-icon {
-      }
-
-      .no-dates-icon {
-      }
-
       .task-bar-no-dates {
         position: relative;
         height: 24px;
@@ -265,9 +251,6 @@ enum ZoomLevel {
         width: fit-content;
         min-width: 120px;
         cursor: help;
-      }
-
-      .task-bar-no-dates:hover {
       }
 
       .no-dates-label {
@@ -578,9 +561,9 @@ export class TaskGanttViewComponent {
   }
 
   /**
-   * Get priority color
+   * Get priority color (currently returns default, can be customized via theme)
    */
-  getPriorityColor(ganttTask: GanttTask & { task?: Task }): string {
+  getPriorityColor(_ganttTask: GanttTask & { task?: Task }): string {
     return 'default';
   }
 }
