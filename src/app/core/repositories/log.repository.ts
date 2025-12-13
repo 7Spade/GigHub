@@ -25,6 +25,13 @@ import { Observable, catchError, from, map, of } from 'rxjs';
  * Log Repository
  * 日誌 Repository
  *
+ * @deprecated Use LogFirestoreRepository instead for enterprise-grade features
+ * This repository will be removed in a future version.
+ *
+ * Migration: Replace all LogRepository usages with LogFirestoreRepository
+ * @see LogFirestoreRepository - Includes retry, error handling, photo management
+ * @see docs/refactoring/progress/PHASE1-2-TASK-REPOSITORY-ANALYSIS.md
+ *
  * Following Occam's Razor: Simple, focused log operations
  * Integrates with Storage Repository for photo management
  */

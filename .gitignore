@@ -59,3 +59,8 @@ yarn-error.log
 .firebase
 *-debug.log
 .runtimeconfig.json
+
+# Demo files (prevent re-adding ng-alain template demos)
+/src/assets/tmp/demo.*
+/src/assets/tmp/img/[1-9].png
+/src/assets/tmp/img/[1-9][0-9].png

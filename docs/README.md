@@ -13,6 +13,32 @@
 
 文檔已重新組織為清晰的模組化結構，並提供繁體中文版本。
 
+### 🔍 架構分析 (Architecture Analysis) - 最新更新 🆕
+
+| 文檔 | 描述 | 語言 | 狀態 |
+|------|------|------|------|
+| [檔案結構分析報告](./ARCHITECTURE_ANALYSIS.md) | 完整的檔案結構深度分析 | 繁中 | ✅ |
+| [重構摘要](./REFACTORING_SUMMARY.zh-TW.md) | 重構建議與快速參考 | 繁中 | ✅ |
+| [視覺化摘要](./analysis-summary.txt) | ASCII 藝術格式摘要 | 繁中 | ✅ |
+
+**分析日期**: 2025-12-13  
+**分析工具**: context7 + 架構最佳實踐  
+**分析檔案**: tree.md (713 行檔案結構)
+
+**關鍵發現**:
+- 🔴 應該合併的檔案: 17 組 (Repository 重複、Service 分散)
+- 🟡 沒有用處的檔案: 12 個 (示範檔案、空測試)
+- 🟡 孤立的檔案: 8 個 (未整合功能)
+- 📊 總計需要重構: 37 個檔案 (8.2%)
+
+**預期效益**:
+- 程式碼品質提升 15-20%
+- 維護成本降低 10-15%
+- Bundle 大小減少 2-5 MB
+- 技術債評分 C → A
+
+---
+
 ### 🏗️ 開發指南 (Development Guides) - [`development/`](./development/)
 
 | 文檔 | 描述 | 語言 | 狀態 |
@@ -113,7 +139,9 @@
 
 #### 了解專案架構
 → [設計文檔索引](./design/README-zh-TW.md)  
-→ [SaaS 多租戶實作](./design/saas-implementation-zh-TW.md)
+→ [SaaS 多租戶實作](./design/saas-implementation-zh-TW.md)  
+→ [檔案結構分析報告](./ARCHITECTURE_ANALYSIS.md) 🆕  
+→ [重構摘要](./REFACTORING_SUMMARY.zh-TW.md) 🆕
 
 #### 自訂 UI 樣式
 → [Azure Dragon 主題指南](./ui-theme/azure-dragon-theme-zh-TW.md)  
@@ -171,6 +199,26 @@ yarn analyze:view
 
 ## 📝 變更記錄 (Changelog)
 
+### v2.1.0 (2025-12-13) - 檔案結構分析與重構建議 🆕
+
+**🔍 架構分析**:
+- ✅ 完成 tree.md (713 行) 深度分析
+- ✅ 使用 context7 識別重複與孤立檔案
+- ✅ 產出完整分析報告 (28,590 字)
+- ✅ 建立重構摘要與優先級排序
+- ✅ 提供具體實作指南與風險評估
+
+**📊 關鍵發現**:
+- Repository 重複: 3 組 (Task, Log, Firebase)
+- 未使用檔案: 12 個 (示範檔案 2-3 MB)
+- 孤立功能: 8 個 (Explore, Climate, 模組檢視)
+- 預期效益: 品質 ↑15-20%, Bundle ↓2-5 MB
+
+**📚 新增文檔**:
+- ARCHITECTURE_ANALYSIS.md (完整報告)
+- REFACTORING_SUMMARY.zh-TW.md (快速參考)
+- analysis-summary.txt (視覺化摘要)
+
 ### v2.0.0 (2025-12-12) - 文檔封存更新
 
 **封存**:
@@ -215,5 +263,5 @@ yarn analyze:view
 
 **維護者**: GitHub Copilot  
 **專案**: GigHub - 工地施工進度追蹤管理系統  
-**文件版本**: 1.0.0  
-**最後更新**: 2025-01-09
+**文件版本**: 2.1.0  
+**最後更新**: 2025-12-13
