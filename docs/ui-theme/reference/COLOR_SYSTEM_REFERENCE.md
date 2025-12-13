@@ -27,9 +27,9 @@ Inspired by the clear morning sky and deep ocean, representing the Black Tortois
 | **obsidian-9** | `#084C5C` | rgb(8, 76, 92) | Very Dark - Deep emphasis | ✅ Pass |
 | **obsidian-10** | `#06303D` | rgb(6, 48, 61) | Darkest - Dark mode backgrounds | ✅ Pass |
 
-### Secondary Color System - Jade Green (翡翠綠)
+### Secondary Color System - Stone Gray (石灰)
 
-Represents the jade scales of the Black Tortoise, symbolizing vitality and success.
+Represents the stone texture of the Black Tortoise shell, symbolizing vitality and success.
 
 | Level | Hex Code | RGB | Usage | WCAG AA on White |
 |-------|----------|-----|-------|------------------|
@@ -42,7 +42,7 @@ Represents the jade scales of the Black Tortoise, symbolizing vitality and succe
 
 ### Tertiary Color System - Cyan (青綠)
 
-Represents the dragon's breath and mysterious aura, used for informational elements.
+Represents the waters element and mysterious depths, used for informational elements.
 
 | Level | Hex Code | RGB | Usage | WCAG AA on White |
 |-------|----------|-----|-------|------------------|
@@ -56,11 +56,11 @@ Represents the dragon's breath and mysterious aura, used for informational eleme
 
 | Purpose | Color Name | Hex Code | RGB | WCAG AA |
 |---------|-----------|----------|-----|---------|
-| **Primary** | Azure Blue | `#1E293B` | rgb(14, 165, 233) | ✅ Pass |
-| **Success** | Jade Green | `#475569` | rgb(20, 184, 166) | ✅ Pass |
+| **Primary** | Obsidian Black | `#1E293B` | rgb(30, 41, 59) | ✅ AAA |
+| **Success** | Emerald Green | `#10B981` | rgb(16, 185, 129) | ✅ Pass |
 | **Warning** | Amber Yellow | `#F59E0B` | rgb(245, 158, 11) | ✅ Pass |
 | **Error** | Crimson Red | `#EF4444` | rgb(239, 68, 68) | ✅ Pass |
-| **Info** | Cyan | `#06B6D4` | rgb(6, 182, 212) | ✅ Pass |
+| **Info** | Deep Waters | `#1E40AF` | rgb(30, 64, 175) | ✅ Pass |
 
 ### Neutral Colors (中性色)
 
@@ -80,29 +80,29 @@ Represents the dragon's breath and mysterious aura, used for informational eleme
 
 ### Primary Gradients (主要漸變)
 
-#### 1. Dragon Soaring (龍躍雲端)
+#### 1. Tortoise Shield (龜甲守護)
 ```css
 background: linear-gradient(135deg, #1E293B 0%, #475569 100%);
 ```
 **Usage**: Primary buttons, hero sections, featured cards  
-**Effect**: Upward diagonal gradient from azure to jade  
-**Symbolism**: Dragon ascending to the clouds
+**Effect**: Upward diagonal gradient from obsidian to stone  
+**Symbolism**: Tortoise shell providing protection
 
-#### 2. Azure Sky & Sea (碧海青天)
+#### 2. Midnight Waters (深夜水波)
 ```css
-background: linear-gradient(180deg, #1E293B 0%, #06B6D4 50%, #475569 100%);
+background: linear-gradient(180deg, #1E293B 0%, #1E40AF 50%, #475569 100%);
 ```
 **Usage**: Large banners, page backgrounds  
 **Effect**: Vertical gradient with cyan midpoint  
 **Symbolism**: Sky meeting the ocean
 
-#### 3. Dragon Scales (玄武鱗片)
+#### 3. Tortoise Texture (玄武紋理)
 ```css
 background: linear-gradient(45deg, #0C83BA 0%, #0D9488 50%, #1E293B 100%);
 ```
 **Usage**: Hover effects, decorative elements  
 **Effect**: Diagonal multi-stop gradient  
-**Symbolism**: Shimmering dragon scales
+**Symbolism**: Textured tortoise shell
 
 #### 4. Dawn Light (晨曦微光)
 ```css
@@ -122,7 +122,7 @@ background: linear-gradient(135deg, #084C5C 0%, #0A7C6C 100%);
 
 ### Radial Gradients (徑向漸變)
 
-#### Dragon Orb (龍珠光暈)
+#### Tortoise Aura (玄武光環)
 ```css
 background: radial-gradient(circle at center, #1E293B 0%, #06B6D4 50%, transparent 100%);
 ```
@@ -140,26 +140,26 @@ background: radial-gradient(ellipse at center, #475569 0%, #1E293B 40%, transpar
 
 ```less
 // Small shadow - Cards, buttons
-@shadow-obsidian-sm: 0 1px 2px rgba(14, 165, 233, 0.05);
+@shadow-obsidian-sm: 0 1px 2px rgba(30, 41, 59, 0.05);
 
 // Medium shadow - Floating elements
-@shadow-obsidian-md: 0 4px 6px rgba(14, 165, 233, 0.1);
+@shadow-obsidian-md: 0 4px 6px rgba(30, 41, 59, 0.1);
 
 // Large shadow - Modals, drawers
-@shadow-obsidian-lg: 0 10px 15px rgba(14, 165, 233, 0.15);
+@shadow-obsidian-lg: 0 10px 15px rgba(30, 41, 59, 0.15);
 
 // Extra large shadow - Full-screen overlays
-@shadow-obsidian-xl: 0 20px 25px rgba(14, 165, 233, 0.2);
+@shadow-obsidian-xl: 0 20px 25px rgba(30, 41, 59, 0.2);
 ```
 
 ### Glow Effects
 
 ```less
-// Azure glow - Primary interactive elements
-@glow-azure: 0 0 20px rgba(14, 165, 233, 0.5);
+// Obsidian glow - Primary interactive elements
+@glow-obsidian: 0 0 20px rgba(30, 41, 59, 0.5);
 
-// Jade glow - Success state highlights
-@glow-jade: 0 0 20px rgba(20, 184, 166, 0.5);
+// Stone glow - Success state highlights
+@glow-stone: 0 0 20px rgba(71, 85, 105, 0.5);
 ```
 
 ## ⏱️ Transition System
@@ -220,8 +220,8 @@ Three-tier timing system for optimal user experience:
    - ✅ Reserve for important elements
 
 3. **Don't Ignore Contrast**
-   - ❌ Azure-4 text on white background
-   - ✅ Azure-8 or darker for text
+   - ❌ Obsidian-4 text on white background
+   - ✅ Obsidian-8 or darker for text
 
 4. **Don't Mix Too Many Colors**
    - ❌ Using all gradients simultaneously
@@ -234,7 +234,7 @@ Three-tier timing system for optimal user experience:
 ```typescript
 // Primary button - Gradient background
 <button nz-button nzType="primary">Primary</button>
-// Uses: @gradient-dragon-soaring
+// Uses: @gradient-tortoise-shield
 
 // Default button - Outline style
 <button nz-button nzType="default">Default</button>
@@ -248,15 +248,15 @@ Three-tier timing system for optimal user experience:
 ### Forms
 
 ```typescript
-// Input focus - Azure border
+// Input focus - Obsidian border
 <input nz-input placeholder="Enter text" />
 // Focus: @obsidian-6 border with 20% opacity shadow
 
-// Select hover - Azure highlight
+// Select hover - Obsidian highlight
 <nz-select [nzOptions]="options"></nz-select>
 // Option hover: @obsidian-1 background
 
-// Checkbox checked - Azure fill
+// Checkbox checked - Obsidian fill
 <label nz-checkbox>Option</label>
 // Checked: @obsidian-6 background
 ```
@@ -270,12 +270,12 @@ Three-tier timing system for optimal user experience:
   color: @obsidian-7;
 }
 
-// Table row hover - Azure light background
+// Table row hover - Obsidian light background
 .ant-table-tbody > tr:hover > td {
   background: fade(@obsidian-1, 80%);
 }
 
-// Selected row - Azure background
+// Selected row - Obsidian background
 .ant-table-row-selected > td {
   background: fade(@obsidian-1, 90%);
 }
@@ -284,7 +284,7 @@ Three-tier timing system for optimal user experience:
 ### Navigation
 
 ```less
-// Active menu item - Azure highlight
+// Active menu item - Obsidian highlight
 .ant-menu-item-selected {
   background-color: @obsidian-1;
   color: @obsidian-6;
@@ -342,7 +342,7 @@ import { inject } from '@angular/core';
 export class ThemeService {
   private nzConfigService = inject(NzConfigService);
   
-  changeToAzureTheme() {
+  changeToTortoiseTheme() {
     this.nzConfigService.set('theme', {
       primaryColor: '#1E293B'
     });
@@ -424,8 +424,8 @@ Never rely solely on color:
 - **Context7 Docs**: Based on `/ng-zorro/ng-zorro-antd` documentation
 
 ### Black Tortoise Theme Docs
-- **Main Guide**: [obsidian-dragon-theme.md](./obsidian-dragon-theme.md)
-- **Integration**: [AZURE_DRAGON_INTEGRATION.md](./AZURE_DRAGON_INTEGRATION.md)
+- **Main Guide**: [black-tortoise-theme.md](./black-tortoise-theme.md)
+- **Integration**: [BLACK_TORTOISE_INTEGRATION.md](../archive/BLACK_TORTOISE_INTEGRATION.md)
 - **Version Compatibility**: [VERSION_COMPATIBILITY.md](./VERSION_COMPATIBILITY.md)
 
 ### Tools
