@@ -194,6 +194,7 @@ export class AuditLogsModule implements IBlueprintModule {
 
   /**
    * Validate module dependencies
+   *
    * @param _context - Execution context (unused but required by interface)
    */
   private validateDependencies(_context: IExecutionContext): void {
@@ -246,6 +247,7 @@ export class AuditLogsModule implements IBlueprintModule {
 
   /**
    * Register module exports
+   *
    * @param _context - Execution context (unused but required by pattern)
    */
   private registerExports(_context: IExecutionContext): void {

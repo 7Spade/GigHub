@@ -2,6 +2,7 @@ import { DatePipe } from '@angular/common';
 import { Component, ChangeDetectionStrategy, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Blueprint, LoggerService } from '@core';
+import { AuditLogsComponent } from '@core/blueprint/modules/implementations/audit-logs';
 import { TasksComponent } from '@core/blueprint/modules/implementations/tasks/tasks.component';
 import { BlueprintService } from '@core/blueprint/services';
 import { SHARED_IMPORTS, createAsyncState } from '@shared';
@@ -15,7 +16,6 @@ import { NzTabsModule } from 'ng-zorro-antd/tabs';
 import { NzTagModule } from 'ng-zorro-antd/tag';
 import { firstValueFrom } from 'rxjs';
 
-import { AuditLogsComponent } from './audit/audit-logs.component';
 import { ConstructionLogComponent } from './construction-log/construction-log.component';
 import { ContainerDashboardComponent } from './container/container-dashboard.component';
 import { BlueprintMembersComponent } from './members/blueprint-members.component';
