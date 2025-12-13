@@ -20,7 +20,14 @@ import { TeamDetailDrawerComponent } from '../../../shared/components/team-detai
   standalone: true,
   imports: [SHARED_IMPORTS, NzAlertModule, NzEmptyModule, NzTableModule, NzTagModule, NzSpaceModule, NzModalModule],
   template: `
-    <nz-modal [nzOpen]="visible()" nzTitle="團隊管理" [nzFooter]="null" nzWidth="1100px" nzMaskClosable="false" (nzOnCancel)="closeModal()">
+    <nz-modal
+      [nzVisible]="visible()"
+      nzTitle="團隊管理"
+      [nzFooter]="null"
+      nzWidth="1100px"
+      nzMaskClosable="false"
+      (nzOnCancel)="closeModal()"
+    >
       <div class="mb-sm">瀏覽並管理組織內的團隊。</div>
 
       @if (!isOrganizationContext()) {
