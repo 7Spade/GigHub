@@ -45,7 +45,7 @@ enum ZoomLevel {
                 <label nz-radio-button [nzValue]="'week'" aria-label="切換到週視圖顯示24週範圍">週視圖</label>
                 <label nz-radio-button [nzValue]="'month'" aria-label="切換到月視圖顯示12個月範圍">月視圖</label>
               </nz-radio-group>
-              <nz-tag *nzSpaceItem [nzColor]="'blue'"> 共 {{ ganttTasks().length }} 個任務 </nz-tag>
+              <nz-tag *nzSpaceItem> 共 {{ ganttTasks().length }} 個任務 </nz-tag>
             </nz-space>
           </div>
         </div>
@@ -118,7 +118,6 @@ enum ZoomLevel {
                           [class.has-dependencies]="ganttTask.dependencies && ganttTask.dependencies.length > 0"
                           [style.left.%]="getTaskPosition(ganttTask)"
                           [style.width.%]="getTaskWidth(ganttTask)"
-                          [style.background-color]="ganttTask.color"
                           [title]="getTaskTooltip(ganttTask)"
                         >
                           <div class="task-bar-progress" [style.width.%]="ganttTask.progress"></div>
@@ -154,7 +153,7 @@ enum ZoomLevel {
       .gantt-header {
         margin-bottom: 16px;
         padding-bottom: 12px;
-        border-bottom: 1px solid #f0f0f0;
+        border-bottom: 1px solid;
       }
 
       .header-row {
@@ -169,25 +168,24 @@ enum ZoomLevel {
 
       .gantt-chart {
         background: white;
-        border: 1px solid #e8e8e8;
+        border: 1px solid;
         border-radius: 4px;
         overflow: hidden;
       }
 
       .gantt-timeline {
-        border-bottom: 2px solid #e8e8e8;
+        border-bottom: 2px solid;
       }
 
       .timeline-header {
         display: flex;
-        background: #fafafa;
       }
 
       .task-names-header {
         width: 200px;
         padding: 12px;
         font-weight: 600;
-        border-right: 1px solid #e8e8e8;
+        border-right: 1px solid;
       }
 
       .timeline-dates {
@@ -199,7 +197,7 @@ enum ZoomLevel {
         flex: 1;
         padding: 12px 4px;
         text-align: center;
-        border-right: 1px solid #f0f0f0;
+        border-right: 1px solid;
         font-size: 11px;
         font-weight: 500;
       }
@@ -211,27 +209,24 @@ enum ZoomLevel {
 
       .gantt-row {
         display: flex;
-        border-bottom: 1px solid #f0f0f0;
+        border-bottom: 1px solid;
         min-height: 40px;
       }
 
       .gantt-row:hover {
-        background: #fafafa;
       }
 
       .gantt-row.milestone {
-        background: #fff7e6;
       }
 
       .gantt-row.no-dates {
-        background: #fafafa;
-        border-left: 3px solid #d9d9d9;
+        border-left: 3px solid;
       }
 
       .task-name {
         width: 200px;
         padding: 8px 12px;
-        border-right: 1px solid #e8e8e8;
+        border-right: 1px solid;
         display: flex;
         align-items: center;
       }
@@ -252,23 +247,19 @@ enum ZoomLevel {
       }
 
       .milestone-icon {
-        color: #faad14;
       }
 
       .no-dates-icon {
-        color: #8c8c8c;
       }
 
       .task-bar-no-dates {
         position: relative;
         height: 24px;
-        background: #f5f5f5;
-        border: 2px dashed #d9d9d9;
+        border: 2px dashed;
         border-radius: 4px;
         display: flex;
         align-items: center;
         justify-content: center;
-        color: #8c8c8c;
         font-size: 11px;
         padding: 0 12px;
         width: fit-content;
@@ -277,8 +268,6 @@ enum ZoomLevel {
       }
 
       .task-bar-no-dates:hover {
-        background: #e8e8e8;
-        border-color: #bfbfbf;
       }
 
       .no-dates-label {
@@ -305,7 +294,6 @@ enum ZoomLevel {
         display: flex;
         align-items: center;
         justify-content: center;
-        color: white;
         font-size: 10px;
         font-weight: 500;
         overflow: hidden;
@@ -315,11 +303,10 @@ enum ZoomLevel {
 
       .task-bar:hover {
         transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
       }
 
       .task-bar.has-dependencies {
-        border: 2px solid #1890ff;
+        border: 2px solid;
       }
 
       .task-bar-progress {
@@ -327,8 +314,7 @@ enum ZoomLevel {
         left: 0;
         top: 0;
         height: 100%;
-        background: rgba(255, 255, 255, 0.3);
-        border-right: 2px solid rgba(255, 255, 255, 0.5);
+        border-right: 2px solid;
       }
 
       .task-bar-label {
@@ -342,13 +328,11 @@ enum ZoomLevel {
         top: 50%;
         transform: translate(-50%, -50%);
         font-size: 20px;
-        color: #faad14;
         cursor: pointer;
         z-index: 10;
       }
 
       .milestone-marker:hover {
-        color: #ff7a00;
         transform: translate(-50%, -50%) scale(1.2);
       }
 
@@ -356,7 +340,6 @@ enum ZoomLevel {
         position: absolute;
         top: 50%;
         height: 2px;
-        background: #1890ff;
         opacity: 0.5;
         z-index: 1;
       }
@@ -368,7 +351,7 @@ enum ZoomLevel {
         top: -3px;
         width: 0;
         height: 0;
-        border-left: 6px solid #1890ff;
+        border-left: 6px solid;
         border-top: 4px solid transparent;
         border-bottom: 4px solid transparent;
       }
@@ -460,7 +443,6 @@ export class TaskGanttViewComponent {
         start,
         end,
         progress: task.progress ?? 0,
-        color: this.getStatusColor(task.status),
         dependencies: task.dependencies || [],
         milestone: isMilestone,
         hasNoDates: !hasDates,
@@ -596,30 +578,9 @@ export class TaskGanttViewComponent {
   }
 
   /**
-   * Get status color
-   */
-  getStatusColor(status: string): string {
-    const colorMap: Record<string, string> = {
-      pending: '#d9d9d9',
-      in_progress: '#1890ff',
-      on_hold: '#faad14',
-      completed: '#52c41a',
-      cancelled: '#ff4d4f'
-    };
-    return colorMap[status] || '#d9d9d9';
-  }
-
-  /**
    * Get priority color
    */
   getPriorityColor(ganttTask: GanttTask & { task?: Task }): string {
-    if (!ganttTask.task) return 'default';
-    const colorMap: Record<string, string> = {
-      critical: 'red',
-      high: 'orange',
-      medium: 'blue',
-      low: 'default'
-    };
-    return colorMap[ganttTask.task.priority] || 'default';
+    return 'default';
   }
 }

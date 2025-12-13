@@ -50,11 +50,10 @@ C4Context
     
     System_Boundary(gighub, "GigHub Platform") {
         System(web, "Web Application", "Angular 20 SPA")
-        System(api, "Backend Services", "Firebase/Firestore + Supabase")
+        System(api, "Backend Services", "Firebase/Firestore")
     }
     
     System_Ext(firebase, "Firebase", "Authentication & Database")
-    System_Ext(supabase, "Supabase", "Additional Backend Services")
     System_Ext(storage, "Cloud Storage", "Document/Image Storage")
     
     Rel(user, web, "Uses", "HTTPS")
@@ -62,7 +61,6 @@ C4Context
     Rel(admin, web, "Configures", "HTTPS")
     
     Rel(web, firebase, "Authenticates & Stores", "Firebase SDK")
-    Rel(web, supabase, "Queries", "Supabase Client")
     Rel(api, storage, "Stores Files", "Cloud API")
     
     UpdateRelStyle(user, web, $textColor="blue", $lineColor="blue")
@@ -81,8 +79,7 @@ GigHub is a construction site progress tracking management system that enables c
 
 **External Systems**:
 1. **Firebase**: Provides authentication (Firebase Auth) and primary database (Firestore)
-2. **Supabase**: Additional backend services and potential future migration target
-3. **Cloud Storage**: Stores documents, images, and attachments
+2. **Cloud Storage**: Stores documents, images, and attachments
 
 **System Boundaries**:
 - **In Scope**: Web-based SPA, client-side routing, state management, modular business logic

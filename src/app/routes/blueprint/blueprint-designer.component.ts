@@ -165,7 +165,7 @@ interface ConnectionCreationState {
                 class="connection-preview"
                 style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 100;"
               >
-                <path [attr.d]="getPreviewPath()" stroke="#1890ff" stroke-width="2" stroke-dasharray="5,5" fill="none" opacity="0.6" />
+                <path [attr.d]="getPreviewPath()" stroke-width="2" stroke-dasharray="5,5" fill="none" opacity="0.6" />
               </svg>
             }
 
@@ -302,14 +302,12 @@ interface ConnectionCreationState {
         margin: 0 0 8px 0;
         font-size: 14px;
         font-weight: 500;
-        color: rgba(0, 0, 0, 0.85);
       }
 
       .module-card {
         padding: 12px;
         margin-bottom: 8px;
-        background: #fafafa;
-        border: 1px solid #d9d9d9;
+        border: 1px solid;
         border-radius: 4px;
         cursor: move;
         display: flex;
@@ -319,8 +317,6 @@ interface ConnectionCreationState {
       }
 
       .module-card:hover {
-        background: #e6f4ff;
-        border-color: #1890ff;
       }
 
       .canvas-area {
@@ -335,8 +331,7 @@ interface ConnectionCreationState {
       .canvas {
         position: relative;
         min-height: 600px;
-        background: #fafafa;
-        border: 2px dashed #d9d9d9;
+        border: 2px dashed;
         border-radius: 4px;
         padding: 16px;
       }
@@ -346,7 +341,7 @@ interface ConnectionCreationState {
         width: 200px;
         padding: 16px;
         background: white;
-        border: 2px solid #d9d9d9;
+        border: 2px solid;
         border-radius: 8px;
         cursor: move;
         transition: all 0.3s;
@@ -354,8 +349,6 @@ interface ConnectionCreationState {
 
       .canvas-module:hover,
       .canvas-module.selected {
-        border-color: #1890ff;
-        box-shadow: 0 4px 12px rgba(24, 144, 255, 0.2);
       }
 
       .module-header {
@@ -372,7 +365,6 @@ interface ConnectionCreationState {
       .module-dependencies {
         margin-top: 8px;
         font-size: 12px;
-        color: #8c8c8c;
       }
 
       .canvas-empty {
@@ -389,8 +381,7 @@ interface ConnectionCreationState {
         width: 24px;
         height: 24px;
         border-radius: 50%;
-        background: #fff;
-        border: 2px solid #1890ff;
+        border: 2px solid;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -400,20 +391,13 @@ interface ConnectionCreationState {
       }
 
       .connection-port:hover {
-        background: #e6f4ff;
-        border-color: #40a9ff;
         transform: scale(1.2);
-        box-shadow: 0 2px 8px rgba(24, 144, 255, 0.4);
       }
 
       .connection-port.active {
-        background: #1890ff;
-        border-color: #0050b3;
-        box-shadow: 0 0 0 4px rgba(24, 144, 255, 0.2);
       }
 
       .connection-port.active [nz-icon] {
-        color: white;
       }
 
       .input-port {
@@ -430,7 +414,6 @@ interface ConnectionCreationState {
 
       .connection-port [nz-icon] {
         font-size: 12px;
-        color: #1890ff;
       }
 
       /* Connection preview line */

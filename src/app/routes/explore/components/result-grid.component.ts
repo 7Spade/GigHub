@@ -58,7 +58,7 @@ import { ExploreSearchFacade } from '../services';
                 @if (result.avatarUrl) {
                   <nz-avatar [nzSrc]="result.avatarUrl" [nzSize]="48"></nz-avatar>
                 } @else {
-                  <nz-avatar [nzIcon]="getEntityIcon(result.type)" [nzSize]="48" [style.background]="getEntityColor(result.type)">
+                  <nz-avatar [nzIcon]="getEntityIcon(result.type)" [nzSize]="48">
                   </nz-avatar>
                 }
               </div>
@@ -136,7 +136,6 @@ import { ExploreSearchFacade } from '../services';
 
       .loading-text {
         margin-top: 16px;
-        color: rgba(0, 0, 0, 0.45);
       }
 
       .empty-container {
@@ -146,7 +145,6 @@ import { ExploreSearchFacade } from '../services';
 
       .empty-hint {
         margin-top: 8px;
-        color: rgba(0, 0, 0, 0.45);
         font-size: 13px;
       }
 
@@ -155,7 +153,6 @@ import { ExploreSearchFacade } from '../services';
       }
 
       .results-count {
-        color: rgba(0, 0, 0, 0.45);
         font-size: 13px;
       }
 
@@ -208,7 +205,6 @@ import { ExploreSearchFacade } from '../services';
 
       .card-subtitle {
         font-size: 13px;
-        color: rgba(0, 0, 0, 0.45);
         margin-bottom: 8px;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -227,7 +223,6 @@ import { ExploreSearchFacade } from '../services';
 
         .stat-item {
           font-size: 12px;
-          color: rgba(0, 0, 0, 0.45);
           display: flex;
           align-items: center;
           gap: 4px;
@@ -333,27 +328,10 @@ export class ResultGridComponent {
   }
 
   /**
-   * Get background color for entity avatar
-   */
-  getEntityColor(type: string): string {
-    const colors: Record<string, string> = {
-      account: '#1890ff',
-      organization: '#52c41a',
-      blueprint: '#722ed1'
-    };
-    return colors[type] || '#d9d9d9';
-  }
-
-  /**
    * Get tag color for entity type
    */
   getEntityTagColor(type: string): string {
-    const colors: Record<string, string> = {
-      account: 'blue',
-      organization: 'green',
-      blueprint: 'purple'
-    };
-    return colors[type] || 'default';
+    return 'default';
   }
 
   /**

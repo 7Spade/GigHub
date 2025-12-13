@@ -54,7 +54,6 @@ export interface TeamMemberModalData {
                   [nzSize]="32"
                   [nzSrc]="member.account?.avatar_url || undefined"
                   [nzText]="getMemberInitials(member)"
-                  [style.background-color]="getAvatarColor(member.user_id)"
                 ></nz-avatar>
                 <div class="member-info">
                   <div class="member-name">{{ member.account?.name || member.user_id }}</div>
@@ -122,7 +121,6 @@ export interface TeamMemberModalData {
 
       .member-name {
         font-weight: 500;
-        color: rgba(0, 0, 0, 0.85);
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
@@ -130,7 +128,6 @@ export interface TeamMemberModalData {
 
       .member-email {
         font-size: 12px;
-        color: rgba(0, 0, 0, 0.45);
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
@@ -153,12 +150,10 @@ export interface TeamMemberModalData {
 
       .role-name {
         font-weight: 500;
-        color: rgba(0, 0, 0, 0.85);
       }
 
       .role-desc {
         font-size: 12px;
-        color: rgba(0, 0, 0, 0.45);
       }
     `
   ]
@@ -241,14 +236,6 @@ export class TeamMemberModalComponent implements OnInit {
     return name.substring(0, 2).toUpperCase();
   }
 
-  /**
-   * Get avatar color based on user ID
-   */
-  getAvatarColor(userId: string): string {
-    const colors = ['#f56a00', '#7265e6', '#ffbf00', '#00a2ae', '#1890ff', '#52c41a', '#fa8c16', '#eb2f96'];
-    const hash = userId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-    return colors[hash % colors.length];
-  }
 
   /**
    * Get currently selected member

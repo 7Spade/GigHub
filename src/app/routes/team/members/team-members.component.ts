@@ -313,11 +313,11 @@ export class TeamMembersComponent implements OnInit {
               ${availableRoles
                 .map(
                   role => `
-                <label nz-radio nzValue="${role}" style="display: flex; align-items: center; padding: 8px; border: 1px solid #d9d9d9; border-radius: 4px;">
+                <label nz-radio nzValue="${role}" style="display: flex; align-items: center; padding: 8px; border: 1px solid; border-radius: 4px;">
                   <input type="radio" name="role" value="${role}" />
                   <span style="margin-left: 8px;">
                     <strong>${this.roleLabel(role)}</strong>
-                    <span style="display: block; font-size: 12px; color: rgba(0,0,0,0.45);">
+                    <span style="display: block; font-size: 12px;">
                       ${role === TeamRole.LEADER ? '可管理團隊成員和設定' : '可檢視和執行團隊任務'}
                     </span>
                   </span>

@@ -4,17 +4,17 @@
 
 ### BEFORE THE FIX ❌
 
-When SupabaseService failed to initialize, the error log looked like this:
+When FirebaseService failed to initialize, the error log looked like this:
 
 ```javascript
 [ERROR] {
-  "source": "[SupabaseService]",
+  "source": "[FirebaseService]",
   "message": "Failed to initialize client",
   "context": {
     "error": {
       "name": "Error",
-      "message": "Supabase configuration missing. Please set NG_PUBLIC_SUPABASE_URL and NG_PUBLIC_SUPABASE_ANON_KEY in environment variables.",
-      "stack": "Error: Supabase configuration missing...\n    at SupabaseService.initializeClient (supabase.service.ts:63:15)\n    at new SupabaseService (supabase.service.ts:49:10)"
+      "message": "Firebase configuration missing. Please set NG_PUBLIC_FIREBASE_URL and NG_PUBLIC_FIREBASE_ANON_KEY in environment variables.",
+      "stack": "Error: Firebase configuration missing...\n    at FirebaseService.initializeClient (firebase.service.ts:63:15)\n    at new FirebaseService (firebase.service.ts:49:10)"
     }
   },
   "error": undefined,  // ❌ ERROR: This should contain the error details!
@@ -32,13 +32,13 @@ With the fix applied, the same error now logs correctly:
 
 ```javascript
 [ERROR] {
-  "source": "[SupabaseService]",
+  "source": "[FirebaseService]",
   "message": "Failed to initialize client",
   "context": {},
   "error": {  // ✅ FIXED: Now properly populated!
     "name": "Error",
-    "message": "Supabase configuration missing. Please set NG_PUBLIC_SUPABASE_URL and NG_PUBLIC_SUPABASE_ANON_KEY in environment variables.",
-    "stack": "Error: Supabase configuration missing...\n    at SupabaseService.initializeClient (supabase.service.ts:63:15)\n    at new SupabaseService (supabase.service.ts:49:10)"
+    "message": "Firebase configuration missing. Please set NG_PUBLIC_FIREBASE_URL and NG_PUBLIC_FIREBASE_ANON_KEY in environment variables.",
+    "stack": "Error: Firebase configuration missing...\n    at FirebaseService.initializeClient (firebase.service.ts:63:15)\n    at new FirebaseService (firebase.service.ts:49:10)"
   },
   "timestamp": "2025-12-12T11:22:08.353Z"
 }
@@ -103,7 +103,7 @@ To verify the fix in your environment:
 
 1. Start the application: `yarn start`
 2. Open browser developer console (F12)
-3. Look for `[ERROR]` logs from `[SupabaseService]`
+3. Look for `[ERROR]` logs from `[FirebaseService]`
 4. Verify the `error` field contains proper error details (not `undefined`)
 
 Alternatively, run the test suite:
@@ -114,5 +114,5 @@ yarn test --include='**/logger.service.spec.ts' --watch=false
 ---
 
 **Date**: 2025-12-12  
-**Issue**: SupabaseService initialization error showing `error: undefined`  
+**Issue**: FirebaseService initialization error showing `error: undefined`  
 **Status**: ✅ Fixed

@@ -111,14 +111,12 @@ import { NzIconModule } from 'ng-zorro-antd/icon';
       }
 
       .error-icon {
-        color: #ff4d4f;
         font-size: 14px;
         flex-shrink: 0;
         margin-top: 2px;
       }
 
       .warning-icon {
-        color: #faad14;
         font-size: 14px;
         flex-shrink: 0;
         margin-top: 2px;
@@ -133,12 +131,10 @@ import { NzIconModule } from 'ng-zorro-antd/icon';
       .cycle-path {
         margin-top: 4px;
         padding: 8px 12px;
-        background: rgba(255, 77, 79, 0.1);
-        border-left: 3px solid #ff4d4f;
+        border-left: 3px solid;
         border-radius: 2px;
         font-family: 'Courier New', monospace;
         font-size: 12px;
-        color: #ff4d4f;
       }
     `
   ]

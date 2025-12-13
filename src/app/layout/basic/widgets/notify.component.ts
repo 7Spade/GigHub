@@ -1,5 +1,6 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit, DestroyRef } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, effect, inject } from '@angular/core';
 import { FirebaseService } from '@core/services/firebase.service';
+import { PushMessagingService } from '@core/services/push-messaging.service';
 import { NotificationStore } from '@core/stores/notification.store';
 import { NoticeIconModule, NoticeIconSelect } from '@delon/abc/notice-icon';
 import { NzMessageService } from 'ng-zorro-antd/message';
@@ -31,33 +32,50 @@ export class HeaderNotifyComponent implements OnInit {
   private readonly msg = inject(NzMessageService);
   private readonly firebase = inject(FirebaseService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly messaging = inject(PushMessagingService);
   protected readonly notificationStore = inject(NotificationStore);
+  private currentUserId?: string;
+  private unsubscribeRealtime?: () => void;
 
-  async ngOnInit(): Promise<void> {
-    const user = this.firebase.getCurrentUser();
-    if (user) {
-      // Subscribe to realtime updates
-      this.notificationStore.subscribeToRealtimeUpdates(user.uid, this.destroyRef);
-    }
+  ngOnInit(): void {
+    effect(() => {
+      const user = this.firebase.currentUser();
+      if (!user) {
+        this.currentUserId = undefined;
+        this.unsubscribeRealtime?.();
+        this.unsubscribeRealtime = undefined;
+        return;
+      }
+
+      if (this.currentUserId === user.uid) {
+        return;
+      }
+
+      this.unsubscribeRealtime?.();
+      this.currentUserId = user.uid;
+      this.unsubscribeRealtime = this.notificationStore.subscribeToRealtimeUpdates(user.uid, this.destroyRef);
+      void this.notificationStore.loadNotifications(user.uid);
+      void this.messaging.init(user.uid);
+    });
   }
 
   async loadData(): Promise<void> {
-    const user = this.firebase.getCurrentUser();
-    if (user) {
-      await this.notificationStore.loadNotifications(user.uid);
+    const userId = this.currentUserId ?? this.firebase.currentUser()?.uid;
+    if (userId) {
+      await this.notificationStore.loadNotifications(userId);
     }
   }
 
   async clear(type: string): Promise<void> {
-    const user = this.firebase.getCurrentUser();
-    if (user) {
-      await this.notificationStore.clearByType(user.uid, type);
+    const userId = this.currentUserId ?? this.firebase.currentUser()?.uid;
+    if (userId) {
+      await this.notificationStore.clearByType(userId, type);
       this.msg.success(`清空了 ${type}`);
     }
   }
 
   async select(res: NoticeIconSelect): Promise<void> {
-    const itemId = (res.item as any).id;
+    const itemId = (res.item as { id?: string } | undefined)?.id;
     if (itemId) {
       await this.notificationStore.markAsRead(itemId);
     }

@@ -19,6 +19,14 @@ import { firstValueFrom } from 'rxjs';
 import { ConstructionLogComponent } from './construction-log/construction-log.component';
 import { ContainerDashboardComponent } from './container/container-dashboard.component';
 import { BlueprintMembersComponent } from './members/blueprint-members.component';
+import { AcceptanceModuleViewComponent } from './modules/acceptance-module-view.component';
+import { CommunicationModuleViewComponent } from './modules/communication-module-view.component';
+import { FinanceModuleViewComponent } from './modules/finance-module-view.component';
+import { LogModuleViewComponent } from './modules/log-module-view.component';
+import { MaterialModuleViewComponent } from './modules/material-module-view.component';
+import { QaModuleViewComponent } from './modules/qa-module-view.component';
+import { SafetyModuleViewComponent } from './modules/safety-module-view.component';
+import { WorkflowModuleViewComponent } from './modules/workflow-module-view.component';
 
 /**
  * Blueprint Detail Component
@@ -54,7 +62,15 @@ import { BlueprintMembersComponent } from './members/blueprint-members.component
     BlueprintMembersComponent,
     ConstructionLogComponent,
     ContainerDashboardComponent,
-    TasksComponent
+    TasksComponent,
+    LogModuleViewComponent,
+    WorkflowModuleViewComponent,
+    QaModuleViewComponent,
+    AcceptanceModuleViewComponent,
+    FinanceModuleViewComponent,
+    MaterialModuleViewComponent,
+    SafetyModuleViewComponent,
+    CommunicationModuleViewComponent
   ],
   template: `
     <page-header [title]="blueprint()?.name || '藍圖詳情'" [action]="action" [breadcrumb]="breadcrumb">
@@ -124,19 +140,19 @@ import { BlueprintMembersComponent } from './members/blueprint-members.component
                       <nz-col [nzSpan]="8">
                         <nz-statistic [nzValue]="blueprint()!.enabledModules.length" nzTitle="啟用模組" [nzPrefix]="moduleIconTpl" />
                         <ng-template #moduleIconTpl>
-                          <span nz-icon nzType="appstore" style="color: #1890ff;"></span>
+                          <span nz-icon nzType="appstore"></span>
                         </ng-template>
                       </nz-col>
                       <nz-col [nzSpan]="8">
                         <nz-statistic [nzValue]="0" nzTitle="總任務" [nzPrefix]="taskIconTpl" />
                         <ng-template #taskIconTpl>
-                          <span nz-icon nzType="check-square" style="color: #52c41a;"></span>
+                          <span nz-icon nzType="check-square"></span>
                         </ng-template>
                       </nz-col>
                       <nz-col [nzSpan]="8">
                         <nz-statistic [nzValue]="0" nzTitle="日誌數" [nzPrefix]="logIconTpl" />
                         <ng-template #logIconTpl>
-                          <span nz-icon nzType="file-text" style="color: #faad14;"></span>
+                          <span nz-icon nzType="file-text"></span>
                         </ng-template>
                       </nz-col>
                     </nz-row>
@@ -150,7 +166,7 @@ import { BlueprintMembersComponent } from './members/blueprint-members.component
                           <nz-col [nzXs]="24" [nzSm]="12" [nzMd]="8">
                             <nz-card [nzHoverable]="true" class="module-card" (click)="openModule(module)">
                               <div style="text-align: center;">
-                                <span nz-icon [nzType]="getModuleIcon(module)" style="font-size: 32px; color: #1890ff;"></span>
+                                <span nz-icon [nzType]="getModuleIcon(module)" style="font-size: 32px;"></span>
                                 <h4 style="margin-top: 12px;">{{ getModuleName(module) }}</h4>
                                 <p class="text-grey" style="font-size: 12px;">{{ getModuleDescription(module) }}</p>
                               </div>
@@ -248,7 +264,7 @@ import { BlueprintMembersComponent } from './members/blueprint-members.component
           </nz-tab>
 
           <!-- Construction Logs Tab -->
-          <nz-tab nzTitle="工地日誌">
+          <nz-tab nzTitle="日誌">
             <ng-template nz-tab>
               @if (blueprint()?.id) {
                 <app-construction-log [blueprintId]="blueprint()!.id" />
@@ -261,6 +277,78 @@ import { BlueprintMembersComponent } from './members/blueprint-members.component
             <ng-template nz-tab>
               @if (blueprint()?.id) {
                 <app-blueprint-members [blueprintId]="blueprint()!.id" />
+              }
+            </ng-template>
+          </nz-tab>
+
+          <!-- Log Domain Tab -->
+          <nz-tab nzTitle="日誌">
+            <ng-template nz-tab>
+              @if (blueprint()?.id) {
+                <app-log-module-view [blueprintId]="blueprint()!.id" />
+              }
+            </ng-template>
+          </nz-tab>
+
+          <!-- Workflow Domain Tab -->
+          <nz-tab nzTitle="流程">
+            <ng-template nz-tab>
+              @if (blueprint()?.id) {
+                <app-workflow-module-view [blueprintId]="blueprint()!.id" />
+              }
+            </ng-template>
+          </nz-tab>
+
+          <!-- QA Domain Tab -->
+          <nz-tab nzTitle="品質">
+            <ng-template nz-tab>
+              @if (blueprint()?.id) {
+                <app-qa-module-view [blueprintId]="blueprint()!.id" />
+              }
+            </ng-template>
+          </nz-tab>
+
+          <!-- Acceptance Domain Tab -->
+          <nz-tab nzTitle="驗收">
+            <ng-template nz-tab>
+              @if (blueprint()?.id) {
+                <app-acceptance-module-view [blueprintId]="blueprint()!.id" />
+              }
+            </ng-template>
+          </nz-tab>
+
+          <!-- Finance Domain Tab -->
+          <nz-tab nzTitle="財務">
+            <ng-template nz-tab>
+              @if (blueprint()?.id) {
+                <app-finance-module-view [blueprintId]="blueprint()!.id" />
+              }
+            </ng-template>
+          </nz-tab>
+
+          <!-- Material Domain Tab -->
+          <nz-tab nzTitle="材料">
+            <ng-template nz-tab>
+              @if (blueprint()?.id) {
+                <app-material-module-view [blueprintId]="blueprint()!.id" />
+              }
+            </ng-template>
+          </nz-tab>
+
+          <!-- Safety Domain Tab -->
+          <nz-tab nzTitle="安全">
+            <ng-template nz-tab>
+              @if (blueprint()?.id) {
+                <app-safety-module-view [blueprintId]="blueprint()!.id" />
+              }
+            </ng-template>
+          </nz-tab>
+
+          <!-- Communication Domain Tab -->
+          <nz-tab nzTitle="通訊">
+            <ng-template nz-tab>
+              @if (blueprint()?.id) {
+                <app-communication-module-view [blueprintId]="blueprint()!.id" />
               }
             </ng-template>
           </nz-tab>
@@ -308,11 +396,9 @@ import { BlueprintMembersComponent } from './members/blueprint-members.component
 
       .module-card:hover {
         transform: translateY(-4px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
       }
 
       .text-grey {
-        color: rgba(0, 0, 0, 0.45);
       }
     `
   ]
@@ -409,7 +495,16 @@ export class BlueprintDetailComponent implements OnInit {
       todos: '待辦事項',
       checklists: '檢查清單',
       issues: '問題追蹤',
-      bot_workflow: '自動化流程'
+      bot_workflow: '自動化流程',
+      // New Blueprint Domains
+      log: '日誌域',
+      workflow: '流程域',
+      qa: '品質控管域',
+      acceptance: '驗收域',
+      finance: '財務域',
+      material: '材料域',
+      safety: '安全域',
+      communication: '通訊域'
     };
     return nameMap[module] || module;
   }
@@ -429,7 +524,16 @@ export class BlueprintDetailComponent implements OnInit {
       todos: '待辦事項管理',
       checklists: '檢查清單管理',
       issues: '問題與缺陷追蹤',
-      bot_workflow: '自動化工作流程'
+      bot_workflow: '自動化工作流程',
+      // New Blueprint Domains
+      log: '活動記錄、系統事件、評論、附件',
+      workflow: '自訂流程、狀態機、自動化',
+      qa: '檢查表、缺失管理、品質報告',
+      acceptance: '驗收申請、審核、初驗、複驗',
+      finance: '成本、請款、付款、預算管理',
+      material: '材料管理、出入庫、資產追蹤',
+      safety: '安全巡檢、風險評估、事故通報',
+      communication: '系統通知、訊息、提醒'
     };
     return descMap[module] || '模組功能';
   }
@@ -449,7 +553,16 @@ export class BlueprintDetailComponent implements OnInit {
       todos: 'ordered-list',
       checklists: 'check-circle',
       issues: 'warning',
-      bot_workflow: 'robot'
+      bot_workflow: 'robot',
+      // New Blueprint Domains
+      log: 'file-text',
+      workflow: 'apartment',
+      qa: 'safety-certificate',
+      acceptance: 'check-circle',
+      finance: 'dollar',
+      material: 'inbox',
+      safety: 'safety',
+      communication: 'message'
     };
     return iconMap[module] || 'appstore';
   }

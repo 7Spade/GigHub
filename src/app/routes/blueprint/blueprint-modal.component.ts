@@ -192,13 +192,17 @@ export class BlueprintModalComponent implements OnInit {
 
       if (this.isEdit) {
         // Update existing blueprint
-        await this.blueprintService.update(this.data.blueprint!.id, {
-          name: formValue.name!,
-          slug: formValue.slug!,
-          description: formValue.description,
-          isPublic: formValue.isPublic,
-          enabledModules
-        });
+        await this.blueprintService.update(
+          this.data.blueprint!.id,
+          {
+            name: formValue.name!,
+            slug: formValue.slug!,
+            description: formValue.description,
+            isPublic: formValue.isPublic,
+            enabledModules
+          },
+          (user as any).uid // Pass actorId
+        );
         this.message.success('藍圖已更新');
       } else {
         // Create new blueprint - use current workspace context (Occam's Razor: single source of truth)
@@ -230,7 +234,8 @@ export class BlueprintModalComponent implements OnInit {
           ownerId,
           ownerType,
           isPublic: formValue.isPublic,
-          enabledModules
+          enabledModules,
+          createdBy: (user as any).uid
         };
 
         const blueprint = await this.blueprintService.create(request);

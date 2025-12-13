@@ -5,7 +5,7 @@
 本文檔提供完整的專案指南、架構設計、開發規範和 UI 主題文檔。
 
 **專案**: GigHub - 工地施工進度追蹤管理系統  
-**技術棧**: Angular 20.3 + ng-zorro-antd + ng-alain + Firebase + Supabase
+**技術棧**: Angular 20.3 + ng-zorro-antd + ng-alain + Firebase
 
 ---
 
@@ -28,17 +28,15 @@
 | 文檔 | 描述 | 語言 | 狀態 |
 |------|------|------|------|
 | [Firebase Authentication](./authentication/firebase-authentication.md) | Firebase Auth 整合指南 | 繁中 | ✅ |
-| [Supabase Integration](./authentication/supabase-integration.md) | Supabase 統計整合 | 繁中 | ✅ |
 
 **關鍵職責劃分**:
 - **Firebase** → 認證 (登入、註冊、Token)
-- **Supabase** → 統計/非敏感資料
+- **Firestore** → 資料儲存與查詢
 - **@delon/auth** → Token 管理、路由守衛
 
 **舊版參考**:
 - [FIREBASE_AUTH_IMPLEMENTATION_SUMMARY.md](authentication/FIREBASE_AUTH_IMPLEMENTATION_SUMMARY.md) (EN)
 - [FIREBASE_AUTH_INTEGRATION.md](authentication/FIREBASE_AUTH_INTEGRATION.md) (EN)
-- [SUPABASE_SIMPLIFICATION.md](authentication/SUPABASE_SIMPLIFICATION.md) (EN)
 
 ---
 
@@ -97,8 +95,7 @@
 
 - **Angular**: 20.3.x (Standalone Components, Signals)
 - **ng-alain**: 20.1.x | **ng-zorro-antd**: 20.3.x
-- **Firebase**: @angular/fire 20.0.1 (Authentication)
-- **Supabase**: 2.86.x (BaaS, RLS Policies)
+- **Firebase**: @angular/fire 20.0.1 (Authentication & Firestore)
 - **TypeScript**: 5.9.x | **RxJS**: 7.8.x
 
 ---
@@ -112,8 +109,7 @@
 → [Azure Dragon 主題](./ui-theme/azure-dragon-theme-zh-TW.md)
 
 #### 設置身份驗證
-→ [Firebase Authentication](./authentication/firebase-authentication.md)  
-→ [Supabase Integration](./authentication/supabase-integration.md)
+→ [Firebase Authentication](./authentication/firebase-authentication.md)
 
 #### 了解專案架構
 → [設計文檔索引](./design/README-zh-TW.md)  
@@ -160,12 +156,14 @@ yarn analyze:view
 
 已完成的功能文檔已移至 [`archive/`](./archive/) 目錄：
 
-### 最新封存 (2025-12-12)
+### 最新封存 (2025-12-13)
 - ✅ Construction Log 模組實作總結
 - ✅ Blueprint Designer 拖曳功能修復文檔
 - ✅ Angular 20 專案結構重構總結
-- ✅ Supabase 遷移與安全整合指南
+- ✅ Firebase 認證整合與遷移指南
 - ✅ GigHub 架構分析與剩餘工作分析報告
+- ✅ Task Module 實作與分析文檔
+- ✅ Blueprint Event Bus 整合說明
 
 **查看完整封存清單**: [archive/README.md](./archive/README.md)
 
@@ -195,13 +193,11 @@ yarn analyze:view
 **♻️ 重構**:
 - ✅ 整合 SHARED_IMPORTS_GUIDE + SHARED_MODULES_OPTIMIZATION
 - ✅ 整合 Firebase auth 文檔
-- ✅ 整合 Supabase 文檔
 - ✅ 整合 Azure Dragon 主題文檔
 
 **📚 中文化**:
 - ✅ 共享模組指南
 - ✅ Firebase Authentication
-- ✅ Supabase Integration
 - ✅ Azure Dragon 主題完整指南
 - ✅ 懸停狀態改進
 - ✅ SaaS 多租戶實作

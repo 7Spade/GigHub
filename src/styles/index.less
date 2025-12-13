@@ -1,8 +1,8 @@
 /* ============================================
- * Azure Dragon Theme - Global Styles
- * 青龍主題 - 全局樣式
+ * Xuanwu Theme - Global Styles
+ * 玄武主題 - 全局樣式
  * ============================================
- * Version: 1.1.0
+ * Version: 2.0.0
  * Compatible with:
  * - ng-zorro-antd: 20.3.1+ (Current: 20.3.1, Latest: 20.4.3)
  * - ng-alain: 20.1.0+ (Current: 20.1.0, Latest: 20.1.0)
@@ -10,68 +10,68 @@
  *
  * This file contains:
  * - Global component style enhancements
- * - Utility classes for Azure Dragon theme
+ * - Utility classes for Xuanwu theme
  * - Animation definitions
  * - Accessibility improvements
  *
- * Note: Azure Dragon color variables are defined in theme.less
+ * Note: Xuanwu color variables are defined in theme.less
  * and are available for use throughout this file.
  *
  * References:
- * - Azure Dragon Design: docs/ui-theme/azure-dragon-theme.md
+ * - Xuanwu Design: docs/ui-theme/xuanwu-theme.md
  * - Hover States: docs/ui-theme/HOVER_STATES_IMPROVEMENTS.md
  * ============================================ */
 
 // ============================================
-// Utility Classes for Azure Dragon Theme
-// 青龍主題工具類
+// Utility Classes for Xuanwu Theme
+// 玄武主題工具類
 // ============================================
 
 // Background Colors
-.azure-bg-primary {
-  background-color: @azure-6 !important;
+.xuanwu-bg-primary {
+  background-color: @xuanwu-6 !important;
 }
 
-.azure-bg-gradient {
-  background: @gradient-dragon-soaring !important;
+.xuanwu-bg-gradient {
+  background: @gradient-northern-waters !important;
 }
 
-.azure-bg-gradient-sky {
-  background: @gradient-azure-sky !important;
+.xuanwu-bg-gradient-sky {
+  background: @gradient-winter-night !important;
 }
 
-.azure-bg-light {
-  background-color: @azure-1 !important;
+.xuanwu-bg-light {
+  background-color: @xuanwu-1 !important;
 }
 
 // Text Colors
-.azure-text-primary {
-  color: @azure-6 !important;
+.xuanwu-text-primary {
+  color: @xuanwu-6 !important;
 }
 
-.azure-text-jade {
-  color: @jade-4 !important;
+.xuanwu-text-jade {
+  color: @teal-4 !important;
 }
 
-.azure-text-cyan {
-  color: @cyan-3 !important;
+.xuanwu-text-cyan {
+  color: @steel-3 !important;
 }
 
 // Border Colors
-.azure-border-primary {
-  border-color: @azure-6 !important;
+.xuanwu-border-primary {
+  border-color: @xuanwu-6 !important;
 }
 
-.azure-border-jade {
-  border-color: @jade-4 !important;
+.xuanwu-border-jade {
+  border-color: @teal-4 !important;
 }
 
-// Card Styles with Azure Dragon Theme
-.azure-card {
+// Card Styles with Xuanwu Theme
+.xuanwu-card {
   background: #ffffff;
   border: 1px solid @border-color-split;
   border-radius: 8px;
-  box-shadow: @shadow-azure-sm;
+  box-shadow: @shadow-xuanwu-sm;
   transition: all @transition-base;
   position: relative;
 
@@ -83,14 +83,14 @@
     right: 0;
     bottom: 0;
     border-radius: 8px;
-    border: 1px solid @azure-6;
+    border: 1px solid @xuanwu-6;
     opacity: 0;
     transition: opacity @transition-base;
     pointer-events: none;
   }
 
   &:hover {
-    box-shadow: @shadow-azure-lg;
+    box-shadow: @shadow-xuanwu-lg;
     transform: translateY(-2px);
 
     &::after {
@@ -99,22 +99,22 @@
   }
 }
 
-.azure-card-featured {
-  background: @gradient-dragon-soaring;
+.xuanwu-card-featured {
+  background: @gradient-northern-waters;
   color: #ffffff;
   border: none;
-  box-shadow: @shadow-azure-lg;
+  box-shadow: @shadow-xuanwu-lg;
 }
 
-.azure-card-highlight {
-  background: @gradient-dawn-light;
-  border: 2px solid @azure-6;
-  box-shadow: @shadow-azure-md;
+.xuanwu-card-highlight {
+  background: @gradient-silver-frost;
+  border: 2px solid @xuanwu-6;
+  box-shadow: @shadow-xuanwu-md;
 }
 
 // Button Enhancements
 .ant-btn-primary {
-  background: @gradient-dragon-soaring;
+  background: @gradient-northern-waters;
   border: none;
   transition: all @transition-base;
   position: relative;
@@ -127,14 +127,14 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: @gradient-dragon-scales;
+    background: @gradient-tortoise-shell;
     opacity: 0;
     transition: opacity @transition-base;
   }
 
   &:hover,
   &:focus {
-    box-shadow: @shadow-azure-md;
+    box-shadow: @shadow-xuanwu-md;
     transform: translateY(-1px);
 
     &::before {
@@ -144,7 +144,7 @@
 
   &:active {
     transform: translateY(0);
-    box-shadow: @shadow-azure-sm;
+    box-shadow: @shadow-xuanwu-sm;
   }
 
   & > * {
@@ -159,9 +159,9 @@
 
   &:hover,
   &:focus {
-    color: @azure-6;
-    border-color: @azure-6;
-    background: @azure-1;
+    color: @xuanwu-6;
+    border-color: @xuanwu-6;
+    background: @xuanwu-1;
   }
 }
 
@@ -170,9 +170,9 @@
 
   &:hover,
   &:focus {
-    color: @azure-6;
-    border-color: @azure-6;
-    background: fade(@azure-1, 50%);
+    color: @xuanwu-6;
+    border-color: @xuanwu-6;
+    background: fade(@xuanwu-1, 50%);
   }
 }
 
@@ -181,8 +181,8 @@
 
   &:hover,
   &:focus {
-    color: @azure-5;
-    background: fade(@azure-1, 60%);
+    color: @xuanwu-5;
+    background: fade(@xuanwu-1, 60%);
   }
 }
 
@@ -191,22 +191,22 @@
 
   &:hover,
   &:focus {
-    color: @azure-5;
+    color: @xuanwu-5;
   }
 }
 
 // Header Gradient Enhancement
 .alain-default__header {
-  background: @gradient-dragon-soaring !important;
-  box-shadow: @shadow-azure-md;
+  background: @gradient-northern-waters !important;
+  box-shadow: @shadow-xuanwu-md;
 }
 
 // Navigation Active State
 .alain-default__nav-item.active,
 .alain-default__nav-item:hover {
-  color: @azure-6 !important;
-  background: fade(@azure-1, 80%);
-  border-left: 3px solid @azure-6;
+  color: @xuanwu-6 !important;
+  background: fade(@xuanwu-1, 80%);
+  border-left: 3px solid @xuanwu-6;
   transition: all @transition-fast;
 }
 
@@ -221,7 +221,7 @@
     top: 0;
     bottom: 0;
     width: 3px;
-    background: @azure-6;
+    background: @xuanwu-6;
     transform: scaleY(0);
     transition: transform @transition-fast;
   }
@@ -238,72 +238,72 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: @azure-1;
+  background: @xuanwu-1;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: @azure-4;
+  background: @xuanwu-4;
   border-radius: 4px;
   transition: background @transition-fast;
 
   &:hover {
-    background: @azure-6;
+    background: @xuanwu-6;
   }
 
   &:active {
-    background: @azure-7;
+    background: @xuanwu-7;
   }
 }
 
 ::-webkit-scrollbar-corner {
-  background: @azure-1;
+  background: @xuanwu-1;
 }
 
-// Loading State with Azure Dragon Theme
+// Loading State with Xuanwu Theme
 .ant-spin-dot-item {
-  background-color: @azure-6;
+  background-color: @xuanwu-6;
 }
 
 // Tag Styles
 .ant-tag-blue {
-  color: @azure-6;
-  background: @azure-1;
-  border-color: @azure-3;
+  color: @xuanwu-6;
+  background: @xuanwu-1;
+  border-color: @xuanwu-3;
   transition: all @transition-fast;
   cursor: pointer;
 
   &:hover {
-    background: @azure-2;
-    border-color: @azure-4;
+    background: @xuanwu-2;
+    border-color: @xuanwu-4;
     transform: translateY(-1px);
   }
 }
 
 .ant-tag-cyan {
-  color: @cyan-3;
-  background: @cyan-1;
-  border-color: @cyan-2;
+  color: @steel-3;
+  background: @steel-1;
+  border-color: @steel-2;
   transition: all @transition-fast;
   cursor: pointer;
 
   &:hover {
-    background: fade(@cyan-2, 60%);
-    border-color: @cyan-3;
+    background: fade(@steel-2, 60%);
+    border-color: @steel-3;
     transform: translateY(-1px);
   }
 }
 
 .ant-tag-green {
-  color: @jade-4;
-  background: @jade-1;
-  border-color: @jade-2;
+  color: @teal-4;
+  background: @teal-1;
+  border-color: @teal-2;
   transition: all @transition-fast;
   cursor: pointer;
 
   &:hover {
-    background: fade(@jade-2, 60%);
-    border-color: @jade-3;
+    background: fade(@teal-2, 60%);
+    border-color: @teal-3;
     transform: translateY(-1px);
   }
 }
@@ -312,56 +312,56 @@
   transition: all @transition-fast;
 
   &:hover {
-    color: @azure-6;
+    color: @xuanwu-6;
   }
 
   &:not(.ant-tag-checkable-checked):hover {
-    color: @azure-6;
+    color: @xuanwu-6;
   }
 }
 
 // Badge Colors
 .ant-badge-status-processing {
-  background-color: @azure-6;
+  background-color: @xuanwu-6;
 }
 
 .ant-badge-status-success {
-  background-color: @jade-4;
+  background-color: @teal-4;
 }
 
 // Progress Bar
 .ant-progress-bg {
-  background: @gradient-dragon-soaring !important;
+  background: @gradient-northern-waters !important;
 }
 
 // Alert Styles
 .ant-alert-info {
-  background-color: @azure-1;
-  border: 1px solid @azure-3;
+  background-color: @xuanwu-1;
+  border: 1px solid @xuanwu-3;
   transition: all @transition-fast;
 
   .ant-alert-icon {
-    color: @azure-6;
+    color: @xuanwu-6;
   }
 
   &:hover {
-    background-color: fade(@azure-2, 60%);
-    border-color: @azure-4;
+    background-color: fade(@xuanwu-2, 60%);
+    border-color: @xuanwu-4;
   }
 }
 
 .ant-alert-success {
-  background-color: @jade-1;
-  border: 1px solid @jade-2;
+  background-color: @teal-1;
+  border: 1px solid @teal-2;
   transition: all @transition-fast;
 
   .ant-alert-icon {
-    color: @jade-4;
+    color: @teal-4;
   }
 
   &:hover {
-    background-color: fade(@jade-2, 60%);
-    border-color: @jade-3;
+    background-color: fade(@teal-2, 60%);
+    border-color: @teal-3;
   }
 }
 
@@ -369,7 +369,7 @@
   transition: all @transition-fast;
 
   &:hover {
-    color: @azure-6;
+    color: @xuanwu-6;
     transform: scale(1.1);
   }
 }
@@ -377,14 +377,14 @@
 // Modal & Drawer
 .ant-modal-header,
 .ant-drawer-header {
-  background: @gradient-dawn-light;
-  border-bottom: 2px solid @azure-2;
+  background: @gradient-silver-frost;
+  border-bottom: 2px solid @xuanwu-2;
   transition: all @transition-base;
 }
 
 .ant-modal-title,
 .ant-drawer-title {
-  color: @azure-7;
+  color: @xuanwu-7;
   font-weight: 600;
 }
 
@@ -393,8 +393,8 @@
   transition: all @transition-fast;
 
   &:hover {
-    color: @azure-6;
-    background: fade(@azure-1, 50%);
+    color: @xuanwu-6;
+    background: fade(@xuanwu-1, 50%);
     border-radius: 4px;
   }
 }
@@ -414,19 +414,19 @@
   transition: all @transition-fast;
 
   &:hover {
-    background: fade(@azure-1, 80%);
-    color: @azure-6;
+    background: fade(@xuanwu-1, 80%);
+    color: @xuanwu-6;
   }
 }
 
 .ant-dropdown-menu-item-selected,
 .ant-select-item-option-selected {
-  background: fade(@azure-1, 90%);
-  color: @azure-6;
+  background: fade(@xuanwu-1, 90%);
+  color: @xuanwu-6;
   font-weight: 500;
 
   &:hover {
-    background: @azure-2;
+    background: @xuanwu-2;
   }
 }
 
@@ -434,7 +434,7 @@
   transition: all @transition-fast !important;
 
   &:hover {
-    border-color: @azure-5 !important;
+    border-color: @xuanwu-5 !important;
   }
 }
 
@@ -443,20 +443,20 @@
   color: @text-color-secondary;
 
   &:hover {
-    color: @azure-6;
+    color: @xuanwu-6;
   }
 }
 .ant-input:focus,
 .ant-input-focused,
 .ant-select-focused .ant-select-selector {
-  border-color: @azure-6 !important;
-  box-shadow: 0 0 0 2px fade(@azure-6, 20%) !important;
+  border-color: @xuanwu-6 !important;
+  box-shadow: 0 0 0 2px fade(@xuanwu-6, 20%) !important;
   transition: all @transition-fast;
 }
 
 .ant-input:hover:not(:disabled):not([disabled]),
 .ant-select:hover:not(.ant-select-disabled) .ant-select-selector {
-  border-color: @azure-5;
+  border-color: @xuanwu-5;
   transition: all @transition-fast;
 }
 
@@ -464,63 +464,63 @@
   transition: all @transition-fast;
 
   &:hover .ant-checkbox-inner {
-    border-color: @azure-6;
+    border-color: @xuanwu-6;
   }
 }
 
 .ant-checkbox-checked .ant-checkbox-inner {
-  background-color: @azure-6;
-  border-color: @azure-6;
+  background-color: @xuanwu-6;
+  border-color: @xuanwu-6;
   transition: all @transition-fast;
 }
 
 .ant-checkbox:hover .ant-checkbox-inner,
 .ant-checkbox-input:focus + .ant-checkbox-inner {
-  border-color: @azure-6;
+  border-color: @xuanwu-6;
 }
 
 .ant-radio-wrapper {
   transition: all @transition-fast;
 
   &:hover .ant-radio-inner {
-    border-color: @azure-6;
+    border-color: @xuanwu-6;
   }
 }
 
 .ant-radio-checked .ant-radio-inner {
-  border-color: @azure-6;
+  border-color: @xuanwu-6;
   transition: all @transition-fast;
 
   &::after {
-    background-color: @azure-6;
+    background-color: @xuanwu-6;
   }
 }
 
 .ant-radio:hover .ant-radio-inner,
 .ant-radio-input:focus + .ant-radio-inner {
-  border-color: @azure-6;
+  border-color: @xuanwu-6;
 }
 
 .ant-switch {
   transition: all @transition-base;
 
   &:hover:not(.ant-switch-disabled) {
-    background-color: fade(@azure-6, 70%);
+    background-color: fade(@xuanwu-6, 70%);
   }
 }
 
 .ant-switch-checked {
-  background-color: @azure-6;
+  background-color: @xuanwu-6;
 
   &:hover:not(.ant-switch-disabled) {
-    background-color: @azure-5;
+    background-color: @xuanwu-5;
   }
 }
 
 // Table Enhancements
 .ant-table-thead > tr > th {
-  background: @gradient-dawn-light;
-  color: @azure-7;
+  background: @gradient-silver-frost;
+  color: @xuanwu-7;
   font-weight: 600;
   transition: all @transition-fast;
 }
@@ -529,13 +529,13 @@
   transition: all @transition-fast;
 
   &:hover > td {
-    background: fade(@azure-1, 80%);
+    background: fade(@xuanwu-1, 80%);
   }
 }
 
 .ant-table-row-selected > td {
-  background: fade(@azure-1, 90%);
-  border-color: @azure-3;
+  background: fade(@xuanwu-1, 90%);
+  border-color: @xuanwu-3;
   transition: all @transition-fast;
 }
 
@@ -548,36 +548,36 @@
   transition: all @transition-fast;
 
   &:hover {
-    color: @azure-5;
+    color: @xuanwu-5;
   }
 
   &.ant-tabs-tab-active .ant-tabs-tab-btn {
-    color: @azure-6;
+    color: @xuanwu-6;
   }
 }
 
 .ant-tabs-ink-bar {
-  background: @gradient-dragon-soaring;
+  background: @gradient-northern-waters;
   height: 3px;
   transition: all @transition-base;
 }
 
 // Menu
 .ant-menu-item-selected {
-  background-color: @azure-1;
-  color: @azure-6;
-  border-left: 3px solid @azure-6;
+  background-color: @xuanwu-1;
+  color: @xuanwu-6;
+  border-left: 3px solid @xuanwu-6;
   transition: all @transition-fast;
 }
 
 .ant-menu-item:hover,
 .ant-menu-submenu-title:hover {
-  color: @azure-6;
-  background: fade(@azure-1, 70%);
+  color: @xuanwu-6;
+  background: fade(@xuanwu-1, 70%);
   transition: all @transition-fast;
 
   &::after {
-    border-right-color: @azure-6;
+    border-right-color: @xuanwu-6;
   }
 }
 
@@ -588,8 +588,8 @@
 
 // Pagination
 .ant-pagination-item-active {
-  background: @gradient-dragon-soaring;
-  border-color: @azure-6;
+  background: @gradient-northern-waters;
+  border-color: @xuanwu-6;
   transition: all @transition-base;
 
   a {
@@ -597,7 +597,7 @@
   }
 
   &:hover {
-    box-shadow: @shadow-azure-sm;
+    box-shadow: @shadow-xuanwu-sm;
     transform: translateY(-1px);
   }
 }
@@ -606,11 +606,11 @@
   transition: all @transition-fast;
 
   &:hover {
-    border-color: @azure-6;
+    border-color: @xuanwu-6;
     transform: translateY(-1px);
 
     a {
-      color: @azure-6;
+      color: @xuanwu-6;
     }
   }
 }
@@ -621,8 +621,8 @@
 
   &:hover {
     .ant-pagination-item-link {
-      color: @azure-6;
-      border-color: @azure-6;
+      color: @xuanwu-6;
+      border-color: @xuanwu-6;
     }
   }
 }
@@ -633,47 +633,47 @@
 
   &:hover {
     .ant-steps-item-icon {
-      border-color: @azure-5;
+      border-color: @xuanwu-5;
     }
 
     .ant-steps-item-title {
-      color: @azure-6;
+      color: @xuanwu-6;
     }
   }
 }
 
 .ant-steps-item-process .ant-steps-item-icon {
-  background: @gradient-dragon-soaring;
-  border-color: @azure-6;
+  background: @gradient-northern-waters;
+  border-color: @xuanwu-6;
   transition: all @transition-base;
 }
 
 .ant-steps-item-finish {
   .ant-steps-item-icon {
-    border-color: @azure-6;
+    border-color: @xuanwu-6;
     transition: all @transition-fast;
 
     .ant-steps-icon {
-      color: @azure-6;
+      color: @xuanwu-6;
     }
 
     &:hover {
-      border-color: @azure-5;
-      background: fade(@azure-1, 50%);
+      border-color: @xuanwu-5;
+      background: fade(@xuanwu-1, 50%);
     }
   }
 
   .ant-steps-item-title {
     &:hover {
-      color: @azure-6;
+      color: @xuanwu-6;
     }
   }
 }
 
 // Timeline
 .ant-timeline-item-head-blue {
-  background-color: @azure-6;
-  border-color: @azure-6;
+  background-color: @xuanwu-6;
+  border-color: @xuanwu-6;
 }
 
 // Skeleton Loading Animation
@@ -682,14 +682,14 @@
   .ant-skeleton-input,
   .ant-skeleton-image,
   .ant-skeleton-avatar {
-    background: linear-gradient(90deg, @azure-1 25%, @azure-2 37%, @azure-1 63%);
+    background: linear-gradient(90deg, @xuanwu-1 25%, @xuanwu-2 37%, @xuanwu-1 63%);
     background-size: 400% 100%;
     animation: ant-skeleton-loading 1.4s ease infinite;
   }
 }
 
 // Custom Animation - Dragon Flow Effect
-@keyframes dragon-flow {
+@keyframes tortoise-flow {
   0% {
     background-position: 0% 50%;
   }
@@ -701,67 +701,67 @@
   }
 }
 
-.dragon-effect {
-  background: linear-gradient(270deg, @azure-6, @jade-4, @cyan-3, @azure-6);
+.tortoise-effect {
+  background: linear-gradient(270deg, @xuanwu-6, @teal-4, @steel-3, @xuanwu-6);
   background-size: 400% 400%;
-  animation: dragon-flow 8s ease infinite;
+  animation: tortoise-flow 8s ease infinite;
 }
 
 // Pulse Effect
-@keyframes dragon-pulse {
+@keyframes xuanwu-pulse {
   0%,
   100% {
-    box-shadow: 0 0 0 0 fade(@azure-6, 70%);
+    box-shadow: 0 0 0 0 fade(@xuanwu-6, 70%);
   }
   50% {
-    box-shadow: 0 0 0 10px fade(@azure-6, 0%);
+    box-shadow: 0 0 0 10px fade(@xuanwu-6, 0%);
   }
 }
 
-.dragon-pulse {
-  animation: dragon-pulse 2s ease-in-out infinite;
+.tortoise-pulse {
+  animation: xuanwu-pulse 2s ease-in-out infinite;
 }
 
 // Glow Effect
-.azure-glow {
-  box-shadow: @glow-azure;
+.xuanwu-glow {
+  box-shadow: @glow-xuanwu;
 }
 
-.jade-glow {
-  box-shadow: @glow-jade;
+.teal-glow {
+  box-shadow: @glow-teal;
 }
 
 // Glow Effect
-.azure-glow {
-  box-shadow: @glow-azure;
+.xuanwu-glow {
+  box-shadow: @glow-xuanwu;
   transition: box-shadow @transition-base;
 
   &:hover {
-    box-shadow: @glow-azure, @shadow-azure-lg;
+    box-shadow: @glow-xuanwu, @shadow-xuanwu-lg;
   }
 }
 
-.jade-glow {
-  box-shadow: @glow-jade;
+.teal-glow {
+  box-shadow: @glow-teal;
   transition: box-shadow @transition-base;
 
   &:hover {
-    box-shadow: @glow-jade, @shadow-azure-lg;
+    box-shadow: @glow-teal, @shadow-xuanwu-lg;
   }
 }
 
 // Tooltip & Popover Enhancements
 .ant-tooltip-inner {
-  background: @azure-7;
+  background: @xuanwu-7;
   transition: all @transition-fast;
 }
 
 .ant-tooltip-arrow-content {
-  background: @azure-7;
+  background: @xuanwu-7;
 }
 
 .ant-popover-inner {
-  box-shadow: @shadow-azure-lg;
+  box-shadow: @shadow-xuanwu-lg;
   transition: all @transition-base;
 }
 
@@ -774,8 +774,8 @@
   transition: all @transition-fast;
 
   &:hover {
-    color: @azure-6;
-    background: fade(@azure-1, 50%);
+    color: @xuanwu-6;
+    background: fade(@xuanwu-1, 50%);
     padding: 2px 6px;
     border-radius: 4px;
     margin: -2px -6px;
@@ -791,11 +791,11 @@ a {
   transition: color @transition-fast;
 
   &:hover {
-    color: @azure-5;
+    color: @xuanwu-5;
   }
 
   &:active {
-    color: @azure-7;
+    color: @xuanwu-7;
   }
 }
 
@@ -804,7 +804,7 @@ a {
   transition: all @transition-fast;
 
   &:hover {
-    border-color: @azure-5;
+    border-color: @xuanwu-5;
   }
 }
 
@@ -812,8 +812,8 @@ a {
   transition: all @transition-fast;
 
   &:hover {
-    color: @azure-6 !important;
-    background: fade(@azure-1, 40%);
+    color: @xuanwu-6 !important;
+    background: fade(@xuanwu-1, 40%);
   }
 }
 
@@ -827,8 +827,8 @@ a {
   border: 2px solid transparent;
 
   &:hover {
-    border-color: @azure-6;
-    box-shadow: @shadow-azure-sm;
+    border-color: @xuanwu-6;
+    box-shadow: @shadow-xuanwu-sm;
     transform: scale(1.05);
   }
 }
@@ -844,11 +844,11 @@ a {
 }
 
 .ant-statistic:hover .ant-statistic-title {
-  color: @azure-6;
+  color: @xuanwu-6;
 }
 
 .ant-statistic-content {
-  color: @azure-6;
+  color: @xuanwu-6;
   transition: all @transition-fast;
 }
 
@@ -857,8 +857,8 @@ a {
   transition: all @transition-fast;
 
   &:hover {
-    color: @azure-6;
-    background: fade(@azure-1, 50%);
+    color: @xuanwu-6;
+    background: fade(@xuanwu-1, 50%);
   }
 }
 
@@ -867,12 +867,12 @@ a {
   transition: all @transition-fast;
 
   &:hover {
-    border-color: @azure-5;
+    border-color: @xuanwu-5;
   }
 
   &:focus-within {
-    border-color: @azure-6;
-    box-shadow: 0 0 0 2px fade(@azure-6, 20%);
+    border-color: @xuanwu-6;
+    box-shadow: 0 0 0 2px fade(@xuanwu-6, 20%);
   }
 }
 
@@ -880,7 +880,7 @@ a {
   transition: all @transition-fast;
 
   &:hover {
-    color: @azure-6;
+    color: @xuanwu-6;
   }
 }
 
@@ -894,28 +894,28 @@ a {
 }
 
 .ant-rate-star-full .ant-rate-star-second {
-  color: @azure-6;
+  color: @xuanwu-6;
 }
 
 // Slider Enhancements
 .ant-slider-track {
-  background: @gradient-dragon-soaring;
+  background: @gradient-northern-waters;
   transition: all @transition-fast;
 }
 
 .ant-slider-handle {
-  border-color: @azure-6;
+  border-color: @xuanwu-6;
   transition: all @transition-fast;
 
   &:hover,
   &:focus {
-    border-color: @azure-5;
-    box-shadow: 0 0 0 4px fade(@azure-6, 20%);
+    border-color: @xuanwu-5;
+    box-shadow: 0 0 0 4px fade(@xuanwu-6, 20%);
   }
 }
 
 .ant-slider:hover .ant-slider-track {
-  background: @gradient-dragon-scales;
+  background: @gradient-tortoise-shell;
 }
 
 // Upload Component Enhancements
@@ -923,7 +923,7 @@ a {
   transition: all @transition-fast;
 
   &:hover {
-    border-color: @azure-6;
+    border-color: @xuanwu-6;
   }
 }
 
@@ -931,8 +931,8 @@ a {
   transition: all @transition-base;
 
   &:hover {
-    border-color: @azure-6;
-    background: fade(@azure-1, 30%);
+    border-color: @xuanwu-6;
+    background: fade(@xuanwu-1, 30%);
   }
 }
 
@@ -940,7 +940,7 @@ a {
   transition: all @transition-fast;
 
   &:hover {
-    background: fade(@azure-1, 50%);
+    background: fade(@xuanwu-1, 50%);
   }
 }
 
@@ -949,40 +949,40 @@ a {
   transition: all @transition-fast;
 
   &:hover {
-    background: fade(@azure-1, 70%);
+    background: fade(@xuanwu-1, 70%);
   }
 }
 
 .ant-transfer-list-content-item-checked {
-  background: fade(@azure-1, 90%);
+  background: fade(@xuanwu-1, 90%);
 }
 
 // Responsive Utilities
 @media (max-width: @screen-sm) {
   .alain-default__header {
-    background: @azure-6 !important; // Use solid color on mobile for better performance
+    background: @xuanwu-6 !important; // Use solid color on mobile for better performance
   }
 }
 
 // Print Styles
 @media print {
-  .azure-bg-gradient,
-  .azure-bg-gradient-sky,
-  .dragon-effect {
-    background: @azure-6 !important; // Use solid colors for printing
+  .xuanwu-bg-gradient,
+  .xuanwu-bg-gradient-sky,
+  .tortoise-effect {
+    background: @xuanwu-6 !important; // Use solid colors for printing
   }
 }
 
 // Accessibility Enhancements
-.azure-focus-visible:focus-visible {
-  outline: 2px solid @azure-6;
+.xuanwu-focus-visible:focus-visible {
+  outline: 2px solid @xuanwu-6;
   outline-offset: 2px;
 }
 
 // Dark Mode Support (Optional - for future implementation)
 // @media (prefers-color-scheme: dark) {
 //   body {
-//     background-color: @azure-10;
+//     background-color: @xuanwu-10;
 //     color: @text-color;
 //   }
 // }

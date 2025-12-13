@@ -477,7 +477,6 @@ graph TD
 - **Angular**: 20.3.0 (Standalone Components, Signals)
 - **ng-alain**: 20.1.0 (Admin 框架)
 - **ng-zorro-antd**: 20.3.1 (UI 元件庫)
-- **Supabase**: 2.86.x (BaaS 後端, RLS 政策)
 
 ### 狀態管理 (State Management)
 

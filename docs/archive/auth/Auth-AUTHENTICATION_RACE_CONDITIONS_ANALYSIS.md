@@ -621,7 +621,7 @@ blueprint-list.container.ts (Smart Component)
 - **檔案**: Repository services
 - **原因**: 沒有 cache TTL 或 invalidation 機制
 - **解決方案**: 
-  1. 整合 Supabase Realtime
+  1. 整合 Firebase Realtime
   2. 或實作 TTL-based cache
   3. 提供手動 refresh button (已有 ✅)
 - **預計工時**: 6 小時

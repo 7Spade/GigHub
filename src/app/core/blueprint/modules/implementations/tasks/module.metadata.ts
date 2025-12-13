@@ -134,6 +134,7 @@ export const TASKS_MODULE_PERMISSIONS = {
  * Events emitted by the Tasks module.
  */
 export const TASKS_MODULE_EVENTS = {
+  TASK_LOADED: 'tasks.task_loaded',
   TASK_CREATED: 'tasks.task_created',
   TASK_UPDATED: 'tasks.task_updated',
   TASK_DELETED: 'tasks.task_deleted',

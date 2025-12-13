@@ -1,12 +1,14 @@
 import { Injectable, inject } from '@angular/core';
 import {
   Firestore,
-  addDoc,
   collection,
   doc,
   getDoc,
+  getDocs,
+  query,
   setDoc,
   updateDoc,
+  where,
   CollectionReference,
   DocumentReference,
   Timestamp
@@ -49,6 +51,25 @@ export class AccountRepository {
         return of(null);
       })
     );
+  }
+
+  async findByEmail(email: string): Promise<Account | null> {
+    const normalized = email.trim().toLowerCase();
+    const q = query(this.getCollectionRef(), where('email', '==', normalized));
+
+    try {
+      const snapshot = await getDocs(q);
+      const docSnap = snapshot.docs[0];
+
+      if (!docSnap) {
+        return null;
+      }
+
+      return this.toAccount(docSnap.data(), docSnap.id);
+    } catch (error: any) {
+      this.logger.error('[AccountRepository]', 'findByEmail failed', error as Error);
+      return null;
+    }
   }
 
   async create(account: Omit<Account, 'id' | 'created_at'>): Promise<Account> {

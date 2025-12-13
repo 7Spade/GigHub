@@ -32,7 +32,8 @@ export const BlueprintCreateSchema: ValidationSchema = {
       message: '擁有者類型必須為 user 或 organization',
       validator: value => value === 'user' || value === 'organization'
     }
-  ]
+  ],
+  createdBy: [{ type: 'required', message: '建立者 ID 為必填' }]
 };
 
 /**

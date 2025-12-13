@@ -1,8 +1,6 @@
-# Supabase → @angular/fire Migration Summary
+# Firebase → @angular/fire Migration Summary
 
 ## 🎯 Executive Summary
-
-This document summarizes the Supabase to @angular/fire migration work completed for the GigHub project. The migration follows the **Occam's Razor (奧卡姆剃刀)** principle - making minimal, surgical changes while establishing a solid foundation for complete migration.
 
 ---
 
@@ -17,7 +15,7 @@ This document summarizes the Supabase to @angular/fire migration work completed 
 - Signal-based reactive state management
 - Auth state listener with automatic updates
 - Health monitoring and error tracking
-- Replaces: `SupabaseService`
+- Replaces: `FirebaseService`
 
 **Key Features**:
 ```typescript
@@ -42,7 +40,7 @@ firebase.getAccessToken()
 - Type-safe CRUD operations
 - Soft delete support
 - Batch operations support
-- Replaces: `SupabaseBaseRepository`
+- Replaces: `FirebaseBaseRepository`
 
 **Key Features**:
 ```typescript
@@ -63,7 +61,7 @@ protected async executeWithRetry<R>(operation: () => Promise<R>): Promise<R>
 - Public URL generation
 - Bucket/path-based organization
 - Error mapping and retry logic
-- Replaces: `StorageRepository` (Supabase version)
+- Replaces: `StorageRepository` (Firebase version)
 
 **Key Features**:
 ```typescript
@@ -90,7 +88,6 @@ const files = await storageRepo.listFiles('bucket', 'folder/');
 
 #### 5. Comprehensive Documentation
 
-**Migration Guide** (`docs/SUPABASE_TO_FIREBASE_MIGRATION.md`)
 - 300+ lines of detailed migration patterns
 - Before/After code examples
 - Data model mapping (PostgreSQL → NoSQL)
@@ -131,7 +128,7 @@ const files = await storageRepo.listFiles('bucket', 'folder/');
 
 ### 4. Error Handling Consistency
 
-**Decision**: Unified error tracking for both Supabase and Firestore
+**Decision**: Unified error tracking for both Firebase and Firestore
 **Rationale**:
 - Consistent error reporting during transition
 - Easier debugging and monitoring
@@ -166,7 +163,7 @@ The remaining work is **mechanical application** of established patterns:
 1. **Create 4 new repositories** following FirestoreBaseRepository pattern
 2. **Update 2 existing repositories** to use FirebaseStorageRepository
 3. **Update 3 component imports** to use new services
-4. **Remove Supabase services** and clean up configuration
+4. **Remove Firebase services** and clean up configuration
 
 **Estimated effort**: 2-4 hours for experienced developer
 
@@ -178,7 +175,6 @@ The remaining work is **mechanical application** of established patterns:
 - `src/app/core/services/firebase.service.ts` (195 lines)
 - `src/app/core/repositories/base/firestore-base.repository.ts` (320 lines)
 - `src/app/core/repositories/firebase-storage.repository.ts` (290 lines)
-- `docs/SUPABASE_TO_FIREBASE_MIGRATION.md` (500+ lines)
 
 ### Files Modified
 - `src/app/core/services/error-tracking.service.ts` (+35 lines)
@@ -188,12 +184,11 @@ The remaining work is **mechanical application** of established patterns:
 ### Files to Migrate (Phase 5-7)
 - 4 repositories to create (Task, Log, Notification, ConstructionLog)
 - 2 UI components to update (imports only)
-- 3 services to remove (Supabase-specific)
+- 3 services to remove (Firebase-specific)
 - 2 config files to update (app.config, environment)
 
 ### Dependencies Impact
 - **Current**: `@angular/fire` v20.0.1 (already installed)
-- **To Remove**: `@supabase/supabase-js` v2.86.2 (after migration complete)
 
 ---
 
@@ -258,7 +253,6 @@ The remaining work is **mechanical application** of established patterns:
    src/app/core/repositories/task-firestore.repository.ts
    
    # Follow pattern in migration guide
-   docs/SUPABASE_TO_FIREBASE_MIGRATION.md#pattern-2-query-with-filters
    ```
 
 2. **Implement LogFirestoreRepository**
@@ -267,7 +261,6 @@ The remaining work is **mechanical application** of established patterns:
    src/app/core/repositories/log-firestore.repository.ts
    
    # Use FirebaseStorageRepository for photos
-   docs/SUPABASE_TO_FIREBASE_MIGRATION.md#pattern-3-file-upload
    ```
 
 ### Short Term (Phase 6-7)
@@ -278,24 +271,23 @@ The remaining work is **mechanical application** of established patterns:
    firestore.rules
    
    # Map RLS policies to Firestore rules
-   docs/SUPABASE_TO_FIREBASE_MIGRATION.md#security-rules
    ```
 
 4. **Update Configuration**
    ```typescript
    // Remove from app.config.ts
-   - SupabaseAuthSyncService
-   - SupabaseHealthCheckService
-   - supabaseProviders
+   - FirebaseAuthSyncService
+   - FirebaseHealthCheckService
+   - firebaseProviders
    ```
 
 5. **Clean Up Dependencies**
    ```bash
-   # Remove Supabase
-   yarn remove @supabase/supabase-js supabase
+   # Remove Firebase
+   yarn remove @firebase/firebase-js firebase
    
    # Update imports
-   find src -type f -name "*.ts" -exec sed -i 's/SupabaseService/FirebaseService/g' {} +
+   find src -type f -name "*.ts" -exec sed -i 's/FirebaseService/FirebaseService/g' {} +
    ```
 
 ### Testing (Phase 8)
@@ -318,7 +310,6 @@ The remaining work is **mechanical application** of established patterns:
 ## 📚 Resources
 
 ### Documentation
-- **Migration Guide**: `docs/SUPABASE_TO_FIREBASE_MIGRATION.md`
 - **Quick Reference**: `.github/instructions/quick-reference.instructions.md`
 - **Angular Modern Features**: `.github/instructions/angular-modern-features.instructions.md`
 
@@ -347,7 +338,7 @@ The remaining work is **mechanical application** of established patterns:
 
 ### Phase 5-8 (Remaining)
 - [ ] All repositories migrated
-- [ ] Supabase dependencies removed
+- [ ] Firebase dependencies removed
 - [ ] Security rules deployed
 - [ ] All tests passing
 - [ ] No runtime errors
@@ -365,7 +356,7 @@ The remaining work is **mechanical application** of established patterns:
 
 ### What Could Improve
 1. **Automated Migration**: Consider code generation for repetitive patterns
-2. **Parallel Testing**: Run Supabase and Firebase simultaneously longer
+2. **Parallel Testing**: Run Firebase and Firebase simultaneously longer
 3. **Performance Benchmarking**: Compare query performance before/after
 4. **Security Rules Testing**: Automate security rules validation
 
@@ -378,7 +369,7 @@ The remaining work is **mechanical application** of established patterns:
 **Achievements**:
 - Solid, type-safe infrastructure in place
 - Clear migration patterns documented
-- Zero runtime impact (coexists with Supabase)
+- Zero runtime impact (coexists with Firebase)
 - Production-ready error handling
 - Team can now proceed with confidence
 
