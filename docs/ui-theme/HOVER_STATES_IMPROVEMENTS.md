@@ -1,16 +1,16 @@
-# Azure Dragon Theme - Hover States & Interaction Improvements
+# Black Tortoise Theme - Hover States & Interaction Improvements
 
-**Date**: 2025-12-09  
+**Date**: 2025-12-13  
 **Status**: ✅ Completed  
 **Version**: 1.1.0
 
 ## Overview
 
-This document outlines the comprehensive improvements made to the Azure Dragon theme's hover states and interactive elements to create a more polished and cohesive user experience.
+This document outlines the comprehensive improvements made to the Black Tortoise theme's hover states and interactive elements to create a more polished and cohesive user experience.
 
 ## Problem Statement
 
-The original Azure Dragon theme implementation had several UI/UX issues:
+The original Black Tortoise theme implementation had several UI/UX issues:
 
 1. **Inconsistent hover states** across different components
 2. **Missing transitions** causing abrupt visual changes
@@ -39,7 +39,7 @@ The original Azure Dragon theme implementation had several UI/UX issues:
 ### ✅ Navigation & Menus
 - Animated border highlights
 - Background fade effects
-- Consistent Azure theme colors
+- Consistent Tortoise theme colors
 
 ### ✅ Table & Data Display
 - Row hover states

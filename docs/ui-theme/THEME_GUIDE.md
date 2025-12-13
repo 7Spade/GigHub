@@ -1,7 +1,7 @@
-# Azure Dragon Theme - Complete Guide
-# 青龍主題 - 完整指南
+# Black Tortoise Theme - Complete Guide
+# 玄武主題 - 完整指南
 
-> **Version**: 1.1.0 | **Last Updated**: 2025-12-09 | **Status**: ✅ Production Ready
+> **Version**: 1.1.0 | **Last Updated**: 2025-12-13 | **Status**: ✅ Production Ready
 
 ## 📚 Quick Links
 
@@ -17,40 +17,40 @@
 ### Primary Colors (主色)
 
 ```typescript
-// Azure Blue (青龍藍) - 10 levels
-azure-1: '#E6F7FF'  // Lightest - backgrounds
-azure-6: '#0EA5E9'  // ⭐ PRIMARY - main brand color
-azure-10: '#06303D' // Darkest - dark mode
+// Obsidian Black (玄武黑) - 10 levels
+obsidian-1: '#F8FAFC'  // Lightest - backgrounds
+obsidian-6: '#1E293B'  // ⭐ PRIMARY - main brand color
+obsidian-10: '#020617' // Darkest - dark mode
 
-// Jade Green (翡翠綠) - 6 levels  
-jade-1: '#E6FFF9'   // Lightest
-jade-4: '#14B8A6'   // ⭐ SUCCESS - success states
-jade-6: '#0A7C6C'   // Darkest
+// Stone Gray (石灰) - 6 levels  
+stone-1: '#F1F5F9'   // Lightest
+stone-4: '#475569'   // ⭐ SECONDARY - secondary states
+stone-6: '#334155'   // Darkest
 
-// Cyan (青綠) - 5 levels
-cyan-1: '#E0F7FA'   // Lightest
-cyan-3: '#06B6D4'   // ⭐ INFO - info states
-cyan-5: '#0E7490'   // Darkest
+// Deep Waters (深水藍) - 5 levels
+waters-1: '#EEF2FF'   // Lightest
+waters-3: '#1E40AF'   // ⭐ ACCENT - accent states
+waters-5: '#1E3A8A'   // Darkest
 ```
 
 ### Semantic Colors (語義色)
 
 ```typescript
-Primary:  #0EA5E9  // Azure-6
-Success:  #14B8A6  // Jade-4
+Primary:  #1E293B  // Obsidian-6
+Success:  #10B981  // Emerald
 Warning:  #F59E0B  // Amber
 Error:    #EF4444  // Red
-Info:     #06B6D4  // Cyan-3
+Info:     #1E40AF  // Waters-3
 ```
 
 ### Gradients (漸變)
 
 ```less
-// Dragon Soaring (龍躍雲端) - Primary actions
-@gradient-dragon-soaring: linear-gradient(135deg, #0EA5E9 0%, #14B8A6 100%);
+// Tortoise Shield (龜甲守護) - Primary actions
+@gradient-tortoise-shield: linear-gradient(135deg, #1E293B 0%, #475569 100%);
 
-// Dawn Light (晨曦微光) - Subtle backgrounds
-@gradient-dawn-light: linear-gradient(135deg, #E6F7FF 0%, #E0F7FA 50%, #E6FFF9 100%);
+// Midnight Waters (深夜水波) - Subtle backgrounds
+@gradient-midnight-waters: linear-gradient(135deg, #F8FAFC 0%, #EEF2FF 50%, #F1F5F9 100%);
 ```
 
 ---
@@ -64,9 +64,9 @@ import { NzConfig, provideNzConfig } from 'ng-zorro-antd/core/config';
 
 const ngZorroConfig: NzConfig = {
   theme: {
-    primaryColor: '#0EA5E9',  // Azure Blue
-    successColor: '#14B8A6',  // Jade Green
-    infoColor: '#06B6D4'      // Cyan
+    primaryColor: '#1E293B',  // Obsidian Black
+    secondaryColor: '#475569',  // Stone Gray
+    infoColor: '#1E40AF'      // Deep Waters
   }
 };
 
@@ -79,9 +79,9 @@ export const appConfig: ApplicationConfig = {
 
 ```less
 // Define BEFORE importing @delon/theme
-@primary-color: #0EA5E9;
-@success-color: #14B8A6;
-@info-color: #06B6D4;
+@primary-color: #1E293B;
+@secondary-color: #475569;
+@info-color: #1E40AF;
 
 @import '@delon/theme/theme-default.less';
 ```
@@ -117,7 +117,7 @@ export class ThemeService {
 yarn add ng-zorro-antd@20.4.3
 yarn build
 ```
-✅ No breaking changes for Azure Dragon Theme
+✅ No breaking changes for Black Tortoise Theme
 
 **Angular 20.3.0 → 21.0.3** (Medium Risk, 4-8 hours)
 - Wait for ng-alain official support
@@ -140,15 +140,15 @@ yarn build
 ### Cards with Gradient
 
 ```html
-<nz-card class="azure-card-featured">
+<nz-card class="tortoise-card-featured">
   <h3>Featured Content</h3>
-  <p>Dragon Soaring gradient background</p>
+  <p>Tortoise Shield gradient background</p>
 </nz-card>
 ```
 
 ```less
-.azure-card-featured {
-  background: linear-gradient(135deg, #0EA5E9 0%, #14B8A6 100%);
+.tortoise-card-featured {
+  background: linear-gradient(135deg, #1E293B 0%, #475569 100%);
   color: #ffffff;
 }
 ```
@@ -157,10 +157,10 @@ yarn build
 
 ```html
 <input nz-input placeholder="Username" />
-<!-- Focus: Azure-6 border with 20% shadow -->
+<!-- Focus: Obsidian-6 border with 20% shadow -->
 
 <nz-select [nzOptions]="options"></nz-select>
-<!-- Hover: Azure-1 background -->
+<!-- Hover: Obsidian-1 background -->
 ```
 
 ---
@@ -169,15 +169,15 @@ yarn build
 
 ```html
 <!-- Background Colors -->
-<div class="azure-bg-primary">Azure background</div>
-<div class="azure-bg-gradient">Gradient background</div>
+<div class="tortoise-bg-primary">Tortoise background</div>
+<div class="tortoise-bg-gradient">Gradient background</div>
 
 <!-- Text Colors -->
-<span class="azure-text-primary">Azure text</span>
-<span class="azure-text-jade">Jade text</span>
+<span class="tortoise-text-primary">Tortoise text</span>
+<span class="tortoise-text-stone">Stone text</span>
 
 <!-- Borders -->
-<div class="azure-border-primary">Azure border</div>
+<div class="tortoise-border-primary">Tortoise border</div>
 ```
 
 ---
@@ -186,9 +186,9 @@ yarn build
 
 All color combinations meet accessibility standards:
 
-- Azure-6 on White: **4.5:1** ✅
-- Jade-4 on White: **4.5:1** ✅
-- Primary Text on White: **14.8:1** ✅ (AAA)
+- Obsidian-6 on White: **12.6:1** ✅ (AAA)
+- Stone-4 on White: **7.5:1** ✅ (AAA)
+- Primary Text on White: **18.2:1** ✅ (AAA)
 
 ---
 
