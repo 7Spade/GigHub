@@ -577,7 +577,7 @@ export class BlueprintListComponent implements OnInit {
    */
   onChange(event: STChange): void {
     // Handle pagination, sorting, etc.
-    this.logger.debug('[BlueprintListComponent]', 'Table changed', event);
+    this.logger.debug('[BlueprintListComponent]', 'Table changed', { event });
   }
 
   /**
