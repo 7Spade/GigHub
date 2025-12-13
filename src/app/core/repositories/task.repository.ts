@@ -23,6 +23,13 @@ import { Observable, catchError, from, map, of } from 'rxjs';
  * Task Repository
  * 任務 Repository
  *
+ * @deprecated Use TaskFirestoreRepository instead for enterprise-grade features
+ * This repository will be removed in a future version.
+ *
+ * Migration: Replace all TaskRepository usages with TaskFirestoreRepository
+ * @see TaskFirestoreRepository - Includes retry, error handling, soft delete
+ * @see docs/refactoring/progress/PHASE1-2-TASK-REPOSITORY-ANALYSIS.md
+ *
  * Following Occam's Razor: Simple, focused task operations
  * Based on Blueprint Repository pattern
  *
