@@ -106,6 +106,7 @@ export function flattenTaskTree(nodes: TaskTreeNode[]): TaskTreeNode[] {
  * 計算父任務的聚合進度
  *
  * Progress is calculated as the average of all direct children's progress
+ * Progress flows from deepest level up to root (bottom-up calculation)
  *
  * @param node - Tree node to calculate progress for
  * @returns Aggregated progress (0-100)
@@ -116,12 +117,79 @@ export function calculateAggregatedProgress(node: TaskTreeNode): number {
     return node.task?.progress ?? 0;
   }
 
-  // Parent node - calculate average of children
+  // Parent node - calculate average of children (recursive, bottom-up)
   const childProgressSum = node.children.reduce((sum, child) => {
     return sum + calculateAggregatedProgress(child);
   }, 0);
 
   return Math.round(childProgressSum / node.children.length);
+}
+
+/**
+ * Calculate total budget from child tasks
+ * 計算子任務的總預算
+ *
+ * @param node - Tree node to calculate budget for
+ * @returns Total budget from all children
+ */
+export function calculateChildBudgetSum(node: TaskTreeNode): number {
+  if (!node.children || node.children.length === 0) {
+    // Leaf node - return its own budget
+    return node.task?.estimatedBudget ?? 0;
+  }
+
+  // Parent node - sum all children's budgets (recursive, bottom-up)
+  return node.children.reduce((sum, child) => {
+    return sum + calculateChildBudgetSum(child);
+  }, 0);
+}
+
+/**
+ * Validate budget allocation
+ * 驗證預算分配
+ *
+ * Ensures child tasks' total budget does not exceed parent budget
+ *
+ * @param parentBudget - Parent task budget
+ * @param childBudgets - Array of child task budgets
+ * @returns Validation result with error message if invalid
+ */
+export function validateBudgetAllocation(
+  parentBudget: number | undefined,
+  childBudgets: number[]
+): { valid: boolean; error?: string; totalChild: number } {
+  const totalChild = childBudgets.reduce((sum, budget) => sum + (budget || 0), 0);
+
+  if (!parentBudget || parentBudget === 0) {
+    return { valid: true, totalChild };
+  }
+
+  if (totalChild > parentBudget) {
+    return {
+      valid: false,
+      error: `子任務總預算 ${totalChild} 超過父任務預算 ${parentBudget}`,
+      totalChild
+    };
+  }
+
+  return { valid: true, totalChild };
+}
+
+/**
+ * Get remaining budget
+ * 取得剩餘預算
+ *
+ * @param parentBudget - Parent task budget
+ * @param childBudgets - Array of child task budgets
+ * @returns Remaining budget available for allocation
+ */
+export function getRemainingBudget(parentBudget: number | undefined, childBudgets: number[]): number {
+  if (!parentBudget) {
+    return 0;
+  }
+
+  const totalChild = childBudgets.reduce((sum, budget) => sum + (budget || 0), 0);
+  return Math.max(0, parentBudget - totalChild);
 }
 
 /**

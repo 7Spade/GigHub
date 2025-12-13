@@ -84,6 +84,7 @@ import { TaskTreeViewComponent } from './views/task-tree-view.component';
             (editTask)="editTask($event)"
             (deleteTask)="deleteTask($event)"
             (createSubTask)="createSubTask($event)"
+            (createRootTask)="showCreateTaskModal()"
           />
         </nz-tab>
 

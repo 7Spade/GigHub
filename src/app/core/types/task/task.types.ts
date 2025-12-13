@@ -96,6 +96,21 @@ export interface Task {
   progress?: number;
 
   /**
+   * Estimated budget/amount for this task (optional)
+   * 預估金額/預算
+   * 
+   * For parent tasks: Sum of all child task budgets cannot exceed this amount
+   * For leaf tasks: The actual budget allocated to this task
+   */
+  estimatedBudget?: number;
+
+  /**
+   * Actual budget/amount spent (optional)
+   * 實際金額
+   */
+  actualBudget?: number;
+
+  /**
    * Parent task ID for hierarchical structure (optional)
    *
    * When a parent task is deleted, child tasks become orphaned (parentId = null).
@@ -170,6 +185,12 @@ export interface CreateTaskRequest {
   /** Estimated hours (optional) */
   estimatedHours?: number;
 
+  /** Estimated budget/amount (optional) */
+  estimatedBudget?: number;
+
+  /** Actual budget/amount (optional) */
+  actualBudget?: number;
+
   /** Progress percentage (0-100) (optional) */
   progress?: number;
 
@@ -229,6 +250,12 @@ export interface UpdateTaskRequest {
 
   /** Actual hours */
   actualHours?: number;
+
+  /** Estimated budget/amount */
+  estimatedBudget?: number;
+
+  /** Actual budget/amount */
+  actualBudget?: number;
 
   /** Progress percentage (0-100) */
   progress?: number;

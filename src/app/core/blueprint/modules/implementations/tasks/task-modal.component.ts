@@ -134,6 +134,40 @@ interface ModalData {
         </nz-form-control>
       </nz-form-item>
 
+      <!-- Estimated Budget -->
+      <nz-form-item>
+        <nz-form-label [nzSpan]="6">預估金額</nz-form-label>
+        <nz-form-control [nzSpan]="14" [nzErrorTip]="budgetErrorTip">
+          <nz-input-number 
+            formControlName="estimatedBudget" 
+            [nzMin]="0" 
+            [nzMax]="99999999" 
+            [nzStep]="1000" 
+            [nzFormatter]="formatCurrency"
+            [nzParser]="parseCurrency"
+            style="width: 100%;" 
+          />
+          @if (modalData.parentTask?.estimatedBudget) {
+            <div style="color: #999; font-size: 12px; margin-top: 4px;">
+              父任務預算: {{ modalData.parentTask?.estimatedBudget | number:'1.0-0' }}
+              @if (remainingBudget() !== null) {
+                <span style="margin-left: 8px;">
+                  剩餘可分配: <span [style.color]="remainingBudget()! >= 0 ? '#52c41a' : '#ff4d4f'">
+                    {{ remainingBudget() | number:'1.0-0' }}
+                  </span>
+                </span>
+              }
+            </div>
+          }
+        </nz-form-control>
+      </nz-form-item>
+
+      <ng-template #budgetErrorTip>
+        @if (form.get('estimatedBudget')?.hasError('budgetExceeded')) {
+          <span>預算超過父任務限制</span>
+        }
+      </ng-template>
+
       <!-- Progress -->
       @if (modalData.mode !== 'create') {
         <nz-form-item>
@@ -195,6 +229,7 @@ export class TaskModalComponent implements OnInit {
   blueprintMembers = signal<BlueprintMember[]>([]);
   loadingMembers = signal(false);
   autoCalculatedHours = signal(0);
+  remainingBudget = signal<number | null>(null);
 
   // Progress marks
   readonly progressMarks = {
@@ -205,9 +240,19 @@ export class TaskModalComponent implements OnInit {
     100: '100%'
   };
 
+  // Currency formatter for input-number
+  formatCurrency = (value: number): string => {
+    return `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  };
+
+  parseCurrency = (value: string): number => {
+    return Number(value.replace(/\$\s?|(,*)/g, ''));
+  };
+
   ngOnInit(): void {
     this.initForm();
     this.loadBlueprintMembers();
+    this.calculateRemainingBudget();
   }
 
   private async loadBlueprintMembers(): Promise<void> {
@@ -236,6 +281,7 @@ export class TaskModalComponent implements OnInit {
       startDate: [{ value: task?.startDate ? new Date(task.startDate as any) : null, disabled: isView }],
       dueDate: [{ value: task?.dueDate ? new Date(task.dueDate as any) : null, disabled: isView }],
       estimatedHours: [{ value: task?.estimatedHours || null, disabled: isView }],
+      estimatedBudget: [{ value: task?.estimatedBudget || null, disabled: isView }, [Validators.min(0)]],
       progress: [{ value: task?.progress ?? 0, disabled: isView }, [Validators.min(0), Validators.max(100)]],
       tags: [{ value: task?.tags || [], disabled: isView }]
     });
@@ -247,6 +293,54 @@ export class TaskModalComponent implements OnInit {
     this.form.get('dueDate')?.valueChanges.subscribe(() => {
       this.calculateEstimatedHours();
     });
+
+    // Subscribe to budget changes for validation
+    this.form.get('estimatedBudget')?.valueChanges.subscribe(() => {
+      this.calculateRemainingBudget();
+      this.validateBudget();
+    });
+  }
+
+  private calculateRemainingBudget(): void {
+    const parentBudget = this.modalData.parentTask?.estimatedBudget;
+    if (!parentBudget) {
+      this.remainingBudget.set(null);
+      return;
+    }
+
+    // Get sibling tasks' budgets (tasks with same parent, excluding current task if editing)
+    const tasks = this.taskStore.tasks();
+    const currentTaskId = this.modalData.task?.id;
+    const siblingBudgets = tasks
+      .filter(t => 
+        t.parentId === this.modalData.parentTask?.id && 
+        t.id !== currentTaskId &&
+        t.estimatedBudget
+      )
+      .map(t => t.estimatedBudget || 0);
+
+    const currentBudget = this.form?.get('estimatedBudget')?.value || 0;
+    const totalSiblingBudget = siblingBudgets.reduce((sum, budget) => sum + budget, 0);
+    const remaining = parentBudget - totalSiblingBudget - currentBudget;
+    
+    this.remainingBudget.set(remaining);
+  }
+
+  private validateBudget(): void {
+    const budgetControl = this.form.get('estimatedBudget');
+    if (!budgetControl || !this.modalData.parentTask?.estimatedBudget) {
+      return;
+    }
+
+    const remaining = this.remainingBudget();
+    if (remaining !== null && remaining < 0) {
+      budgetControl.setErrors({ budgetExceeded: true });
+    } else if (budgetControl.hasError('budgetExceeded')) {
+      // Clear the error if budget is now valid
+      const errors = { ...budgetControl.errors };
+      delete errors['budgetExceeded'];
+      budgetControl.setErrors(Object.keys(errors).length > 0 ? errors : null);
+    }
   }
 
   private calculateEstimatedHours(): void {
@@ -328,6 +422,7 @@ export class TaskModalComponent implements OnInit {
       startDate: formValue.startDate || undefined,
       dueDate: formValue.dueDate || undefined,
       estimatedHours: formValue.estimatedHours || undefined,
+      estimatedBudget: formValue.estimatedBudget || undefined,
       tags: formValue.tags || [],
       creatorId: currentUserId,
       // Set parentId if creating a sub-task
@@ -401,6 +496,7 @@ export class TaskModalComponent implements OnInit {
       startDate: formValue.startDate || undefined,
       dueDate: formValue.dueDate || undefined,
       estimatedHours: formValue.estimatedHours || undefined,
+      estimatedBudget: formValue.estimatedBudget || undefined,
       tags: formValue.tags || []
     };
 

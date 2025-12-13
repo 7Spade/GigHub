@@ -38,6 +38,10 @@ interface FlatNode {
     <div class="tree-view-container">
       <div class="tree-view-header">
         <nz-space>
+          <button *nzSpaceItem nz-button nzType="primary" nzSize="small" (click)="onCreateRootTask()">
+            <span nz-icon nzType="plus" nzTheme="outline"></span>
+            新增任務
+          </button>
           <button *nzSpaceItem nz-button nzType="default" nzSize="small" (click)="expandAll()">
             <span nz-icon nzType="plus-square" nzTheme="outline"></span>
             全部展開
@@ -215,6 +219,7 @@ export class TaskTreeViewComponent {
   readonly editTask = output<Task>();
   readonly deleteTask = output<Task>();
   readonly createSubTask = output<Task>();
+  readonly createRootTask = output<void>();
 
   // Expose store state
   readonly loading = this.taskStore.loading;
@@ -341,5 +346,12 @@ export class TaskTreeViewComponent {
    */
   onCreateSubTask(parentTask: Task): void {
     this.createSubTask.emit(parentTask);
+  }
+
+  /**
+   * Handle create root task action
+   */
+  onCreateRootTask(): void {
+    this.createRootTask.emit();
   }
 }
