@@ -136,15 +136,15 @@ export class TaskStore {
       // Log audit event
       await this.logAuditEvent(blueprintId, {
         blueprintId,
-        eventType: AuditEventType.MODULE_CONFIGURED,
-        category: AuditCategory.MODULE,
+        eventType: AuditEventType.TASK_CREATED,
+        category: AuditCategory.DATA,
         severity: AuditSeverity.INFO,
         actorId: request.creatorId,
         actorType: ActorType.USER,
         resourceType: 'task',
         resourceId: newTask.id!,
-        action: 'create',
-        message: `Task created: ${newTask.title}`,
+        action: '建立任務',
+        message: `任務已建立: ${newTask.title}`,
         status: AuditStatus.SUCCESS
       });
 

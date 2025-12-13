@@ -12,10 +12,19 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
 import { LogFirestoreRepository } from '@core/repositories/log-firestore.repository';
 import { Log, CreateLogRequest, UpdateLogRequest, LogPhoto } from '@core/types/log/log.types';
+import {
+  AuditLogsService,
+  AuditEventType,
+  AuditCategory,
+  AuditSeverity,
+  ActorType,
+  AuditStatus
+} from '@core/blueprint/modules/implementations/audit-logs';
 
 @Injectable({ providedIn: 'root' })
 export class ConstructionLogStore {
   private repository = inject(LogFirestoreRepository);
+  private auditService = inject(AuditLogsService);
 
   // Private state signals
   private _logs = signal<Log[]>([]);
@@ -71,6 +80,26 @@ export class ConstructionLogStore {
     try {
       const newLog = await this.repository.create(request);
       this._logs.update(logs => [newLog, ...logs]);
+      
+      // Record audit log
+      try {
+        await this.auditService.recordLog({
+          blueprintId: request.blueprintId,
+          eventType: AuditEventType.LOG_CREATED,
+          category: AuditCategory.DATA,
+          severity: AuditSeverity.INFO,
+          actorId: request.creatorId,
+          actorType: ActorType.USER,
+          resourceType: 'log',
+          resourceId: newLog.id,
+          action: '建立工地日誌',
+          message: `工地日誌已建立: ${newLog.title}`,
+          status: AuditStatus.SUCCESS
+        });
+      } catch (auditError) {
+        console.error('Failed to record audit log:', auditError);
+      }
+      
       return newLog;
     } catch (error) {
       this._error.set(error instanceof Error ? error.message : 'Failed to create log');

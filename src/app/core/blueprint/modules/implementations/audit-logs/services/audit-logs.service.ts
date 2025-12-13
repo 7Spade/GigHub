@@ -29,7 +29,9 @@ import { AuditLogRepository } from '../repositories/audit-log.repository';
  *
  * Provides centralized audit logging functionality with Signal-based state management.
  */
-@Injectable()
+@Injectable({
+  providedIn: 'root'
+})
 export class AuditLogsService {
   private readonly logger = inject(LoggerService);
   private readonly repository = inject(AuditLogRepository);
