@@ -247,30 +247,30 @@ export class BlueprintListComponent implements OnInit {
     {
       title: '名稱',
       index: 'name',
-      width: '200px',
+      width: '180px',
       render: 'name'
     },
     {
       title: '業主',
       index: 'ownerType',
-      width: '120px',
+      width: '110px',
       format: (item: Blueprint) => this.getOwnerDisplay(item)
     },
     {
       title: 'Slug',
       index: 'slug',
-      width: '150px'
+      width: '120px'
     },
     {
       title: '描述',
       index: 'description',
-      width: '300px',
+      width: '220px',
       default: '-'
     },
     {
       title: '狀態',
       index: 'status',
-      width: '100px',
+      width: '90px',
       type: 'badge',
       badge: {
         draft: { text: '草稿', color: 'default' },
@@ -281,56 +281,56 @@ export class BlueprintListComponent implements OnInit {
     {
       title: '進度',
       index: 'metadata.progress',
-      width: '100px',
+      width: '90px',
       format: (item: Blueprint) => this.formatProgress(item)
     },
     {
       title: '負責人',
       index: 'createdBy',
-      width: '140px',
+      width: '150px',
       format: (item: Blueprint) => this.getResponsibleDisplay(item)
     },
     {
       title: '開始日期',
-      width: '140px',
+      width: '120px',
       format: (item: Blueprint) => this.formatDateValue(this.getMetadataDate(item, ['startDate', 'start', 'plannedStart']))
     },
     {
       title: '預計完成日',
-      width: '160px',
+      width: '130px',
       format: (item: Blueprint) => this.formatDateValue(this.getMetadataDate(item, ['dueDate', 'endDate', 'plannedEnd']))
     },
     {
       title: '最後更新時間',
       index: 'updatedAt',
-      width: '160px',
+      width: '130px',
       format: (item: Blueprint) => this.formatDateValue(item.updatedAt)
     },
     {
       title: '建立時間',
       index: 'createdAt',
       type: 'date',
-      width: '150px'
+      width: '130px'
     },
     {
       title: '啟用模組',
       index: 'enabledModules',
-      width: '120px',
+      width: '110px',
       format: (item: Blueprint) => (item.enabledModules ? `${item.enabledModules.length}/5` : '0/5')
     },
     {
       title: '預算',
-      width: '120px',
+      width: '110px',
       format: (item: Blueprint) => this.formatCurrency(this.getMetadataNumber(item, ['budget', 'budgetAmount']))
     },
     {
       title: '已花費',
-      width: '120px',
+      width: '110px',
       format: (item: Blueprint) => this.formatCurrency(this.getMetadataNumber(item, ['spent', 'cost', 'actualCost']))
     },
     {
       title: '操作',
-      width: '220px',
+      width: '200px',
       buttons: [
         {
           text: '檢視',
@@ -403,11 +403,25 @@ export class BlueprintListComponent implements OnInit {
   }
 
   private getResponsibleDisplay(blueprint: Blueprint): string {
-    const responsible = this.getMetadataString(blueprint, ['responsible', 'owner', 'manager', 'lead']);
+    const responsible =
+      this.getMetadataString(blueprint, ['responsibleName', 'assigneeName', 'responsibleDisplay']) ||
+      this.getMetadataString(blueprint, ['responsible', 'owner', 'manager', 'lead', 'assignee']);
+
     if (responsible) {
       return responsible;
     }
-    return blueprint.createdBy || '-';
+
+    const currentUser = this.workspaceContext.currentUser();
+    if (currentUser && blueprint.createdBy === currentUser.id) {
+      return currentUser.name || currentUser.email || currentUser.uid || '-';
+    }
+
+    // Fallback: avoid exposing opaque IDs directly
+    if (blueprint.createdBy && blueprint.createdBy.length <= 12) {
+      return blueprint.createdBy;
+    }
+
+    return '-';
   }
 
   private formatProgress(blueprint: Blueprint): string {
