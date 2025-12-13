@@ -27,6 +27,8 @@ import {
   QueryDocumentSnapshot
 } from '@angular/fire/firestore';
 import { LoggerService } from '@core';
+import { Observable, from, map, catchError, of } from 'rxjs';
+
 import {
   AuditLogDocument,
   CreateAuditLogData,
@@ -35,9 +37,12 @@ import {
   AuditEventType,
   AuditCategory,
   AuditSeverity,
-  AuditStatus
+  AuditStatus,
+  ActorType,
+  AuditChange,
+  AuditContext,
+  AuditError
 } from '../models/audit-log.model';
-import { Observable, from, map, catchError, of } from 'rxjs';
 
 /**
  * Pagination result for audit logs
@@ -73,28 +78,29 @@ export class AuditLogRepository {
   /**
    * Convert Firestore data to AuditLogDocument
    */
-  private toAuditLogDocument(data: any, id: string, blueprintId: string): AuditLogDocument {
+  private toAuditLogDocument(data: unknown, id: string, blueprintId: string): AuditLogDocument {
+    const doc = data as Record<string, unknown>;
     return {
       id,
       blueprintId,
-      eventType: data.eventType,
-      category: data.category,
-      severity: data.severity,
-      actorId: data.actorId,
-      actorType: data.actorType,
-      resourceType: data.resourceType,
-      resourceId: data.resourceId,
-      action: data.action,
-      message: data.message,
-      changes: data.changes || [],
-      context: data.context || {},
-      metadata: data.metadata || {},
-      ipAddress: data.ipAddress,
-      userAgent: data.userAgent,
-      requestId: data.requestId,
-      timestamp: data.timestamp instanceof Timestamp ? data.timestamp.toDate() : data.timestamp,
-      status: data.status,
-      error: data.error
+      eventType: doc['eventType'] as AuditEventType,
+      category: doc['category'] as AuditCategory,
+      severity: doc['severity'] as AuditSeverity,
+      actorId: doc['actorId'] as string,
+      actorType: doc['actorType'] as ActorType,
+      resourceType: doc['resourceType'] as string,
+      resourceId: doc['resourceId'] as string | undefined,
+      action: doc['action'] as string,
+      message: doc['message'] as string,
+      changes: (doc['changes'] as AuditChange[]) || [],
+      context: (doc['context'] as AuditContext) || {},
+      metadata: (doc['metadata'] as Record<string, unknown>) || {},
+      ipAddress: doc['ipAddress'] as string | undefined,
+      userAgent: doc['userAgent'] as string | undefined,
+      requestId: doc['requestId'] as string | undefined,
+      timestamp: doc['timestamp'] instanceof Timestamp ? doc['timestamp'].toDate() : (doc['timestamp'] as Date),
+      status: doc['status'] as AuditStatus,
+      error: doc['error'] as AuditError | undefined
     };
   }
 
@@ -114,7 +120,7 @@ export class AuditLogRepository {
 
       // For audit logs, we don't read back - it's write-heavy
       return this.toAuditLogDocument(docData, docRef.id, data.blueprintId);
-    } catch (error: any) {
+    } catch (error: unknown) {
       this.logger.error('[AuditLogRepository]', 'create failed', error as Error);
       throw error;
     }
@@ -129,7 +135,7 @@ export class AuditLogRepository {
       await Promise.all(promises);
 
       this.logger.info('[AuditLogRepository]', `Batch created ${logs.length} audit logs`);
-    } catch (error: any) {
+    } catch (error: unknown) {
       this.logger.error('[AuditLogRepository]', 'createBatch failed', error as Error);
       throw error;
     }
@@ -159,7 +165,7 @@ export class AuditLogRepository {
         hasMore: snapshot.docs.length > pageSize,
         lastDoc: snapshot.docs.length > 0 ? snapshot.docs[pageSize - 1] : undefined
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       this.logger.error('[AuditLogRepository]', 'findByBlueprintId failed', error as Error);
       throw error;
     }
@@ -227,7 +233,7 @@ export class AuditLogRepository {
     try {
       const snapshot = await getDocs(q);
       return snapshot.docs.map(doc => this.toAuditLogDocument(doc.data(), doc.id, blueprintId));
-    } catch (error: any) {
+    } catch (error: unknown) {
       this.logger.error('[AuditLogRepository]', 'queryLogs failed', error as Error);
       throw error;
     }
@@ -364,7 +370,7 @@ export class AuditLogRepository {
       });
 
       return summary;
-    } catch (error: any) {
+    } catch (error: unknown) {
       this.logger.error('[AuditLogRepository]', 'getSummary failed', error as Error);
       throw error;
     }

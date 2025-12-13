@@ -12,8 +12,9 @@
 export * from '../models/audit-log.model';
 export * from '../models/audit-log.types';
 
-// Export repository
-export { AuditLogRepository, AuditLogPage } from '../repositories/audit-log.repository';
+// Export repository (with type exports)
+export { AuditLogRepository } from '../repositories/audit-log.repository';
+export type { AuditLogPage } from '../repositories/audit-log.repository';
 
 // Export service
 export { AuditLogsService } from '../services/audit-logs.service';
@@ -29,8 +30,9 @@ export {
   AUDIT_LOGS_MODULE_EVENTS
 } from '../module.metadata';
 
-// Export config
-export { AuditLogsConfig, DEFAULT_AUDIT_LOGS_CONFIG } from '../config/audit-logs.config';
+// Export config (with type exports)
+export type { AuditLogsConfig } from '../config/audit-logs.config';
+export { DEFAULT_AUDIT_LOGS_CONFIG } from '../config/audit-logs.config';
 
 // Export module
 export { AuditLogsModule } from '../audit-logs.module';

@@ -194,8 +194,9 @@ export class AuditLogsModule implements IBlueprintModule {
 
   /**
    * Validate module dependencies
+   * @param _context - Execution context (unused but required by interface)
    */
-  private validateDependencies(context: IExecutionContext): void {
+  private validateDependencies(_context: IExecutionContext): void {
     // Currently no dependencies to validate
     this.logger.debug('[AuditLogsModule]', 'Dependencies validated');
   }
@@ -226,7 +227,7 @@ export class AuditLogsModule implements IBlueprintModule {
 
     this.eventUnsubscribers.push(
       eventBus.on<Record<string, unknown>>(AUDIT_LOGS_MODULE_EVENTS.ERROR_OCCURRED, event => {
-        this.logger.error('[AuditLogsModule]', 'Audit error event received', event.payload);
+        this.logger.error('[AuditLogsModule]', 'Audit error event received', new Error(JSON.stringify(event.payload)));
       })
     );
 
@@ -245,8 +246,9 @@ export class AuditLogsModule implements IBlueprintModule {
 
   /**
    * Register module exports
+   * @param _context - Execution context (unused but required by pattern)
    */
-  private registerExports(context: IExecutionContext): void {
+  private registerExports(_context: IExecutionContext): void {
     // Exports are available via the exports property
     this.logger.debug('[AuditLogsModule]', 'Module exports registered');
   }

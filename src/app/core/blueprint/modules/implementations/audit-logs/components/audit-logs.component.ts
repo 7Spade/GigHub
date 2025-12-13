@@ -10,13 +10,14 @@
 
 import { Component, ChangeDetectionStrategy, OnInit, inject, input } from '@angular/core';
 import { LoggerService } from '@core';
-import { AuditLogDocument, AuditCategory } from '../models/audit-log.model';
-import { AuditLogsService } from '../services/audit-logs.service';
 import { STColumn } from '@delon/abc/st';
 import { SHARED_IMPORTS } from '@shared';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzSpaceModule } from 'ng-zorro-antd/space';
+
+import { AuditLogDocument, AuditCategory } from '../models/audit-log.model';
+import { AuditLogsService } from '../services/audit-logs.service';
 
 /**
  * Audit Logs Component
@@ -98,7 +99,7 @@ import { NzSpaceModule } from 'ng-zorro-antd/space';
 export class AuditLogsComponent implements OnInit {
   private readonly message = inject(NzMessageService);
   private readonly logger = inject(LoggerService);
-  
+
   // Inject the audit logs service
   readonly auditService = inject(AuditLogsService);
 
@@ -150,7 +151,7 @@ export class AuditLogsComponent implements OnInit {
         {
           text: '檢視',
           type: 'link',
-          click: (record: any) => this.viewDetails(record)
+          click: (record: unknown) => this.viewDetails(record as AuditLogDocument)
         }
       ]
     }
@@ -196,11 +197,10 @@ export class AuditLogsComponent implements OnInit {
   /**
    * View audit log details
    */
-  viewDetails(record: any): void {
-    const log = record as AuditLogDocument;
+  viewDetails(record: AuditLogDocument): void {
+    const log = record;
 
     // Show details in console (can be enhanced with modal/drawer later)
-    const details = JSON.stringify(log.changes || {}, null, 2);
     console.log('Audit Log Details:', log);
     this.message.info('詳情已輸出到控制台');
   }
