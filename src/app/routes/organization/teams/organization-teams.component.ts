@@ -3,15 +3,15 @@ import { Router } from '@angular/router';
 import { ContextType, Team, TeamStore } from '@core';
 import { SHARED_IMPORTS, WorkspaceContextService } from '@shared';
 import { NzAlertModule } from 'ng-zorro-antd/alert';
+import { NzCardModule } from 'ng-zorro-antd/card';
 import { NzDrawerService } from 'ng-zorro-antd/drawer';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { NzModalService } from 'ng-zorro-antd/modal';
+import { NzPageHeaderModule } from 'ng-zorro-antd/page-header';
 import { NzSpaceModule } from 'ng-zorro-antd/space';
 import { NzTableModule } from 'ng-zorro-antd/table';
 import { NzTagModule } from 'ng-zorro-antd/tag';
-import { NzCardModule } from 'ng-zorro-antd/card';
-import { NzPageHeaderModule } from 'ng-zorro-antd/page-header';
 
 import { CreateTeamModalComponent } from '../../../shared/components/create-team-modal/create-team-modal.component';
 import { EditTeamModalComponent } from '../../../shared/components/edit-team-modal/edit-team-modal.component';
@@ -40,7 +40,13 @@ import { TeamDetailDrawerComponent } from '../../../shared/components/team-detai
 
       <nz-card class="mt-md">
         @if (!isOrganizationContext()) {
-          <nz-alert nzType="info" nzShowIcon nzMessage="請先選擇組織" nzDescription="請從側邊欄選擇一個組織以查看團隊列表。" class="mb-md" />
+          <nz-alert
+            nzType="info"
+            nzShowIcon
+            nzMessage="請先選擇組織"
+            nzDescription="請從側邊欄選擇一個組織以查看團隊列表。"
+            class="mb-md"
+          />
         }
 
         @if (isOrganizationContext() && loading()) {
