@@ -12,7 +12,7 @@
  * @date 2025-12-12
  */
 
-import { Component, input, computed, inject, signal } from '@angular/core';
+import { Component, input, computed, inject, signal, WritableSignal } from '@angular/core';
 import { TaskStore } from '@core/stores/task.store';
 import { Task, GanttTask } from '@core/types/task';
 import { SHARED_IMPORTS } from '@shared';
@@ -112,9 +112,9 @@ enum ZoomLevel {
                       >
                         <div class="task-bar-progress" [style.width.%]="ganttTask.progress"></div>
                         <span class="task-bar-label">
-                          @if (zoomLevel() === 'day') {
+                          @if (zoomLevel === 'day') {
                             {{ ganttTask.start | date: 'M/d' }} - {{ ganttTask.end | date: 'M/d' }}
-                          } @else if (zoomLevel() === 'week') {
+                          } @else if (zoomLevel === 'week') {
                             {{ ganttTask.start | date: 'M/d' }}
                           } @else {
                             {{ getDurationDays(ganttTask) }}d
@@ -327,8 +327,17 @@ export class TaskGanttViewComponent {
   // Inputs
   blueprintId = input.required<string>();
 
-  // Zoom level signal
-  zoomLevel = signal<ZoomLevel>(ZoomLevel.MONTH);
+  // Zoom level - using writable signal
+  private _zoomLevel: WritableSignal<ZoomLevel> = signal(ZoomLevel.MONTH);
+
+  // Getter/setter for ngModel compatibility
+  get zoomLevel(): ZoomLevel {
+    return this._zoomLevel();
+  }
+
+  set zoomLevel(value: ZoomLevel) {
+    this._zoomLevel.set(value);
+  }
 
   // Expose store state
   readonly loading = this.taskStore.loading;
@@ -336,7 +345,7 @@ export class TaskGanttViewComponent {
 
   // Timeline periods based on zoom level
   readonly timelinePeriods = computed(() => {
-    const zoom = this.zoomLevel();
+    const zoom = this._zoomLevel();
     const today = new Date();
     const periods: Array<{ label: string; flex?: number }> = [];
 
@@ -411,7 +420,7 @@ export class TaskGanttViewComponent {
   // Timeline start and end dates based on zoom
   private timelineStart = computed(() => {
     const today = new Date();
-    const zoom = this.zoomLevel();
+    const zoom = this._zoomLevel();
 
     if (zoom === ZoomLevel.DAY) {
       const start = new Date(today);
@@ -428,7 +437,7 @@ export class TaskGanttViewComponent {
 
   private timelineEnd = computed(() => {
     const today = new Date();
-    const zoom = this.zoomLevel();
+    const zoom = this._zoomLevel();
 
     if (zoom === ZoomLevel.DAY) {
       const end = new Date(today);
