@@ -122,7 +122,7 @@ interface ModalData {
               [nzBeforeUpload]="beforeUpload"
               [nzFileList]="uploadFileList()"
               [nzShowUploadList]="{ showPreviewIcon: true, showRemoveIcon: true }"
-              (nzRemove)="handleRemove($event)"
+              [nzRemove]="handleRemove"
             >
               <p class="ant-upload-drag-icon">
                 <span nz-icon nzType="inbox"></span>

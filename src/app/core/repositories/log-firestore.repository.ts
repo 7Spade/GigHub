@@ -263,10 +263,7 @@ export class LogFirestoreRepository extends FirestoreBaseRepository<Log> {
         // Normalize to date-only (no time)
         dateToStore.setHours(0, 0, 0, 0);
       } catch (error) {
-        this.logger.error('[LogFirestoreRepository]', 'Invalid date in create request', {
-          date: payload.date,
-          error: (error as Error).message
-        });
+        this.logger.error('[LogFirestoreRepository]', 'Invalid date in create request', error as Error, { dateValue: payload.date });
         throw new Error('Invalid date value: 日期格式不正確');
       }
 
