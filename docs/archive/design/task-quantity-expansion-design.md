@@ -252,7 +252,7 @@ export interface TaskProgress {
 }
 ```
 
-## 🗄️ 資料庫 Schema (Supabase)
+## 🗄️ 資料庫 Schema (Firestore)
 
 ### Tables to Create/Modify
 

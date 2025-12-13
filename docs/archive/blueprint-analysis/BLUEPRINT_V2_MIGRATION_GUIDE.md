@@ -388,7 +388,7 @@ export class TasksModuleV2 implements IBlueprintModule {
 ```typescript
 // OLD V1: Direct Firebase calls
 export class TasksRepositoryV1 {
-  constructor(private firebase: SupabaseClient) {}
+  constructor(private firebase: FirebaseClient) {}
   
   async getTasks(): Promise<Task[]> {
     const { data } = await this.firebase

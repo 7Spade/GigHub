@@ -39,7 +39,7 @@ All 8 Blueprint domain modules are properly decoupled with Event Bus integration
 - [x] All modules define module-specific events in metadata
 
 ### Repository Pattern ✅
-- [x] All repositories only inject SupabaseService (currently stubs)
+- [x] All repositories only inject FirebaseService (currently stubs)
 - [x] NO repository injects other domain repositories
 - [x] NO repository injects other domain services
 - [x] All repositories are domain-specific

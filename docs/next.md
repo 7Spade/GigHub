@@ -571,7 +571,7 @@ src/app/core/blueprint/
 domain-name/
 ├── {domain}.module.ts          # Domain 主模塊（實作 IBlueprintModule）
 ├── module.metadata.ts          # Domain 元資料
-├── {domain}.repository.ts      # 共用資料存取層（Supabase）
+├── {domain}.repository.ts      # 共用資料存取層（Firebase/Firestore）
 ├── {domain}.routes.ts          # Domain 路由配置
 ├── services/                   # 所有 Sub-Module Services
 │   ├── {feature-1}.service.ts  # Sub-Module 1

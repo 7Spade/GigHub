@@ -2,10 +2,10 @@
 
 ## Problem Statement
 
-When the SupabaseService failed to initialize, the console log showed:
+When the FirebaseService failed to initialize, the console log showed:
 ```
 console-transport.ts:30  [ERROR] {
-  source: '[SupabaseService]',
+  source: '[FirebaseService]',
   message: 'Failed to initialize client',
   context: {...},
   error: undefined,  // ❌ This should contain error details!
@@ -84,17 +84,17 @@ private log(
 
 ## Expected Output After Fix
 
-When the SupabaseService fails to initialize, the console log should now show:
+When the FirebaseService fails to initialize, the console log should now show:
 
 ```javascript
 console-transport.ts:30  [ERROR] {
-  source: '[SupabaseService]',
+  source: '[FirebaseService]',
   message: 'Failed to initialize client',
   context: {...},
   error: {  // ✅ Now properly populated!
     name: 'Error',
-    message: 'Firebase configuration missing. Please set NG_PUBLIC_SUPABASE_URL and NG_PUBLIC_SUPABASE_ANON_KEY in environment variables.',
-    stack: 'Error: Firebase configuration missing...\n    at SupabaseService.initializeClient (firebase.service.ts:63:15)\n    ...'
+    message: 'Firebase configuration missing. Please set NG_PUBLIC_FIREBASE_URL and NG_PUBLIC_FIREBASE_ANON_KEY in environment variables.',
+    stack: 'Error: Firebase configuration missing...\n    at FirebaseService.initializeClient (firebase.service.ts:63:15)\n    ...'
   },
   timestamp: '2025-12-12T11:11:38.071Z'
 }
@@ -129,7 +129,7 @@ A comprehensive test suite has been added in `logger.service.spec.ts` that verif
 
 1. Run the application: `yarn start`
 2. Open browser console
-3. Look for `[ERROR]` logs from `[SupabaseService]`
+3. Look for `[ERROR]` logs from `[FirebaseService]`
 4. Verify that the `error` field now contains proper error details instead of `undefined`
 
 Alternatively, run the test suite:

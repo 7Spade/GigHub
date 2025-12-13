@@ -3380,7 +3380,7 @@ export const environment = {
 
 **Changed**:
 - Updated document status to reflect completion
-- Ensured all examples use Firestore (not Supabase)
+- Ensured all examples use Firestore (not Firebase)
 
 #### [1.0.0] - 2025-12-12
 

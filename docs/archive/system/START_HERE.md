@@ -1,10 +1,10 @@
-# 🚀 開始使用 - Supabase 資料庫部署
+# 🚀 開始使用 - Firebase 資料庫部署
 
-> **重要**: 請從這裡開始！這是您部署 GigHub Supabase 資料庫的起點。
+> **重要**: 請從這裡開始！這是您部署 GigHub Firebase 資料庫的起點。
 
 ## 📍 您現在的位置
 
-您需要將 6 個 SQL migration 檔案部署到 Supabase 遠端資料庫。
+您需要將 6 個 SQL migration 檔案部署到 Firebase 遠端資料庫。
 
 **專案資訊**:
 - 🆔 專案 ID: `zecsbstjqjqoytwgjyct`
@@ -15,33 +15,33 @@
 
 ### 步驟 1: 取得資料庫連線字串
 
-前往 Supabase Dashboard 取得連線資訊：
+前往 Firebase Dashboard 取得連線資訊：
 
 ```
-👉 https://supabase.com/dashboard/project/zecsbstjqjqoytwgjyct/settings/database
+👉 https://firebase.com/dashboard/project/zecsbstjqjqoytwgjyct/settings/database
 ```
 
 複製 **Connection String** (Direct Connection)，格式如下：
 ```
-postgresql://postgres:[YOUR-PASSWORD]@db.zecsbstjqjqoytwgjyct.supabase.co:5432/postgres
+postgresql://postgres:[YOUR-PASSWORD]@db.zecsbstjqjqoytwgjyct.firebase.co:5432/postgres
 ```
 
 ### 步驟 2: 執行自動化部署腳本
 
 ```bash
 # 設定連線
-export DATABASE_URL='postgresql://postgres:[YOUR-PASSWORD]@db.zecsbstjqjqoytwgjyct.supabase.co:5432/postgres'
+export DATABASE_URL='postgresql://postgres:[YOUR-PASSWORD]@db.zecsbstjqjqoytwgjyct.firebase.co:5432/postgres'
 
 # 執行部署（會自動處理一切！）
 cd /path/to/GigHub
-./supabase/deploy-migrations.sh
+./firebase/deploy-migrations.sh
 ```
 
 ### 步驟 3: 驗證部署成功
 
 ```bash
 # 執行驗證測試
-psql "$DATABASE_URL" -f supabase/verify-deployment.sql
+psql "$DATABASE_URL" -f firebase/verify-deployment.sql
 ```
 
 ✅ 看到所有測試通過？恭喜！部署完成！
@@ -52,12 +52,12 @@ psql "$DATABASE_URL" -f supabase/verify-deployment.sql
 
 | 我想要... | 請閱讀 | 預計時間 |
 |----------|--------|---------|
-| **快速開始，立即部署** | [QUICK_DEPLOY.md](./supabase/QUICK_DEPLOY.md) | 2 分鐘 |
-| **詳細了解部署流程** | [部署指南.md](./supabase/部署指南.md) | 10 分鐘 |
+| **快速開始，立即部署** | [QUICK_DEPLOY.md](./firebase/QUICK_DEPLOY.md) | 2 分鐘 |
+| **詳細了解部署流程** | [部署指南.md](./firebase/部署指南.md) | 10 分鐘 |
 | **了解資料庫結構** | [DEPLOYMENT_SUMMARY.md](./DEPLOYMENT_SUMMARY.md) | 5 分鐘 |
-| **使用其他部署方法** | [部署指南.md](./supabase/部署指南.md) | 15 分鐘 |
-| **了解 Migration 細節** | [migrations/README.md](./supabase/migrations/README.md) | 8 分鐘 |
-| **Supabase 目錄總覽** | [supabase/README.md](./supabase/README.md) | 5 分鐘 |
+| **使用其他部署方法** | [部署指南.md](./firebase/部署指南.md) | 15 分鐘 |
+| **了解 Migration 細節** | [migrations/README.md](./firebase/migrations/README.md) | 8 分鐘 |
+| **Firebase 目錄總覽** | [firebase/README.md](./firebase/README.md) | 5 分鐘 |
 
 ### 🛠️ 可用的工具
 
@@ -114,7 +114,7 @@ psql "$DATABASE_URL" -f supabase/verify-deployment.sql
 
 - [ ] 確認 PostgreSQL client (`psql`) 已安裝
 - [ ] 取得正確的資料庫密碼
-- [ ] 確保網路可連接到 Supabase
+- [ ] 確保網路可連接到 Firebase
 - [ ] 備份現有資料（如果有）
 
 ### 部署中
@@ -126,7 +126,7 @@ psql "$DATABASE_URL" -f supabase/verify-deployment.sql
 ### 部署後
 
 - [ ] 執行驗證測試
-- [ ] 檢查 Supabase Dashboard
+- [ ] 檢查 Firebase Dashboard
 - [ ] 配置 Firebase Auth Custom Claims
 - [ ] 更新應用程式連接
 
@@ -154,17 +154,17 @@ echo $DATABASE_URL
 
 **問題**: Migration 執行失敗
 1. 檢查是否按順序執行
-2. 查看 Supabase Dashboard → Logs
-3. 參考 [部署指南.md](./supabase/部署指南.md) 的問題排解章節
+2. 查看 Firebase Dashboard → Logs
+3. 參考 [部署指南.md](./firebase/部署指南.md) 的問題排解章節
 
 ## 📞 取得更多協助
 
 ### 線上資源
 
-- 🏠 Dashboard: https://supabase.com/dashboard/project/zecsbstjqjqoytwgjyct
-- 📝 SQL Editor: https://supabase.com/dashboard/project/zecsbstjqjqoytwgjyct/editor
-- 📊 Logs: https://supabase.com/dashboard/project/zecsbstjqjqoytwgjyct/logs
-- 📖 Supabase Docs: https://supabase.com/docs
+- 🏠 Dashboard: https://firebase.com/dashboard/project/zecsbstjqjqoytwgjyct
+- 📝 SQL Editor: https://firebase.com/dashboard/project/zecsbstjqjqoytwgjyct/editor
+- 📊 Logs: https://firebase.com/dashboard/project/zecsbstjqjqoytwgjyct/logs
+- 📖 Firebase Docs: https://firebase.com/docs
 
 ### 專案文檔
 
@@ -213,10 +213,10 @@ echo $DATABASE_URL
 → 執行上面的**三步驟快速部署**
 
 ### 📖 我想先了解細節
-→ 閱讀 [部署指南.md](./supabase/部署指南.md)
+→ 閱讀 [部署指南.md](./firebase/部署指南.md)
 
 ### ⚡ 給我最快的指令
-→ 查看 [QUICK_DEPLOY.md](./supabase/QUICK_DEPLOY.md)
+→ 查看 [QUICK_DEPLOY.md](./firebase/QUICK_DEPLOY.md)
 
 ---
 

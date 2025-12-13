@@ -15,7 +15,7 @@
 - Signal-based reactive state management
 - Auth state listener with automatic updates
 - Health monitoring and error tracking
-- Replaces: `SupabaseService`
+- Replaces: `FirebaseService`
 
 **Key Features**:
 ```typescript
@@ -40,7 +40,7 @@ firebase.getAccessToken()
 - Type-safe CRUD operations
 - Soft delete support
 - Batch operations support
-- Replaces: `SupabaseBaseRepository`
+- Replaces: `FirebaseBaseRepository`
 
 **Key Features**:
 ```typescript
@@ -276,9 +276,9 @@ The remaining work is **mechanical application** of established patterns:
 4. **Update Configuration**
    ```typescript
    // Remove from app.config.ts
-   - SupabaseAuthSyncService
-   - SupabaseHealthCheckService
-   - supabaseProviders
+   - FirebaseAuthSyncService
+   - FirebaseHealthCheckService
+   - firebaseProviders
    ```
 
 5. **Clean Up Dependencies**
@@ -287,7 +287,7 @@ The remaining work is **mechanical application** of established patterns:
    yarn remove @firebase/firebase-js firebase
    
    # Update imports
-   find src -type f -name "*.ts" -exec sed -i 's/SupabaseService/FirebaseService/g' {} +
+   find src -type f -name "*.ts" -exec sed -i 's/FirebaseService/FirebaseService/g' {} +
    ```
 
 ### Testing (Phase 8)

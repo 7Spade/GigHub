@@ -43,7 +43,7 @@
 │  - deleteByType()                       │
 │  - subscribeToChanges() (Realtime)      │
 └──────────────┬──────────────────────────┘
-               │ inject(SupabaseService)
+               │ inject(FirebaseService)
                ▼
 ┌─────────────────────────────────────────┐
 │         Firebase Service                │

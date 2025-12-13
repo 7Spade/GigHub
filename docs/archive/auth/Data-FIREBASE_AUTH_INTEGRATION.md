@@ -22,7 +22,7 @@ This document describes the integration of Firebase Authentication with the GigH
    - Syncs Firebase user state with Delon token service
    - Handles error messages and i18n integration
 
-3. **SupabaseService** (`src/app/core/services/firebase.service.ts`)
+3. **FirebaseService** (`src/app/core/services/firebase.service.ts`)
    - **Simplified service for statistics only**
    - No authentication methods - Firebase handles all auth
    - Hardcoded credentials (safe for public statistics data)
@@ -170,18 +170,18 @@ Credentials are hardcoded directly in the service (safe for public statistics):
 
 ```typescript
 // src/app/core/services/firebase.service.ts
-private readonly SUPABASE_URL = 'https://edfxrqgadtlnfhqqmgjw.firebase.co';
-private readonly SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...';
+private readonly FIREBASE_URL = 'https://edfxrqgadtlnfhqqmgjw.firebase.co';
+private readonly FIREBASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...';
 ```
 
 ### Usage Examples
 
 **Query data from a table:**
 ```typescript
-import { SupabaseService } from '@core';
+import { FirebaseService } from '@core';
 
 export class StatisticsComponent {
-  private readonly firebase = inject(SupabaseService);
+  private readonly firebase = inject(FirebaseService);
 
   async getStatistics() {
     const { data, error } = await this.firebase
@@ -203,7 +203,7 @@ export class StatisticsComponent {
 ```typescript
 // For advanced queries
 const client = this.firebase.client;
-const { data } = await client.from('table_name').select('*');
+const { data } = await client.collection(\'table_name\').get('*');
 ```
 
 **Access storage:**

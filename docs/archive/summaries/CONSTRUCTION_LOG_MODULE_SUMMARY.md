@@ -121,7 +121,7 @@ export class ConstructionLogStore {
 ```typescript
 @Injectable({ providedIn: 'root' })
 export class ConstructionLogRepository {
-  private client: SupabaseClient;
+  private client: FirebaseClient;
   
   async findAll(options?: LogQueryOptions): Promise<Log[]> { ... }
   async findById(blueprintId: string, logId: string): Promise<Log | null> { ... }

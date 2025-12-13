@@ -33,8 +33,8 @@ export const environment = {
   providers: [/* ... */],
   interceptorFns: [/* ... */],
   // ✅ 添加 Firebase 配置
-  NG_PUBLIC_SUPABASE_URL: '',
-  NG_PUBLIC_SUPABASE_ANON_KEY: ''
+  NG_PUBLIC_FIREBASE_URL: '',
+  NG_PUBLIC_FIREBASE_ANON_KEY: ''
 } as Environment;
 ```
 
@@ -46,8 +46,8 @@ export const environment = {
   useHash: true,
   api: { /* ... */ },
   // ✅ 添加 Firebase 配置
-  NG_PUBLIC_SUPABASE_URL: '',
-  NG_PUBLIC_SUPABASE_ANON_KEY: ''
+  NG_PUBLIC_FIREBASE_URL: '',
+  NG_PUBLIC_FIREBASE_ANON_KEY: ''
 } as Environment;
 ```
 
