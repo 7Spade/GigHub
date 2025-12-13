@@ -101,7 +101,7 @@ export class PushMessagingService {
   private listenForMessages(userId: string): void {
     onMessage(this.messaging, payload => {
       const title = payload.notification?.title ?? '新通知';
-      const body = payload.notification?.body ?? payload.data?.body ?? '您有新的通知';
+      const body = payload.notification?.body ?? payload.data?.['body'] ?? '您有新的通知';
 
       this.notification.info(title, body, { nzPlacement: 'topRight' });
       void this.notificationStore.loadNotifications(userId);
