@@ -14,8 +14,8 @@ import { TaskStore } from '@core/stores/task.store';
 import { Task, TaskTreeNode } from '@core/types/task';
 import { buildTaskHierarchy, calculateAggregatedProgress } from '@core/utils/task-hierarchy.util';
 import { SHARED_IMPORTS } from '@shared';
-import { NzTreeFlatDataSource, NzTreeFlattener, NzTreeViewModule } from 'ng-zorro-antd/tree-view';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
+import { NzTreeFlatDataSource, NzTreeFlattener, NzTreeViewModule } from 'ng-zorro-antd/tree-view';
 
 /** Flat node structure for CDK tree */
 interface FlatNode {

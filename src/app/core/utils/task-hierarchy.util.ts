@@ -33,7 +33,7 @@ export function buildTaskHierarchy(tasks: Task[]): TaskTreeNode[] {
       console.warn('[buildTaskHierarchy] Skipping task without ID:', task);
       return;
     }
-    
+
     const node: TaskTreeNode = {
       key: task.id,
       title: task.title,
