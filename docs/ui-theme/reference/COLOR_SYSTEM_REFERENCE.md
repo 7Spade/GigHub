@@ -1,67 +1,66 @@
-# Xuanwu Theme - Complete Color System Reference
+# Black Tortoise Theme - Complete Color System Reference
 # 玄武主題 - 完整配色系統參考
 
 ## 📖 Document Information
 
-- **Version**: 2.0.0
-- **Last Updated**: 2025-12-13
+- **Version**: 1.1.0
+- **Last Updated**: 2025-12-09
 - **Based on**: Context7 Documentation + ng-zorro-antd 20.3.1+ API
-- **Mythology**: Xuanwu (玄武) - Black Tortoise of the North
 - **Status**: ✅ Production Ready
 
 ## 🎨 Complete Color Palette
 
-### Primary Color System - Xuanwu Navy (玄武深藍)
+### Primary Color System - Black Tortoise Blue (玄武藍)
 
-Inspired by deep ocean waters and the midnight northern sky, representing the Black Tortoise of the North.
-
-| Level | Hex Code | RGB | Usage | WCAG AA on White |
-|-------|----------|-----|-------|------------------|
-| **xuanwu-1** | `#EFF6FF` | rgb(239, 246, 255) | Lightest - Backgrounds, hover states | ✅ Pass |
-| **xuanwu-2** | `#DBEAFE` | rgb(219, 234, 254) | Very Light - Active backgrounds | ✅ Pass |
-| **xuanwu-3** | `#BFDBFE` | rgb(191, 219, 254) | Light - Secondary elements, borders | ✅ Pass |
-| **xuanwu-4** | `#93C5FD` | rgb(147, 197, 253) | Medium Light - Disabled states | ⚠️  AAA Large |
-| **xuanwu-5** | `#60A5FA` | rgb(96, 165, 250) | Medium - Hover primary, auxiliary | ✅ Pass |
-| **xuanwu-6** | `#1E3A8A` | rgb(30, 58, 138) | ⭐ **PRIMARY** - Main brand color (Deep Navy) | ✅ Pass |
-| **xuanwu-7** | `#1E40AF` | rgb(30, 64, 175) | Medium Dark - Active primary | ✅ Pass |
-| **xuanwu-8** | `#1D4ED8` | rgb(29, 78, 216) | Dark - Text on light backgrounds | ✅ Pass |
-| **xuanwu-9** | `#172554` | rgb(23, 37, 84) | Very Dark - Deep emphasis | ✅ Pass |
-| **xuanwu-10** | `#0F172A` | rgb(15, 23, 42) | Darkest - Dark mode backgrounds | ✅ Pass |
-
-### Secondary Color System - Deep Teal (深青綠)
-
-Represents flowing water and the life force within the depths.
+Inspired by the clear morning sky and deep ocean, representing the Black Tortoise of the East.
 
 | Level | Hex Code | RGB | Usage | WCAG AA on White |
 |-------|----------|-----|-------|------------------|
-| **teal-1** | `#F0FDFA` | rgb(240, 253, 250) | Lightest - Success backgrounds | ✅ Pass |
-| **teal-2** | `#CCFBF1` | rgb(204, 251, 241) | Very Light - Hover success states | ✅ Pass |
-| **teal-3** | `#99F6E4` | rgb(153, 246, 228) | Light - Secondary success elements | ⚠️  AAA Large |
-| **teal-4** | `#0D9488` | rgb(13, 148, 136) | ⭐ **SUCCESS** - Main success color | ✅ Pass |
-| **teal-5** | `#0F766E` | rgb(15, 118, 110) | Dark - Active success states | ✅ Pass |
-| **teal-6** | `#115E59` | rgb(17, 94, 89) | Darkest - Deep success emphasis | ✅ Pass |
+| **obsidian-1** | `#E6F7FF` | rgb(230, 247, 255) | Lightest - Backgrounds, hover states | ✅ Pass |
+| **obsidian-2** | `#BAE7FF` | rgb(186, 231, 255) | Very Light - Active backgrounds | ✅ Pass |
+| **obsidian-3** | `#91D5FF` | rgb(145, 213, 255) | Light - Secondary elements, borders | ✅ Pass |
+| **obsidian-4** | `#69C0FF` | rgb(105, 192, 255) | Medium Light - Disabled states | ⚠️  AAA Large |
+| **obsidian-5** | `#40A9FF` | rgb(64, 169, 255) | Medium - Hover primary, auxiliary | ✅ Pass |
+| **obsidian-6** | `#1E293B` | rgb(14, 165, 233) | ⭐ **PRIMARY** - Main brand color | ✅ Pass |
+| **obsidian-7** | `#0C83BA` | rgb(12, 131, 186) | Medium Dark - Active primary | ✅ Pass |
+| **obsidian-8** | `#0A688B` | rgb(10, 104, 139) | Dark - Text on light backgrounds | ✅ Pass |
+| **obsidian-9** | `#084C5C` | rgb(8, 76, 92) | Very Dark - Deep emphasis | ✅ Pass |
+| **obsidian-10** | `#06303D` | rgb(6, 48, 61) | Darkest - Dark mode backgrounds | ✅ Pass |
 
-### Tertiary Color System - Steel Blue (鋼藍)
+### Secondary Color System - Stone Gray (石灰)
 
-Represents wisdom, clarity, and the protective qualities of metal.
+Represents the stone texture of the Black Tortoise shell, symbolizing vitality and success.
 
 | Level | Hex Code | RGB | Usage | WCAG AA on White |
 |-------|----------|-----|-------|------------------|
-| **steel-1** | `#F8FAFC` | rgb(248, 250, 252) | Lightest - Info backgrounds | ✅ Pass |
-| **steel-2** | `#F1F5F9` | rgb(241, 245, 249) | Very Light - Hover info states | ✅ Pass |
-| **steel-3** | `#64748B` | rgb(100, 116, 139) | ⭐ **INFO** - Main info color | ✅ Pass |
-| **steel-4** | `#475569` | rgb(71, 85, 105) | Dark - Active info states | ✅ Pass |
-| **steel-5** | `#334155` | rgb(51, 65, 85) | Darkest - Deep info emphasis | ✅ Pass |
+| **stone-1** | `#E6FFF9` | rgb(230, 255, 249) | Lightest - Success backgrounds | ✅ Pass |
+| **stone-2** | `#B3FFE6` | rgb(179, 255, 230) | Very Light - Hover success states | ✅ Pass |
+| **stone-3** | `#7FFFD4` | rgb(127, 255, 212) | Light - Secondary success elements | ⚠️  AAA Large |
+| **stone-4** | `#475569` | rgb(20, 184, 166) | ⭐ **SUCCESS** - Main success color | ✅ Pass |
+| **stone-5** | `#0D9488` | rgb(13, 148, 136) | Dark - Active success states | ✅ Pass |
+| **stone-6** | `#0A7C6C` | rgb(10, 124, 108) | Darkest - Deep success emphasis | ✅ Pass |
+
+### Tertiary Color System - Cyan (青綠)
+
+Represents the waters element and mysterious depths, used for informational elements.
+
+| Level | Hex Code | RGB | Usage | WCAG AA on White |
+|-------|----------|-----|-------|------------------|
+| **cyan-1** | `#E0F7FA` | rgb(224, 247, 250) | Lightest - Info backgrounds | ✅ Pass |
+| **cyan-2** | `#B2EBF2` | rgb(178, 235, 242) | Very Light - Hover info states | ✅ Pass |
+| **cyan-3** | `#06B6D4` | rgb(6, 182, 212) | ⭐ **INFO** - Main info color | ✅ Pass |
+| **cyan-4** | `#0891B2` | rgb(8, 145, 178) | Dark - Active info states | ✅ Pass |
+| **cyan-5** | `#0E7490` | rgb(14, 116, 144) | Darkest - Deep info emphasis | ✅ Pass |
 
 ### Semantic Colors (語義色彩)
 
 | Purpose | Color Name | Hex Code | RGB | WCAG AA |
 |---------|-----------|----------|-----|---------|
-| **Primary** | Xuanwu Navy | `#1E3A8A` | rgb(30, 58, 138) | ✅ Pass |
-| **Success** | Deep Teal | `#0D9488` | rgb(13, 148, 136) | ✅ Pass |
+| **Primary** | Obsidian Black | `#1E293B` | rgb(30, 41, 59) | ✅ AAA |
+| **Success** | Emerald Green | `#10B981` | rgb(16, 185, 129) | ✅ Pass |
 | **Warning** | Amber Yellow | `#F59E0B` | rgb(245, 158, 11) | ✅ Pass |
 | **Error** | Crimson Red | `#EF4444` | rgb(239, 68, 68) | ✅ Pass |
-| **Info** | Steel Blue | `#64748B` | rgb(100, 116, 139) | ✅ Pass |
+| **Info** | Deep Waters | `#1E40AF` | rgb(30, 64, 175) | ✅ Pass |
 
 ### Neutral Colors (中性色)
 
@@ -81,86 +80,86 @@ Represents wisdom, clarity, and the protective qualities of metal.
 
 ### Primary Gradients (主要漸變)
 
-#### 1. Northern Waters (北方之水)
+#### 1. Tortoise Shield (龜甲守護)
 ```css
-background: linear-gradient(135deg, #1E3A8A 0%, #0D9488 100%);
+background: linear-gradient(135deg, #1E293B 0%, #475569 100%);
 ```
 **Usage**: Primary buttons, hero sections, featured cards  
-**Effect**: Upward diagonal gradient from deep navy to teal  
-**Symbolism**: Waters of the north flowing eternally
+**Effect**: Upward diagonal gradient from obsidian to stone  
+**Symbolism**: Tortoise shell providing protection
 
-#### 2. Tortoise Shell (龜甲紋理)
+#### 2. Midnight Waters (深夜水波)
 ```css
-background: linear-gradient(45deg, #172554 0%, #1E3A8A 50%, #64748B 100%);
-```
-**Usage**: Decorative patterns, backgrounds  
-**Effect**: Multi-stop angular gradient  
-**Symbolism**: The protective shell's ancient patterns
-
-#### 3. Winter Night (冬夜深沉)
-```css
-background: linear-gradient(180deg, #0F172A 0%, #1E3A8A 50%, #0D9488 100%);
+background: linear-gradient(180deg, #1E293B 0%, #1E40AF 50%, #475569 100%);
 ```
 **Usage**: Large banners, page backgrounds  
-**Effect**: Vertical deep to light gradient  
-**Symbolism**: Night sky transitioning to northern waters
+**Effect**: Vertical gradient with cyan midpoint  
+**Symbolism**: Sky meeting the ocean
 
-#### 4. Silver Frost (銀霜微光)
+#### 3. Tortoise Texture (玄武紋理)
 ```css
-background: linear-gradient(135deg, #EFF6FF 0%, #E2E8F0 50%, #CBD5E1 100%);
+background: linear-gradient(45deg, #0C83BA 0%, #0D9488 50%, #1E293B 100%);
+```
+**Usage**: Hover effects, decorative elements  
+**Effect**: Diagonal multi-stop gradient  
+**Symbolism**: Textured tortoise shell
+
+#### 4. Dawn Light (晨曦微光)
+```css
+background: linear-gradient(135deg, #E6F7FF 0%, #E0F7FA 50%, #E6FFF9 100%);
 ```
 **Usage**: Table headers, card backgrounds, subtle highlights  
-**Effect**: Gentle cool-toned gradient  
-**Symbolism**: Winter frost and morning ice
+**Effect**: Gentle pastel gradient  
+**Symbolism**: Morning light
 
-#### 5. Deep Mystery (深淵神秘)
+#### 5. Deep Mystery (深海神秘)
 ```css
-background: linear-gradient(135deg, #172554 0%, #115E59 100%);
+background: linear-gradient(135deg, #084C5C 0%, #0A7C6C 100%);
 ```
 **Usage**: Dark mode, night theme elements  
-**Effect**: Deep navy to dark teal  
-**Symbolism**: The unfathomable depths
+**Effect**: Deep blue-green gradient  
+**Symbolism**: Ocean depths
 
 ### Radial Gradients (徑向漸變)
 
-#### Xuanwu Aura (玄武光暈)
+#### Tortoise Aura (玄武光環)
 ```css
-background: radial-gradient(circle at center, #1E3A8A 0%, #64748B 50%, transparent 100%);
+background: radial-gradient(circle at center, #1E293B 0%, #06B6D4 50%, transparent 100%);
 ```
 **Usage**: Spotlight effects, focus highlights
 
-#### Water Ripple (水波漣漪)
+#### Energy Ripple (能量波紋)
 ```css
-background: radial-gradient(ellipse at center, #0D9488 0%, #1E3A8A 40%, transparent 70%);
+background: radial-gradient(ellipse at center, #475569 0%, #1E293B 40%, transparent 70%);
 ```
 **Usage**: Notification badges, pulse effects
 
 ## 💫 Shadow System
 
-### Xuanwu Shadows
+### Black Tortoise Shadows
 
 ```less
 // Small shadow - Cards, buttons
-@shadow-xuanwu-sm: 0 1px 2px rgba(30, 58, 138, 0.05);
+@shadow-obsidian-sm: 0 1px 2px rgba(30, 41, 59, 0.05);
 
 // Medium shadow - Floating elements
-@shadow-xuanwu-md: 0 4px 6px rgba(30, 58, 138, 0.1);
+@shadow-obsidian-md: 0 4px 6px rgba(30, 41, 59, 0.1);
 
 // Large shadow - Modals, drawers
-@shadow-xuanwu-lg: 0 10px 15px rgba(30, 58, 138, 0.15);
+@shadow-obsidian-lg: 0 10px 15px rgba(30, 41, 59, 0.15);
 
 // Extra large shadow - Full-screen overlays
-@shadow-xuanwu-xl: 0 20px 25px rgba(30, 58, 138, 0.2);
+@shadow-obsidian-xl: 0 20px 25px rgba(30, 41, 59, 0.2);
 ```
 
 ### Glow Effects
 
 ```less
-// Xuanwu glow - Primary interactive elements
-@glow-xuanwu: 0 0 20px rgba(30, 58, 138, 0.5);
+// Obsidian glow - Primary interactive elements
+@glow-obsidian: 0 0 20px rgba(30, 41, 59, 0.5);
 
-// Teal glow - Success state highlights
-@glow-teal: 0 0 20px rgba(13, 148, 136, 0.5);
+// Stone glow - Success state highlights
+@glow-stone: 0 0 20px rgba(71, 85, 105, 0.5);
 ```
 
 ## ⏱️ Transition System
@@ -195,7 +194,7 @@ Three-tier timing system for optimal user experience:
 
 3. **Use Gradients for Hero Elements**
    ```html
-   <div class="hero-banner" style="background: linear-gradient(135deg, #1E3A8A 0%, #0D9488 100%)">
+   <div class="hero-banner" style="background: linear-gradient(135deg, #1E293B 0%, #475569 100%)">
      <h1>Welcome to GigHub</h1>
    </div>
    ```
@@ -203,9 +202,9 @@ Three-tier timing system for optimal user experience:
 4. **Use Shadows for Depth**
    ```less
    .card {
-     box-shadow: @shadow-xuanwu-md;
+     box-shadow: @shadow-obsidian-md;
      &:hover {
-       box-shadow: @shadow-xuanwu-lg;
+       box-shadow: @shadow-obsidian-lg;
      }
    }
    ```
@@ -221,8 +220,8 @@ Three-tier timing system for optimal user experience:
    - ✅ Reserve for important elements
 
 3. **Don't Ignore Contrast**
-   - ❌ xuanwu-4 text on white background
-   - ✅ xuanwu-8 or darker for text
+   - ❌ Obsidian-4 text on white background
+   - ✅ Obsidian-8 or darker for text
 
 4. **Don't Mix Too Many Colors**
    - ❌ Using all gradients simultaneously
@@ -233,13 +232,13 @@ Three-tier timing system for optimal user experience:
 ### Buttons
 
 ```typescript
-// Primary button - Northern Waters gradient
+// Primary button - Gradient background
 <button nz-button nzType="primary">Primary</button>
-// Uses: @gradient-northern-waters
+// Uses: @gradient-tortoise-shield
 
 // Default button - Outline style
 <button nz-button nzType="default">Default</button>
-// Border: @xuanwu-6, Hover BG: @xuanwu-1
+// Border: @obsidian-6, Hover BG: @obsidian-1
 
 // Danger button - Error state
 <button nz-button nzType="primary" nzDanger>Delete</button>
@@ -249,53 +248,53 @@ Three-tier timing system for optimal user experience:
 ### Forms
 
 ```typescript
-// Input focus - Xuanwu border
+// Input focus - Obsidian border
 <input nz-input placeholder="Enter text" />
-// Focus: @xuanwu-6 border with 20% opacity shadow
+// Focus: @obsidian-6 border with 20% opacity shadow
 
-// Select hover - Xuanwu highlight
+// Select hover - Obsidian highlight
 <nz-select [nzOptions]="options"></nz-select>
-// Option hover: @xuanwu-1 background
+// Option hover: @obsidian-1 background
 
-// Checkbox checked - Xuanwu fill
+// Checkbox checked - Obsidian fill
 <label nz-checkbox>Option</label>
-// Checked: @xuanwu-6 background
+// Checked: @obsidian-6 background
 ```
 
 ### Tables
 
 ```less
-// Table header - Silver Frost gradient
+// Table header - Dawn Light gradient
 .ant-table-thead > tr > th {
-  background: @gradient-silver-frost;
-  color: @xuanwu-7;
+  background: @gradient-dawn-light;
+  color: @obsidian-7;
 }
 
-// Table row hover - Xuanwu light background
+// Table row hover - Obsidian light background
 .ant-table-tbody > tr:hover > td {
-  background: fade(@xuanwu-1, 80%);
+  background: fade(@obsidian-1, 80%);
 }
 
-// Selected row - Xuanwu background
+// Selected row - Obsidian background
 .ant-table-row-selected > td {
-  background: fade(@xuanwu-1, 90%);
+  background: fade(@obsidian-1, 90%);
 }
 ```
 
 ### Navigation
 
 ```less
-// Active menu item - Xuanwu highlight
+// Active menu item - Obsidian highlight
 .ant-menu-item-selected {
-  background-color: @xuanwu-1;
-  color: @xuanwu-6;
-  border-left: 3px solid @xuanwu-6;
+  background-color: @obsidian-1;
+  color: @obsidian-6;
+  border-left: 3px solid @obsidian-6;
 }
 
 // Sidebar active - Gradient background
 .alain-default__nav-item.active {
-  background: fade(@xuanwu-1, 80%);
-  border-left: 3px solid @xuanwu-6;
+  background: fade(@obsidian-1, 80%);
+  border-left: 3px solid @obsidian-6;
 }
 ```
 
@@ -308,11 +307,11 @@ import { NzConfig, provideNzConfig } from 'ng-zorro-antd/core/config';
 
 const ngZorroConfig: NzConfig = {
   theme: {
-    primaryColor: '#1E3A8A',
-    successColor: '#0D9488',
+    primaryColor: '#1E293B',
+    successColor: '#475569',
     warningColor: '#F59E0B',
     errorColor: '#EF4444',
-    infoColor: '#64748B'
+    infoColor: '#06B6D4'
   }
 };
 
@@ -325,11 +324,11 @@ export const appConfig: ApplicationConfig = {
 
 ```less
 // Define BEFORE importing @delon/theme
-@primary-color: #1E3A8A;
-@success-color: #0D9488;
+@primary-color: #1E293B;
+@success-color: #475569;
 @warning-color: #F59E0B;
 @error-color: #EF4444;
-@info-color: #64748B;
+@info-color: #06B6D4;
 
 @import '@delon/theme/theme-default.less';
 ```
@@ -343,9 +342,9 @@ import { inject } from '@angular/core';
 export class ThemeService {
   private nzConfigService = inject(NzConfigService);
   
-  changeToXuanwuTheme() {
+  changeToTortoiseTheme() {
     this.nzConfigService.set('theme', {
-      primaryColor: '#1E3A8A'
+      primaryColor: '#1E293B'
     });
   }
   
@@ -364,9 +363,9 @@ export class ThemeService {
 All color combinations meet **WCAG 2.1 Level AA** standards:
 
 - ✅ Primary text (`#1E293B`) on white: **14.8:1** (AAA)
-- ✅ Xuanwu-6 (`#1E3A8A`) on white: **8.9:1** (AAA)
-- ✅ Teal-4 (`#0D9488`) on white: **4.5:1** (AA)
-- ✅ Link color on white: **8.9:1** (AAA)
+- ✅ Azure-6 (`#1E293B`) on white: **4.5:1** (AA)
+- ✅ Jade-4 (`#475569`) on white: **4.5:1** (AA)
+- ✅ Link color on white: **4.5:1** (AA)
 - ✅ Secondary text (`#64748B`) on white: **5.3:1** (AA)
 
 ### Color Blindness Support
@@ -390,12 +389,12 @@ Never rely solely on color:
 @media (max-width: @screen-sm) {
   // Use solid colors instead of gradients for better performance
   .alain-default__header {
-    background: @xuanwu-6 !important;
+    background: @obsidian-6 !important;
   }
   
   // Simplify shadows
   .card {
-    box-shadow: @shadow-xuanwu-sm;
+    box-shadow: @shadow-obsidian-sm;
   }
 }
 ```
@@ -405,13 +404,13 @@ Never rely solely on color:
 ```less
 @media print {
   // Convert gradients to solid colors for printing
-  .xuanwu-bg-gradient,
-  .tortoise-effect {
-    background: @xuanwu-6 !important;
+  .obsidian-bg-gradient,
+  .dragon-effect {
+    background: @obsidian-6 !important;
   }
   
   // Ensure text contrast
-  .text-on-xuanwu {
+  .text-on-azure {
     color: #000000 !important;
   }
 }
@@ -424,10 +423,9 @@ Never rely solely on color:
 - **Ant Design**: https://ant.design/docs/spec/colors
 - **Context7 Docs**: Based on `/ng-zorro/ng-zorro-antd` documentation
 
-### Xuanwu Theme Docs
-- **Main Guide**: [xuanwu-theme.md](./xuanwu-theme.md)
-- **Chinese Version**: [xuanwu-theme-zh-TW.md](./xuanwu-theme-zh-TW.md)
-- **Integration**: [THEME_GUIDE.md](../THEME_GUIDE.md)
+### Black Tortoise Theme Docs
+- **Main Guide**: [black-tortoise-theme.md](./black-tortoise-theme.md)
+- **Integration**: [BLACK_TORTOISE_INTEGRATION.md](../archive/BLACK_TORTOISE_INTEGRATION.md)
 - **Version Compatibility**: [VERSION_COMPATIBILITY.md](./VERSION_COMPATIBILITY.md)
 
 ### Tools
@@ -437,6 +435,6 @@ Never rely solely on color:
 ---
 
 **Maintained by**: GitHub Copilot  
-**Last Updated**: 2025-12-13  
-**Version**: 2.0.0  
+**Last Updated**: 2025-12-09  
+**Version**: 1.1.0  
 **Status**: ✅ Production Ready

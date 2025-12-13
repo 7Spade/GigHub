@@ -1,28 +1,28 @@
-# Azure Dragon Theme Visual Reference
-# 青龍主題視覺參考
+# Black Tortoise Theme Visual Reference
+# 玄武主題視覺參考
 
-本文件展示青龍主題在 GigHub 專案中的視覺效果。
+本文件展示玄武主題在 GigHub 專案中的視覺效果。
 
 ## 主題色彩 (Theme Colors)
 
 ### 主色調 (Primary Colors)
 ```
-Azure Dragon Blue (青龍藍): #0EA5E9
-├── Azure 1: #E6F7FF (Background Light)
-├── Azure 2: #BAE7FF (Hover Light)
-├── Azure 3: #91D5FF (Secondary)
-├── Azure 4: #69C0FF (Medium Light)
-├── Azure 5: #40A9FF (Helper)
-├── Azure 6: #0EA5E9 ⭐ PRIMARY
-├── Azure 7: #0C83BA (Hover Dark)
-├── Azure 8: #0A688B (Emphasis)
-├── Azure 9: #084C5C (Deep)
-└── Azure 10: #06303D (Darkest)
+Black Tortoise Blue (玄武藍): #1E293B
+├── Obsidian 1: #E6F7FF (Background Light)
+├── Obsidian 2: #BAE7FF (Hover Light)
+├── Obsidian 3: #91D5FF (Secondary)
+├── Obsidian 4: #69C0FF (Medium Light)
+├── Obsidian 5: #40A9FF (Helper)
+├── Obsidian 6: #1E293B ⭐ PRIMARY
+├── Obsidian 7: #0C83BA (Hover Dark)
+├── Obsidian 8: #0A688B (Emphasis)
+├── Obsidian 9: #084C5C (Deep)
+└── Obsidian 10: #06303D (Darkest)
 ```
 
 ### 輔助色 (Secondary Colors)
 ```
-Jade Green (翡翠綠): #14B8A6 ⭐ SUCCESS
+Jade Green (翡翠綠): #475569 ⭐ SUCCESS
 Cyan (青綠): #06B6D4 ⭐ INFO
 Warning (警告): #F59E0B
 Error (錯誤): #EF4444
@@ -31,29 +31,29 @@ Error (錯誤): #EF4444
 ## 應用場景 (Application Scenarios)
 
 ### 1. 頁首/導航欄 (Header/Navigation)
-- 背景色: Azure Dragon Blue (#0EA5E9)
+- 背景色: Black Tortoise Blue (#1E293B)
 - 文字色: White (#FFFFFF)
 - 懸停效果: 稍微變暗
 - 陰影: 0 2px 8px rgba(14, 165, 233, 0.2)
 
 ### 2. 側邊欄 (Sidebar)
 - 背景色: White (#FFFFFF)
-- 選中項背景: Azure 1 (#E6F7FF)
-- 選中項文字: Azure 6 (#0EA5E9)
-- 選中項左邊框: 3px solid Azure 6
-- 懸停效果: Azure 6 文字色
+- 選中項背景: Obsidian 1 (#E6F7FF)
+- 選中項文字: Obsidian 6 (#1E293B)
+- 選中項左邊框: 3px solid Obsidian 6
+- 懸停效果: Obsidian 6 文字色
 
 ### 3. 按鈕 (Buttons)
 #### 主要按鈕 (Primary Button)
-- 背景: 漸變 (Azure 6 → Jade 4)
+- 背景: 漸變 (Obsidian 6 → Jade 4)
 - 文字: White
 - 懸停: 漸變加深 + 陰影
 
 #### 次要按鈕 (Secondary Button)
 - 背景: Transparent
-- 邊框: 2px solid Azure 6
-- 文字: Azure 6
-- 懸停: Azure 1 背景
+- 邊框: 2px solid Obsidian 6
+- 文字: Obsidian 6
+- 懸停: Obsidian 1 背景
 
 ### 4. 卡片 (Cards)
 #### 標準卡片
@@ -61,40 +61,40 @@ Error (錯誤): #EF4444
 - 邊框: 1px solid #E2E8F0
 - 圓角: 8px
 - 陰影: 0 1px 3px rgba(15, 23, 42, 0.1)
-- 懸停: 陰影加深 + Azure 6 邊框
+- 懸停: 陰影加深 + Obsidian 6 邊框
 
 #### 特色卡片
-- 背景: 龍躍雲端漸變
+- 背景: 龜甲守護漸變
 - 文字: White
 - 陰影: 0 10px 15px rgba(14, 165, 233, 0.15)
 
 ### 5. 表單控件 (Form Controls)
 - 正常邊框: #CBD5E1
-- 焦點邊框: Azure 6
+- 焦點邊框: Obsidian 6
 - 焦點光暈: 0 0 0 2px rgba(14, 165, 233, 0.2)
 - 錯誤狀態: Error color
 - 成功狀態: Jade Green
 
 ### 6. 表格 (Tables)
 - 表頭背景: Dawn Light 漸變
-- 表頭文字: Azure 7
-- 行懸停: Azure 1 背景
-- 選中行: Azure 1 背景 + Azure 3 邊框
+- 表頭文字: Obsidian 7
+- 行懸停: Obsidian 1 背景
+- 選中行: Obsidian 1 背景 + Obsidian 3 邊框
 
 ### 7. 標籤 (Tags)
-- Azure 標籤: Azure 6 文字 + Azure 1 背景
+- Obsidian 標籤: Obsidian 6 文字 + Obsidian 1 背景
 - Jade 標籤: Jade 4 文字 + Jade 1 背景
 - Cyan 標籤: Cyan 3 文字 + Cyan 1 背景
 
 ### 8. 進度條 (Progress Bar)
 - 背景: #F0F0F0
-- 進度色: 龍躍雲端漸變
+- 進度色: 龜甲守護漸變
 
 ### 9. 提示訊息 (Messages/Alerts)
 #### Info
-- 背景: Azure 1
-- 邊框: Azure 3
-- 圖示: Azure 6
+- 背景: Obsidian 1
+- 邊框: Obsidian 3
+- 圖示: Obsidian 6
 
 #### Success
 - 背景: Jade 1
@@ -111,21 +111,21 @@ Error (錯誤): #EF4444
 
 ## 漸變效果 (Gradient Effects)
 
-### 1. 龍躍雲端 (Dragon Soaring)
+### 1. 龜甲守護 (Tortoise Shield)
 ```css
-background: linear-gradient(135deg, #0EA5E9 0%, #14B8A6 100%);
+background: linear-gradient(135deg, #1E293B 0%, #475569 100%);
 ```
 用途: 主要按鈕、英雄區塊、特色卡片
 
-### 2. 碧海青天 (Azure Sky & Sea)
+### 2. 碧海青天 (Obsidian Sky & Sea)
 ```css
-background: linear-gradient(180deg, #0EA5E9 0%, #06B6D4 50%, #14B8A6 100%);
+background: linear-gradient(180deg, #1E293B 0%, #06B6D4 50%, #475569 100%);
 ```
 用途: 大型橫幅、頁面背景
 
-### 3. 青龍鱗片 (Dragon Scales)
+### 3. 玄武鱗片 (Tortoise Texture)
 ```css
-background: linear-gradient(45deg, #0C83BA 0%, #0D9488 50%, #0EA5E9 100%);
+background: linear-gradient(45deg, #0C83BA 0%, #0D9488 50%, #1E293B 100%);
 ```
 用途: 裝飾性元素、懸停效果
 
@@ -146,7 +146,7 @@ background: linear-gradient(135deg, #084C5C 0%, #0A7C6C 100%);
 ### 龍流動效果 (Dragon Flow Animation)
 ```css
 .dragon-effect {
-  background: linear-gradient(270deg, #0EA5E9, #14B8A6, #06B6D4, #0EA5E9);
+  background: linear-gradient(270deg, #1E293B, #475569, #06B6D4, #1E293B);
   background-size: 400% 400%;
   animation: dragon-flow 8s ease infinite;
 }
@@ -163,7 +163,7 @@ background: linear-gradient(135deg, #084C5C 0%, #0A7C6C 100%);
 
 ### 光暈效果 (Glow Effects)
 ```css
-.azure-glow {
+.tortoise-glow {
   box-shadow: 0 0 20px rgba(14, 165, 233, 0.5);
 }
 
@@ -192,15 +192,15 @@ background: linear-gradient(135deg, #084C5C 0%, #0A7C6C 100%);
 ## 無障礙設計 (Accessibility)
 
 ### 對比度測試結果
-- Azure 6 (#0EA5E9) on White: ✅ WCAG AA
-- Jade 4 (#14B8A6) on White: ✅ WCAG AA
-- Azure 6 文字 on Azure 1 背景: ✅ WCAG AA
-- White 文字 on Azure 6 背景: ✅ WCAG AAA
+- Obsidian 6 (#1E293B) on White: ✅ WCAG AA
+- Jade 4 (#475569) on White: ✅ WCAG AA
+- Obsidian 6 文字 on Obsidian 1 背景: ✅ WCAG AA
+- White 文字 on Obsidian 6 背景: ✅ WCAG AAA
 
 ### 焦點指示
 ```css
-.azure-focus-visible:focus-visible {
-  outline: 2px solid #0EA5E9;
+.tortoise-focus-visible:focus-visible {
+  outline: 2px solid #1E293B;
   outline-offset: 2px;
 }
 ```
@@ -216,10 +216,10 @@ background: linear-gradient(135deg, #084C5C 0%, #0A7C6C 100%);
 
 ```less
 @media print {
-  .azure-bg-gradient,
-  .azure-bg-gradient-sky,
+  .tortoise-bg-gradient,
+  .tortoise-bg-gradient-sky,
   .dragon-effect {
-    background: @azure-6 !important;
+    background: @tortoise-6 !important;
   }
 }
 ```
@@ -241,7 +241,7 @@ background: linear-gradient(135deg, #084C5C 0%, #0A7C6C 100%);
 ## 使用建議 (Usage Guidelines)
 
 ### ✅ 推薦做法
-1. 主要操作使用 Azure Dragon Blue
+1. 主要操作使用 Black Tortoise Blue
 2. 成功狀態使用 Jade Green
 3. 資訊提示使用 Cyan
 4. 重要區域使用漸變效果

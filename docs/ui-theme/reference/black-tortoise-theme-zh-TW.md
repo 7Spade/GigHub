@@ -1,18 +1,18 @@
-# Azure Dragon 青龍主題 - 完整使用指南
+# Black Tortoise 玄武主題 - 完整使用指南
 
 ## 📖 概述 (Overview)
 
-Azure Dragon 青龍主題是 GigHub 專案的核心視覺設計系統，結合了現代化的漸變效果、流暢的互動動畫與無障礙設計原則。
+Black Tortoise 玄武主題是 GigHub 專案的核心視覺設計系統，結合了現代化的漸變效果、流暢的互動動畫與無障礙設計原則。
 
 ### 版本資訊
 
 - **當前版本**: 1.1.0
-- **最後更新**: 2025-01-09
+- **最後更新**: 2025-12-13
 - **專案**: GigHub - 工地施工進度追蹤管理系統
 
 ### 設計理念
 
-「青龍」象徵東方的力量與智慧，主題以 **Azure Blue** (天藍色) 為主色，搭配 **Jade Green** (翡翠綠) 作為輔助色，營造出專業、現代且充滿活力的視覺體驗。
+「玄武」象徵北方的守護與穩定，主題以 **Obsidian Black** (黑曜石黑) 為主色，搭配 **Stone Gray** (石灰) 作為輔助色，營造出專業、沉穩且充滿力量的視覺體驗。
 
 ---
 
@@ -21,58 +21,58 @@ Azure Dragon 青龍主題是 GigHub 專案的核心視覺設計系統，結合�
 ### 主色調 (Primary Colors)
 
 ```less
-// Azure Blue - 主要色調
-@azure-1: #e6f7ff;   // 最淺藍
-@azure-2: #bae7ff;
-@azure-3: #91d5ff;
-@azure-4: #69c0ff;
-@azure-5: #40a9ff;
-@azure-6: #0EA5E9;   // 主色 ⭐
-@azure-7: #0284c7;
-@azure-8: #0369a1;
-@azure-9: #075985;
-@azure-10: #0c4a6e;  // 最深藍
+// Obsidian Black - 主要色調
+@obsidian-1: #f8fafc;   // 最淺灰白
+@obsidian-2: #f1f5f9;
+@obsidian-3: #e2e8f0;
+@obsidian-4: #cbd5e1;
+@obsidian-5: #94a3b8;
+@obsidian-6: #1E293B;   // 主色 ⭐
+@obsidian-7: #0f172a;
+@obsidian-8: #0a0e1a;
+@obsidian-9: #05070f;
+@obsidian-10: #020617;  // 最深黑
 
-// Jade Green - 輔助色調
-@jade-1: #f0fdfa;    // 最淺綠
-@jade-2: #ccfbf1;
-@jade-3: #99f6e4;
-@jade-4: #14B8A6;    // 輔助色 ⭐
-@jade-5: #0d9488;
-@jade-6: #0f766e;    // 最深綠
+// Stone Gray - 輔助色調
+@stone-1: #f1f5f9;    // 最淺石灰
+@stone-2: #e2e8f0;
+@stone-3: #cbd5e1;
+@stone-4: #475569;    // 輔助色 ⭐
+@stone-5: #334155;
+@stone-6: #1e293b;    // 最深石灰
 
-// Cyan - 中性色調
-@cyan-1: #e0f2fe;
-@cyan-2: #bae6fd;
-@cyan-3: #7dd3fc;
-@cyan-4: #38bdf8;
-@cyan-5: #0ea5e9;
+// Deep Waters - 中性色調
+@waters-1: #eef2ff;
+@waters-2: #e0e7ff;
+@waters-3: #1E40AF;
+@waters-4: #1e3a8a;
+@waters-5: #1e3a8a;
 ```
 
 ### 語義化顏色 (Semantic Colors)
 
 ```less
-@primary-color: @azure-6;          // 主要動作
-@success-color: @jade-4;           // 成功狀態
-@warning-color: #f59e0b;           // 警告狀態
-@error-color: #ef4444;             // 錯誤狀態
-@info-color: @azure-5;             // 資訊提示
+@primary-color: @obsidian-6;          // 主要動作
+@success-color: #10b981;              // 成功狀態
+@warning-color: #f59e0b;              // 警告狀態
+@error-color: #ef4444;                // 錯誤狀態
+@info-color: @waters-3;               // 資訊提示
 ```
 
 ### 漸變效果 (Gradients)
 
 ```less
-// 龍躍雲端 - 主要漸變
-@gradient-dragon-soaring: linear-gradient(135deg, @azure-6 0%, @jade-4 100%);
+// 龜甲守護 - 主要漸變
+@gradient-tortoise-shield: linear-gradient(135deg, @obsidian-6 0%, @stone-4 100%);
 
-// 碧空如洗 - 淺色漸變
-@gradient-clear-sky: linear-gradient(135deg, @azure-1 0%, @jade-1 100%);
+// 寧靜微光 - 淺色漸變
+@gradient-tranquil-light: linear-gradient(135deg, @obsidian-1 0%, @stone-1 100%);
 
-// 龍鱗閃爍 - 中等漸變
-@gradient-dragon-scales: linear-gradient(135deg, @azure-5 0%, @jade-3 50%, @azure-4 100%);
+// 深夜水波 - 中等漸變
+@gradient-midnight-waters: linear-gradient(135deg, @obsidian-5 0%, @waters-3 50%, @stone-4 100%);
 
-// 晨曦微光 - 柔和漸變
-@gradient-dawn-light: linear-gradient(90deg, @azure-1 0%, @jade-1 100%);
+// 玄武紋理 - 柔和漸變
+@gradient-tortoise-texture: linear-gradient(90deg, @obsidian-1 0%, @stone-1 100%);
 ```
 
 ---
@@ -86,7 +86,7 @@ Azure Dragon 青龍主題是 GigHub 專案的核心視覺設計系統，結合�
 ```html
 <!-- 現有代碼自動獲得增強的懸停狀態 -->
 <button nz-button nzType="primary">點擊我</button>
-<div class="azure-card">卡片內容</div>
+<div class="tortoise-card">卡片內容</div>
 ```
 
 ### 2. 實用工具類 (Utility Classes)
@@ -98,19 +98,19 @@ Azure Dragon 青龍主題是 GigHub 專案的核心視覺設計系統，結合�
 <!-- 懸停縮放效果 -->
 <div class="hover-scale">懸停時會放大</div>
 
-<!-- Azure 邊框懸停 -->
-<div class="hover-border-azure">懸停時顯示 Azure 邊框</div>
+<!-- Tortoise 邊框懸停 -->
+<div class="hover-border-tortoise">懸停時顯示玄武邊框</div>
 
 <!-- 漸變背景 -->
-<div class="gradient-bg-dragon-soaring">龍躍雲端漸變</div>
-<div class="gradient-bg-clear-sky">碧空如洗漸變</div>
+<div class="gradient-bg-tortoise-shield">龜甲守護漸變</div>
+<div class="gradient-bg-tranquil-light">寧靜微光漸變</div>
 ```
 
 ### 3. 卡片樣式
 
 ```html
 <!-- 標準 Azure 卡片 -->
-<div class="azure-card">
+<div class="tortoise-card">
   <h3>標題</h3>
   <p>內容...</p>
 </div>
@@ -170,7 +170,7 @@ Azure Dragon 青龍主題是 GigHub 專案的核心視覺設計系統，結合�
 #### Azure Card - 標準卡片
 
 ```html
-<div class="azure-card">
+<div class="tortoise-card">
   <h3>卡片標題</h3>
   <p>卡片內容...</p>
 </div>
@@ -297,9 +297,9 @@ Azure Dragon 青龍主題是 GigHub 專案的核心視覺設計系統，結合�
 .custom-gradient {
   background: linear-gradient(
     135deg,
-    @azure-6 0%,
-    @jade-4 50%,
-    @azure-4 100%
+    @obsidian-6 0%,
+    @stone-4 50%,
+    @obsidian-4 100%
   );
 }
 ```
@@ -317,7 +317,7 @@ Azure Dragon 青龍主題是 GigHub 專案的核心視覺設計系統，結合�
 ### 組合多個效果
 
 ```html
-<div class="azure-card hover-lift hover-border-azure">
+<div class="tortoise-card hover-lift hover-border-azure">
   <h3>組合效果卡片</h3>
   <p>結合多種懸停效果</p>
 </div>
@@ -441,12 +441,12 @@ export class AppComponent implements OnInit {
 ```less
 .focusable-element {
   &:focus {
-    outline: 2px solid @azure-6;
+    outline: 2px solid @obsidian-6;
     outline-offset: 2px;
   }
   
   &:focus-visible {
-    box-shadow: 0 0 0 2px fade(@azure-6, 20%);
+    box-shadow: 0 0 0 2px fade(@obsidian-6, 20%);
   }
 }
 ```
@@ -529,13 +529,13 @@ export class AppComponent implements OnInit {
 src/styles/
 ├── theme.less                      # 主題變量定義
 ├── index.less                      # 主樣式檔案
-└── azure-dragon-theme.css          # 運行時 CSS（參考）
+└── black-tortoise-theme.css          # 運行時 CSS（參考）
 
 docs/ui-theme/
-├── azure-dragon-theme-zh-TW.md    # 本文檔
-├── azure-dragon-theme-variables.less  # 變量參考
-├── azure-dragon-theme.css          # 編譯後的 CSS
-├── azure-dragon-theme-examples.md  # 範例程式碼
+├── black-tortoise-theme-zh-TW.md    # 本文檔
+├── black-tortoise-theme-variables.less  # 變量參考
+├── black-tortoise-theme.css          # 編譯後的 CSS
+├── black-tortoise-theme-examples.md  # 範例程式碼
 └── demo.html                       # 實時預覽
 ```
 
@@ -547,9 +547,9 @@ docs/ui-theme/
 
 // 2. 使用預定義顏色
 .custom-component {
-  color: @azure-6;
-  background: @jade-1;
-  border: 1px solid @azure-4;
+  color: @obsidian-6;
+  background: @stone-1;
+  border: 1px solid @obsidian-4;
 }
 
 // 3. 使用漸變
@@ -569,7 +569,7 @@ docs/ui-theme/
 @Component({
   selector: 'app-custom',
   template: `
-    <div class="azure-card hover-lift">
+    <div class="tortoise-card hover-lift">
       <h3>自訂元件</h3>
       <button nz-button nzType="primary">動作</button>
     </div>
@@ -595,7 +595,7 @@ export class CustomComponent { }
     transition: all @transition-base;
     
     &:hover {
-      color: @azure-6;
+      color: @obsidian-6;
     }
   }
 }
@@ -703,8 +703,8 @@ export class CustomComponent { }
 - [Supabase Integration](../authentication/supabase-integration.md)
 
 ### 設計資源
-- [Azure Dragon 範例](./azure-dragon-theme-examples.md)
-- [變量參考](./azure-dragon-theme-variables.less)
+- [Black Tortoise 範例](./black-tortoise-theme-examples.md)
+- [變量參考](./black-tortoise-theme-variables.less)
 - [實時預覽](./demo.html)
 
 ---
@@ -726,7 +726,7 @@ export class CustomComponent { }
 - ✅ 樣式一致性驗證
 
 ### v1.0.0 (2025-12-09)
-- ✅ 初始 Azure Dragon 主題實作
+- ✅ 初始 Black Tortoise 主題實作
 - ✅ 色彩系統與漸變
 - ✅ 基礎元件樣式
 - ✅ 與 ng-alain 和 ng-zorro-antd 整合
@@ -750,7 +750,7 @@ export class CustomComponent { }
 
 ```html
 <!-- 使用預定義的 utility classes -->
-<div class="azure-card hover-lift">內容</div>
+<div class="tortoise-card hover-lift">內容</div>
 
 <!-- 組合多個效果類 -->
 <button class="primary-btn hover-scale">動作</button>
@@ -792,7 +792,7 @@ export class CustomComponent { }
 進行 UI 變更時：
 
 1. 遵循三級轉場系統
-2. 使用 Azure Dragon 色彩變量
+2. 使用 Black Tortoise 色彩變量
 3. 測試無障礙性（鍵盤 + 螢幕閱讀器）
 4. 更新文檔
 5. 必要時添加到測試檢查清單

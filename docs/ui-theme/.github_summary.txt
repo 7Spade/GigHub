@@ -17,9 +17,9 @@
 **reference/ (Detailed Technical)**:
 - COLOR_SYSTEM_REFERENCE.md (13KB)
 - VERSION_COMPATIBILITY.md (7.6KB)
-- azure-dragon-theme-examples.md (13KB)
-- azure-dragon-theme.md (11KB)
-- azure-dragon-theme-zh-TW.md (16KB)
+- black-tortoise-theme-examples.md (13KB)
+- black-tortoise-theme.md (11KB)
+- black-tortoise-theme-zh-TW.md (16KB)
 
 **archive/ (Historical)**:
 - Implementation summaries
