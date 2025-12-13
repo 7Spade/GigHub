@@ -4,15 +4,15 @@
  */
 
 import { Component, ChangeDetectionStrategy, OnInit, inject, input } from '@angular/core';
-import { STColumn } from '@delon/abc/st';
-import { SHARED_IMPORTS } from '@shared';
-import { NzStatisticModule } from 'ng-zorro-antd/statistic';
-import { NzEmptyModule } from 'ng-zorro-antd/empty';
-import { RequestService } from '@core/blueprint/modules/implementations/acceptance/services/request.service';
-import { ReviewService } from '@core/blueprint/modules/implementations/acceptance/services/review.service';
+import { ConclusionService } from '@core/blueprint/modules/implementations/acceptance/services/conclusion.service';
 import { PreliminaryService } from '@core/blueprint/modules/implementations/acceptance/services/preliminary.service';
 import { ReInspectionService } from '@core/blueprint/modules/implementations/acceptance/services/re-inspection.service';
-import { ConclusionService } from '@core/blueprint/modules/implementations/acceptance/services/conclusion.service';
+import { RequestService } from '@core/blueprint/modules/implementations/acceptance/services/request.service';
+import { ReviewService } from '@core/blueprint/modules/implementations/acceptance/services/review.service';
+import { STColumn } from '@delon/abc/st';
+import { SHARED_IMPORTS } from '@shared';
+import { NzEmptyModule } from 'ng-zorro-antd/empty';
+import { NzStatisticModule } from 'ng-zorro-antd/statistic';
 
 @Component({
   selector: 'app-acceptance-module-view',
@@ -93,7 +93,7 @@ import { ConclusionService } from '@core/blueprint/modules/implementations/accep
 })
 export class AcceptanceModuleViewComponent implements OnInit {
   blueprintId = input.required<string>();
-  
+
   readonly requestService = inject(RequestService);
   readonly reviewService = inject(ReviewService);
   readonly preliminaryService = inject(PreliminaryService);

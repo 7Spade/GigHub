@@ -4,14 +4,14 @@
  */
 
 import { Component, ChangeDetectionStrategy, OnInit, inject, input } from '@angular/core';
+import { IncidentReportService } from '@core/blueprint/modules/implementations/safety/services/incident-report.service';
+import { RiskAssessmentService } from '@core/blueprint/modules/implementations/safety/services/risk-assessment.service';
+import { SafetyInspectionService } from '@core/blueprint/modules/implementations/safety/services/safety-inspection.service';
+import { SafetyTrainingService } from '@core/blueprint/modules/implementations/safety/services/safety-training.service';
 import { STColumn } from '@delon/abc/st';
 import { SHARED_IMPORTS } from '@shared';
-import { NzStatisticModule } from 'ng-zorro-antd/statistic';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
-import { SafetyInspectionService } from '@core/blueprint/modules/implementations/safety/services/safety-inspection.service';
-import { RiskAssessmentService } from '@core/blueprint/modules/implementations/safety/services/risk-assessment.service';
-import { IncidentReportService } from '@core/blueprint/modules/implementations/safety/services/incident-report.service';
-import { SafetyTrainingService } from '@core/blueprint/modules/implementations/safety/services/safety-training.service';
+import { NzStatisticModule } from 'ng-zorro-antd/statistic';
 
 @Component({
   selector: 'app-safety-module-view',
@@ -81,7 +81,7 @@ import { SafetyTrainingService } from '@core/blueprint/modules/implementations/s
 })
 export class SafetyModuleViewComponent implements OnInit {
   blueprintId = input.required<string>();
-  
+
   readonly inspectionService = inject(SafetyInspectionService);
   readonly riskService = inject(RiskAssessmentService);
   readonly incidentService = inject(IncidentReportService);

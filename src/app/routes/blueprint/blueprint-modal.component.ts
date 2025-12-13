@@ -230,7 +230,8 @@ export class BlueprintModalComponent implements OnInit {
           ownerId,
           ownerType,
           isPublic: formValue.isPublic,
-          enabledModules
+          enabledModules,
+          createdBy: (user as any).uid
         };
 
         const blueprint = await this.blueprintService.create(request);

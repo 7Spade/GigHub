@@ -4,14 +4,14 @@
  */
 
 import { Component, ChangeDetectionStrategy, OnInit, inject, input } from '@angular/core';
-import { STColumn } from '@delon/abc/st';
-import { SHARED_IMPORTS } from '@shared';
-import { NzStatisticModule } from 'ng-zorro-antd/statistic';
-import { NzEmptyModule } from 'ng-zorro-antd/empty';
 import { ChecklistService } from '@core/blueprint/modules/implementations/qa/services/checklist.service';
 import { DefectService } from '@core/blueprint/modules/implementations/qa/services/defect.service';
 import { InspectionService } from '@core/blueprint/modules/implementations/qa/services/inspection.service';
 import { ReportService } from '@core/blueprint/modules/implementations/qa/services/report.service';
+import { STColumn } from '@delon/abc/st';
+import { SHARED_IMPORTS } from '@shared';
+import { NzEmptyModule } from 'ng-zorro-antd/empty';
+import { NzStatisticModule } from 'ng-zorro-antd/statistic';
 
 @Component({
   selector: 'app-qa-module-view',
@@ -95,7 +95,7 @@ import { ReportService } from '@core/blueprint/modules/implementations/qa/servic
 })
 export class QaModuleViewComponent implements OnInit {
   blueprintId = input.required<string>();
-  
+
   readonly checklistService = inject(ChecklistService);
   readonly defectService = inject(DefectService);
   readonly inspectionService = inject(InspectionService);

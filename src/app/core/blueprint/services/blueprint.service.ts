@@ -1,5 +1,13 @@
 import { Injectable, inject } from '@angular/core';
-import { Blueprint, BlueprintQueryOptions, CreateBlueprintRequest, OwnerType, UpdateBlueprintRequest, LoggerService } from '@core';
+import {
+  Blueprint,
+  BlueprintQueryOptions,
+  BlueprintRole,
+  CreateBlueprintRequest,
+  OwnerType,
+  UpdateBlueprintRequest,
+  LoggerService
+} from '@core';
 import {
   AuditLogsService,
   AuditEventType,
@@ -44,14 +52,14 @@ export class BlueprintService {
       const blueprint = await this.repository.create(request);
       this.logger.info('[BlueprintService]', `Blueprint created ${blueprint.id}`);
 
-      // Record audit log
+      // Record audit log for blueprint creation
       try {
         await this.auditService.recordLog({
           blueprintId: blueprint.id,
           eventType: AuditEventType.BLUEPRINT_CREATED,
           category: AuditCategory.BLUEPRINT,
           severity: AuditSeverity.INFO,
-          actorId: request.ownerId,
+          actorId: request.createdBy,
           actorType: ActorType.USER,
           resourceType: 'blueprint',
           resourceId: blueprint.id,
@@ -62,6 +70,47 @@ export class BlueprintService {
       } catch (auditError) {
         this.logger.error('[BlueprintService]', 'Failed to record audit log for blueprint creation', auditError as Error);
         // Don't fail the operation if audit logging fails
+      }
+
+      // ✅ Auto-add creator as member with MAINTAINER role
+      try {
+        await this.memberRepository.addMember(blueprint.id, {
+          accountId: request.createdBy,
+          blueprintId: blueprint.id,
+          role: BlueprintRole.MAINTAINER,
+          isExternal: false,
+          grantedBy: request.createdBy,
+          permissions: {
+            canManageMembers: true,
+            canManageSettings: true,
+            canExportData: true,
+            canDeleteBlueprint: true
+          }
+        });
+        this.logger.info('[BlueprintService]', `Creator ${request.createdBy} added as MAINTAINER to blueprint ${blueprint.id}`);
+
+        // Record audit log for member addition
+        try {
+          await this.auditService.recordLog({
+            blueprintId: blueprint.id,
+            eventType: AuditEventType.MEMBER_ADDED,
+            category: AuditCategory.MEMBER,
+            severity: AuditSeverity.INFO,
+            actorId: request.createdBy,
+            actorType: ActorType.USER,
+            resourceType: 'member',
+            resourceId: request.createdBy,
+            action: '新增成員',
+            message: `建立者自動加入為維護者`,
+            status: AuditStatus.SUCCESS
+          });
+        } catch (auditError) {
+          this.logger.error('[BlueprintService]', 'Failed to record audit log for member addition', auditError as Error);
+        }
+      } catch (memberError) {
+        // Graceful degradation: Log error but don't fail blueprint creation
+        this.logger.error('[BlueprintService]', 'Failed to add creator as member', memberError as Error);
+        this.logger.warn('[BlueprintService]', `Blueprint ${blueprint.id} created but creator not added as member`);
       }
 
       return blueprint;

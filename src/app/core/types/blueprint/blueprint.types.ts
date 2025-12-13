@@ -120,6 +120,7 @@ export interface CreateBlueprintRequest {
   isPublic?: boolean;
   enabledModules?: ModuleType[];
   metadata?: Record<string, unknown>;
+  createdBy: string;
 }
 
 /**

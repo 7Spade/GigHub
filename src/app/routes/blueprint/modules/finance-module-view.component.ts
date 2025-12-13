@@ -4,16 +4,16 @@
  */
 
 import { Component, ChangeDetectionStrategy, OnInit, inject, input } from '@angular/core';
+import { BudgetService } from '@core/blueprint/modules/implementations/finance/services/budget.service';
+import { CostManagementService } from '@core/blueprint/modules/implementations/finance/services/cost-management.service';
+import { FinancialReportService } from '@core/blueprint/modules/implementations/finance/services/financial-report.service';
+import { InvoiceService } from '@core/blueprint/modules/implementations/finance/services/invoice.service';
+import { LedgerService } from '@core/blueprint/modules/implementations/finance/services/ledger.service';
+import { PaymentService } from '@core/blueprint/modules/implementations/finance/services/payment.service';
 import { STColumn } from '@delon/abc/st';
 import { SHARED_IMPORTS } from '@shared';
-import { NzStatisticModule } from 'ng-zorro-antd/statistic';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
-import { CostManagementService } from '@core/blueprint/modules/implementations/finance/services/cost-management.service';
-import { InvoiceService } from '@core/blueprint/modules/implementations/finance/services/invoice.service';
-import { PaymentService } from '@core/blueprint/modules/implementations/finance/services/payment.service';
-import { BudgetService } from '@core/blueprint/modules/implementations/finance/services/budget.service';
-import { LedgerService } from '@core/blueprint/modules/implementations/finance/services/ledger.service';
-import { FinancialReportService } from '@core/blueprint/modules/implementations/finance/services/financial-report.service';
+import { NzStatisticModule } from 'ng-zorro-antd/statistic';
 
 @Component({
   selector: 'app-finance-module-view',
@@ -106,7 +106,7 @@ import { FinancialReportService } from '@core/blueprint/modules/implementations/
 })
 export class FinanceModuleViewComponent implements OnInit {
   blueprintId = input.required<string>();
-  
+
   readonly costService = inject(CostManagementService);
   readonly invoiceService = inject(InvoiceService);
   readonly paymentService = inject(PaymentService);

@@ -4,14 +4,14 @@
  */
 
 import { Component, ChangeDetectionStrategy, OnInit, inject, input } from '@angular/core';
+import { GroupMessageService } from '@core/blueprint/modules/implementations/communication/services/group-message.service';
+import { PushNotificationService } from '@core/blueprint/modules/implementations/communication/services/push-notification.service';
+import { SystemNotificationService } from '@core/blueprint/modules/implementations/communication/services/system-notification.service';
+import { TaskReminderService } from '@core/blueprint/modules/implementations/communication/services/task-reminder.service';
 import { STColumn } from '@delon/abc/st';
 import { SHARED_IMPORTS } from '@shared';
-import { NzStatisticModule } from 'ng-zorro-antd/statistic';
 import { NzEmptyModule } from 'ng-zorro-antd/empty';
-import { SystemNotificationService } from '@core/blueprint/modules/implementations/communication/services/system-notification.service';
-import { GroupMessageService } from '@core/blueprint/modules/implementations/communication/services/group-message.service';
-import { TaskReminderService } from '@core/blueprint/modules/implementations/communication/services/task-reminder.service';
-import { PushNotificationService } from '@core/blueprint/modules/implementations/communication/services/push-notification.service';
+import { NzStatisticModule } from 'ng-zorro-antd/statistic';
 
 @Component({
   selector: 'app-communication-module-view',
@@ -81,7 +81,7 @@ import { PushNotificationService } from '@core/blueprint/modules/implementations
 })
 export class CommunicationModuleViewComponent implements OnInit {
   blueprintId = input.required<string>();
-  
+
   readonly notificationService = inject(SystemNotificationService);
   readonly messageService = inject(GroupMessageService);
   readonly reminderService = inject(TaskReminderService);

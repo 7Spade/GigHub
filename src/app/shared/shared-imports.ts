@@ -37,9 +37,9 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterOutlet, RouterLink } from '@angular/router';
 import { DatePipe, I18nPipe } from '@delon/theme';
 
+import { SHARED_CDK_MODULES } from './cdk/shared-cdk.module';
 import { SHARED_DELON_MODULES } from './shared-delon.module';
 import { SHARED_ZORRO_MODULES } from './shared-zorro.module';
-import { SHARED_CDK_MODULES } from './cdk/shared-cdk.module';
 
 // 匯出可選模組供按需使用
 export { OPTIONAL_DELON_MODULES } from './shared-delon.module';
@@ -89,9 +89,4 @@ const CORE_ANGULAR_MODULES = [
  * - ScrollingModule - 虛擬滾動
  * - A11yModule - 無障礙功能
  */
-export const SHARED_IMPORTS = [
-  ...CORE_ANGULAR_MODULES,
-  ...SHARED_CDK_MODULES,
-  ...SHARED_DELON_MODULES,
-  ...SHARED_ZORRO_MODULES
-];
+export const SHARED_IMPORTS = [...CORE_ANGULAR_MODULES, ...SHARED_CDK_MODULES, ...SHARED_DELON_MODULES, ...SHARED_ZORRO_MODULES];
