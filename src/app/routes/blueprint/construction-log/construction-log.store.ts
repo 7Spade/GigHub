@@ -10,8 +10,6 @@
  */
 
 import { Injectable, signal, computed, inject } from '@angular/core';
-import { LogFirestoreRepository } from '@core/repositories/log-firestore.repository';
-import { Log, CreateLogRequest, UpdateLogRequest, LogPhoto } from '@core/types/log/log.types';
 import {
   AuditLogsService,
   AuditEventType,
@@ -20,6 +18,8 @@ import {
   ActorType,
   AuditStatus
 } from '@core/blueprint/modules/implementations/audit-logs';
+import { LogFirestoreRepository } from '@core/repositories/log-firestore.repository';
+import { Log, CreateLogRequest, UpdateLogRequest, LogPhoto } from '@core/types/log/log.types';
 
 @Injectable({ providedIn: 'root' })
 export class ConstructionLogStore {
@@ -80,7 +80,7 @@ export class ConstructionLogStore {
     try {
       const newLog = await this.repository.create(request);
       this._logs.update(logs => [newLog, ...logs]);
-      
+
       // Record audit log
       try {
         await this.auditService.recordLog({
@@ -99,7 +99,7 @@ export class ConstructionLogStore {
       } catch (auditError) {
         console.error('Failed to record audit log:', auditError);
       }
-      
+
       return newLog;
     } catch (error) {
       this._error.set(error instanceof Error ? error.message : 'Failed to create log');

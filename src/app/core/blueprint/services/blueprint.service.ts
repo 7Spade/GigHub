@@ -1,7 +1,5 @@
 import { Injectable, inject } from '@angular/core';
 import { Blueprint, BlueprintQueryOptions, CreateBlueprintRequest, OwnerType, UpdateBlueprintRequest, LoggerService } from '@core';
-import { BlueprintMemberRepository, BlueprintRepository } from '@core/blueprint/repositories';
-import { Observable } from 'rxjs';
 import {
   AuditLogsService,
   AuditEventType,
@@ -10,6 +8,8 @@ import {
   ActorType,
   AuditStatus
 } from '@core/blueprint/modules/implementations/audit-logs';
+import { BlueprintMemberRepository, BlueprintRepository } from '@core/blueprint/repositories';
+import { Observable } from 'rxjs';
 
 import { BlueprintCreateSchema, BlueprintUpdateSchema } from './blueprint-validation-schemas';
 import { ValidationService } from './validation.service';
@@ -43,7 +43,7 @@ export class BlueprintService {
     try {
       const blueprint = await this.repository.create(request);
       this.logger.info('[BlueprintService]', `Blueprint created ${blueprint.id}`);
-      
+
       // Record audit log
       try {
         await this.auditService.recordLog({
@@ -63,7 +63,7 @@ export class BlueprintService {
         this.logger.error('[BlueprintService]', 'Failed to record audit log for blueprint creation', auditError as Error);
         // Don't fail the operation if audit logging fails
       }
-      
+
       return blueprint;
     } catch (error) {
       this.logger.error('[BlueprintService]', 'Failed to create blueprint', error as Error);
@@ -78,7 +78,7 @@ export class BlueprintService {
     try {
       await this.repository.update(id, updates);
       this.logger.info('[BlueprintService]', `Blueprint updated ${id}`);
-      
+
       // Record audit log
       try {
         await this.auditService.recordLog({
