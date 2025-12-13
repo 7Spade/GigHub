@@ -20,6 +20,7 @@ import { ConstructionLogComponent } from './construction-log/construction-log.co
 import { ContainerDashboardComponent } from './container/container-dashboard.component';
 import { BlueprintMembersComponent } from './members/blueprint-members.component';
 import { AcceptanceModuleViewComponent } from './modules/acceptance-module-view.component';
+import { CloudModuleViewComponent } from './modules/cloud-module-view.component';
 import { CommunicationModuleViewComponent } from './modules/communication-module-view.component';
 import { FinanceModuleViewComponent } from './modules/finance-module-view.component';
 import { LogModuleViewComponent } from './modules/log-module-view.component';
@@ -39,10 +40,12 @@ import { WorkflowModuleViewComponent } from './modules/workflow-module-view.comp
  * - Integrated construction logs (工地施工日誌)
  * - Integrated tasks (任務管理)
  * - Integrated audit logs (審計記錄) in overview sidebar
+ * - Cloud module (雲端模組) for storage and backup
  *
  * ✅ Modernized with AsyncState pattern
  * ✅ Updated: 2025-12-11 - Added Construction Log & Task modules
  * ✅ Updated: 2025-12-12 - Simplified design, added audit logs to overview
+ * ✅ Updated: 2025-12-13 - Added Cloud module tab
  */
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -70,7 +73,8 @@ import { WorkflowModuleViewComponent } from './modules/workflow-module-view.comp
     FinanceModuleViewComponent,
     MaterialModuleViewComponent,
     SafetyModuleViewComponent,
-    CommunicationModuleViewComponent
+    CommunicationModuleViewComponent,
+    CloudModuleViewComponent
   ],
   template: `
     <page-header [title]="blueprint()?.name || '藍圖詳情'" [action]="action" [breadcrumb]="breadcrumb">
@@ -353,6 +357,15 @@ import { WorkflowModuleViewComponent } from './modules/workflow-module-view.comp
             </ng-template>
           </nz-tab>
 
+          <!-- Cloud Domain Tab -->
+          <nz-tab nzTitle="雲端">
+            <ng-template nz-tab>
+              @if (blueprint()?.id) {
+                <app-cloud-module-view [blueprintId]="blueprint()!.id" />
+              }
+            </ng-template>
+          </nz-tab>
+
           <!-- Settings Tab -->
           <nz-tab nzTitle="設定">
             <ng-template nz-tab>
@@ -504,7 +517,8 @@ export class BlueprintDetailComponent implements OnInit {
       finance: '財務域',
       material: '材料域',
       safety: '安全域',
-      communication: '通訊域'
+      communication: '通訊域',
+      cloud: '雲端域'
     };
     return nameMap[module] || module;
   }
@@ -533,7 +547,8 @@ export class BlueprintDetailComponent implements OnInit {
       finance: '成本、請款、付款、預算管理',
       material: '材料管理、出入庫、資產追蹤',
       safety: '安全巡檢、風險評估、事故通報',
-      communication: '系統通知、訊息、提醒'
+      communication: '系統通知、訊息、提醒',
+      cloud: '雲端儲存、檔案同步、備份管理'
     };
     return descMap[module] || '模組功能';
   }
@@ -562,7 +577,8 @@ export class BlueprintDetailComponent implements OnInit {
       finance: 'dollar',
       material: 'inbox',
       safety: 'safety',
-      communication: 'message'
+      communication: 'message',
+      cloud: 'cloud'
     };
     return iconMap[module] || 'appstore';
   }

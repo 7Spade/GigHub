@@ -23,3 +23,6 @@ export * from './material';
 // P4 Domains (Optional)
 export * from './safety';
 export * from './communication';
+
+// P5 Domains (Cloud & Storage)
+export * from './cloud';
