@@ -1,5 +1,6 @@
 /**
  * Finance Models - Simple payment and invoice tracking
+ *
  * @module FinanceModels
  * @author GigHub Development Team
  * @date 2025-12-13

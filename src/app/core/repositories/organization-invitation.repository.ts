@@ -1,14 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import {
-  Firestore,
-  addDoc,
-  collection,
-  getDocs,
-  query,
-  where,
-  CollectionReference,
-  Timestamp
-} from '@angular/fire/firestore';
+import { Firestore, addDoc, collection, getDocs, query, where, CollectionReference, Timestamp } from '@angular/fire/firestore';
 import { LoggerService } from '@core/services/logger/logger.service';
 import { CreateOrganizationInvitationRequest, InvitationStatus, OrganizationInvitation } from '@core/types/account.types';
 import { Observable, from, map, catchError, of } from 'rxjs';
@@ -51,10 +42,7 @@ export class OrganizationInvitationRepository {
 
     try {
       const docRef = await addDoc(this.getCollectionRef(), payload);
-      this.logger.info(
-        '[OrganizationInvitationRepository]',
-        `Invitation created for ${data.email} to org ${data.organization_id}`
-      );
+      this.logger.info('[OrganizationInvitationRepository]', `Invitation created for ${data.email} to org ${data.organization_id}`);
       return this.toInvitation(payload, docRef.id);
     } catch (error: any) {
       this.logger.error('[OrganizationInvitationRepository]', 'create failed', error as Error);

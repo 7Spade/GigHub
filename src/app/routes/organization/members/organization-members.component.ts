@@ -49,20 +49,12 @@ import { firstValueFrom } from 'rxjs';
               (ngModelChange)="inviteEmail.set($event)"
               placeholder="輸入邀請的電子郵件"
             />
-            <button nz-button nzType="primary" type="submit" [disabled]="!inviteEmail()" [nzLoading]="inviteLoading()">
-              送出邀請
-            </button>
+            <button nz-button nzType="primary" type="submit" [disabled]="!inviteEmail()" [nzLoading]="inviteLoading()">送出邀請</button>
           </div>
         </form>
 
         @if (inviteError()) {
-          <nz-alert
-            nzType="error"
-            nzShowIcon
-            [nzMessage]="inviteError()"
-            nzDescription="請確認電子郵件格式，或稍後再試。"
-            class="mt-sm"
-          />
+          <nz-alert nzType="error" nzShowIcon [nzMessage]="inviteError()" nzDescription="請確認電子郵件格式，或稍後再試。" class="mt-sm" />
         }
       </nz-card>
     }
@@ -181,9 +173,7 @@ export class OrganizationMembersComponent implements OnInit {
   readonly currentOrgId = computed(() =>
     this.workspaceContext.contextType() === ContextType.ORGANIZATION ? this.workspaceContext.contextId() : null
   );
-  readonly currentOrganization = computed(() =>
-    this.workspaceContext.organizations().find(org => org.id === this.currentOrgId())
-  );
+  readonly currentOrganization = computed(() => this.workspaceContext.organizations().find(org => org.id === this.currentOrgId()));
 
   displayMembers = computed(() => this.membersState.data() || []);
 
@@ -215,6 +205,8 @@ export class OrganizationMembersComponent implements OnInit {
     this.inviteError.set(null);
 
     try {
+      const inviterName = this.inviterName();
+      const organizationName = this.currentOrgName();
       await this.invitationRepository.create({
         organization_id: organizationId,
         email,
@@ -229,17 +221,28 @@ export class OrganizationMembersComponent implements OnInit {
           userId: account.id,
           type: NotificationType.NOTICE,
           title: '組織邀請',
-          description: `${this.inviterName()} 邀請你加入 ${this.currentOrgName()}`,
+          description: `${inviterName} 邀請你加入 ${organizationName}`,
           datetime: new Date(),
           read: false,
           link: `/organization/${organizationId}/members`,
-          extra: this.currentOrgName()
+          extra: `${organizationName}｜邀請人：${inviterName}`
         });
       }
 
+      await this.notificationRepository.create({
+        userId: invitedBy,
+        type: NotificationType.MESSAGE,
+        title: '邀請已送出',
+        description: `已邀請 ${email} 加入 ${organizationName}`,
+        datetime: new Date(),
+        read: false,
+        link: `/organization/${organizationId}/members`,
+        extra: organizationName
+      });
+
       this.message.success('邀請已送出');
       this.inviteEmail.set('');
-    } catch (error: any) {
+    } catch (error: unknown) {
       const message = error instanceof Error ? error.message : '送出邀請失敗，請稍後再試';
       this.inviteError.set(message);
       this.message.error(message);

@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit, DestroyRef } from '@angular/core';
 import { FirebaseService } from '@core/services/firebase.service';
+import { PushMessagingService } from '@core/services/push-messaging.service';
 import { NotificationStore } from '@core/stores/notification.store';
 import { NoticeIconModule, NoticeIconSelect } from '@delon/abc/notice-icon';
 import { NzMessageService } from 'ng-zorro-antd/message';
@@ -31,6 +32,7 @@ export class HeaderNotifyComponent implements OnInit {
   private readonly msg = inject(NzMessageService);
   private readonly firebase = inject(FirebaseService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly messaging = inject(PushMessagingService);
   protected readonly notificationStore = inject(NotificationStore);
 
   async ngOnInit(): Promise<void> {
@@ -38,6 +40,8 @@ export class HeaderNotifyComponent implements OnInit {
     if (user) {
       // Subscribe to realtime updates
       this.notificationStore.subscribeToRealtimeUpdates(user.uid, this.destroyRef);
+      await this.notificationStore.loadNotifications(user.uid);
+      await this.messaging.init(user.uid);
     }
   }
 
@@ -57,7 +61,7 @@ export class HeaderNotifyComponent implements OnInit {
   }
 
   async select(res: NoticeIconSelect): Promise<void> {
-    const itemId = (res.item as any).id;
+    const itemId = (res.item as { id?: string } | undefined)?.id;
     if (itemId) {
       await this.notificationStore.markAsRead(itemId);
     }

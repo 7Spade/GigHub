@@ -15,5 +15,6 @@ export const environment = {
     refreshTokenType: 'auth-refresh'
   },
   providers: [provideMockConfig({ data: MOCKDATA })],
-  interceptorFns: [mockInterceptor]
-} as Environment;
+  interceptorFns: [mockInterceptor],
+  firebaseMessagingPublicKey: 'BMfTfys7cErI2JVFmjkWSeCb7ClvFklQ4r69lWGIYT2dSq5VD2eguZlckvdq2QJhdGskeyUg0G6RcC8WmlBztFY'
+} as Environment & { firebaseMessagingPublicKey: string };

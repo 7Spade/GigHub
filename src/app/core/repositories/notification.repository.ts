@@ -31,11 +31,7 @@ export class NotificationRepository {
 
   private toNotification(data: any, id: string): Notification {
     const datetime =
-      data.datetime instanceof Timestamp
-        ? data.datetime.toDate()
-        : typeof data.datetime === 'string'
-          ? data.datetime
-          : new Date();
+      data.datetime instanceof Timestamp ? data.datetime.toDate() : typeof data.datetime === 'string' ? data.datetime : new Date();
 
     return {
       id,
